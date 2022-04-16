@@ -19,7 +19,7 @@ It also allows you to modularize.
 More explanations will come in future.
 
 Data Language provides a new state "loadTime" in your application life cycle (develop, compile, deploy, run). 
-This allows you to easily make sure that just validated abnd consistent data enters your app.
+This allows you to easily make sure that just validated and consistent data enters your application.
 The possibilities range much further than any JSON schema can provide.
 
 "Look up to the stars not down on your feet. Be curious!" _Stephen Hawking 1942 - 2018_
