@@ -1,0 +1,520 @@
+// <editor-fold desc="The MIT License" defaultstate="collapsed">
+/*
+ * The MIT License
+ * 
+ * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+//</editor-fold>
+
+// BINARY VERSION
+
+extern type UUID;
+
+BeginModule
+DefineSymbol		id:1 string:UUID
+DefineExternType	name:1
+EndModule
+
+
+
+type User {
+	
+	UUID id @required;
+}
+
+BeginModule
+DefineSymbol			id:1 string:User
+BeginDefineType			name:1
+DefineSymbol			id:2 string:UUID
+DefineSymbol			id:3 string:id
+BeginDefineAttribute	type:2 name:3
+DefineSymbol			id:4 string:required
+DefineAnnotation		type:4
+EndDefineAttribute
+EndModule
+
+
+
+type User @dynamic {
+	
+	String login @required @length(4, 120) : "Default";
+	UUID id @generateUUID @required @unique;
+}
+
+BeginModule
+DefineSymbol			id:1 string:User
+BeginDefineType			name:1
+DefineSymbol			id:2 string:dynamic 
+DefineAnnotation		type:2
+DefineSymbol			id:3 string:String
+DefineSymbol			id:4 string:login
+BeginDefineAttribute	type:3 name:4
+DefineSymbol			id:5 string:required
+DefineAnnotation		type:5
+DefineSymbol			id:6 string:length
+BeginDefineAnnotation	type:6
+DefineValue				dataType:int value:4
+DefineValue				dataType:int value:120
+DefineSimpleDefaultValue dataType:String value:Default
+EndDefineAnnotation
+EndDefineAttribute
+DefineSymbol			id:7 string:UUID
+DefineSymbol			id:8 string:id
+BeginDefineAttribute	type:7 name:8
+DefineSymbol			id:9 string:generateUUID
+DefineAnnotation		type:9
+DefineAnnotation		type:5
+DefineSymbol			id:10 string:unique
+DefineAnnotation		type:10
+EndDefineAttribute
+EndModule
+
+
+
+// Example for optimal compact data sending
+// happened before in def section:
+// DefineSymbol			id:1 string:User
+// DefineSymbol			id:2 string:login
+// DefineSymbol			id:3 string:id
+// would be great if binary could encode uuids as 128bit - 16b
+
+User a {
+	login : "Arthur";
+	id : "ad332384-4a04-4119-9e95-4753f31e3b09";
+}
+
+User b {
+	login : "Arthur2";
+	id : "ab332384-4a04-4119-9e95-4753f31e3b09";
+}
+
+(0000) BeginInstance			type:1 name:a (size:1)
+(0004) SetStringAttribute		name:2 value:Arthur (size:6)
+(0013) SetBinaryAttribute		name:3 value:ad33 2384 4a04 4119 9e95 4753 f31e 3b09 (size:16)
+(0032) BeginInstance			type:1 name:b (size:1)
+(0036) SetStringAttribute		name:2 value:Arthur2 (size:7)
+(0046) SetBinaryAttribute		name:3 value:ab33 2384 4a04 4119 9e95 4753 f31e 3b09 (size:16)
+(0065) 
+
+// Id elements: 18
+// Optimal size compacted ids - optional:	 65b
+// Size ids padded dword:					119b
+// Ascii pretty print:						154b
+// Ascii min:								131b
+
+
+
+// NAMESPACES (for scoping types, instances, etc. in modules or across modules)
+
+namespace mqrc {
+
+	type A 
+	{
+		String test;
+	}
+}
+
+--
+
+use mqrc;
+
+A test { test : "aha"; }
+
+unuse mqrc;
+
+or:
+
+namespace mqrc {
+
+	A test { test : "aha"; }
+
+}
+
+// ??? ALLOW SIMPLE EQUATION IN ASSIGNMENTS (does break the data language into being a full language ...)
+
+int var : 5 * 6 - 2;
+
+boolean var : 7 != 6;
+
+IDEA within current model: 
+
+boolean var : Eval { expr : "$0 != $1", data : $a, $b; };
+
+// DEFINE OR TYPES IN TYPE DEF (SORT OF AN INSTA UNION)
+
+type GPImage extends Image { 
+	Material|Shader|Texture material;
+}
+
+
+// COLOR CODING IN NETBEANS
+
+
+// GENERATE STUB CODE FROM TYPE DEFINITION
+
+type de.s42.mq.i18n.LocalizedStringData @java extends StringData
+{
+	String id @required;
+	de.s42.mq.i18n.L10N l10n @required;
+	String value @readonly;
+}
+
+// EXTEND LEAVING TYPE UNCHANGED (ALSO VALIDATING IF SUBTYPE CONTRADICTS TYPE)
+
+type GPImage extends Image { 
+	material : $assets.imageMaterial; // -> Is Material
+}
+
+// CUSTOM TYPE JAVA IMPLEMENTATIONS
+
+//type Str @javaType("de.s42.dl.types.StringDLType");
+//Str test : "Hallo";
+
+
+// MULTIPLE INSTANCE NAMES AND ATTRIBUTE ASSIGNMENT
+
+String a, b, c : "Test"; 
+
+Mesh mesh, mesh2 {
+	position, scale, rotation : 0.0;
+}
+
+
+// ALIAS FOR ENUMS
+
+enum Gender {
+	notset|undefined|0, 
+	male|m|1, 
+	female|f|2, 
+	other|o|3
+}
+
+
+// COMPOSED ANNOTATIONS (well covered with abstract types as mixin
+// abstract type @symbol @length(4, 255);
+
+annotation myVariableName extends symbol, length(4, 255);
+annotation myVariableName(max) extends symbol, length(4, max);
+
+
+// CONTRACTS 
+// perhaps just refactoring of annotations or extension?
+// like annotations that ensure contracts providing bool nature and composition
+
+extern contract noComplexAttributes;
+extern contract noUndefinedValues;
+contract myStruct 
+	(noComplexAttributes 
+	and noUndefinedValues  // and == &
+	and (not ...)) or // or == |
+
+
+// ACTIONS
+// do i really want that or better not? makes DL from a data language a more ANT like dialect
+// how will the execution modell work - is it not better to provide a set of default instances like TaskManager, Tasks and Task?
+
+pragma disableDefineActions; // define no more new actions
+pragma disableActions; // dont execute actions
+
+extern action doStuff;
+
+action doStuff @java("de.s42.my.actions.MyStuffAction") {
+	int count @required;
+	String text @required : "Text";
+	String another;
+}
+
+//allow to create action presets by deriving
+action doMyStuff extends doStuff {
+	int count : 3;
+	String text : "My";
+	String another : "OK";
+}
+
+// leave 2 defaulted
+doStuff(1);
+
+// leave optional away
+doStuff(1, "two");
+
+// call with named parameters
+doStuff({ 
+	count : 1;
+	another :  $three;
+	text : "two";
+})
+
+
+// ARCHIVE ARCHIVE ARCHIVE ARCHIVE ARCHIVE
+// ARCHIVE ARCHIVE ARCHIVE ARCHIVE ARCHIVE
+// ARCHIVE ARCHIVE ARCHIVE ARCHIVE ARCHIVE
+// ARCHIVE ARCHIVE ARCHIVE ARCHIVE ARCHIVE
+
+
+// ALIAS INSTANCE NAMES
+
+Mesh mesh|m { // done
+	...
+}
+
+// DONE AUTO TYPE -> NO PARAMS FOR JAVA ANNOTATION
+
+type de.s42.mq.i18n.LocalizedStringData @java extends StringData
+{
+	String id @required;
+	de.s42.mq.i18n.L10N l10n @required;
+	String value @readonly;
+}
+
+
+// DONE DEFINE REQUIREOR A, B @requiredOr(other attributes)
+
+type de.s42.mq.ui.Image @java(de.s42.mq.ui.Image) extends Quad
+{
+	Path source @requiredOr(texture, ...); //?
+	Texture texture @requiredOr(source, ...);
+	boolean correctAspectRatio : true;
+}
+
+
+// DONE ALIAS TYPE DEFINITION
+
+type Integer|Int|int {} // done
+
+extern type Integer|Int|int; // dont like that!
+
+
+// DONE PRAGMA - I.E. SEAL NO NEW TYPES
+
+pragma noNewTypes // done
+pragma noNewAnnotations // done
+pragma noNewEnums // -> equal to noNewTypes
+pragma <customPragma> // <- Java API that allows to define own pragmas? done
+
+
+// 2020-11-08
+
+// how to express reference vs. contained sub object?
+
+// core.dl
+
+extern annotation unique;
+extern annotation secure;
+extern annotation required;
+extern annotation persist;
+extern annotation generate;
+
+extern type UUID;
+extern type String;
+
+enum UserLevel 
+{
+	Beginner, 
+	Intermediate, 
+	Professional,
+}
+
+abstract type Secure @secure;
+
+abstract type Entity @persist 
+{
+	UUID id @generate @required @unique;
+}
+
+// user.dl
+
+require core.dl;
+
+type Account extends Entity, Secure 
+{
+	String  name @required;
+}
+
+type User extends Entity, Secure 
+{
+	String login @required @unique;
+	String password @secure;
+	UserLevel level @required : Beginner;
+	Account account @required;
+}
+
+// data.dl
+
+require user.dl;
+
+Account s42 {	
+	name: "Studio 42"
+}
+
+//import another module
+import "defaults.dl"
+import base.dl
+
+//define extern annotations -> has to be provided by environment before this statement - this ensures it is defined
+extern annotation default;
+extern annotation partial;
+extern annotation seal;
+extern annotation abstract;
+extern annotation required;
+extern annotation unique;
+extern annotation mutate;
+extern annotation symbol;
+extern annotation length(min, max);
+extern annotation generateUUID;
+
+//composed annotations
+annotation myVariableName extends symbol, length(4, 255);
+annotation myVariableName(max) extends symbol, length(4, max);
+
+// CONTRACTS -> like annotations that ensure contracts providing bool nature and composition
+extern contract noComplexAttributes;
+extern contract noUndefinedValues;
+contract myStruct means 
+	(noComplexAttributes 
+	and noUndefinedValues  // and == &
+	and not ...) or // or == |
+
+alias AxeItem de.s42.sw.bm.items.axes.AxeItem;
+
+//define extern types -> has to be provided by environment before this statement - this ensures it is defined
+extern type Global;
+extern type Integer|Int|int;
+extern type UUID;
+
+//force id to be defined as uuid in Global space
+type Global @mutate @seal {	
+	UUID id @required;
+	String firstName @required @minLength(4) @maxLength(200);
+	String lastName @required @minLength(4) @maxLength(200);
+}
+
+//define attribute id and seal -> Type UUID is implicity from Global mutation
+id @seal: 5a1edc27-4225-4503-a9f8-96bd1772977b;
+
+extern annotation minLength {
+	int length @default;
+}
+
+extern annotation maxLength {
+	int length @default;
+}
+
+//define simple instance -> allows for deduplication
+String schiller|s { "Schiller" }
+
+//define enum  type - supporting synonyms
+enum Gender {
+	notset|undefined|0, 
+	male|m|1, 
+	female|f|2, 
+	other|o|3
+}
+
+//define entity type Person
+type Person {
+	UUID id @required @unique;
+	String firstName @minLength(4) @maxLength(200);
+	String lastName @minLength(4) @maxLength(200);
+	Gender gender: notset;
+}
+
+//add attributes to certain type of entities
+type Person @mutate {
+	String street;
+	String housNumber;
+	String zipCode;
+	String city;
+	String country;
+	String[] tags;
+}
+
+// make id default to random UUID
+type Person @mutate {
+	UUID id @generateUUID; //@question how can we ensure order -> generateUUID should be before required
+	String country @required;
+}
+
+//ATTENTION: Once an instance is defined "completely"(@question) it can not be changed afterwards!
+
+Person petra @partial {
+	lastName: $s;
+}
+
+//define instance of entity Person and map as benjamin and Survius -> the mapped names have to be unique!
+Person benjamin|Survius {
+	id: 5a1edc27-4225-4503-a9f8-96bd1772977b;
+	firstName: Benjamin;
+	lastName: $petra.lastName;
+	country: CZ;
+	gender: m;
+	tags: Ben,Player,Environment;
+}
+
+//finalizes the instance and makes it published - resolves circular reference issue (using data created by benjamin)
+Person petra @mutate {
+	country: $benjamin.country;
+}
+
+// HTML Demo
+
+type H1 extends HTMLElement {
+	String text @default: "";
+}
+
+//tree structure - nested instances - comma types are applied in order - undefined types are created as empty types!(?)
+Div {
+	H1, Jumbo pageTitle : "Welcome";
+	P, JumboSubText : "Little text \nwith multiple lines";
+	Input, VueInput, EmailInput newsletterSignup { placeholder: "Your email" }
+}
+
+/* compare to html
+<div>
+	<h1 id="pageTitle" class="Jumbo">Welcome</h1>
+	<p class="JumboSubText">
+		Little text<br>
+		with multiple lines
+	</p>
+	<input id="newsletterSignup" class="VueInput,EmailInput" placeholder="Your email"/>
+</div>
+*/
+
+/* lifecycles
+ - before load
+ - after load
+ - after all resolved
+ - after classes resolved
+ - after refs resolved
+*/
+
+// UNION - logisch nicht binär - union sagt nur mind. 1 der attribute ist gesetzt! bzw. die Attribute sind equivalent in ihrer Semantik
+
+union HouseNumber {
+	int number;
+	String place;
+}
+
+union Float4 {
+	RGBA color;
+	Vector4 vector;
+}
+
+//in implementierung gibt es eine optimierte weise abzufragen welcher typ es konkret ist

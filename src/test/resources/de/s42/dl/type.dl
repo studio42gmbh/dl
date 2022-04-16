@@ -1,0 +1,62 @@
+// <editor-fold desc="The MIT License" defaultstate="collapsed">
+/*
+ * The MIT License
+ * 
+ * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+//</editor-fold>
+
+extern annotation dynamic;
+extern annotation generateUUID;
+
+extern type String;
+extern type UUID;
+
+UUID id: "ad232384-4a04-4119-9e95-4753f31e3b09";
+
+type User @dynamic {	
+	String name: "Default Name";
+	UUID id : "bd332384-4a04-4119-9e95-4753f31e3b08";
+}
+
+User test {
+	name: "John \"Rambo\" Doe";
+	id: "ad232384-4a04-4119-9e95-4753f31e3b09";
+}
+
+// child[1] - any type
+User {
+	name: "John \"Rambo\" Doe 2";
+	UUID id: "bd232384-4a04-4119-9e95-4753f31e3b09";
+	birthdate: d1981-01-20;	
+}
+
+// child[2] - all defaults
+User testDefaults {}
+
+User testDynamic {
+	name: "John \"Rambo\" Doe";
+	id: "ad232384-4a04-4119-9e95-4753f31e3b09";
+
+	/* dynamic attributes */
+	birthdate: d1981-01-20;	
+	tags: "A B C";
+}
