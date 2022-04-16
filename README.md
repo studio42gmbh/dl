@@ -44,6 +44,83 @@ Benjamin Schiller
 * Add integration for JS
 * ...
 
+## The Language
+
+Types
+
+{code}
+EXTERN FINAL ABSTRACT TYPE name @annotation @annotation EXTENDS parent, parent CONTAINS contained, contained
+{
+        type<type, type> name @annotation @annotation;
+
+        type<type, type> name @annotation @annotation : "default";
+
+        type<type, type> name @annotation @annotation : instance;
+
+        type<type, type> name @annotation @annotation : $reference;
+
+        REQUIRE moduleId;
+}
+{code}
+                
+
+Instances
+
+{code}
+type name {
+
+        type name : value;
+
+        type name : instance;
+        
+        type name : $reference;
+
+        instance
+
+        REQUIRE moduleId;
+}
+{code}
+                
+
+Annotations
+
+{code}
+EXTERN ANNOTATION name @annotation @annotation;
+{code}
+                
+
+Pragmas
+
+{code}
+PRAGMA name(parameter, parameter);
+{code}
+                
+
+Alias
+
+{code}
+ALIAS alias name;
+{code}
+                
+
+Require
+
+{code}
+REQUIRE moduleId;
+{code}
+                
+
+Enums
+
+{code}
+EXTERN ENUM name @annotation @annotation 
+{
+        value, 
+        "other",
+}
+{code}            
+
+
 ## Usage
 
 * Download project
