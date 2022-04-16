@@ -25,11 +25,11 @@ Data Language provides a new state "loadTime" in your application life cycle (de
 This allows you to easily make sure that just validated and consistent data enters your application.
 The possibilities range much further than any JSON schema can provide.
 
-> "Look up to the stars not down on your feet. Be curious!" _Stephen Hawking 1942 - 2018_
- 
 Have a great day!
 
-Benjamin Schiller
+Benjamin
+
+> "Look up to the stars not down on your feet. Be curious!" _Stephen Hawking 1942 - 2018_
 
 
 ## Simple Example
@@ -102,7 +102,11 @@ Find the Javadoc here: https://studio42gmbh.github.io/dl/javadoc/
 
 * Define data JSON-like
 * Define types, enums and annotations for describing and validating the structure of your data
-* ...
+* Standardized streamable binary format
+* Java integration
+  * Rich set of existing types, annotations and pragmas
+  * Extend types, annotations, pragmas
+  * Define types directly from java classes with DLCore.defineTypeFromClass(...)
 
 
 ## Future Plans
@@ -111,18 +115,22 @@ Find the Javadoc here: https://studio42gmbh.github.io/dl/javadoc/
 * Add integration for C#
 * Add integration for Python
 * Add integration for JS
-* ...
+* Improve performance of readers and writers
+* Extend the unit tests to cover even more examples and constructs
 
 
 ## The Language
 
 All entities types, annotations, enums, pragmas and instances are extensible.
 
-You can find the complete ANTLR grammar here: https://github.com/studio42gmbh/dl/tree/master/src/main/antlr4/de/s42/dl/parser
+You can find the complete ANTLR grammar here: 
+https://github.com/studio42gmbh/dl/tree/master/src/main/antlr4/de/s42/dl/parser
 
 ### Types
 
 Types allow to define the allowed entities in your domain dialect. They provide a flexible hierarchical system.
+Type names have to be unique. Simple types represent a data type like String, UUID, .... Complex types represent class/struct-like data.
+Types can easily be extended (See https://github.com/studio42gmbh/dl/tree/master/src/main/java/de/s42/dl/types)
 
 ```
 EXTERN? ( FINAL | ABSTRACT )? TYPE name @annotation* 
@@ -139,6 +147,7 @@ EXTERN? ( FINAL | ABSTRACT )? TYPE name @annotation*
 ### Instances
 
 Instances are your data. Each instance has a type and can then define its attribute values. Also assignments of references are allowed.
+Names of named instances have to be unique in the same container.
 
 ```
 type ( name )? @annotation* {
@@ -155,6 +164,7 @@ type ( name )? @annotation* {
 ### Annotations
 
 Annotations allow you to give qualities, contracts, ... to your types, attributes and instances.
+Annotations can easily be extended (See https://github.com/studio42gmbh/dl/tree/master/src/main/java/de/s42/dl/annotations)
 
 ```
 EXTERN? ANNOTATION name @annotation*;
@@ -164,6 +174,7 @@ EXTERN? ANNOTATION name @annotation*;
 ### Pragmas
 
 Pragmas allow you to set system properties like i.e. if you are allowed to define further types etc.
+Pragmas can easily be extended (See https://github.com/studio42gmbh/dl/tree/master/src/main/java/de/s42/dl/pragmas)
 
 ```
 PRAGMA name ( (parameter (, parameter )* ) )?;
@@ -181,7 +192,9 @@ ALIAS alias typeName;
 
 ### Require
 
-Require other modules to be loaded. The resolvers can be extended. By default they provide a file and a resource resolvment in the java implementation.
+Require other modules to be loaded. The resolvers can be extended. 
+By default they provide a file and a resource resolvment in the java implementation.
+Resolvers can easily be extended (See https://github.com/studio42gmbh/dl/tree/master/src/main/java/de/s42/dl/core/resolvers)
 
 ```
 REQUIRE moduleId;
