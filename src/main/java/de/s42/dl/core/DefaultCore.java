@@ -51,7 +51,7 @@ public class DefaultCore extends BaseDLCore
 			defineType(new ArrayDLType(), "java.lang.Array");
 			defineType(new BooleanDLType(), "java.lang.Boolean", "boolean", "bool");
 			defineType(new ClassDLType(), "java.lang.Class");
-			defineType(new CoreDLType(), "Core");
+			defineType(new CoreDLType(), "Core", "de.s42.dl.DLCore");
 			defineType(new DoubleDLType(), "java.lang.Double", "double");
 			defineType(new FloatDLType(), "java.lang.Float", "float");
 			defineType(new IntegerDLType(), "java.lang.Integer", "int");
