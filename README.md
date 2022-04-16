@@ -126,6 +126,7 @@ All entities types, annotations, enums, pragmas and instances are extensible.
 You can find the complete ANTLR grammar here: 
 https://github.com/studio42gmbh/dl/tree/master/src/main/antlr4/de/s42/dl/parser
 
+
 ### Types
 
 Types allow to define the allowed entities in your domain dialect. They provide a flexible hierarchical system.
