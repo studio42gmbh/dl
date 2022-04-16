@@ -36,6 +36,8 @@ Benjamin
 
 The following example gives a short glimpse into the possibilities of DL.
 
+For more examples see https://github.com/studio42gmbh/dle
+
 ```
 
 // simple enum defined inside DL
