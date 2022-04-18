@@ -38,6 +38,8 @@ The following example gives a short glimpse into the possibilities of DL.
 
 For more examples see https://github.com/studio42gmbh/dle
 
+Especially the example https://github.com/studio42gmbh/dle#dl-only-example showcases the possibilites of DL.
+
 ```
 
 // simple enum defined inside DL
@@ -49,42 +51,46 @@ enum MemberLevel
   Platin
 }
 
+extern annotation de.myapp.CheckConsistencyAnnotation;
+alias checkConsistency de.myapp.CheckConsistencyAnnotation;
+
+extern type de.myapp.Entity;
+alias Entity de.myapp.Entity;
+
 /**
  * Represents a user in the app.
  */
-type de.myapp.User @java
+type User @checkConsistency extends Entity
 {
   String login @required @length(4, 120);
   UUID id @required;
   MemberLevel level @required : Guest;
 }
-alias User de.myapp.User;
 
 /**
  * Represents the app config.
  */
-type de.myapp.Config @java
+type Config @checkConsistency extends Entity contains User
 {
   String title @required @length(5, 50) : "My App";
   int seed @required @range(1, 1000000000);
   boolean debug : false;
   UUID id @required;
-  User user @required;
 }
-alias Config de.myapp.Config;
 
 // from here on no types or enums can be defined
 pragma disableDefineTypes;
 
 // Defines a named instance configuration of type Config
-Config configuration {
+Config configuration @export {
   seed : 1536;
   id : "4a38dc5c-13b4-4817-ac24-b3e15616f884";
-  user : User {
+  
+  User {
     login : "Arthur";
     level : Gold;
     id : "2310889e-2bc9-4641-b930-dcc59c3818a4";
-  };
+  }
 }
 
 ```
@@ -145,12 +151,35 @@ EXTERN? ( FINAL | ABSTRACT )? TYPE name @annotation*
   REQUIRE moduleId;
 }
 ```
-                
+
+
+#### Examples
+
+```
+extern type de.s42.dl.types.ObjectDLType; 
+
+type Achievement @dynamic extends Object
+{
+	Symbol hrid @required @length(3, 100) @unique;
+	UUID id @generateUUID @required;
+}
+
+type User @dynamic @contain(Media, 0, 100) extends Object contains Media
+{
+	String login @required @length(3, 100) @unique;
+	UUID id @generateUUID @required;
+	boolean active : true;
+	MemberStatus status : Guest;
+	Array<Achievement> achievements;
+}
+```
+               
 
 ### Instances
 
 Instances are your data. Each instance has a type and can then define its attribute values. Also assignments of references are allowed.
 Names of named instances have to be unique in the same container.
+Instances can easily be extended (See https://github.com/studio42gmbh/dl/tree/master/src/main/java/de/s42/dl/instances)
 
 ```
 type ( name )? @annotation* {
@@ -162,7 +191,44 @@ type ( name )? @annotation* {
   REQUIRE moduleId;
 }
 ```
-                
+
+
+#### Examples
+
+```
+Achievement dailySmasher {
+	hrid : DailySmasher;
+	id : "16e6b093-59bc-4f6c-9560-bd5789adda0f";
+}
+
+Config config @export {
+	debug : true;
+
+	User arthur {
+		login : "Arthur";
+	}
+
+	User thomas {
+		login : "Thomas";
+		status : VIP;
+		achievements : $hundredLogins;
+	}
+
+	User ben {
+		login : "Ben";
+		status : Member;
+		customValue : "Only set for Ben";
+		achievements : $dailySmasher, $hundredLogins;
+
+		Media {
+			display : "Module File";
+			path : "de/s42/dl/examples/dlonly/module.dl";
+			tags : dl, favorites, ascii;
+		}
+	}
+}
+```
+
 
 ### Annotations
 
@@ -170,7 +236,14 @@ Annotations allow you to give qualities, contracts, ... to your types, attribute
 Annotations can easily be extended (See https://github.com/studio42gmbh/dl/tree/master/src/main/java/de/s42/dl/annotations)
 
 ```
-EXTERN? ANNOTATION name @annotation*;
+EXTERN ANNOTATION name;
+```
+
+
+#### Examples
+
+```
+extern annotation de.s42.dl.annotations.DynamicDLAnnotation;
 ```
                 
 
@@ -182,31 +255,59 @@ Pragmas can easily be extended (See https://github.com/studio42gmbh/dl/tree/mast
 ```
 PRAGMA name ( (parameter (, parameter )* ) )?;
 ```
+
+
+#### Examples
+
+```
+pragma definePragma(de.s42.dl.pragmas.DisableDefineAnnotationsPragma);
+pragma disableDefineTypes;
+pragma disableDefineAnnotations;
+pragma disableDefinePragmas;
+pragma disableRequire;
+```
                 
 
 ### Alias
 
-Alias allows to define another name for your types.
+Alias allows to define another name for your types, annotations and pragmas.
 
 ```
-ALIAS alias typeName;
+ALIAS alias name;
 ```
-                
+
+
+#### Examples
+
+```
+alias boolean de.s42.dl.types.BooleanDLType;
+alias Config Configuration;
+```
+
 
 ### Require
 
 Require other modules to be loaded. The resolvers can be extended. 
 By default they provide a file and a resource resolvment in the java implementation.
-Resolvers can easily be extended (See https://github.com/studio42gmbh/dl/tree/master/src/main/java/de/s42/dl/core/resolvers)
+Resolvers can easily be extended for BaseDLCore (See https://github.com/studio42gmbh/dl/tree/master/src/main/java/de/s42/dl/core/resolvers)
 
 ```
 REQUIRE moduleId;
+
+REQUIRE "path/moduleId";
 ```
-                
+
+
+#### Examples
+
+```
+require "de/s42/dl/examples/dlonly/types.dl";
+```             
 
 ### Enums
 
 Enums allow to define enumerations. In the java implementation native enumerations can easily be loaded as types with DLCore.createEnum(...)
+Enums like types can easily be extended (See https://github.com/studio42gmbh/dl/blob/master/src/main/java/de/s42/dl/types/DefaultDLEnum.java)
 
 ```
 EXTERN? ENUM name @annotation*
@@ -214,3 +315,15 @@ EXTERN? ENUM name @annotation*
   value (, value)*
 }
 ```
+
+
+#### Examples
+
+```
+extern enum de.myapp.Status;
+
+enum MemberStatus 
+{
+	Guest, Member, Gold, VIP
+}
+```             
