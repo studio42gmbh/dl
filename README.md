@@ -142,7 +142,9 @@ Type names have to be unique. Simple types represent a data type like String, UU
 Types can easily be extended (See https://github.com/studio42gmbh/dl/tree/master/src/main/java/de/s42/dl/types)
 
 ```
-EXTERN? ( FINAL | ABSTRACT )? TYPE name @annotation* 
+EXTERN TYPE name;
+
+( FINAL | ABSTRACT )? TYPE name @annotation* 
 ( EXTENDS parent (, parent )* )? 
 ( CONTAINS contained (, contained )* )?
 {
@@ -158,7 +160,7 @@ EXTERN? ( FINAL | ABSTRACT )? TYPE name @annotation*
 ```
 extern type de.s42.dl.types.ObjectDLType; 
 
-type Achievement @dynamic extends Object
+final type Achievement @dynamic extends Object
 {
 	Symbol hrid @required @length(3, 100) @unique;
 	UUID id @generateUUID @required;
@@ -310,7 +312,9 @@ Enums allow to define enumerations. In the java implementation native enumeratio
 Enums like types can easily be extended (See https://github.com/studio42gmbh/dl/blob/master/src/main/java/de/s42/dl/types/DefaultDLEnum.java)
 
 ```
-EXTERN? ENUM name @annotation*
+EXTERN ENUM name;
+
+ENUM name @annotation*
 {
   value (, value)*
 }
