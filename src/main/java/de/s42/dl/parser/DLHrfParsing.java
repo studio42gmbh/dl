@@ -27,7 +27,6 @@ package de.s42.dl.parser;
 
 import de.s42.base.files.FilesHelper;
 import de.s42.dl.exceptions.UndefinedAnnotation;
-import de.s42.dl.exceptions.UndefinedEnum;
 import de.s42.dl.exceptions.UndefinedType;
 import de.s42.dl.exceptions.InvalidEnumValue;
 import de.s42.dl.exceptions.InvalidType;
@@ -318,8 +317,23 @@ public class DLHrfParsing extends DLParserBaseListener
 
 				String enumName = ctx.enumName().getText();
 
-				if (!core.hasEnum(enumName)) {
-					throw new UndefinedEnum(createErrorMessage("Extern enum '" + enumName + "' is not defined", ctx));
+				if (core.hasEnum(enumName)) {
+					throw new InvalidType(createErrorMessage("Extern enum '" + enumName + "' is already defined", ctx));
+				}
+
+				try {
+
+					DLEnum enumImpl = core.createEnum((Class<Enum>) Class.forName(enumName));
+
+					// map the enum as defined
+					core.defineType(enumImpl);
+
+					// define alias for the given annotationName
+					if (!enumImpl.getName().equals(enumName)) {
+						core.defineAliasForType(enumName, enumImpl);
+					}
+				} catch (ClassNotFoundException ex) {
+					throw new InvalidType(createErrorMessage("Class not found for enum '" + enumName + "' - " + ex.getMessage(), ctx), ex);
 				}
 			} //define a enum
 			else {
@@ -463,7 +477,7 @@ public class DLHrfParsing extends DLParserBaseListener
 
 				String annotationName = ctx.annotationDefinitionName().getText();
 
-				if (core.getAnnotation(annotationName).isPresent()) {
+				if (core.hasAnnotation(annotationName)) {
 					throw new InvalidAnnotation(createErrorMessage("Extern annotation '" + annotationName + "' is already defined", ctx));
 				}
 
@@ -479,7 +493,7 @@ public class DLHrfParsing extends DLParserBaseListener
 						core.defineAliasForAnnotation(annotationName, annotation);
 					}
 				} catch (ClassNotFoundException ex) {
-					throw new InvalidAnnotation(createErrorMessage("Class not found for annotation - " + ex.getMessage(), ctx), ex);
+					throw new InvalidAnnotation(createErrorMessage("Class not found for annotation '" + annotationName + "' - " + ex.getMessage(), ctx), ex);
 				}
 
 			} else {
@@ -506,7 +520,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			if (ctx.KEYWORD_EXTERN() != null) {
 
 				// dont allow external on types that are already present
-				if (core.getType(typeName).isPresent()) {
+				if (core.hasType(typeName)) {
 					throw new InvalidType(createErrorMessage("Type '" + typeName + "' is already defined", ctx));
 				}
 
@@ -523,7 +537,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					}
 
 				} catch (ClassNotFoundException ex) {
-					throw new InvalidType(createErrorMessage("Class not found for type - " + ex.getMessage(), ctx), ex);
+					throw new InvalidType(createErrorMessage("Class not found for type '" + typeName + "' - " + ex.getMessage(), ctx), ex);
 				}
 
 				// abstract is not allowed for extern types

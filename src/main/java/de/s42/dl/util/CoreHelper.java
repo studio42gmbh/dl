@@ -65,7 +65,8 @@ public final class CoreHelper
 					try {
 						typeInstanceClass = Class.forName(className);
 
-						if (!type.isAbstract()) {
+						// instantiate an instance of that type if it is not abstract and not an enum
+						if (!type.isAbstract() && !(type instanceof DLEnum)) {
 							Object instance = typeInstanceClass.getConstructor().newInstance();
 
 							//log.debug("Validated type " + type.getCanonicalName() + " is java class " + instance.getClass().getName());

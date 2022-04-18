@@ -41,22 +41,22 @@ public class DefaultDLEnum extends DefaultDLType implements DLEnum
 {
 
 	private final List<String> values = new ArrayList<>();
-	private final Class<? extends Enum> enumImpl;
 
 	public DefaultDLEnum()
 	{
-		this.enumImpl = null;
+		javaType = String.class;
 	}
 
 	public DefaultDLEnum(String name)
 	{
 		super(name);
-		this.enumImpl = null;
+
+		javaType = String.class;
 	}
 
 	public DefaultDLEnum(Class<? extends Enum> enumImpl)
 	{
-		this(enumImpl.getSimpleName(), enumImpl);
+		this(enumImpl.getName(), enumImpl);
 	}
 
 	public DefaultDLEnum(String name, Class<? extends Enum> enumImpl)
@@ -65,7 +65,7 @@ public class DefaultDLEnum extends DefaultDLType implements DLEnum
 
 		assert enumImpl != null;
 
-		this.enumImpl = enumImpl;
+		javaType = enumImpl;
 
 		for (Object enumC : enumImpl.getEnumConstants()) {
 			values.add((String) enumC.toString());
@@ -82,7 +82,7 @@ public class DefaultDLEnum extends DefaultDLType implements DLEnum
 	{
 		assert value != null;
 
-		if (enumImpl != null) {
+		if (javaType != null && Enum.class.isAssignableFrom(javaType)) {
 			throw new InvalidEnumValue("May not add values to enum backed DLEnum '" + getName() + "'");
 		}
 
@@ -109,15 +109,5 @@ public class DefaultDLEnum extends DefaultDLType implements DLEnum
 		}
 
 		return result[0];
-	}
-
-	@Override
-	public Class getJavaDataType()
-	{
-		if (enumImpl != null) {
-			return enumImpl;
-		}
-
-		return String.class;
 	}
 }

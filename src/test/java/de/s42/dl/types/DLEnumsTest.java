@@ -28,8 +28,8 @@ package de.s42.dl.types;
 import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.UndefinedEnum;
 import de.s42.dl.exceptions.InvalidEnumValue;
+import de.s42.dl.exceptions.InvalidType;
 import org.testng.annotations.Test;
 
 /**
@@ -48,36 +48,38 @@ public class DLEnumsTest
 	}
 
 	@Test
-	public void externEnumDefined() throws DLException
+	public void validExternEnumDefined() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.defineType(core.createEnum("Status", Status.class));
-		core.parse("Anonymous", "extern enum Status;");
+		core.parse("Anonymous", "extern enum de.s42.dl.types.DLEnumsTest$Status;");
+		core.parse("Anonymous2", "alias Status de.s42.dl.types.DLEnumsTest$Status;");
+		core.parse("Anonymous3", "type T { Status status : New; }");
 	}
 
-	@Test(expectedExceptions = UndefinedEnum.class)
-	public void externEnumNotDefined() throws DLException
+	@Test(expectedExceptions = InvalidType.class)
+	public void invalidExternEnumNotDefined() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "extern enum Status;");
+		core.parse("Anonymous", "extern enum NotDefined;");
 	}
 
 	@Test
-	public void defineEnum() throws DLException
+	public void validDefineEnum() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "enum Status { New, InProgress, Done, Error, }");
+		core.parse("Anonymous2", "type T { Status status : New; }");
 	}
 
 	@Test(expectedExceptions = InvalidEnumValue.class)
-	public void defineInvalidEnumDuplicateEnumValue() throws DLException
+	public void invalidDefineInvalidEnumDuplicateEnumValue() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "enum Status { New, InProgress, Done, Error, New }");
 	}
 
 	@Test
-	public void useEnumValueAsDefaultInType() throws DLException
+	public void validUseEnumValueAsDefaultInType() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.defineType(core.createEnum("Status", Status.class));
@@ -85,7 +87,7 @@ public class DLEnumsTest
 	}
 
 	@Test(expectedExceptions = InvalidEnumValue.class)
-	public void useIncorrectEnumValueAsDefaultInType() throws DLException
+	public void invalidUseIncorrectEnumValueAsDefaultInType() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.defineType(core.createEnum("Status", Status.class));
