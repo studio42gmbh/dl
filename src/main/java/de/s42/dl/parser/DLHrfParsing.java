@@ -258,6 +258,10 @@ public class DLHrfParsing extends DLParserBaseListener
 
 			// alias for types
 			if (core.hasType(aliasDefinitionName)) {
+				
+				if (!core.isAllowDefineTypes()) {
+					throw new InvalidCore(createErrorMessage("May not define types in core", ctx));
+				}
 
 				// alias redefinition type may not be defined already
 				if (core.hasType(aliasRedefinitionName)) {
@@ -268,6 +272,10 @@ public class DLHrfParsing extends DLParserBaseListener
 			} // alias for annotations
 			else if (core.hasAnnotation(aliasDefinitionName)) {
 
+				if (!core.isAllowDefineAnnotations()) {
+					throw new InvalidCore(createErrorMessage("May not define annotations in core", ctx));
+				}
+
 				// alias redefinition type may not be defined already
 				if (core.hasAnnotation(aliasRedefinitionName)) {
 					throw new InvalidAnnotation(createErrorMessage("Error alias redef annotation '" + aliasRedefinitionName + "' is already defined", ctx));
@@ -276,6 +284,10 @@ public class DLHrfParsing extends DLParserBaseListener
 				core.defineAliasForAnnotation(aliasRedefinitionName, core.getAnnotation(aliasDefinitionName).orElseThrow());
 			} // alias for annotations
 			else if (core.hasPragma(aliasDefinitionName)) {
+
+				if (!core.isAllowDefinePragmas()) {
+					throw new InvalidCore(createErrorMessage("May not define pragmas in core", ctx));
+				}
 
 				// alias redefinition type may not be defined already
 				if (core.hasPragma(aliasRedefinitionName)) {
