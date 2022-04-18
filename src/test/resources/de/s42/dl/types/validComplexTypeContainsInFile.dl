@@ -24,9 +24,6 @@
  */
 //</editor-fold>
 
-extern annotation containOnce;
-extern annotation contain;
-
 type A; 
 
 type A2 extends A; 

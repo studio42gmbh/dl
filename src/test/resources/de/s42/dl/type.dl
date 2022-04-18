@@ -24,12 +24,6 @@
  */
 //</editor-fold>
 
-extern annotation dynamic;
-extern annotation generateUUID;
-
-extern type String;
-extern type UUID;
-
 UUID id: "ad232384-4a04-4119-9e95-4753f31e3b09";
 
 type User @dynamic {	

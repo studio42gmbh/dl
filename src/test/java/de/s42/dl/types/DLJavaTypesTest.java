@@ -157,7 +157,7 @@ public class DLJavaTypesTest
 	{
 		DLCore core = new DefaultCore();
 		core.defineType(new TestType(core));
-		core.defineTypeFromClass(TestClass.class, "TestC");
+		core.defineType(core.createType(TestClass.class), "TestC");
 
 		return core;
 	}

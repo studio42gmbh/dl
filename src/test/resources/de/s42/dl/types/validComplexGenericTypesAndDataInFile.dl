@@ -24,10 +24,6 @@
  */
 //</editor-fold>
 
-extern type Integer;
-extern type Float;
-extern type Array;
-
 abstract type Test;
 
 type TestInt extends Test

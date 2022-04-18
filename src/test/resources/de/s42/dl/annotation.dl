@@ -24,16 +24,6 @@
  */
 //</editor-fold>
 
-extern type UUID;
-extern type String;
-
-extern annotation dynamic;
-extern annotation length;
-extern annotation required;
-extern annotation unique;
-extern annotation export;
-extern annotation generateUUID;
-
 type User @dynamic {
 	
 	String name @length(4, 120) : "Default";

@@ -39,6 +39,8 @@ import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.*;
 import de.s42.dl.attributes.DefaultDLAttribute;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidCore;
+import de.s42.dl.exceptions.InvalidPragma;
 import de.s42.dl.instances.DefaultDLInstance;
 import de.s42.dl.instances.DefaultDLModule;
 import de.s42.dl.parser.DLParser.AttributeAssignableContext;
@@ -252,20 +254,41 @@ public class DLHrfParsing extends DLParserBaseListener
 	public void enterAlias(DLParser.AliasContext ctx)
 	{
 		try {
-			String aliasRedefinitionTypeName = ctx.aliasRedefinition().getText();
-			String aliasDefinitionTypeName = ctx.aliasDefinition().getText();
+			String aliasRedefinitionName = ctx.aliasRedefinition().getText();
+			String aliasDefinitionName = ctx.aliasDefinition().getText();
 
-			// alias redefinition type may not be defined already
-			if (core.hasType(aliasRedefinitionTypeName)) {
-				throw new InvalidType(createErrorMessage("Error alias redef type '" + aliasRedefinitionTypeName + "' is already defined", ctx));
+			// alias for types
+			if (core.hasType(aliasDefinitionName)) {
+
+				// alias redefinition type may not be defined already
+				if (core.hasType(aliasRedefinitionName)) {
+					throw new InvalidType(createErrorMessage("Error alias redef type '" + aliasRedefinitionName + "' is already defined", ctx));
+				}
+
+				core.defineAliasForType(aliasRedefinitionName, core.getType(aliasDefinitionName).orElseThrow());
+			} // alias for annotations
+			else if (core.hasAnnotation(aliasDefinitionName)) {
+
+				// alias redefinition type may not be defined already
+				if (core.hasAnnotation(aliasRedefinitionName)) {
+					throw new InvalidAnnotation(createErrorMessage("Error alias redef annotation '" + aliasRedefinitionName + "' is already defined", ctx));
+				}
+
+				core.defineAliasForAnnotation(aliasRedefinitionName, core.getAnnotation(aliasDefinitionName).orElseThrow());
+			} // alias for annotations
+			else if (core.hasPragma(aliasDefinitionName)) {
+
+				// alias redefinition type may not be defined already
+				if (core.hasPragma(aliasRedefinitionName)) {
+					throw new InvalidPragma(createErrorMessage("Error alias redef pragma '" + aliasRedefinitionName + "' is already defined", ctx));
+				}
+
+				core.defineAliasForPragma(aliasRedefinitionName, core.getPragma(aliasDefinitionName).orElseThrow());
+			} // neither type, annotation or pragma definition found
+			else {
+				throw new InvalidCore(createErrorMessage("Error alias def type, annotation or pragma '" + aliasDefinitionName + "' is not defined", ctx));
 			}
 
-			// alias definition type has to be defined
-			if (!core.hasType(aliasDefinitionTypeName)) {
-				throw new InvalidType(createErrorMessage("Error alias def type '" + aliasDefinitionTypeName + "' is not defined", ctx));
-			}
-
-			core.defineAliasForType(aliasRedefinitionTypeName, core.getType(aliasDefinitionTypeName).get());
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);
 		}
@@ -430,18 +453,40 @@ public class DLHrfParsing extends DLParserBaseListener
 	public void enterAnnotationDefinition(DLParser.AnnotationDefinitionContext ctx)
 	{
 		try {
+
+			if (!core.isAllowDefineAnnotations()) {
+				throw new InvalidCore("Not allowed to define annotations in core");
+			}
+
 			//keyword extern found
 			if (ctx.KEYWORD_EXTERN() != null) {
 
-				String typeName = ctx.annotationDefinitionName().getText();
+				String annotationName = ctx.annotationDefinitionName().getText();
 
-				if (!core.hasAnnotation(typeName)) {
-					throw new UndefinedAnnotation(createErrorMessage("Extern annotation '" + typeName + "' is not defined", ctx));
+				if (core.getAnnotation(annotationName).isPresent()) {
+					throw new InvalidAnnotation(createErrorMessage("Extern annotation '" + annotationName + "' is already defined", ctx));
 				}
-			} else {
 
-				//core.defineAnnotation(annotation);			
+				try {
+
+					DLAnnotation annotation = core.createAnnotation((Class<DLAnnotation>) Class.forName(annotationName));
+
+					// map the annotation as defined
+					core.defineAnnotation(annotation);
+
+					// define alias for the given annotationName
+					if (!annotation.getName().equals(annotationName)) {
+						core.defineAliasForAnnotation(annotationName, annotation);
+					}
+				} catch (ClassNotFoundException ex) {
+					throw new InvalidAnnotation(createErrorMessage("Class not found for annotation - " + ex.getMessage(), ctx), ex);
+				}
+
+			} else {
+				throw new InvalidAnnotation(createErrorMessage("Annotations can not be defined internally", ctx));
 			}
+
+			// @improvement define annotations internal - something like combining othres with boolean like contracts?
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);
 		}
@@ -451,14 +496,49 @@ public class DLHrfParsing extends DLParserBaseListener
 	public void enterTypeDefinition(DLParser.TypeDefinitionContext ctx)
 	{
 		try {
+
+			if (!core.isAllowDefineTypes()) {
+				throw new InvalidCore(createErrorMessage("Not allowed to define types in core", ctx));
+			}
+
 			String typeName = ctx.typeDefinitionName().getText();
 
 			if (ctx.KEYWORD_EXTERN() != null) {
 
+				// dont allow external on types that are already present
+				if (core.getType(typeName).isPresent()) {
+					throw new InvalidType(createErrorMessage("Type '" + typeName + "' is already defined", ctx));
+				}
+
+				// define type from extern definition
 				try {
-					currentType = (DefaultDLType) core.getType(typeName).get();
-				} catch (NoSuchElementException ex) {
-					throw new UndefinedType(createErrorMessage("Extern type '" + typeName + "' is not defined", ex, ctx), ex);
+					currentType = (DefaultDLType) core.createType(Class.forName(typeName));
+
+					// map the new type
+					core.defineType(currentType);
+
+					// define alias for the given typeName
+					if (!currentType.getName().equals(typeName)) {
+						core.defineAliasForType(typeName, currentType);
+					}
+
+				} catch (ClassNotFoundException ex) {
+					throw new InvalidType(createErrorMessage("Class not found for type - " + ex.getMessage(), ctx), ex);
+				}
+
+				// abstract is not allowed for extern types
+				if (ctx.KEYWORD_ABSTRACT() != null) {
+					throw new InvalidType(createErrorMessage("Extern type '" + typeName + "' may not have abstract", ctx));
+				}
+
+				// extension is not allowed for extern types
+				if (ctx.KEYWORD_EXTENDS() != null) {
+					throw new InvalidType(createErrorMessage("Extern type '" + typeName + "' may not extend other types", ctx));
+				}
+
+				// containment is not allowed for extern types
+				if (ctx.KEYWORD_CONTAINS() != null) {
+					throw new InvalidType(createErrorMessage("Extern type '" + typeName + "' may not contain other types", ctx));
 				}
 
 				// annotations are not allowed on extern types
@@ -466,15 +546,16 @@ public class DLHrfParsing extends DLParserBaseListener
 					throw new InvalidAnnotation(createErrorMessage("Extern type '" + typeName + "' may not have annotations", ctx));
 				}
 
-				// abstract is not allowed for extern types
-				if (ctx.KEYWORD_ABSTRACT() != null) {
-					throw new InvalidType(createErrorMessage("Extern type '" + typeName + "' may not have abstract", ctx));
+				// annotations are not allowed on extern types
+				if (ctx.typeBody() != null) {
+					throw new InvalidType(createErrorMessage("Extern type '" + typeName + "' may not have a body", ctx));
 				}
+
 			} //define a type
 			else {
 
 				if (core.hasType(typeName)) {
-					throw new InvalidType(createErrorMessage("Extern type '" + typeName + "' is already defined", ctx));
+					throw new InvalidType(createErrorMessage("Type '" + typeName + "' is already defined", ctx));
 				}
 
 				currentType = (DefaultDLType) core.createType(typeName);

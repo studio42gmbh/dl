@@ -23,72 +23,58 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.pragmas;
 
 import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidAnnotation;
+import de.s42.dl.exceptions.InvalidPragma;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DLAnnotationsTest
+public class DefinePragmaPragmaTest
 {
-
-	public static class TestAnnotation extends TagDLAnnotation
+	public static class TestPragma extends AbstractDLPragma
 	{
-
-		public TestAnnotation()
+		public int called;
+		
+		public TestPragma()
 		{
 			super("test");
 		}
-	}
 
-	@Test(expectedExceptions = {InvalidAnnotation.class})
-	public void invalidInternalAnnotationNotAllowed() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "annotation T;");
-	}
-
-	@Test(expectedExceptions = {InvalidAnnotation.class})
-	public void invalidParametersEmptyBracketsAnnotationForJavaType() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T @contain();");
-	}
-
-	@Test(expectedExceptions = {InvalidAnnotation.class})
-	public void invalidParametersNoneAnnotationForJavaType() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T @contain;");
-	}
+		@Override
+		public void doPragma(DLCore core, Object... parameters) throws InvalidPragma
+		{
+			assert core != null;
+			assert parameters != null;
+			
+			parameters = validateParameters(parameters, new Class[] { int.class });
+			
+			called+= (int)parameters[0];
+		}	
+	}	
 
 	@Test
-	public void validJavaDefinedAnnotation() throws DLException
+	public void validDefinePragma() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.defineAnnotation(new TestAnnotation());
-		core.parse("Anonymous2", "type T @test;");
+		core.parse("Anonymous", "pragma definePragma(de.s42.dl.pragmas.DefinePragmaPragmaTest$TestPragma);");
+		core.parse("Anonymous2", "pragma test(3);");
+		core.parse("Anonymous3", "pragma de.s42.dl.pragmas.DefinePragmaPragmaTest$TestPragma(39);");
+		TestPragma pragma = (TestPragma)core.getPragma("de.s42.dl.pragmas.DefinePragmaPragmaTest$TestPragma").orElseThrow();
+		
+		Assert.assertEquals(pragma.called, 42);
 	}
 
-	@Test
-	public void validExternAnnotation() throws DLException
+	@Test(expectedExceptions = InvalidPragma.class)
+	public void invalidDisallowedDefineTypes() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "extern annotation de.s42.dl.annotations.DLAnnotationsTest$TestAnnotation;");
-		core.parse("Anonymous2", "type T @de.s42.dl.annotations.DLAnnotationsTest$TestAnnotation;");
-		core.parse("Anonymous3", "type T2 @test;");
-	}
-
-	@Test(expectedExceptions = InvalidAnnotation.class)
-	public void invalidUndefinedExternAnnotation() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "extern annotation notDefined;");
+		core.parse("Anonymous", "pragma definePragma(notDefined);");
 	}
 }

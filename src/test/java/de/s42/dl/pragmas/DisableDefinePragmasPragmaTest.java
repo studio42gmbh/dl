@@ -23,14 +23,36 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
+package de.s42.dl.pragmas;
 
-de.s42m.Entity @abstract @seal {
-	UUID id @generateUUID @required @unique;
-}
+import de.s42.dl.DLCore;
+import de.s42.dl.core.DefaultCore;
+import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidPragma;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 
-de.s42m.nodes.Node @abstract @seal {
-}
+/**
+ *
+ * @author Benjamin Schiller
+ */
+public class DisableDefinePragmasPragmaTest
+{
 
+	@Test
+	public void validDisableDefinePragma() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "pragma disableDefinePragmas;");
+		Assert.assertEquals(core.isAllowDefinePragmas(), false);
+	}
 
-de.s42m.nodes.math.Multiply extends de.s42m.nodes.Node, de.s42m.Entity {
+	@Test(expectedExceptions = InvalidPragma.class)
+	public void invalidDisallowedDefinePragmas() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous",
+			"pragma disableDefinePragmas;"
+			+ "pragma definePragma(de.s42.dl.pragmas.DefinePragmaPragmaTest$TestPragma);");
+	}
 }

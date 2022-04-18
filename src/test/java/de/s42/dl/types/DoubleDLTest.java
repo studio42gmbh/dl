@@ -30,18 +30,16 @@ import de.s42.dl.DLCore;
 import de.s42.dl.DLModule;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.exceptions.InvalidType;
 import org.testng.annotations.Test;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DLBasicTypesTest
+public class DoubleDLTest
 {
 
-	public static class BasicTypes
+	public static class TestType
 	{
 
 		protected double doubleValue;
@@ -61,47 +59,19 @@ public class DLBasicTypesTest
 	public void validDoubleNormalNotation() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.defineTypeFromClass(BasicTypes.class, "BasicTypes");
-		DLModule module = core.parse("Anonymous", "BasicTypes { doubleValue : 103455.2346634; }");
-		BasicTypes types = module.getChild(0).toJavaObject(core);
-		AssertHelper.assertEpsilonEquals(types.getDoubleValue(), 103455.2346634, "Double is not matching");
+		core.defineType(core.createType(TestType.class), "TestType");
+		DLModule module = core.parse("Anonymous", "TestType { doubleValue : 103455.2346634; }");
+		TestType instance = module.getChild(0).toJavaObject(core);
+		AssertHelper.assertEpsilonEquals(instance.getDoubleValue(), 103455.2346634, "Double is not matching");
 	}
 
 	@Test
 	public void validDoubleScientificNotation() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.defineTypeFromClass(BasicTypes.class, "BasicTypes");
-		DLModule module = core.parse("Anonymous", "BasicTypes { doubleValue : 1.43E-4; }");
-		BasicTypes types = module.getChild(0).toJavaObject(core);
-		AssertHelper.assertEpsilonEquals(types.getDoubleValue(), 1.43E-4, "Double is not matching");
-	}
-
-	@Test
-	public void validFinalType() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "final type T;");
-	}
-
-	@Test(expectedExceptions = InvalidType.class)
-	public void invalidDeriveFinalType() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "final type T; type U extends T;");
-	}
-
-	@Test
-	public void validAbstractType() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "abstract type T;");
-	}
-
-	@Test(expectedExceptions = InvalidInstance.class)
-	public void invalidInstantiateAbstractType() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "abstract type T; T test;");
+		core.defineType(core.createType(TestType.class), "TestType");
+		DLModule module = core.parse("Anonymous", "TestType { doubleValue : 1.43E-4; }");
+		TestType instance = module.getChild(0).toJavaObject(core);
+		AssertHelper.assertEpsilonEquals(instance.getDoubleValue(), 1.43E-4, "Double is not matching");
 	}
 }

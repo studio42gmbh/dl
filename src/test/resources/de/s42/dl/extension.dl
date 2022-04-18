@@ -24,13 +24,6 @@
  */
 //</editor-fold>
 
-extern annotation dynamic;
-extern annotation seal;
-extern annotation generateUUID;
-
-extern type String;
-extern type UUID;
-
 de.s42m.Entity @seal {
 	UUID id @generateUUID @required @unique;
 }

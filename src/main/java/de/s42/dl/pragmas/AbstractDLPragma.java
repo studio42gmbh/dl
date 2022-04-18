@@ -39,11 +39,6 @@ public abstract class AbstractDLPragma implements DLPragma
 
 	protected String name;
 
-	protected AbstractDLPragma()
-	{
-
-	}
-
 	protected AbstractDLPragma(String name)
 	{
 		assert name != null;

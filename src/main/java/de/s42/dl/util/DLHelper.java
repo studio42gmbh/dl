@@ -298,8 +298,11 @@ public final class DLHelper
 			// own attributes
 			for (DLAttribute attribute : type.getOwnAttributes()) {
 
+				if (prettyPrint) {
+					result.append("\t");
+				}
+				
 				result
-					.append("\t")
 					.append(attribute.getType().getCanonicalName())
 					.append(" ")
 					.append(attribute.getName());

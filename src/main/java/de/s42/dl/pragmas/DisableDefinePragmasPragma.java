@@ -23,14 +23,41 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
+package de.s42.dl.pragmas;
 
-de.s42m.Entity @abstract @seal {
-	UUID id @generateUUID @required @unique;
-}
+import de.s42.dl.DLCore;
+import de.s42.dl.exceptions.InvalidPragma;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 
-de.s42m.nodes.Node @abstract @seal {
-}
+/**
+ *
+ * @author Benjamin Schiller
+ */
+public class DisableDefinePragmasPragma extends AbstractDLPragma
+{
 
+	private final static Logger log = LogManager.getLogger(DisableDefinePragmasPragma.class.getName());
 
-de.s42m.nodes.math.Multiply extends de.s42m.nodes.Node, de.s42m.Entity {
+	public final static String DEFAULT_IDENTIFIER = "disableDefinePragmas";
+
+	public DisableDefinePragmasPragma()
+	{
+		super(DEFAULT_IDENTIFIER);
+	}
+
+	public DisableDefinePragmasPragma(String identifier)
+	{
+		super(identifier);
+	}
+
+	@Override
+	public void doPragma(DLCore core, Object... parameters) throws InvalidPragma
+	{
+		assert core != null;
+
+		validateParameters(parameters, null);
+
+		core.setAllowDefinePragmas(false);
+	}
 }

@@ -86,6 +86,8 @@ public class DefaultCore extends BaseDLCore
 			defineAnnotation(new WriteOnlyDLAnnotation());
 
 			definePragma(new BasePathPragma());
+			definePragma(new DefinePragmaPragma());
+			definePragma(new DisableDefinePragmasPragma());
 			definePragma(new DisableDefineTypesPragma());
 			definePragma(new DisableDefineAnnotationsPragma());
 		} catch (InvalidPragma | InvalidAnnotation | InvalidCore | InvalidType ex) {

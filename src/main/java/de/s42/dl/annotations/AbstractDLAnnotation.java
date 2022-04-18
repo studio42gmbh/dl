@@ -36,19 +36,13 @@ import de.s42.dl.exceptions.InvalidAnnotation;
 public abstract class AbstractDLAnnotation implements DLAnnotation
 {
 
-	private final String name;
+	protected final String name;
 
 	protected AbstractDLAnnotation(String name)
 	{
 		assert name != null;
 
 		this.name = name;
-	}
-
-	@Override
-	public String getName()
-	{
-		return name;
 	}
 
 	@SuppressWarnings("UseSpecificCatch")
@@ -92,5 +86,11 @@ public abstract class AbstractDLAnnotation implements DLAnnotation
 		}
 
 		return result;
+	}
+
+	@Override
+	public String getName()
+	{
+		return name;
 	}
 }

@@ -27,10 +27,7 @@ package de.s42.dl;
 
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidPragma;
-import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.exceptions.InvalidCore;
-import de.s42.dl.exceptions.InvalidAnnotation;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -57,6 +54,10 @@ public interface DLCore
 
 	public DLType createType(String typeName);
 
+	public DLType createType(Class typeClass) throws DLException;
+
+	public DLAnnotation createAnnotation(Class<? extends DLAnnotation> annotationImpl) throws DLException;
+
 	public DLEnum createEnum();
 
 	public DLEnum createEnum(String name);
@@ -79,8 +80,8 @@ public interface DLCore
 
 	public DLAnnotation addAnnotationToInstance(DLModule module, DLInstance instance, String annotationName, Object... parameters) throws DLException;
 
-	public void defineAliasForType(String alias, DLType type) throws InvalidType;
-
+	public DLType defineAliasForType(String alias, DLType type) throws DLException;
+	
 	public void addExported(DLInstance instance) throws InvalidInstance;
 
 	public void addExported(Collection<DLInstance> instances) throws InvalidInstance;
@@ -93,9 +94,8 @@ public interface DLCore
 
 	public Object resolveExportedPath(String path);
 
-	public void defineType(DLType type, String... aliases) throws InvalidCore, InvalidType;
-
-	public DLType defineTypeFromClass(Class typeClass, String... aliases) throws DLException;
+	// @todo DL will have to solve the basic name handling in types (types have 1 name but can be mapped with different aliases)
+	public DLType defineType(DLType type, String... aliases) throws DLException;
 
 	public boolean hasType(String name);
 
@@ -107,7 +107,7 @@ public interface DLCore
 
 	public Optional<DLType> getType(String name);
 
-	public Optional<DLType> getType(String name, List<DLType> genericTypes) throws InvalidCore, InvalidType;
+	public Optional<DLType> getType(String name, List<DLType> genericTypes) throws DLException;
 
 	public List<DLType> getTypes();
 
@@ -117,16 +117,22 @@ public interface DLCore
 
 	public List<DLEnum> getEnums();
 
-	public void defineAnnotation(DLAnnotation annotation) throws InvalidCore, InvalidAnnotation;
+	// @todo DL will have to solve the basic name handling in annotations (annotations have 1 name but can be mapped with different aliases)
+	public DLAnnotation defineAnnotation(DLAnnotation annotation, String... aliases) throws DLException;
 
+	public DLAnnotation defineAliasForAnnotation(String alias, DLAnnotation annotation) throws DLException;
+	
 	public boolean hasAnnotation(String name);
 
 	public Optional<DLAnnotation> getAnnotation(String name);
 
 	public List<DLAnnotation> getAnnotations();
 
-	public void definePragma(DLPragma pragma) throws InvalidPragma;
-
+	// @todo DL will have to solve the basic name handling in pragmas (pragmas have 1 name but can be mapped with different aliases)
+	public DLPragma definePragma(DLPragma pragma, String... aliases) throws DLException;
+	
+	public DLPragma defineAliasForPragma(String alias, DLPragma pragma) throws DLException;
+	
 	public boolean hasPragma(String name);
 
 	public Optional<DLPragma> getPragma(String name);
@@ -144,4 +150,8 @@ public interface DLCore
 	public boolean isAllowDefineAnnotations();
 
 	public void setAllowDefineAnnotations(boolean allowDefineAnnotations);
+
+	public boolean isAllowDefinePragmas();
+
+	public void setAllowDefinePragmas(boolean allowDefinePragmas);
 }

@@ -101,7 +101,7 @@ public class DLBasicTest
 	public void validSimpleDataFromJavaClassType() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.defineTypeFromClass(TestData.class);
+		core.defineType(core.createType(TestData.class));
 
 		DLModule module = core.parse("Anonymous", "de.s42.dl.DLBasicTest$TestData data1 { login: \"TestName\"; id : 14; }");
 		TestData data1 = (TestData) module.getChildAsJavaObject("data1", core).get();
@@ -115,7 +115,7 @@ public class DLBasicTest
 	public void invalidSimpleDataFromJavaClassTypeMissingRequiredAttributeLogin() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.defineTypeFromClass(TestData.class);
+		core.defineType(core.createType(TestData.class));
 
 		// attribute login missing
 		core.parse("Anonymous", "de.s42.dl.DLBasicTest$TestData data1 { id : 14; }");

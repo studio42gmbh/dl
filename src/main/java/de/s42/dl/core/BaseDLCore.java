@@ -75,7 +75,6 @@ public class BaseDLCore implements DLCore
 	protected final Map<String, WeakReference<Object>> convertedCache = new HashMap<>();
 
 	protected final List<DLCoreResolver> resolvers = new ArrayList<>();
-	protected final MappedList<String, DLType> unaliasedTypes = new MappedList<>();
 	protected final MappedList<String, DLType> types = new MappedList<>();
 	protected final MappedList<String, DLPragma> pragmas = new MappedList<>();
 	protected final MappedList<String, DLAnnotation> annotations = new MappedList<>();
@@ -85,6 +84,7 @@ public class BaseDLCore implements DLCore
 
 	protected boolean allowDefineTypes = true;
 	protected boolean allowDefineAnnotations = true;
+	protected boolean allowDefinePragmas = true;
 
 	public BaseDLCore()
 	{
@@ -104,7 +104,6 @@ public class BaseDLCore implements DLCore
 			BaseDLCore core = getClass().getConstructor().newInstance();
 
 			core.resolvers.addAll(resolvers);
-			core.unaliasedTypes.addAll(unaliasedTypes);
 			core.types.addAll(types);
 			core.pragmas.addAll(pragmas);
 			core.annotations.addAll(annotations);
@@ -188,6 +187,20 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
+	public DLAnnotation createAnnotation(Class<? extends DLAnnotation> annotationImpl) throws DLException
+	{
+		assert annotationImpl != null;
+
+		try {
+			DLAnnotation annotation = (DLAnnotation) annotationImpl.getConstructor().newInstance();
+
+			return annotation;
+		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
+			throw new DLException("Can not create annotation " + annotationImpl.getName());
+		}
+	}
+
+	@Override
 	public DLAnnotation addAnnotationToAttribute(DLType type, DLAttribute attribute, String annotationName, Object... parameters) throws DLException
 	{
 		assert attribute != null;
@@ -239,16 +252,60 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public void defineAliasForType(String alias, DLType type) throws InvalidType
+	public DLType defineAliasForType(String alias, DLType type) throws InvalidCore, InvalidType
 	{
 		assert alias != null;
 		assert type != null;
 
-		if (types.contains(alias)) {
+		if (!allowDefineTypes) {
+			throw new InvalidCore("May not define types");
+		}
+
+		if (hasType(alias)) {
 			throw new InvalidType("Alias '" + alias + "' is already defined");
 		}
 
 		types.add(alias, type);
+
+		return type;
+	}
+
+	@Override
+	public DLAnnotation defineAliasForAnnotation(String alias, DLAnnotation annotation) throws InvalidCore, InvalidAnnotation
+	{
+		assert alias != null;
+		assert annotation != null;
+
+		if (!allowDefineAnnotations) {
+			throw new InvalidCore("May not define annotations");
+		}
+
+		if (hasAnnotation(alias)) {
+			throw new InvalidAnnotation("Annotation '" + alias + "' is already defined");
+		}
+
+		annotations.add(alias, annotation);
+
+		return annotation;
+	}
+
+	@Override
+	public DLPragma defineAliasForPragma(String alias, DLPragma pragma) throws InvalidCore, InvalidPragma
+	{
+		assert alias != null;
+		assert pragma != null;
+
+		if (!allowDefinePragmas) {
+			throw new InvalidCore("May not define types");
+		}
+
+		if (hasPragma(alias)) {
+			throw new InvalidPragma("Alias '" + alias + "' is already defined");
+		}
+
+		pragmas.add(alias, pragma);
+
+		return pragma;
 	}
 
 	@Override
@@ -352,13 +409,13 @@ public class BaseDLCore implements DLCore
 	@Override
 	public List<DLType> getTypes()
 	{
-		return unaliasedTypes.asList();
+		return types.asList();
 	}
 
 	@Override
 	public List<DLType> getComplexTypes()
 	{
-		return unaliasedTypes
+		return types
 			.asList()
 			.stream()
 			.filter((type) -> {
@@ -370,7 +427,7 @@ public class BaseDLCore implements DLCore
 	@Override
 	public List<DLType> getSimpleTypes()
 	{
-		return unaliasedTypes
+		return types
 			.asList()
 			.stream()
 			.filter((type) -> {
@@ -382,7 +439,7 @@ public class BaseDLCore implements DLCore
 	@Override
 	public List<DLEnum> getEnums()
 	{
-		return unaliasedTypes
+		return types
 			.asList()
 			.stream()
 			.filter((type) -> {
@@ -395,7 +452,7 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public void defineType(DLType type, String... aliases) throws InvalidCore, InvalidType
+	public DLType defineType(DLType type, String... aliases) throws InvalidCore, InvalidType
 	{
 		assert type != null;
 
@@ -407,17 +464,18 @@ public class BaseDLCore implements DLCore
 			throw new InvalidType("Type '" + type.getName() + "' already defined");
 		}
 
-		unaliasedTypes.add(type.getName(), type);
 		types.add(type.getName(), type);
 
 		for (String alias : aliases) {
 			defineAliasForType(alias, type);
 		}
+
+		return type;
 	}
 
 	@SuppressWarnings({"UseSpecificCatch", "null"})
 	@Override
-	public DLType defineTypeFromClass(Class typeClass, String... aliases) throws DLException
+	public DLType createType(Class typeClass) throws DLException
 	{
 		assert typeClass != null;
 
@@ -668,14 +726,6 @@ public class BaseDLCore implements DLCore
 			}
 		}
 
-		defineType(classType);
-
-		// map aliases
-		for (String alias : aliases) {
-			defineAliasForType(alias, classType);
-		}
-
-		//log.debug(DLHelper.describe(classType));
 		return classType;
 	}
 
@@ -783,9 +833,10 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public void defineAnnotation(DLAnnotation annotation) throws InvalidCore, InvalidAnnotation
+	public DLAnnotation defineAnnotation(DLAnnotation annotation, String... aliases) throws InvalidCore, InvalidAnnotation
 	{
 		assert annotation != null;
+		assert aliases != null;
 
 		if (!allowDefineAnnotations) {
 			throw new InvalidCore("May not define annotations");
@@ -796,6 +847,12 @@ public class BaseDLCore implements DLCore
 		}
 
 		annotations.add(annotation.getName(), annotation);
+
+		for (String alias : aliases) {
+			defineAliasForAnnotation(alias, annotation);
+		}
+
+		return annotation;
 	}
 
 	public void redefineAnnotation(DLAnnotation annotation) throws InvalidCore, InvalidAnnotation
@@ -836,15 +893,25 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public void definePragma(DLPragma pragma) throws InvalidPragma
+	public DLPragma definePragma(DLPragma pragma, String... aliases) throws InvalidPragma, InvalidCore
 	{
 		assert pragma != null;
+
+		if (!allowDefinePragmas) {
+			throw new InvalidCore("May not define pragmas");
+		}
 
 		if (hasPragma(pragma.getName())) {
 			throw new InvalidPragma("Pragma '" + pragma + "' is already defined");
 		}
 
 		pragmas.add(pragma.getName(), pragma);
+
+		for (String alias : aliases) {
+			defineAliasForPragma(alias, pragma);
+		}
+
+		return pragma;
 	}
 
 	@Override
@@ -1190,5 +1257,17 @@ public class BaseDLCore implements DLCore
 	public void emptyConversionCache()
 	{
 		convertedCache.clear();
+	}
+
+	@Override
+	public boolean isAllowDefinePragmas()
+	{
+		return allowDefinePragmas;
+	}
+
+	@Override
+	public void setAllowDefinePragmas(boolean allowDefinePragmas)
+	{
+		this.allowDefinePragmas = allowDefinePragmas;
 	}
 }

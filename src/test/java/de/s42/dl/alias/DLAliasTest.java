@@ -28,6 +28,7 @@ package de.s42.dl.alias;
 import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidCore;
 import de.s42.dl.exceptions.InvalidType;
 import org.testng.annotations.Test;
 
@@ -52,7 +53,7 @@ public class DLAliasTest
 		core.parse("Anonymous", "type A; type B; alias B A; B test;");
 	}
 
-	@Test(expectedExceptions = InvalidType.class)
+	@Test(expectedExceptions = InvalidCore.class)
 	public void invalidAliasUndefinedType() throws DLException
 	{
 		DLCore core = new DefaultCore();
@@ -72,4 +73,35 @@ public class DLAliasTest
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "Integer value : 4; alias i Integer; type C { i val; } C test { val : $value; }");
 	}
+	
+	@Test
+	public void validAliasAnnotation() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "alias test dynamic;");
+		core.parse("Anonymous2", "type T @test;");
+	}
+	
+	@Test(expectedExceptions = InvalidCore.class)
+	public void invalidAliasAnnotation() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "alias test notDefined;");
+	}
+		
+	@Test
+	public void validAliasPragma() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "alias test disableDefineTypes;");
+		core.parse("Anonymous2", "pragma test;");
+	}
+	
+	@Test(expectedExceptions = InvalidCore.class)
+	public void invalidAliasPragma() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "alias test notDefined;");
+	}
+	
 }

@@ -55,7 +55,7 @@ public class DLEnumsTest
 		core.parse("Anonymous", "extern enum Status;");
 	}
 
-	@Test(expectedExceptions = {UndefinedEnum.class})
+	@Test(expectedExceptions = UndefinedEnum.class)
 	public void externEnumNotDefined() throws DLException
 	{
 		DLCore core = new DefaultCore();
@@ -69,7 +69,7 @@ public class DLEnumsTest
 		core.parse("Anonymous", "enum Status { New, InProgress, Done, Error, }");
 	}
 
-	@Test(expectedExceptions = {InvalidEnumValue.class})
+	@Test(expectedExceptions = InvalidEnumValue.class)
 	public void defineInvalidEnumDuplicateEnumValue() throws DLException
 	{
 		DLCore core = new DefaultCore();
@@ -84,7 +84,7 @@ public class DLEnumsTest
 		core.parse("Anonymous", "type UseEnum { Status status : New; }");
 	}
 
-	@Test(expectedExceptions = {InvalidEnumValue.class})
+	@Test(expectedExceptions = InvalidEnumValue.class)
 	public void useIncorrectEnumValueAsDefaultInType() throws DLException
 	{
 		DLCore core = new DefaultCore();
@@ -92,14 +92,14 @@ public class DLEnumsTest
 		core.parse("Anonymous", "type UseEnum { Status status : NotInEnum; }");
 	}
 
-	@Test(expectedExceptions = {InvalidEnumValue.class})
+	@Test(expectedExceptions = InvalidEnumValue.class)
 	public void invalidValueNotInCodeDefinedEnumTypedef() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "enum Status { New, InProgress, Done, Error, New } type Test { Status t : NotInEnum; }");
 	}
 
-	@Test(expectedExceptions = {InvalidEnumValue.class})
+	@Test(expectedExceptions = InvalidEnumValue.class)
 	public void invalidValueNotInCodeDefinedEnumInstancedef() throws DLException
 	{
 		DLCore core = new DefaultCore();
