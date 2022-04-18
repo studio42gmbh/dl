@@ -81,8 +81,8 @@ public class DLArrayTest
 		Assert.assertEquals(instance.get("data"), new Long[]{1L, 2L, 3L});
 	}
 
-	// @todo https://github.com/studio42gmbh/dl/issues/9 properly convert the elements into Integer
-	@Test(enabled = false)
+	// https://github.com/studio42gmbh/dl/issues/9 properly convert the elements into Integer
+	@Test
 	public void validArrayWithGenericTypeInteger() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
@@ -90,5 +90,21 @@ public class DLArrayTest
 		core.parse("Anonymous", "type A { Array<Integer> data; } A test @export { data : 1, 2, 3; }");
 		DLInstance instance = core.getExported("test").orElseThrow();
 		Assert.assertEquals(instance.get("data"), new Integer[]{1, 2, 3});
+	}
+
+	public static enum State
+	{
+		NEW, PROGRESS, DONE
+	}
+
+	@Test
+	public void validArrayWithGenericTypeEnum() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		core.defineType(core.createEnum(State.class), "State");
+		core.defineArrayType(State.class);
+		core.parse("Anonymous", "type A { Array<State> data; } A test @export { data : NEW, PROGRESS, NEW; }");
+		DLInstance instance = core.getExported("test").orElseThrow();
+		Assert.assertEquals(instance.get("data"), new State[]{State.NEW, State.PROGRESS, State.NEW});
 	}
 }

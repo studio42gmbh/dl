@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl.types;
 
+import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
@@ -72,40 +73,53 @@ public class ArrayDLType extends DefaultDLType
 			return new Object[0];
 		}
 
-		// @todo https://github.com/studio42gmbh/dl/issues/9 validate/convert types of contents
-		if (isGenericType()) {
+		if (!isGenericType()) {
+			return sources;
+		}
 
-			//log.debug("Validating types");
-			for (Object source : sources) {
+		Object[] result = new Object[sources.length];
 
-				if (source instanceof DLInstance) {
+		// validating types
+		for (int i = 0; i < sources.length; ++i) {
 
-					DLInstance instance = (DLInstance) source;
-					boolean foundType = false;
+			Object source = sources[i];
 
-					//check all generic types
-					for (DLType genericType : genericTypes) {
+			if (source instanceof DLInstance) {
 
-						// if one fits - fine
-						if (genericType.isAssignableFrom(instance.getType())) {
-							foundType = true;
-							break;
-						}
+				DLInstance instance = (DLInstance) source;
+				boolean foundType = false;
+
+				//check all generic types
+				for (DLType genericType : genericTypes) {
+
+					// if one fits - fine
+					if (genericType.isAssignableFrom(instance.getType())) {
+						foundType = true;
+						break;
 					}
+				}
 
-					if (!foundType) {
-						throw new InvalidType("Type " + instance.getType().getName() + " is not contained in genericTypes");
-					}
-				} else {
+				if (!foundType) {
+					throw new InvalidType("Type " + instance.getType().getName() + " is not contained in genericTypes");
+				}
 
-					if (source != null && getJavaDataType().isAssignableFrom(source.getClass())) {
-						throw new InvalidType("Source '" + source + "' is not contained in genericTypes");
-					}
+				//leave instances unchanged for later conversion
+				result[i] = source;
+
+			} else {
+
+				// https://github.com/studio42gmbh/dl/issues/9 validate/convert types of contents if it has 1 generic type					
+				if (genericTypes.size() == 1) {
+
+					result[i] = ConversionHelper.convert(source, genericTypes.get(0).getJavaDataType());
+				} // @improvement with multiple generic types can not be dealt with atm
+				else if (source != null && getJavaDataType().isAssignableFrom(source.getClass())) {
+					throw new InvalidType("Source '" + source + "' is not contained in genericTypes");
 				}
 			}
 		}
 
-		return sources;
+		return result;
 	}
 
 	@Override
