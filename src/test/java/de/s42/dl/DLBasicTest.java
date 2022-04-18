@@ -83,7 +83,7 @@ public class DLBasicTest
 	}
 
 	@Test
-	public void emptyModule() throws DLException
+	public void validEmptyModule() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "");

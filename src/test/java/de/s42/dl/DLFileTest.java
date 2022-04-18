@@ -43,7 +43,7 @@ public class DLFileTest
 {
 
 	@Test
-	public void testSimple() throws IOException, URISyntaxException, DLException
+	public void validTestSimple() throws IOException, URISyntaxException, DLException
 	{
 		HrfDLReader reader = new HrfDLReader(Path.of(getClass().getResource("simple.dl").toURI()), new DefaultCore());
 
@@ -69,7 +69,7 @@ public class DLFileTest
 	}
 
 	@Test
-	public void testType() throws IOException, URISyntaxException, DLException
+	public void validTestTypes() throws IOException, URISyntaxException, DLException
 	{
 		DLCore core = new DefaultCore();
 
@@ -91,7 +91,7 @@ public class DLFileTest
 	}
 
 	@Test
-	public void testAnnotation() throws IOException, URISyntaxException, DLException
+	public void validTestAnnotations() throws IOException, URISyntaxException, DLException
 	{
 		DefaultCore core = new DefaultCore();
 		core.setBasePath(Path.of("./"));

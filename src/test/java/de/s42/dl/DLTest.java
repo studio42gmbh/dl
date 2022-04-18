@@ -40,7 +40,7 @@ public class DLTest
 	}
 
 	@Test
-	public void testVersion()
+	public void validTestVersion()
 	{
 		AssertHelper.assertStartsWith(DL.getVersion(), "0.1");
 	}
