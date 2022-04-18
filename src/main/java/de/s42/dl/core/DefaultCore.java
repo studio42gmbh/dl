@@ -48,6 +48,11 @@ public class DefaultCore extends BaseDLCore
 	private void init()
 	{
 		try {
+			allowDefineTypes = true;
+			allowDefineAnnotations = true;
+			allowDefinePragmas = true;
+			allowRequire = true;
+
 			defineType(new ArrayDLType(), "java.lang.Array");
 			defineType(new BooleanDLType(), "java.lang.Boolean", "boolean", "bool");
 			defineType(new ClassDLType(), "java.lang.Class");

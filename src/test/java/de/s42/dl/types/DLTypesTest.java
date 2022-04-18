@@ -27,7 +27,6 @@ package de.s42.dl.types;
 
 import de.s42.base.testing.AssertHelper;
 import de.s42.dl.DLCore;
-import de.s42.dl.DLInstance;
 import de.s42.dl.DLModule;
 import de.s42.dl.core.BaseDLCore;
 import de.s42.dl.exceptions.UndefinedAnnotation;
@@ -49,8 +48,9 @@ import org.testng.annotations.Test;
  */
 public class DLTypesTest
 {
+
 	private final static Logger log = LogManager.getLogger(DLTypesTest.class.getName());
-	
+
 	public static class TestClass
 	{
 
@@ -65,7 +65,21 @@ public class DLTypesTest
 		{
 			this.doubleValue = doubleValue;
 		}
-	}	
+	}
+
+	/**
+	 * Tests https://github.com/studio42gmbh/dl/issues/3
+	 * @throws de.s42.dl.exceptions.DLException never thrown here
+	 */
+	@Test
+	public void validExternDLTypeDefinition() throws DLException
+	{
+		DLCore core = new BaseDLCore();
+		core.setAllowDefineTypes(true);
+		core.parse("Anonymous", "extern type de.s42.dl.types.StringDLType;");
+		core.parse("Anonymous2", "type T { de.s42.dl.types.StringDLType val; }");
+		core.parse("Anonymous3", "type T2 { String val; }");
+	}
 
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidExternTypeDefined() throws DLException
@@ -88,7 +102,7 @@ public class DLTypesTest
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "extern abstract type de.s42.dl.types.DLTypesTest$TestClass;");
 	}
-	
+
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidExternTypeNoBodyAllowed() throws DLException
 	{
@@ -109,7 +123,7 @@ public class DLTypesTest
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "extern type de.s42.dl.types.DLTypesTest$TestClass contains Object;");
 	}
-	
+
 	@Test(expectedExceptions = InvalidAnnotation.class)
 	public void invalidExternTypeNoAnnotationAllowed() throws DLException
 	{
@@ -163,6 +177,7 @@ public class DLTypesTest
 	public void invalidTypeAnnotationNotDefined() throws DLException
 	{
 		DLCore core = new BaseDLCore();
+		core.setAllowDefineTypes(true);
 		core.parse("Anonymous", "type T @dynamic;");
 	}
 
@@ -185,9 +200,9 @@ public class DLTypesTest
 	public void invalidComplexTypeAssigned() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous","type A; type B { A value; } B test : Hallo;");
+		core.parse("Anonymous", "type A; type B { A value; } B test : Hallo;");
 	}
-	
+
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidAbstractTypeAssigned() throws DLException
 	{

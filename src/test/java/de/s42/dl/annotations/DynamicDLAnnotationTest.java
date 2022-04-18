@@ -51,6 +51,7 @@ public class DynamicDLAnnotationTest
 	public void invalidUndefinedAnnotationForDynamicType() throws DLException
 	{
 		DLCore core = new BaseDLCore();
+		core.setAllowDefineTypes(true);
 		core.parse("Anonymous", "type Dynamic @dynamic; Dynamic test { value : 1; }");
 	}
 

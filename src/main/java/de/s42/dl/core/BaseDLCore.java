@@ -46,6 +46,7 @@ import de.s42.dl.exceptions.InvalidModule;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidCore;
 import de.s42.dl.exceptions.InvalidAnnotation;
+import de.s42.dl.exceptions.UndefinedAnnotation;
 import de.s42.dl.instances.DefaultDLInstance;
 import de.s42.dl.instances.DefaultDLModule;
 import de.s42.dl.java.DLContainer;
@@ -82,10 +83,10 @@ public class BaseDLCore implements DLCore
 	protected final MappedList<String, DLInstance> exported = new MappedList<>();
 	protected Path basePath;
 
-	protected boolean allowDefineTypes = true;
-	protected boolean allowDefineAnnotations = true;
-	protected boolean allowDefinePragmas = true;
-	protected boolean allowRequire = true;
+	protected boolean allowDefineTypes;
+	protected boolean allowDefineAnnotations;
+	protected boolean allowDefinePragmas;
+	protected boolean allowRequire;
 
 	public BaseDLCore()
 	{
@@ -209,7 +210,14 @@ public class BaseDLCore implements DLCore
 		assert attribute != null;
 		assert annotationName != null;
 
-		DLAnnotation annotation = getAnnotation(annotationName).get();
+		Optional<DLAnnotation> optAnnotation = getAnnotation(annotationName);
+
+		if (optAnnotation.isEmpty()) {
+			throw new UndefinedAnnotation("Annotation '" + annotationName + "' is not defined");
+		}
+
+		DLAnnotation annotation = optAnnotation.orElseThrow();
+
 		annotation.bindToAttribute(this, type, attribute, parameters);
 		((DefaultDLAttribute) attribute).addAnnotation(annotation, parameters);
 
@@ -221,7 +229,14 @@ public class BaseDLCore implements DLCore
 	{
 		assert annotationName != null;
 
-		DLAnnotation annotation = getAnnotation(annotationName).get();
+		Optional<DLAnnotation> optAnnotation = getAnnotation(annotationName);
+
+		if (optAnnotation.isEmpty()) {
+			throw new UndefinedAnnotation("Annotation '" + annotationName + "' is not defined");
+		}
+
+		DLAnnotation annotation = optAnnotation.orElseThrow();
+
 		annotation.bindToType(this, type, parameters);
 		((DefaultDLType) type).addAnnotation(annotation, parameters);
 
@@ -233,7 +248,14 @@ public class BaseDLCore implements DLCore
 	{
 		assert annotationName != null;
 
-		DLAnnotation annotation = getAnnotation(annotationName).get();
+		Optional<DLAnnotation> optAnnotation = getAnnotation(annotationName);
+
+		if (optAnnotation.isEmpty()) {
+			throw new UndefinedAnnotation("Annotation '" + annotationName + "' is not defined");
+		}
+
+		DLAnnotation annotation = optAnnotation.orElseThrow();
+
 		annotation.bindToInstance(this, module, instance, parameters);
 		((DefaultDLInstance) instance).addAnnotation(annotation, parameters);
 
@@ -486,6 +508,23 @@ public class BaseDLCore implements DLCore
 			throw new InvalidCore("May not define types");
 		}
 
+		// https://github.com/studio42gmbh/dl/issues/3 special handling implementations of DLType 
+		if (DLType.class.isAssignableFrom(typeClass)) {
+
+			try {
+				DLType dlType = (DLType) typeClass.getConstructor().newInstance();
+
+				if (types.contains(dlType.getName())) {
+					throw new InvalidType("Type '" + dlType.getName() + "' already defined");
+				}
+
+				return dlType;
+			} catch (Exception ex) {
+				throw new DLException("Error instantiating DLType '" + typeClass + "' implementation - " + ex.getMessage(), ex);
+			}
+		}
+
+		// create type from introspecting the given class
 		String typeName = typeClass.getName();
 
 		if (types.contains(typeName)) {

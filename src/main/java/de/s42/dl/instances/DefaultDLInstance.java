@@ -577,4 +577,16 @@ public class DefaultDLInstance implements DLInstance
 	{
 		return getChild(index).toJavaObject(core);
 	}
+
+	@Override
+	public String toString()
+	{
+		if (getType() != null) {
+			return getType().getCanonicalName() + " " + getName();
+		}
+		else {
+			return "Instance " + getName();
+		}
+		
+	}
 }
