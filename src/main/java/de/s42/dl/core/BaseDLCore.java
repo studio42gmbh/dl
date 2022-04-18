@@ -228,7 +228,9 @@ public class BaseDLCore implements DLCore
 	@Override
 	public DLAnnotation addAnnotationToType(DLType type, String annotationName, Object... parameters) throws DLException
 	{
+		assert type != null;
 		assert annotationName != null;
+		assert parameters != null;
 
 		Optional<DLAnnotation> optAnnotation = getAnnotation(annotationName);
 
@@ -247,7 +249,10 @@ public class BaseDLCore implements DLCore
 	@Override
 	public DLAnnotation addAnnotationToInstance(DLModule module, DLInstance instance, String annotationName, Object... parameters) throws DLException
 	{
+		assert module != null;
+		assert instance != null;
 		assert annotationName != null;
+		assert parameters != null;
 
 		Optional<DLAnnotation> optAnnotation = getAnnotation(annotationName);
 
@@ -267,6 +272,7 @@ public class BaseDLCore implements DLCore
 	public void doPragma(String pragmaName, Object... parameters) throws InvalidPragma
 	{
 		assert pragmaName != null;
+		assert parameters != null;
 
 		Optional<DLPragma> pragma = getPragma(pragmaName);
 

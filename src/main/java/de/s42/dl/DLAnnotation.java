@@ -52,7 +52,7 @@ public interface DLAnnotation extends DLEntity
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
+	@Target(value = {ElementType.FIELD, ElementType.TYPE})
 	public static @interface AnnotationDLContainer
 	{
 

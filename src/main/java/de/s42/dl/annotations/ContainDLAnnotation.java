@@ -28,7 +28,9 @@ package de.s42.dl.annotations;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.*;
+import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.types.DefaultDLType;
+import java.util.Optional;
 
 /**
  *
@@ -81,7 +83,7 @@ public class ContainDLAnnotation extends AbstractDLAnnotation
 	}
 
 	@Override
-	public void bindToType(DLCore core, DLType type, Object... parameters) throws InvalidAnnotation
+	public void bindToType(DLCore core, DLType type, Object... parameters) throws InvalidAnnotation, InvalidType
 	{
 		assert core != null;
 		assert type != null;
@@ -100,7 +102,13 @@ public class ContainDLAnnotation extends AbstractDLAnnotation
 			throw new InvalidAnnotation("max has to be >= min but is " + max + " and min is " + min);
 		}
 
-		DLType containedType = core.getType(typeName).get();
+		Optional<DLType> optContainedType = core.getType(typeName);
+
+		if (optContainedType.isEmpty()) {
+			throw new InvalidType("Contained type '" + typeName + "' is not defined");
+		}
+
+		DLType containedType = optContainedType.orElseThrow();
 
 		((DefaultDLType) type).addValidator(new ContainOnceDLInstanceValidator(containedType, min, max));
 	}
