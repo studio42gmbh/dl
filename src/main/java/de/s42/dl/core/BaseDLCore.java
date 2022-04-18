@@ -85,6 +85,7 @@ public class BaseDLCore implements DLCore
 	protected boolean allowDefineTypes = true;
 	protected boolean allowDefineAnnotations = true;
 	protected boolean allowDefinePragmas = true;
+	protected boolean allowRequire = true;
 
 	public BaseDLCore()
 	{
@@ -109,10 +110,12 @@ public class BaseDLCore implements DLCore
 			core.annotations.addAll(annotations);
 			core.requiredModules.putAll(requiredModules);
 			core.exported.addAll(exported);
+			core.convertedCache.putAll(convertedCache);
 			core.basePath = basePath;
 			core.allowDefineTypes = allowDefineTypes;
 			core.allowDefineAnnotations = allowDefineAnnotations;
-			core.convertedCache.putAll(convertedCache);
+			core.allowDefinePragmas = allowDefinePragmas;
+			core.allowRequire = allowRequire;
 
 			return (DLCoreType) core;
 		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
@@ -1269,5 +1272,17 @@ public class BaseDLCore implements DLCore
 	public void setAllowDefinePragmas(boolean allowDefinePragmas)
 	{
 		this.allowDefinePragmas = allowDefinePragmas;
+	}
+
+	@Override
+	public boolean isAllowRequire()
+	{
+		return allowRequire;
+	}
+
+	@Override
+	public void setAllowRequire(boolean allowRequire)
+	{
+		this.allowRequire = allowRequire;
 	}
 }

@@ -294,10 +294,14 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	@SuppressWarnings("UseSpecificCatch")
 	public void enterRequire(DLParser.RequireContext ctx)
 	{
 		try {
+
+			if (!core.isAllowRequire()) {
+				throw new InvalidCore("Not allowed to require in core");
+			}
+
 			try {
 				DLModule requiredModule = core.parse(ctx.requireModule().getText());
 				module.addRequiredModule(requiredModule);
@@ -806,7 +810,6 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	@SuppressWarnings("null")
 	public void enterAttributeAssignment(AttributeAssignmentContext ctx)
 	{
 		try {

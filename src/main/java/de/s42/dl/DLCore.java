@@ -154,4 +154,8 @@ public interface DLCore
 	public boolean isAllowDefinePragmas();
 
 	public void setAllowDefinePragmas(boolean allowDefinePragmas);
+	
+	public boolean isAllowRequire();
+
+	public void setAllowRequire(boolean allowRequire);
 }

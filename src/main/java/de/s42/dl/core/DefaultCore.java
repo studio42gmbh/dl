@@ -90,6 +90,7 @@ public class DefaultCore extends BaseDLCore
 			definePragma(new DisableDefinePragmasPragma());
 			definePragma(new DisableDefineTypesPragma());
 			definePragma(new DisableDefineAnnotationsPragma());
+			definePragma(new DisableRequirePragma());
 		} catch (InvalidPragma | InvalidAnnotation | InvalidCore | InvalidType ex) {
 			throw new RuntimeException(ex);
 		}
