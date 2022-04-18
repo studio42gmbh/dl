@@ -184,7 +184,7 @@ Names of named instances have to be unique in the same container.
 Instances can easily be extended (See https://github.com/studio42gmbh/dl/tree/master/src/main/java/de/s42/dl/instances)
 
 ```
-type ( name )? @annotation* {
+type name? @annotation* {
 
   type? name : ( value | instance | $reference ) ;
 
@@ -316,7 +316,7 @@ EXTERN ENUM name;
 
 ENUM name @annotation*
 {
-  value (, value)*
+  value (, value)* (,)?
 }
 ```
 
@@ -328,6 +328,9 @@ extern enum de.myapp.Status;
 
 enum MemberStatus 
 {
-	Guest, Member, Gold, VIP
+	Guest, 
+	Member, 
+	Gold, 
+	VIP,
 }
 ```             
