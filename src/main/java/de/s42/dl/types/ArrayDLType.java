@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl.types;
 
+import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
 import de.s42.dl.exceptions.InvalidType;
@@ -50,6 +51,20 @@ public class ArrayDLType extends DefaultDLType
 		allowGenericTypes = true;
 	}
 
+	public ArrayDLType(String name, String genericTypeName, DLCore core) throws InvalidType
+	{
+		super(name);
+
+		init(genericTypeName, core);
+	}
+
+	private void init(String genericTypeName, DLCore core) throws InvalidType
+	{
+		allowGenericTypes = true;
+
+		addGenericType(core.getType(genericTypeName).orElseThrow());
+	}
+
 	@Override
 	public Object read(Object... sources) throws InvalidType
 	{
@@ -57,7 +72,7 @@ public class ArrayDLType extends DefaultDLType
 			return new Object[0];
 		}
 
-		// @todo DL validate types of contents
+		// @todo https://github.com/studio42gmbh/dl/issues/9 validate/convert types of contents
 		if (isGenericType()) {
 
 			//log.debug("Validating types");

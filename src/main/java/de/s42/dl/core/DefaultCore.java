@@ -26,10 +26,7 @@
 package de.s42.dl.core;
 
 import de.s42.dl.annotations.*;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.exceptions.InvalidCore;
-import de.s42.dl.exceptions.InvalidPragma;
-import de.s42.dl.exceptions.InvalidType;
+import de.s42.dl.exceptions.DLException;
 import de.s42.dl.pragmas.*;
 import de.s42.dl.types.*;
 
@@ -56,7 +53,6 @@ public class DefaultCore extends BaseDLCore
 			defineType(new ArrayDLType(), "java.lang.Array");
 			defineType(new BooleanDLType(), "java.lang.Boolean", "boolean", "bool");
 			defineType(new ClassDLType(), "java.lang.Class");
-			defineType(new CoreDLType(), "Core", "de.s42.dl.DLCore");
 			defineType(new DoubleDLType(), "java.lang.Double", "double");
 			defineType(new FloatDLType(), "java.lang.Float", "float");
 			defineType(new IntegerDLType(), "java.lang.Integer", "int");
@@ -69,6 +65,10 @@ public class DefaultCore extends BaseDLCore
 			defineType(new UUIDDLType(), "java.util.UUID");
 			defineType(new StringDLType(), "java.lang.String");
 			defineType(new DateDLType(), "java.util.Date");
+
+			// define type Core and map $core with this
+			CoreDLType coreType = (CoreDLType) defineType(new CoreDLType(), "Core", "de.s42.dl.DLCore");
+			addExported(new CoreDLInstance(this, coreType));
 
 			defineAnnotation(new ContainDLAnnotation());
 			defineAnnotation(new ContainOnceDLAnnotation());
@@ -96,7 +96,7 @@ public class DefaultCore extends BaseDLCore
 			definePragma(new DisableDefineTypesPragma());
 			definePragma(new DisableDefineAnnotationsPragma());
 			definePragma(new DisableRequirePragma());
-		} catch (InvalidPragma | InvalidAnnotation | InvalidCore | InvalidType ex) {
+		} catch (DLException ex) {
 			throw new RuntimeException(ex);
 		}
 	}

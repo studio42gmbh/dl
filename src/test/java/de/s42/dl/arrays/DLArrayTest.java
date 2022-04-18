@@ -26,9 +26,11 @@
 package de.s42.dl.arrays;
 
 import de.s42.dl.DLCore;
+import de.s42.dl.DLInstance;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -57,5 +59,36 @@ public class DLArrayTest
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type A { Array<A> data; } type B; A test1; B test2; A test3 { data : $test1, $test2; }");
+	}
+
+	@Test
+	public void validArrayWithGenericTypeString() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		core.defineArrayType(String.class);
+		core.parse("Anonymous", "type A { Array<String> data; } A test @export { data : a, b, c; }");
+		DLInstance instance = core.getExported("test").orElseThrow();
+		Assert.assertEquals(instance.get("data"), new String[]{"a", "b", "c"});
+	}
+
+	@Test
+	public void validArrayWithGenericTypeLong() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		core.defineArrayType(Long.class);
+		core.parse("Anonymous", "type A { Array<Long> data; } A test @export { data : 1, 2, 3; }");
+		DLInstance instance = core.getExported("test").orElseThrow();
+		Assert.assertEquals(instance.get("data"), new Long[]{1L, 2L, 3L});
+	}
+
+	// @todo https://github.com/studio42gmbh/dl/issues/9 properly convert the elements into Integer
+	@Test(enabled = false)
+	public void validArrayWithGenericTypeInteger() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		core.defineArrayType(Integer.class);
+		core.parse("Anonymous", "type A { Array<Integer> data; } A test @export { data : 1, 2, 3; }");
+		DLInstance instance = core.getExported("test").orElseThrow();
+		Assert.assertEquals(instance.get("data"), new Integer[]{1, 2, 3});
 	}
 }

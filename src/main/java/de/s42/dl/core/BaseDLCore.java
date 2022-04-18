@@ -50,6 +50,7 @@ import de.s42.dl.exceptions.UndefinedAnnotation;
 import de.s42.dl.instances.DefaultDLInstance;
 import de.s42.dl.instances.DefaultDLModule;
 import de.s42.dl.java.DLContainer;
+import de.s42.dl.types.ArrayDLType;
 import de.s42.dl.types.DefaultDLEnum;
 import de.s42.dl.types.DefaultDLType;
 import de.s42.dl.types.ObjectDLType;
@@ -485,17 +486,35 @@ public class BaseDLCore implements DLCore
 			throw new InvalidCore("May not define types");
 		}
 
-		if (types.contains(type.getName())) {
-			throw new InvalidType("Type '" + type.getName() + "' already defined");
+		if (types.contains(type.getCanonicalName())) {
+			throw new InvalidType("Type '" + type.getCanonicalName() + "' already defined");
 		}
 
-		types.add(type.getName(), type);
+		types.add(type.getCanonicalName(), type);
 
 		for (String alias : aliases) {
 			defineAliasForType(alias, type);
 		}
 
 		return type;
+	}
+
+	public DLType defineArrayType(Class genericJavaClass) throws DLException
+	{
+		assert genericJavaClass != null;
+
+		return defineArrayType(getType(genericJavaClass).orElseThrow());
+	}
+
+	public DLType defineArrayType(DLType genericType) throws DLException
+	{
+		assert genericType != null;
+
+		return defineType(new ArrayDLType(
+			ArrayDLType.DEFAULT_SYMBOL,
+			genericType.getCanonicalName(),
+			this),
+			genericType.getJavaDataType().arrayType().getName());
 	}
 
 	@SuppressWarnings({"UseSpecificCatch", "null"})
@@ -760,9 +779,13 @@ public class BaseDLCore implements DLCore
 					// check and add its types in diamond operator as contained types
 					for (Type type : ((ParameterizedType) interfaceType).getActualTypeArguments()) {
 
-						DLType containedType = getType((Class) type).get();
-
-						classType.addContainedType(containedType);
+						// container uses the current type - use the new type
+						if (((Class) type).equals(typeClass)) {
+							classType.addContainedType(classType);
+						} // other type -> find in core
+						else {
+							classType.addContainedType(getType((Class) type).orElseThrow());
+						}
 					}
 				}
 			}
