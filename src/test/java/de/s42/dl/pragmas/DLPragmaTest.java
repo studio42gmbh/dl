@@ -42,22 +42,20 @@ public class DLPragmaTest
 	public static class TestPragma extends AbstractDLPragma
 	{
 
-		public static String DEFAULT_IDENTIFIER = "test";
-
 		public int counter;
 
 		public TestPragma()
 		{
-			super(DEFAULT_IDENTIFIER);
+			super("test");
 		}
 
 		@Override
 		public void doPragma(DLCore core, Object... parameters) throws InvalidPragma
 		{
-			validateParameters(parameters, new Class[]{Number.class, Number.class});
+			parameters = validateParameters(parameters, new Class[]{int.class, int.class});
 
-			int a = ((Number) parameters[0]).intValue();
-			int b = ((Number) parameters[1]).intValue();
+			int a = (int) parameters[0];
+			int b = (int) parameters[1];
 
 			counter += a * b;
 		}
@@ -69,7 +67,7 @@ public class DLPragmaTest
 		DLCore core = new DefaultCore();
 		TestPragma testPragma = new TestPragma();
 		core.definePragma(testPragma);
-		core.parse("Anonymous", "pragma test(6, 2); pragma test(9, 4);");
+		core.parse("Anonymous", "pragma test(6, 2); pragma test(\"9\", \"4\");");
 		Assert.assertEquals(48, testPragma.counter);
 	}
 
