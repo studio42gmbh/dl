@@ -639,7 +639,7 @@ public class BaseDLCore implements DLCore
 						Optional<DLType> optType = getArrayType(attributeJavaType.getComponentType());
 
 						if (optType.isEmpty()) {
-							log.warn("Ignoring attribute", attributeName, "as array type", attributeJavaType, "is unknown");
+							log.info("Ignoring attribute", attributeName, "as array type", attributeJavaType, "is unknown");
 							continue;
 						}
 
@@ -650,7 +650,7 @@ public class BaseDLCore implements DLCore
 						Optional<DLType> optType = getType(attributeJavaType, property.getGenericTypes());
 
 						if (optType.isEmpty()) {
-							log.warn("Ignoring attribute", attributeName, "as type", attributeJavaType, "is unknown");
+							log.info("Ignoring attribute", attributeName, "as type", attributeJavaType, "is unknown");
 							continue;
 						}
 
@@ -876,7 +876,7 @@ public class BaseDLCore implements DLCore
 		Optional<DLType> genericType = getType(genericJavaType);
 
 		if (genericType.isEmpty()) {
-			throw new InvalidType("Type for java type " + genericJavaType + " is not defined");
+			return Optional.empty();
 		}
 
 		return getArrayType(genericType.orElseThrow());
