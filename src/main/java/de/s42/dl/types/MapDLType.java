@@ -25,13 +25,14 @@
 //</editor-fold>
 package de.s42.dl.types;
 
-import de.s42.base.conversion.ConversionHelper;
 import java.util.HashMap;
 
 /**
  *
+ *
  * @author Benjamin Schiller
  */
+// @todo https://github.com/studio42gmbh/dl/issues/11 add map support
 public class MapDLType extends DefaultDLType
 {
 
@@ -52,9 +53,7 @@ public class MapDLType extends DefaultDLType
 	{
 		assert sources != null;
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{HashMap.class});
-
-		return (HashMap) result[0];
+		throw new UnsupportedOperationException("Not supported yet");
 	}
 
 	@Override

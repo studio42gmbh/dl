@@ -29,6 +29,7 @@ import de.s42.base.conversion.ConversionHelper;
 import de.s42.base.zip.ZipHelper;
 import de.s42.dl.*;
 import de.s42.dl.DLAnnotated.DLMappedAnnotation;
+import de.s42.dl.exceptions.DLException;
 import de.s42.dl.io.DLWriter;
 import de.s42.dl.io.binary.BinaryDLWriter;
 import de.s42.dl.io.hrf.HrfDLWriter;
@@ -503,4 +504,12 @@ public final class DLHelper
 			throw new IOException("The given file type " + fileType + " is not supported");
 		}
 	}
+	
+	public static <EntityType> EntityType readInstanceFromFile(DLCore core, Path file) throws DLException
+	{
+		assert core != null;
+		assert file != null;
+		
+		return (EntityType)core.parse(file.toString()).getChildAsJavaObject(0, core);
+	}	
 }

@@ -45,19 +45,20 @@ public class DefaultCore extends BaseDLCore
 	private void init()
 	{
 		try {
+
+			// Allow definitions and require by default
 			allowDefineTypes = true;
 			allowDefineAnnotations = true;
 			allowDefinePragmas = true;
 			allowRequire = true;
 
-			defineType(new ArrayDLType(), "java.lang.Array");
+			// Define basic simple types
 			defineType(new BooleanDLType(), "java.lang.Boolean", "boolean", "bool");
 			defineType(new ClassDLType(), "java.lang.Class");
 			defineType(new DoubleDLType(), "java.lang.Double", "double");
 			defineType(new FloatDLType(), "java.lang.Float", "float");
 			defineType(new IntegerDLType(), "java.lang.Integer", "int");
 			defineType(new LongDLType(), "java.lang.Long", "long");
-			defineType(new MapDLType(), "java.util.Map");
 			defineType(new NumberDLType(), "java.lang.Number");
 			defineType(new ObjectDLType(), "java.lang.Object");
 			defineType(new PathDLType(), "java.nio.file.Path");
@@ -66,11 +67,24 @@ public class DefaultCore extends BaseDLCore
 			defineType(new StringDLType(), "java.lang.String");
 			defineType(new DateDLType(), "java.util.Date");
 
-			// define type Core and map $core with this
+			// Define list types https://github.com/studio42gmbh/dl/issues/10
+			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
+			defineType(new ListDLType(), "java.util.List");
+
+			// Define array types
+			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
+			defineType(new ArrayDLType(), "java.lang.Array");
+			
+			// @todo Define map types https://github.com/studio42gmbh/dl/issues/11
+			defineType(new MapDLType(), "java.util.Map");
+
+			// Define type Core and map $core with this
 			CoreDLType coreType = (CoreDLType) defineType(new CoreDLType(), "Core", "de.s42.dl.DLCore");
 			addExported(new CoreDLInstance(this, coreType));
 
+			// Define basic annotations
 			defineAnnotation(new ContainDLAnnotation());
+			defineAnnotation(new ContainOnlyDLAnnotation());
 			defineAnnotation(new ContainOnceDLAnnotation());
 			defineAnnotation(new DynamicDLAnnotation());
 			defineAnnotation(new ExportDLAnnotation());
@@ -90,6 +104,7 @@ public class DefaultCore extends BaseDLCore
 			defineAnnotation(new UniqueDLAnnotation());
 			defineAnnotation(new WriteOnlyDLAnnotation());
 
+			// Define basic pragmas
 			definePragma(new BasePathPragma());
 			definePragma(new DefinePragmaPragma());
 			definePragma(new DisableDefinePragmasPragma());

@@ -27,6 +27,9 @@ package de.s42.dl.core;
 
 import de.s42.dl.*;
 import de.s42.base.beans.BeanHelper;
+import de.s42.base.beans.BeanInfo;
+import de.s42.base.beans.BeanProperty;
+import de.s42.base.beans.InvalidBean;
 import de.s42.base.collections.MappedList;
 import de.s42.base.conversion.ConversionHelper;
 import de.s42.base.files.FilesHelper;
@@ -49,6 +52,7 @@ import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.UndefinedAnnotation;
 import de.s42.dl.instances.DefaultDLInstance;
 import de.s42.dl.instances.DefaultDLModule;
+import de.s42.dl.instances.SimpleTypeDLInstance;
 import de.s42.dl.java.DLContainer;
 import de.s42.dl.types.ArrayDLType;
 import de.s42.dl.types.DefaultDLEnum;
@@ -57,7 +61,6 @@ import de.s42.dl.types.ObjectDLType;
 import de.s42.dl.util.*;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
-import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.*;
@@ -75,7 +78,6 @@ public class BaseDLCore implements DLCore
 	private final static Logger log = LogManager.getLogger(BaseDLCore.class.getName());
 
 	protected final Map<String, WeakReference<Object>> convertedCache = new HashMap<>();
-
 	protected final List<DLCoreResolver> resolvers = new ArrayList<>();
 	protected final MappedList<String, DLType> types = new MappedList<>();
 	protected final MappedList<String, DLPragma> pragmas = new MappedList<>();
@@ -83,7 +85,6 @@ public class BaseDLCore implements DLCore
 	protected final Map<String, DLModule> requiredModules = new HashMap<>();
 	protected final MappedList<String, DLInstance> exported = new MappedList<>();
 	protected Path basePath;
-
 	protected boolean allowDefineTypes;
 	protected boolean allowDefineAnnotations;
 	protected boolean allowDefinePragmas;
@@ -106,13 +107,13 @@ public class BaseDLCore implements DLCore
 		try {
 			BaseDLCore core = getClass().getConstructor().newInstance();
 
+			core.convertedCache.putAll(convertedCache);
 			core.resolvers.addAll(resolvers);
 			core.types.addAll(types);
 			core.pragmas.addAll(pragmas);
 			core.annotations.addAll(annotations);
 			core.requiredModules.putAll(requiredModules);
 			core.exported.addAll(exported);
-			core.convertedCache.putAll(convertedCache);
 			core.basePath = basePath;
 			core.allowDefineTypes = allowDefineTypes;
 			core.allowDefineAnnotations = allowDefineAnnotations;
@@ -340,6 +341,20 @@ public class BaseDLCore implements DLCore
 		return pragma;
 	}
 
+	public void addExported(String key, Object value) throws UndefinedType, InvalidInstance
+	{
+		assert key != null;
+		assert value != null;
+
+		Optional<DLType> type = getType(value.getClass());
+
+		if (type.isEmpty()) {
+			throw new UndefinedType("No type mapped for " + value.getClass().getName());
+		}
+
+		addExported(new SimpleTypeDLInstance<>(value, type.orElseThrow(), key));
+	}
+
 	@Override
 	public void addExported(DLInstance instance) throws InvalidInstance
 	{
@@ -483,6 +498,13 @@ public class BaseDLCore implements DLCore
 			.collect(Collectors.toUnmodifiableList());
 	}
 
+	public DLType defineType(Class javaType, String... aliases) throws DLException
+	{
+		assert javaType != null;
+
+		return defineType(createType(javaType), aliases);
+	}
+
 	@Override
 	public DLType defineType(DLType type, String... aliases) throws InvalidCore, InvalidType
 	{
@@ -525,7 +547,7 @@ public class BaseDLCore implements DLCore
 
 	@SuppressWarnings({"UseSpecificCatch", "null"})
 	@Override
-	public DLType createType(Class typeClass) throws DLException
+	public DLType createType(Class<?> typeClass) throws DLException
 	{
 		assert typeClass != null;
 
@@ -549,208 +571,147 @@ public class BaseDLCore implements DLCore
 			}
 		}
 
-		// create type from introspecting the given class
+		// Create type from introspecting the given class
 		String typeName = typeClass.getName();
 
-		if (types.contains(typeName)) {
+		if (hasType(typeName)) {
 			throw new InvalidType("Type '" + typeName + "' already defined");
 		}
 
-		//log.debug("Defining class type " + typeName);
+		// Create DLType and set basic values
 		DefaultDLType classType = (DefaultDLType) createType(typeName);
 		classType.setComplexType(true);
 		classType.setJavaType(typeClass);
-
 		classType.addAnnotation(getAnnotation(JavaDLAnnotation.DEFAULT_SYMBOL).get());
 
-		int mod = typeClass.getModifiers();
+		try {
 
-		// check abstract
-		if (Modifier.isInterface(mod)
-			|| Modifier.isAbstract(mod)) {
-			classType.setAbstract(true);
-		}
+			BeanInfo<?> info = BeanHelper.getBeanInfo(typeClass);
 
-		// check final
-		if (Modifier.isFinal(mod)) {
-			classType.setFinal(true);
-		}
+			// Check abstract
+			if (info.isInterface()
+				|| info.isAbstract()) {
+				classType.setAbstract(true);
+			}
 
-		//attach type annotations
-		if (typeClass.isAnnotationPresent(AnnotationDL.class)) {
-			AnnotationDL annotation = (AnnotationDL) typeClass.getAnnotation(AnnotationDL.class);
-			addAnnotationToType(classType, annotation.value(), (Object[]) annotation.parameters());
-		}
-		if (typeClass.isAnnotationPresent(AnnotationDLContainer.class)) {
-			AnnotationDLContainer annotationContainer = (AnnotationDLContainer) typeClass.getAnnotation(AnnotationDLContainer.class);
+			// Check final
+			if (info.isFinal()) {
+				classType.setFinal(true);
+			}
 
-			for (AnnotationDL annotation : annotationContainer.value()) {
+			//Attach single type annotation
+			if (typeClass.isAnnotationPresent(AnnotationDL.class)) {
+				AnnotationDL annotation = (AnnotationDL) typeClass.getAnnotation(AnnotationDL.class);
 				addAnnotationToType(classType, annotation.value(), (Object[]) annotation.parameters());
 			}
-		}
 
-		final Map<String, Field> declaredFields = new HashMap<>();
+			// Attach multiple annotated annotations
+			if (typeClass.isAnnotationPresent(AnnotationDLContainer.class)) {
+				AnnotationDLContainer annotationContainer = (AnnotationDLContainer) typeClass.getAnnotation(AnnotationDLContainer.class);
 
-		for (Field declaredField : typeClass.getDeclaredFields()) {
-			declaredFields.put(declaredField.getName(), declaredField);
-		}
+				for (AnnotationDL annotation : annotationContainer.value()) {
+					addAnnotationToType(classType, annotation.value(), (Object[]) annotation.parameters());
+				}
+			}
 
-		try {
-			Map<String, Method> writeProperties = BeanHelper.getOwnWriteProperties(typeClass);
-			Map<String, Method> readProperties = BeanHelper.getOwnReadProperties(typeClass);
+			// Map properties
+			for (BeanProperty<?> property : info.getProperties()) {
 
-			// map writable properties
-			for (Map.Entry<String, Method> writeProperty : writeProperties.entrySet()) {
+				String attributeName = property.getName();
 
-				String attributeName = writeProperty.getKey();
-
+				// Dont map name and class
 				if ("class".equals(attributeName)
 					|| "name".equals(attributeName)) {
 					continue;
 				}
 
-				// support self type returns
 				DLType attributeType;
-				Class attributeJavaType = writeProperty.getValue().getParameterTypes()[0];
+				Class attributeJavaType = property.getPropertyClass();
 
-				// equal - use the new type
+				// Equal - use the new type directly
 				if (attributeJavaType.equals(typeClass)) {
 					attributeType = classType;
-				} // not equal - find other type
+				} // Not equal - find other type
 				else {
-					if (!hasType(attributeJavaType)) {
-						log.warn("Ignoring attribute", attributeName, "as type", attributeJavaType, "is unknown");
-						continue;
+					// Create specialized array type
+					if (attributeJavaType.isArray()) {
+
+						Optional<DLType> optType = getArrayType(attributeJavaType.getComponentType());
+
+						if (optType.isEmpty()) {
+							log.warn("Ignoring attribute", attributeName, "as array type", attributeJavaType, "is unknown");
+							continue;
+						}
+
+						attributeType = optType.orElseThrow();
+					} // Create type optionally with generic types
+					else {
+
+						Optional<DLType> optType = getType(attributeJavaType, property.getGenericTypes());
+
+						if (optType.isEmpty()) {
+							log.warn("Ignoring attribute", attributeName, "as type", attributeJavaType, "is unknown");
+							continue;
+						}
+
+						attributeType = optType.orElseThrow();
 					}
-					attributeType = getType(attributeJavaType).get();
 				}
 
 				DefaultDLAttribute attribute = new DefaultDLAttribute(attributeName, attributeType);
 
-				// additive features using annotations on fields of given class
-				Field field = declaredFields.get(attributeName);
+				// Check for annotation AttributeDL
+				if (property.isAnnotationPresent(AttributeDL.class)) {
 
-				if (field != null) {
+					AttributeDL attr = property.getAnnotation(AttributeDL.class);
 
-					// check for annotation AttributeDL
-					if (field.isAnnotationPresent(AttributeDL.class)) {
-						AttributeDL attr = field.getAnnotation(AttributeDL.class);
-						String defValue = attr.defaultValue();
-
-						if (!defValue.isBlank()) {
-							try {
-								attribute.setDefaultValue(
-									ConversionHelper.convert(defValue, attributeType.getJavaDataType())
-								);
-							} catch (Throwable ex) {
-								throw new RuntimeException("Error converting AttributeDL default value for attribute " + attribute.getName() + " - " + ex.getMessage(), ex);
-							}
-						}
-
-						if (attr.required()) {
-							addAnnotationToAttribute(classType, attribute, RequiredDLAnnotation.DEFAULT_SYMBOL);
+					// Set default value if the annotated defaultvalue is not blank
+					String defValue = attr.defaultValue();
+					if (!defValue.isBlank()) {
+						try {
+							attribute.setDefaultValue(
+								ConversionHelper.convert(defValue, attributeType.getJavaDataType())
+							);
+						} catch (Throwable ex) {
+							throw new RuntimeException("Error converting AttributeDL default value for attribute " + attribute.getName() + " - " + ex.getMessage(), ex);
 						}
 					}
 
-					if (field.isAnnotationPresent(AnnotationDL.class)) {
-						AnnotationDL annotation = field.getAnnotation(AnnotationDL.class);
-						addAnnotationToAttribute(classType, attribute, annotation.value(), (Object[]) annotation.parameters());
-					}
-					if (field.isAnnotationPresent(AnnotationDLContainer.class)) {
-						AnnotationDLContainer annotationContainer = field.getAnnotation(AnnotationDLContainer.class);
-
-						for (AnnotationDL annotation : annotationContainer.value()) {
-							addAnnotationToAttribute(classType, attribute, annotation.value(), (Object[]) annotation.parameters());
-						}
+					// Add required if the annotated attribute is required
+					if (attr.required()) {
+						addAnnotationToAttribute(classType, attribute, RequiredDLAnnotation.DEFAULT_SYMBOL);
 					}
 				}
 
-				// @todo DL might allow to search for classtype of annotation?
-				if (!readProperties.containsKey(attributeName)) {
+				// Add single annotated annotations
+				if (property.isAnnotationPresent(AnnotationDL.class)) {
+					AnnotationDL annotation = property.getAnnotation(AnnotationDL.class);
+					addAnnotationToAttribute(classType, attribute, annotation.value(), (Object[]) annotation.parameters());
+				}
+
+				// Add multiple annotated annotations
+				if (property.isAnnotationPresent(AnnotationDLContainer.class)) {
+					AnnotationDLContainer annotationContainer = property.getAnnotation(AnnotationDLContainer.class);
+
+					for (AnnotationDL annotation : annotationContainer.value()) {
+						addAnnotationToAttribute(classType, attribute, annotation.value(), (Object[]) annotation.parameters());
+					}
+				}
+
+				// Add readonly or write only annotations
+				if (property.isWriteOnly()) {
 					addAnnotationToAttribute(classType, attribute, WriteOnlyDLAnnotation.DEFAULT_SYMBOL);
+				} else if (property.isReadOnly()) {
+					addAnnotationToAttribute(classType, attribute, ReadOnlyDLAnnotation.DEFAULT_SYMBOL);
 				}
 
 				classType.addAttribute(attribute);
 			}
-
-			// map readable properties
-			for (Map.Entry<String, Method> readProperty : readProperties.entrySet()) {
-
-				String attributeName = readProperty.getKey();
-
-				if ("class".equals(attributeName)
-					|| "name".equals(attributeName)) {
-					continue;
-				}
-
-				if (!classType.hasAttribute(attributeName)) {
-
-					// support self type returns
-					DLType attributeType;
-					Class attributeJavaType = readProperty.getValue().getReturnType();
-
-					// equal - use the new type
-					if (attributeJavaType.equals(typeClass)) {
-						attributeType = classType;
-					} // not equal - find other type
-					else {
-						if (!hasType(attributeJavaType)) {
-							log.warn("Ignoring attribute", attributeName, "as type", attributeJavaType, "is unknown in " + classType);
-							continue;
-						}
-						attributeType = getType(attributeJavaType).get();
-					}
-
-					DefaultDLAttribute attribute = new DefaultDLAttribute(attributeName, attributeType);
-
-					// additive features using annotations on fields of given class
-					Field field = declaredFields.get(attributeName);
-
-					if (field != null) {
-
-						// check for annotation AttributeDL
-						if (field.isAnnotationPresent(AttributeDL.class)) {
-							AttributeDL attr = field.getAnnotation(AttributeDL.class);
-							String defValue = attr.defaultValue();
-
-							if (!defValue.isBlank()) {
-								try {
-									attribute.setDefaultValue(
-										ConversionHelper.convert(defValue, attributeType.getJavaDataType())
-									);
-								} catch (Throwable ex) {
-									throw new RuntimeException("Error converting AttributeDL default value for attribute " + attribute.getName() + " - " + ex.getMessage(), ex);
-								}
-							}
-
-							if (attr.required()) {
-								addAnnotationToAttribute(classType, attribute, RequiredDLAnnotation.DEFAULT_SYMBOL);
-							}
-						}
-
-						if (field.isAnnotationPresent(AnnotationDL.class)) {
-							AnnotationDL annotation = field.getAnnotation(AnnotationDL.class);
-							addAnnotationToAttribute(classType, attribute, annotation.value(), (Object[]) annotation.parameters());
-						}
-						if (field.isAnnotationPresent(AnnotationDLContainer.class)) {
-							AnnotationDLContainer annotationContainer = field.getAnnotation(AnnotationDLContainer.class);
-
-							for (AnnotationDL annotation : annotationContainer.value()) {
-								addAnnotationToAttribute(classType, attribute, annotation.value(), (Object[]) annotation.parameters());
-							}
-						}
-					}
-
-					// @todo DL might allow to search for classtype of annotation?
-					addAnnotationToAttribute(classType, attribute, ReadOnlyDLAnnotation.DEFAULT_SYMBOL);
-					classType.addAttribute(attribute);
-				}
-			}
-		} catch (IntrospectionException ex) {
+		} catch (InvalidBean ex) {
 			throw new InvalidType("Class " + typeClass + " can not be introspected - " + ex.getMessage(), ex);
 		}
 
-		// direct superclass
+		// Direct superclass
 		if (typeClass.getSuperclass() != null) {
 
 			if (hasType(typeClass.getSuperclass())) {
@@ -759,7 +720,7 @@ public class BaseDLCore implements DLCore
 			}
 		}
 
-		// direct interfaces
+		// Direct interfaces
 		for (Class interfaceClass : typeClass.getInterfaces()) {
 			if (hasType(interfaceClass)) {
 				DLType interfaceType = getType(interfaceClass).get();
@@ -767,13 +728,13 @@ public class BaseDLCore implements DLCore
 			}
 		}
 
-		// make type derive from Object if given in core
+		// Make type derive from Object if given in core
 		if (!classType.hasParents()
 			&& hasType(ObjectDLType.DEFAULT_SYMBOL)) {
 			classType.addParent(getType(ObjectDLType.DEFAULT_SYMBOL).get());
 		}
 
-		// handle contains with searching for DLContainer<?>
+		// Handle contains with searching for DLContainer<?>
 		for (Type interfaceType : typeClass.getGenericInterfaces()) {
 			if (interfaceType instanceof ParameterizedType) {
 
@@ -786,10 +747,12 @@ public class BaseDLCore implements DLCore
 					for (Type type : ((ParameterizedType) interfaceType).getActualTypeArguments()) {
 
 						// container uses the current type - use the new type
-						if (((Class) type).equals(typeClass)) {
+						if ((type instanceof Class) && ((Class) type).equals(typeClass)) {
 							classType.addContainedType(classType);
 						} // other type -> find in core
-						else {
+						else if (type instanceof TypeVariable) {
+							throw new InvalidType("Can not use generic type arguments");
+						} else {
 							classType.addContainedType(getType((Class) type).orElseThrow());
 						}
 					}
@@ -816,6 +779,21 @@ public class BaseDLCore implements DLCore
 		return types.contains(javaType.getName());
 	}
 
+	public boolean hasArrayType(Class javaType)
+	{
+		assert javaType != null;
+
+		Optional<DLType> componentType = getType(javaType);
+
+		if (componentType.isEmpty()) {
+			return false;
+		}
+
+		String canonicalName = getTypeName(ArrayDLType.DEFAULT_SYMBOL, List.of(componentType.orElseThrow()));
+
+		return types.contains(canonicalName);
+	}
+
 	@Override
 	public boolean hasEnum(String name)
 	{
@@ -831,11 +809,34 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public Optional<DLType> getType(Class javaType)
+	public Optional<DLType> getType(Class javaClass)
 	{
-		assert javaType != null;
+		assert javaClass != null;
 
-		return getType(javaType.getName());
+		return getType(javaClass.getName());
+	}
+
+	public Optional<DLType> getType(Class javaClass, List<Class> genericTypes) throws DLException
+	{
+		assert javaClass != null;
+
+		if (genericTypes == null || genericTypes.isEmpty()) {
+			return getType(javaClass);
+		}
+
+		List<DLType> genericDLTypes = new ArrayList<>();
+		for (Class javaGenericTypeClass : genericTypes) {
+
+			Optional<DLType> optType = getType(javaGenericTypeClass);
+
+			if (optType.isEmpty()) {
+				// do nothing?
+			} else {
+				genericDLTypes.add(optType.orElseThrow());
+			}
+		}
+
+		return getType(javaClass.getName(), genericDLTypes);
 	}
 
 	@Override
@@ -868,14 +869,35 @@ public class BaseDLCore implements DLCore
 		return genericName;
 	}
 
+	public Optional<DLType> getArrayType(Class genericJavaType) throws InvalidCore, InvalidType, UndefinedType
+	{
+		assert genericJavaType != null;
+
+		Optional<DLType> genericType = getType(genericJavaType);
+
+		if (genericType.isEmpty()) {
+			throw new InvalidType("Type for java type " + genericJavaType + " is not defined");
+		}
+
+		return getArrayType(genericType.orElseThrow());
+	}
+
+	public Optional<DLType> getArrayType(DLType genericType) throws InvalidCore, InvalidType, UndefinedType
+	{
+		assert genericType != null;
+
+		return getType(ArrayDLType.DEFAULT_SYMBOL, List.of(genericType));
+	}
+
 	@Override
-	public Optional<DLType> getType(String name, List<DLType> genericTypes) throws InvalidCore, InvalidType
+	public Optional<DLType> getType(String name, List<DLType> genericTypes) throws InvalidCore, InvalidType, UndefinedType
 	{
 		assert name != null;
+		assert genericTypes != null;
 
-		String genericName = getTypeName(name, genericTypes);
+		String canonicalName = getTypeName(name, genericTypes);
 
-		Optional<DLType> type = types.get(genericName);
+		Optional<DLType> type = types.get(canonicalName);
 
 		if (type.isPresent()) {
 			return type;
@@ -883,6 +905,10 @@ public class BaseDLCore implements DLCore
 
 		if (!types.contains(name)) {
 			return Optional.empty();
+		}
+
+		if (genericTypes.isEmpty()) {
+			throw new UndefinedType("Type " + name + " is not defined");
 		}
 
 		// add generic version
@@ -897,7 +923,7 @@ public class BaseDLCore implements DLCore
 
 		specificType.addGenericTypes(genericTypes);
 
-		types.add(genericName, specificType);
+		types.add(canonicalName, specificType);
 
 		//log.debug("Mapping generic type " + genericName);
 		return Optional.of(specificType);
@@ -1082,11 +1108,13 @@ public class BaseDLCore implements DLCore
 
 			DLType type = getType(object.getClass()).get();
 
+			BeanInfo info = BeanHelper.getBeanInfo(object.getClass());
+
 			String name = null;
 
 			// write the name
-			if (BeanHelper.hasReadProperty(object, "name")) {
-				name = BeanHelper.readProperty(object, "name");
+			if (info.hasReadProperty("name")) {
+				name = (String) info.read(object, "name");
 			}
 
 			DLInstance instance = createInstance(type, name);
@@ -1096,7 +1124,7 @@ public class BaseDLCore implements DLCore
 
 				if (attribute.isWritable()) {
 
-					Object rawValue = (Object) BeanHelper.readProperty(object, attribute.getName());
+					Object rawValue = (Object) info.read(object, attribute.getName());
 
 					DLType valueType = attribute.getType();
 					Object value;
@@ -1114,7 +1142,7 @@ public class BaseDLCore implements DLCore
 			}
 
 			return instance;
-		} catch (InvalidInstance | UndefinedType | IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+		} catch (InvalidInstance | UndefinedType | InvalidBean ex) {
 			throw new InvalidInstance("Error converting from object - " + ex.getMessage(), ex);
 		}
 	}
@@ -1203,6 +1231,8 @@ public class BaseDLCore implements DLCore
 		try {
 
 			Class convertClass = instance.getType().getJavaDataType();
+
+			BeanInfo info = BeanHelper.getBeanInfo(convertClass);
 
 			Object convertInstance;
 			String cacheKey = convertClass.getName() + ":" + instance.hashCode();
@@ -1297,12 +1327,12 @@ public class BaseDLCore implements DLCore
 					}
 
 					if (value != null) {
-						BeanHelper.writeProperty(convertInstance, attributeName, value);
+						info.writeConverted(convertInstance, attributeName, value);
 					}
 				}
 
-				if (BeanHelper.hasWriteProperty(convertInstance, "name")) {
-					BeanHelper.writeProperty(convertInstance, "name", instance.getName());
+				if (info.hasWriteProperty("name")) {
+					info.write(convertInstance, "name", instance.getName());
 				}
 
 				// has children and implements the DLContainer interface

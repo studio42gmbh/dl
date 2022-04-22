@@ -26,14 +26,15 @@
 package de.s42.dl.util;
 
 import de.s42.base.beans.BeanHelper;
+import de.s42.base.beans.BeanInfo;
+import de.s42.base.beans.BeanProperty;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.*;
 import de.s42.dl.types.DefaultDLType;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
-import java.lang.reflect.Method;
-import java.util.Map;
+import java.util.Optional;
 
 /**
  *
@@ -102,45 +103,47 @@ public final class CoreHelper
 						// validate if all attributes are reflected correclty in java class
 						if (!type.isAbstract()) {
 
-							Map<String, Method> readProperties = BeanHelper.getReadProperties(typeInstanceClass);
-							Map<String, Method> writeProperties = BeanHelper.getWriteProperties(typeInstanceClass);
+							BeanInfo info = BeanHelper.getBeanInfo(typeInstanceClass);
 
 							for (DLAttribute attribute : type.getAttributes()) {
 
 								String attributeName = attribute.getName();
 								Class attributeType = attribute.getType().getJavaDataType();
 
+								Optional<BeanProperty> optProperty = info.getProperty(attributeName);
+
+								if (optProperty.isEmpty()) {
+									throw new RuntimeException("Attribute " + attributeName
+										+ " is not defined in " + typeInstanceClass.getName());
+								}
+
+								BeanProperty property = optProperty.orElseThrow();
+
 								//log.debug("Validating attribute " + attributeName + " " + attributeType.getName());
 								if (attribute.isReadable()) {
 
-									Method readMethod = readProperties.get(attributeName);
-
-									if (readMethod == null) {
+									if (!property.canRead()) {
 										throw new RuntimeException("Attribute " + attributeName
-											+ " has no read method in java object " + typeInstanceClass.getName()
-											+ " " + readProperties);
+											+ " has no read method in java object " + typeInstanceClass.getName());
 									}
 
-									if (!readMethod.getReturnType().isPrimitive() && !attributeType.isAssignableFrom(readMethod.getReturnType())) {
+									if (!property.getPropertyClass().isPrimitive() && !attributeType.isAssignableFrom(property.getPropertyClass())) {
 										throw new RuntimeException("Attribute " + attributeName
-											+ " has an invalid read type in java object - is " + readMethod.getReturnType().getName()
+											+ " has an invalid read type in java object - is " + property.getPropertyClass().getName()
 											+ " but should be " + attributeType.getName());
 									}
 								}
 
 								if (attribute.isWritable()) {
 
-									Method writeMethod = writeProperties.get(attributeName);
-
-									if (writeMethod == null) {
+									if (!property.canWrite()) {
 										throw new InvalidAttribute("Attribute " + attributeName
-											+ " has no write method in java object " + typeInstanceClass.getName()
-											+ " " + writeProperties);
+											+ " has no write method in java object " + typeInstanceClass.getName());
 									}
 
-									if (!writeMethod.getReturnType().isPrimitive() && !attributeType.isAssignableFrom(writeMethod.getParameterTypes()[0])) {
+									if (!property.getPropertyClass().isPrimitive() && !attributeType.isAssignableFrom(property.getPropertyClass())) {
 										throw new InvalidAttribute("Attribute " + attributeName
-											+ " has an invalid write type in java object - is" + writeMethod.getReturnType().getName()
+											+ " has an invalid write type in java object - is " + property.getPropertyClass().getName()
 											+ " but should be " + attributeType.getName());
 									}
 								}

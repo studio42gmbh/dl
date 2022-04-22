@@ -64,8 +64,7 @@ public class DLArrayTest
 	@Test
 	public void validArrayWithGenericTypeString() throws DLException
 	{
-		DefaultCore core = new DefaultCore();
-		core.defineArrayType(String.class);
+		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type A { Array<String> data; } A test @export { data : a, b, c; }");
 		DLInstance instance = core.getExported("test").orElseThrow();
 		Assert.assertEquals(instance.get("data"), new String[]{"a", "b", "c"});
@@ -74,8 +73,7 @@ public class DLArrayTest
 	@Test
 	public void validArrayWithGenericTypeLong() throws DLException
 	{
-		DefaultCore core = new DefaultCore();
-		core.defineArrayType(Long.class);
+		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type A { Array<Long> data; } A test @export { data : 1, 2, 3; }");
 		DLInstance instance = core.getExported("test").orElseThrow();
 		Assert.assertEquals(instance.get("data"), new Long[]{1L, 2L, 3L});
@@ -85,8 +83,7 @@ public class DLArrayTest
 	@Test
 	public void validArrayWithGenericTypeInteger() throws DLException
 	{
-		DefaultCore core = new DefaultCore();
-		core.defineArrayType(Integer.class);
+		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type A { Array<Integer> data; } A test @export { data : 1, 2, 3; }");
 		DLInstance instance = core.getExported("test").orElseThrow();
 		Assert.assertEquals(instance.get("data"), new Integer[]{1, 2, 3});

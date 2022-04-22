@@ -3,6 +3,12 @@
 // allow to combine other annotations into my own like a specific contract
 annotation myKeyword (required & length(5, 10)) & !upperCase;
 
+type User {
+	
+	UUID hrid @myKeyword;
+
+	UUID hrid2 @required @length(5, 10) @lowerCase;
+}
 
 
 // BINARY VERSION

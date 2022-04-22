@@ -61,8 +61,7 @@ public class ArrayDLType extends DefaultDLType
 
 	private void init(String genericTypeName, DLCore core) throws InvalidType
 	{
-		allowGenericTypes = true;
-
+		setAllowGenericTypes(true);
 		addGenericType(core.getType(genericTypeName).orElseThrow());
 	}
 

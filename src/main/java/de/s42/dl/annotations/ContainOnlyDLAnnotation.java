@@ -26,39 +26,45 @@
 package de.s42.dl.annotations;
 
 import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.*;
 import de.s42.dl.exceptions.InvalidAnnotation;
+import de.s42.dl.*;
 import de.s42.dl.types.DefaultDLType;
 import java.util.Optional;
 
 /**
- * This annotation allows to constrain contains of other Instances. The resolvment of the other type is lazy.
+ *
  * @author Benjamin Schiller
  */
-public class ContainOnceDLAnnotation extends AbstractDLAnnotation
+public class ContainOnlyDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class ContainOnceDLInstanceValidator extends AbstractDLValidator
+	private static class ContainOnlyDLInstanceValidator extends AbstractDLValidator
 	{
 
 		private final DLCore core;
 		private final String typeName;
 		private DLType type;
+		private final int min;
+		private final int max;
 
-		ContainOnceDLInstanceValidator(DLCore core, String typeName)
+		ContainOnlyDLInstanceValidator(DLCore core, String typeName, int min, int max)
 		{
+			assert min >= 0;
+			assert max >= min;
 			assert core != null;
 			assert typeName != null;
 
 			this.core = core;
 			this.typeName = typeName;
+			this.min = min;
+			this.max = max;
 		}
 
 		@Override
 		public void validate(DLInstance instance) throws InvalidInstance
 		{
 			assert instance != null;
-			
+
 			// @todo DL is this risky to do that lookup lazy?
 			if (type == null) {
 				Optional<DLType> optType = core.getType(typeName);
@@ -71,21 +77,26 @@ public class ContainOnceDLAnnotation extends AbstractDLAnnotation
 			}
 
 			int count = instance.getChildren(type).size();
+			int maxCount = instance.getChildren().size();
+			
+			if (count != maxCount) {
+				throw new InvalidInstance("Instance may only contain type '" + type + "' between " + min + " and " + max + " times, but contains other types");
+			}
 
-			if (count != 1) {
-				throw new InvalidInstance("Instance has to contain type '" + type + "' exactly once, but is contained " + count + " times");
+			if (count < min || count > max) {
+				throw new InvalidInstance("Instance has to contain type '" + type + "' between " + min + " and " + max + " times, but is contained " + count + " times");
 			}
 		}
 	}
 
-	public final static String DEFAULT_SYMBOL = "containOnce";
+	public final static String DEFAULT_SYMBOL = "containOnly";
 
-	public ContainOnceDLAnnotation()
+	public ContainOnlyDLAnnotation()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public ContainOnceDLAnnotation(String name)
+	public ContainOnlyDLAnnotation(String name)
 	{
 		super(name);
 	}
@@ -96,10 +107,20 @@ public class ContainOnceDLAnnotation extends AbstractDLAnnotation
 		assert core != null;
 		assert type != null;
 
-		parameters = validateParameters(parameters, new Class[]{String.class});
+		parameters = validateParameters(parameters, new Class[]{String.class, Integer.class, Integer.class});
 
 		String typeName = (String) parameters[0];
+		int min = (Integer) parameters[1];
+		int max = (Integer) parameters[2];
 
-		((DefaultDLType) type).addValidator(new ContainOnceDLInstanceValidator(core, typeName));
+		if (min < 0) {
+			throw new InvalidAnnotation("min has to be >= 0 but is " + min);
+		}
+
+		if (max < min) {
+			throw new InvalidAnnotation("max has to be >= min but is " + max + " and min is " + min);
+		}
+
+		((DefaultDLType) type).addValidator(new ContainOnlyDLInstanceValidator(core, typeName, min, max));
 	}
 }

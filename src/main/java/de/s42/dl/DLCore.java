@@ -54,7 +54,7 @@ public interface DLCore
 
 	public DLType createType(String typeName);
 
-	public DLType createType(Class typeClass) throws DLException;
+	public DLType createType(Class<?> typeClass) throws DLException;
 
 	public DLAnnotation createAnnotation(Class<? extends DLAnnotation> annotationImpl) throws DLException;
 
@@ -81,7 +81,7 @@ public interface DLCore
 	public DLAnnotation addAnnotationToInstance(DLModule module, DLInstance instance, String annotationName, Object... parameters) throws DLException;
 
 	public DLType defineAliasForType(String alias, DLType type) throws DLException;
-	
+
 	public void addExported(DLInstance instance) throws InvalidInstance;
 
 	public void addExported(Collection<DLInstance> instances) throws InvalidInstance;
@@ -121,7 +121,7 @@ public interface DLCore
 	public DLAnnotation defineAnnotation(DLAnnotation annotation, String... aliases) throws DLException;
 
 	public DLAnnotation defineAliasForAnnotation(String alias, DLAnnotation annotation) throws DLException;
-	
+
 	public boolean hasAnnotation(String name);
 
 	public Optional<DLAnnotation> getAnnotation(String name);
@@ -130,9 +130,9 @@ public interface DLCore
 
 	// @todo DL will have to solve the basic name handling in pragmas (pragmas have 1 name but can be mapped with different aliases)
 	public DLPragma definePragma(DLPragma pragma, String... aliases) throws DLException;
-	
+
 	public DLPragma defineAliasForPragma(String alias, DLPragma pragma) throws DLException;
-	
+
 	public boolean hasPragma(String name);
 
 	public Optional<DLPragma> getPragma(String name);
@@ -154,7 +154,7 @@ public interface DLCore
 	public boolean isAllowDefinePragmas();
 
 	public void setAllowDefinePragmas(boolean allowDefinePragmas);
-	
+
 	public boolean isAllowRequire();
 
 	public void setAllowRequire(boolean allowRequire);

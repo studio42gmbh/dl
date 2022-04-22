@@ -28,7 +28,6 @@ package de.s42.dl.annotations;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.*;
-import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.types.DefaultDLType;
 import java.util.Optional;
 
@@ -39,20 +38,24 @@ import java.util.Optional;
 public class ContainDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class ContainOnceDLInstanceValidator extends AbstractDLValidator
+	private static class ContainDLInstanceValidator extends AbstractDLValidator
 	{
 
-		private final DLType type;
+		private final DLCore core;
+		private final String typeName;
+		private DLType type;
 		private final int min;
 		private final int max;
 
-		ContainOnceDLInstanceValidator(DLType type, int min, int max)
+		ContainDLInstanceValidator(DLCore core, String typeName, int min, int max)
 		{
-			assert type != null;
 			assert min >= 0;
 			assert max >= min;
+			assert core != null;
+			assert typeName != null;
 
-			this.type = type;
+			this.core = core;
+			this.typeName = typeName;
 			this.min = min;
 			this.max = max;
 		}
@@ -61,6 +64,17 @@ public class ContainDLAnnotation extends AbstractDLAnnotation
 		public void validate(DLInstance instance) throws InvalidInstance
 		{
 			assert instance != null;
+
+			// @todo DL is this risky to do that lookup lazy?
+			if (type == null) {
+				Optional<DLType> optType = core.getType(typeName);
+
+				if (optType.isEmpty()) {
+					throw new InvalidInstance("Contained type '" + typeName + "' is not defined");
+				}
+
+				type = optType.orElseThrow();
+			}
 
 			int count = instance.getChildren(type).size();
 
@@ -83,7 +97,7 @@ public class ContainDLAnnotation extends AbstractDLAnnotation
 	}
 
 	@Override
-	public void bindToType(DLCore core, DLType type, Object... parameters) throws InvalidAnnotation, InvalidType
+	public void bindToType(DLCore core, DLType type, Object... parameters) throws InvalidAnnotation
 	{
 		assert core != null;
 		assert type != null;
@@ -102,14 +116,6 @@ public class ContainDLAnnotation extends AbstractDLAnnotation
 			throw new InvalidAnnotation("max has to be >= min but is " + max + " and min is " + min);
 		}
 
-		Optional<DLType> optContainedType = core.getType(typeName);
-
-		if (optContainedType.isEmpty()) {
-			throw new InvalidType("Contained type '" + typeName + "' is not defined");
-		}
-
-		DLType containedType = optContainedType.orElseThrow();
-
-		((DefaultDLType) type).addValidator(new ContainOnceDLInstanceValidator(containedType, min, max));
+		((DefaultDLType) type).addValidator(new ContainDLInstanceValidator(core, typeName, min, max));
 	}
 }

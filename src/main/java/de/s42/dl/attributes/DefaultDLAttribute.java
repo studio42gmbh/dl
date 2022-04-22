@@ -176,7 +176,18 @@ public class DefaultDLAttribute implements DLAttribute
 	@Override
 	public String toString()
 	{
-		return StringHelper.toString(this);
+		return StringHelper.toString(getClass(), getName(),
+			new String[]{
+				"type",
+				"readable",
+				"writable",
+				"defaultValue"},
+			new Object[]{
+				getType(),
+				isReadable(),
+				isWritable(),
+				getDefaultValue()}
+		);
 	}
 
 	@Override

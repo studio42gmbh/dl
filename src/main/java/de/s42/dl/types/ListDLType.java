@@ -23,39 +23,74 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.attributes;
+package de.s42.dl.types;
 
-import de.s42.dl.DLAttribute;
-import de.s42.dl.DLCore;
-import de.s42.dl.core.DefaultCore;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.types.StringDLType;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
-import org.testng.annotations.Test;
+import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLType;
+import de.s42.dl.exceptions.InvalidType;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
+ *
  * @author Benjamin Schiller
  */
-public class DLAttributesTest
+// @todo https://github.com/studio42gmbh/dl/issues/10 add List support
+public class ListDLType extends DefaultDLType
 {
 
-	private final static Logger log = LogManager.getLogger(DLAttributesTest.class.getName());
+	public final static String DEFAULT_SYMBOL = "List";
 
-	@Test
-	public void validComplexNestedInstanceAssignment() throws DLException
+	public ListDLType()
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type C { String d; } type A { C e @required; C c @required; } type B { A b @required; } B test { b : A a1 { e : C c1 { d : YAY1; }; c : C c2 { d : YAY2; }; }; }");
+		this(DEFAULT_SYMBOL, null);
 	}
 
-	@Test
-	public void validAttributeToString() throws DLException
+	public ListDLType(DLType genericType)
 	{
-		DLCore core = new DefaultCore();
-		DLAttribute attribute = new DefaultDLAttribute("testAttribute", core.getType(StringDLType.DEFAULT_SYMBOL).get());
-		String toString = attribute.toString();
-		log.debug("toString", toString);
+		this(DEFAULT_SYMBOL, genericType);
+	}
+
+	public ListDLType(String name, DLType genericType)
+	{
+		super(name);
+
+		init(genericType);
+	}
+
+	private void init(DLType genericType)
+	{
+		setAllowGenericTypes(true);
+
+		if (genericType != null) {
+			try {
+				addGenericType(genericType);
+			} catch (InvalidType ex) {
+				throw new RuntimeException("This should not happen as setAllowGenericTypes was just called - " + ex, ex);
+			}
+		}
+	}
+
+	@Override
+	public Object read(Object... sources)
+	{
+		assert sources != null;
+
+		List result;
+
+		if (getGenericTypes().size() > 0) {
+			result = ConversionHelper.convertList(sources, getGenericTypes().get(0).getJavaDataType());
+		} else {
+			result = Arrays.asList(sources);
+		}
+
+		return result;
+	}
+
+	@Override
+	public Class getJavaDataType()
+	{
+		return List.class;
 	}
 }
