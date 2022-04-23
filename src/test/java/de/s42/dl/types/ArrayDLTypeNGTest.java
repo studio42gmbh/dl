@@ -40,6 +40,11 @@ import org.testng.annotations.Test;
 public class ArrayDLTypeNGTest
 {
 
+	public static enum State
+	{
+		NEW, PROGRESS, DONE
+	}
+
 	@Test
 	public void validArrayOneElements() throws DLException
 	{
@@ -89,11 +94,6 @@ public class ArrayDLTypeNGTest
 		Assert.assertEquals(instance.get("data"), new Integer[]{1, 2, 3});
 	}
 
-	public static enum State
-	{
-		NEW, PROGRESS, DONE
-	}
-
 	@Test
 	public void validArrayWithGenericTypeEnum() throws DLException
 	{
@@ -103,5 +103,12 @@ public class ArrayDLTypeNGTest
 		core.parse("Anonymous", "type A { Array<State> data; } A test @export { data : NEW, PROGRESS, NEW; }");
 		DLInstance instance = core.getExported("test").orElseThrow();
 		Assert.assertEquals(instance.get("data"), new State[]{State.NEW, State.PROGRESS, State.NEW});
+	}
+
+	@Test(expectedExceptions = InvalidType.class)
+	public void invalidArrayWrongNumberOfGenericTypes() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "type T { Array<Integer, Integer> data; }");
 	}
 }

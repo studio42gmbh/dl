@@ -122,13 +122,28 @@ public class ArrayDLType extends DefaultDLType
 	}
 
 	@Override
-	public Class getJavaDataType()
+	public void addGenericType(DLType genericType) throws InvalidType
 	{
-		// @todo DL is this really a viable way of typing the array type?
-		if (genericTypes.size() == 1) {
-			return genericTypes.iterator().next().getJavaDataType().arrayType();
+		assert genericType != null;
+
+		if (getGenericTypes().size() >= 1) {
+			throw new InvalidType("may only contain 1 generic types");
 		}
 
-		return Object[].class;
+		// Set the java type for the type
+		setJavaType(genericType.getJavaDataType());
+
+		super.addGenericType(genericType);
+	}
+
+	@Override
+	public void validate() throws InvalidType
+	{
+		super.validate();
+
+		int count = getGenericTypes().size();
+		if (count != 0 && count != 1) {
+			throw new InvalidType("may only contain 0 or 1 generic types");
+		}
 	}
 }

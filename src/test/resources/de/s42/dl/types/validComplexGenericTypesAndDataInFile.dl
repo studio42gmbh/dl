@@ -36,6 +36,11 @@ type TestFloat extends Test
 	Float value;
 }
 
+type TestDerivedFloat extends TestFloat
+{
+	Array<String> tags;
+}
+
 TestInt a {
 	value : 1;
 }
@@ -44,13 +49,19 @@ TestFloat b {
 	value : 2.1;
 }
 
-type TestArray
-{
-	Array<TestFloat, TestInt> array;
+TestDerivedFloat c {
+	value : 3.1;
+	tags: a, b, c;
 }
 
-TestArray c {
-	array: $a, $b;
+
+type TestArray
+{
+	Array<TestFloat> array;
+}
+
+TestArray {
+	array: $b, $c;
 }
 
 type TestArray2
