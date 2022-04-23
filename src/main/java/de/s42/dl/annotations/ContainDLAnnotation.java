@@ -38,7 +38,7 @@ import java.util.Optional;
 public class ContainDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class ContainDLInstanceValidator implements DLValidator
+	private static class ContainDLInstanceValidator implements DLInstanceValidator
 	{
 
 		private final DLCore core;

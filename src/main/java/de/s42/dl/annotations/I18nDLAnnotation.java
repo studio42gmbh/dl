@@ -28,8 +28,8 @@ package de.s42.dl.annotations;
 import de.s42.dl.DLAttribute;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
+import de.s42.dl.DLInstanceValidator;
 import de.s42.dl.DLType;
-import de.s42.dl.DLValidator;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.types.DefaultDLType;
 
@@ -40,7 +40,7 @@ import de.s42.dl.types.DefaultDLType;
 public class I18nDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class I18nDLInstanceValidator implements DLValidator
+	private static class I18nDLInstanceValidator implements DLInstanceValidator
 	{
 
 		private final DLAttribute attribute;

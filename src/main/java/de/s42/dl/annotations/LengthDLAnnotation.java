@@ -39,7 +39,7 @@ import de.s42.dl.types.DefaultDLType;
 public class LengthDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class LengthDLInstanceValidator implements DLValidator
+	private static class LengthDLInstanceValidator implements DLInstanceValidator, DLAttributeValidator
 	{
 
 		private final String name;

@@ -37,7 +37,7 @@ import de.s42.dl.types.DefaultDLType;
 public class RequiredDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class RequiredDLInstanceValidator implements DLValidator
+	private static class RequiredDLInstanceValidator implements DLInstanceValidator
 	{
 
 		private final DLAttribute attribute;

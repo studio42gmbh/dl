@@ -39,7 +39,7 @@ import java.util.Set;
 public class UniqueDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class UniqueDLInstanceValidator implements DLValidator
+	private static class UniqueDLInstanceValidator implements DLInstanceValidator
 	{
 
 		private final Set uniqueCache = new HashSet();

@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 public class RequiredOrDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class RequiredOrDLInstanceValidator implements DLValidator
+	private static class RequiredOrDLInstanceValidator implements DLInstanceValidator
 	{
 
 		private final DLType type;

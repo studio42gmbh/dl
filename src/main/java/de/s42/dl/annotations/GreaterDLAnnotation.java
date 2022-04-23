@@ -39,7 +39,7 @@ import de.s42.dl.types.DefaultDLType;
 public class GreaterDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class GreaterDLInstanceValidator implements DLValidator
+	private static class GreaterDLInstanceValidator implements DLInstanceValidator, DLAttributeValidator
 	{
 
 		private final String nameRef;

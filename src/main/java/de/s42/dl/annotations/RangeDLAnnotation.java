@@ -39,7 +39,7 @@ import de.s42.dl.types.DefaultDLType;
 public class RangeDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class RangeDLInstanceValidator implements DLValidator
+	private static class RangeDLInstanceValidator implements DLInstanceValidator, DLAttributeValidator
 	{
 
 		private final String name;

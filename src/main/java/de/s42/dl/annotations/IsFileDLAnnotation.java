@@ -41,7 +41,7 @@ import java.nio.file.Path;
 public class IsFileDLAnnotation extends AbstractDLAnnotation
 {
 
-	protected static class IsFileDLInstanceValidator implements DLValidator
+	protected static class IsFileDLInstanceValidator implements DLInstanceValidator, DLAttributeValidator
 	{
 
 		protected final String attributeName;
