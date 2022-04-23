@@ -91,7 +91,6 @@ public class DefaultCore extends BaseDLCore
 			defineAnnotation(new ExportDLAnnotation());
 			defineAnnotation(new GenerateUUIDDLAnnotation());
 			defineAnnotation(new GenericDLAnnotation());
-			defineAnnotation(new I18nDLAnnotation());
 			defineAnnotation(new IsDirectoryDLAnnotation());
 			defineAnnotation(new IsFileDLAnnotation());
 			defineAnnotation(new JavaDLAnnotation());
