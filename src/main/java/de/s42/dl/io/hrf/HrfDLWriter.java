@@ -39,6 +39,7 @@ import java.nio.file.Path;
  *
  * @author Benjamin Schiller
  */
+// @todo https://github.com/studio42gmbh/dl/issues/16 HrfDLWriter finish first complete version (types, pragmas, requires, annotations, ...)
 public class HrfDLWriter implements DLWriter
 {
 
@@ -69,9 +70,6 @@ public class HrfDLWriter implements DLWriter
 	public void write(DLPragma pragma) throws IOException
 	{
 		assert pragma != null;
-
-		// @todo DL implement to write pragma
-		//log.debug("write", pragma);
 	}
 
 	@Override

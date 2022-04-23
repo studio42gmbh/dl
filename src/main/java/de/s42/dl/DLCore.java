@@ -94,7 +94,6 @@ public interface DLCore
 
 	public Object resolveExportedPath(String path);
 
-	// @todo DL will have to solve the basic name handling in types (types have 1 name but can be mapped with different aliases)
 	public DLType defineType(DLType type, String... aliases) throws DLException;
 
 	public boolean hasType(String name);
@@ -117,7 +116,6 @@ public interface DLCore
 
 	public List<DLEnum> getEnums();
 
-	// @todo DL will have to solve the basic name handling in annotations (annotations have 1 name but can be mapped with different aliases)
 	public DLAnnotation defineAnnotation(DLAnnotation annotation, String... aliases) throws DLException;
 
 	public DLAnnotation defineAliasForAnnotation(String alias, DLAnnotation annotation) throws DLException;
@@ -128,7 +126,6 @@ public interface DLCore
 
 	public List<DLAnnotation> getAnnotations();
 
-	// @todo DL will have to solve the basic name handling in pragmas (pragmas have 1 name but can be mapped with different aliases)
 	public DLPragma definePragma(DLPragma pragma, String... aliases) throws DLException;
 
 	public DLPragma defineAliasForPragma(String alias, DLPragma pragma) throws DLException;

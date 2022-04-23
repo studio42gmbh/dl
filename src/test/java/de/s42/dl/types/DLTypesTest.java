@@ -195,7 +195,7 @@ public class DLTypesTest
 		core.parse("Anonymous", "type T { A id; }");
 	}
 
-	// @todo raise exception when trying to assign into a complex type
+	// @todo https://github.com/studio42gmbh/dl/issues/12 raise exception when trying to assign into a complex type
 	@Test(expectedExceptions = InvalidType.class, enabled = false)
 	public void invalidComplexTypeAssigned() throws DLException
 	{

@@ -76,7 +76,7 @@ public class DLHrfParsing extends DLParserBaseListener
 	private DefaultDLEnum currentEnum;
 	private final DLCore core;
 
-	// @todo DL this is a preliminary prototypal implementation of dlinstance attribute assignments!
+	// @todo https://github.com/studio42gmbh/dl/issues/18 this is a preliminary prototypal implementation of dlinstance attribute assignments!
 	private final Deque<AttributeAssignmentContext> attributeAssignableContextQueue = new ArrayDeque<>();
 	private final Deque<String> attributeAssignableKeyQueue = new ArrayDeque<>();
 	private final Deque<DLInstance> currentAttributeAssignmentInstances = new ArrayDeque<>();
@@ -306,6 +306,7 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
+	@SuppressWarnings("UseSpecificCatch")
 	public void enterRequire(DLParser.RequireContext ctx)
 	{
 		try {
@@ -462,7 +463,7 @@ public class DLHrfParsing extends DLParserBaseListener
 	{
 		try {
 			try {
-				// @todo DL support multi nested instances - currently just 1 stack is allowed
+				// @todo https://github.com/studio42gmbh/dl/issues/18 DLHrfParsing support multi nested instances in attribute assignment - currently just 1 stack is allowed
 				if (currentInstance.getType() != null) {
 
 					//log.debug("currentInstance validate " + currentInstance.getName());
@@ -816,6 +817,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
+	// @todo https://github.com/studio42gmbh/dl/issues/17 DLHrfParsing improve, refactor and cleanup enterAttributeAssignment
+	@SuppressWarnings("null")
 	public void enterAttributeAssignment(AttributeAssignmentContext ctx)
 	{
 		try {
@@ -922,7 +925,7 @@ public class DLHrfParsing extends DLParserBaseListener
 						} else if (assignables != null
 							&& assignables.length == 1
 							&& assignable.REF() != null
-							&& // @todo DL this way of preventing arrays to be matched has to be optimized
+							&& // @todo https://github.com/studio42gmbh/dl/issues/17 DL this way of preventing arrays to be matched has to be optimized
 							!(currentInstance.getType().getAttribute(key).orElseThrow().getType() instanceof ArrayDLType)) {
 
 							Object ref = resolveReference(assignable.getText(), assignable);

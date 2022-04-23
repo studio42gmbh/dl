@@ -107,21 +107,15 @@ public class DefaultDLInstance implements DLInstance
 	{
 		if (getType() != null) {
 
-			// @todo DL is there a faster way to combine the attributes of the instance and the type?
-			// merge type and instance attributes in case of a dynamic type
-			//if (getType().isAllowDynamicAttributes()) {
-			Set<String> attributeNames = new HashSet<>(attributes.map().keySet());
+			// @improvement is there a faster way to combine the attributes of the instance and the type? dynamic of parents is tricky
+			Set<String> attributeNames = new HashSet<>(attributes.keys());
 
 			attributeNames.addAll(getType().getAttributeNames());
 
 			return Collections.unmodifiableSet(attributeNames);
-			//} // return attributes of type if not dynamic
-			//else {
-			//	return getType().getAttributeNames();
-			//}
 		}
 
-		return Collections.unmodifiableSet(attributes.map().keySet());
+		return Collections.unmodifiableSet(attributes.keys());
 	}
 
 	@Override

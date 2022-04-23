@@ -302,7 +302,7 @@ public final class DLHelper
 				if (prettyPrint) {
 					result.append("\t");
 				}
-				
+
 				result
 					.append(attribute.getType().getCanonicalName())
 					.append(" ")
@@ -400,7 +400,8 @@ public final class DLHelper
 					result.append(":");
 				}
 
-				// @todo DL deal in a more generic manner with string conversion of values -> Use DLType.write
+				// @todo https://github.com/studio42gmbh/dl/issues/19 Deal in a more generic manner with string conversion of values
+				// -> Use DLType.write, Use Stringhelper
 				if (value instanceof DLInstance) {
 					value = toString((DLInstance) value, prettyPrint, indent + 1);
 				} else if (value instanceof Date) {
@@ -431,6 +432,17 @@ public final class DLHelper
 
 	public static boolean isDLB(Path file)
 	{
+		return isDLB(getIntFileSignature(file));
+	}
+
+	public static boolean isDLB(int fileSignature)
+	{
+		return fileSignature == BIN_SIGNATURE;
+	}
+
+	// see https://en.wikipedia.org/wiki/List_of_file_signatures
+	public static int getIntFileSignature(Path file)
+	{
 		assert file != null;
 		assert Files.isRegularFile(file);
 
@@ -441,17 +453,16 @@ public final class DLHelper
 			// handle if you like
 		}
 
-		// see https://en.wikipedia.org/wiki/List_of_file_signatures
-		// file signature
-		return fileSignature == BIN_SIGNATURE;
+		return fileSignature;
 	}
 
-	// @todo DL optimize performance of recognition preventing opening the file multiple times
 	public static DLFileType recognizeFileType(Path file)
 	{
-		if (isDLB(file)) {
-			return DLFileType.BINCOMPRESSED;
-		} else if (ZipHelper.isArchive(file)) {
+		int fileSignature = getIntFileSignature(file);
+
+		if (isDLB(fileSignature)) {
+			return DLFileType.BIN;
+		} else if (ZipHelper.isArchive(fileSignature)) {
 			return DLFileType.BINCOMPRESSED;
 		} else {
 			return DLFileType.HRF;
@@ -504,12 +515,12 @@ public final class DLHelper
 			throw new IOException("The given file type " + fileType + " is not supported");
 		}
 	}
-	
+
 	public static <EntityType> EntityType readInstanceFromFile(DLCore core, Path file) throws DLException
 	{
 		assert core != null;
 		assert file != null;
-		
-		return (EntityType)core.parse(file.toString()).getChildAsJavaObject(0, core);
-	}	
+
+		return (EntityType) core.parse(file.toString()).getChildAsJavaObject(0, core);
+	}
 }

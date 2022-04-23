@@ -60,7 +60,6 @@ public class HrfDLReader implements DLReader
 		assert file != null;
 		assert core != null;
 
-		// @todo DL should get replaced later by a streaming approach
 		module = DLHrfParsing.parse(
 			core,
 			file.toString(),

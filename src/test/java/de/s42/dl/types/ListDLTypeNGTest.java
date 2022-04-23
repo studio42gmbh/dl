@@ -32,6 +32,7 @@ import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.exceptions.UndefinedType;
+import de.s42.dl.instances.SimpleTypeDLInstance;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -63,17 +64,18 @@ public class ListDLTypeNGTest
 		Assert.assertEquals(data, List.of(1, 2, 3));
 	}
 
-	// @todo allow to assign lists from outside
-	@Test(enabled = false)
+	@Test
 	public void validListGenericsInJava() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		core.defineAliasForType("java.util.ImmutableCollections$ListN", core.getType(List.class).orElseThrow());
-		//core.defineAliasForType("java.util.ArrayList", core.getType(List.class).orElseThrow());
+		core.defineAliasForType(
+			"java.util.ImmutableCollections$ListN",
+			core.getType(List.class).orElseThrow());
 		core.addExported("listData", List.of(1, 2, 3));
 		core.parse("Anonymous", "type T { List data; } T t @export { data : $listData; }");
 		DLInstance instance = core.getExported("t").orElseThrow();
-		List data = instance.get("data");
+		// @todo https://github.com/studio42gmbh/dl/issues/13 avoid sketchy SimpleTypeDLInstance wrappings when getting values from instances that were added with addExported
+		List data = ((SimpleTypeDLInstance<List>) instance.get("data")).getData();
 		Assert.assertEquals(data, List.of(1, 2, 3));
 	}
 

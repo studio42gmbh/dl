@@ -30,7 +30,6 @@ import de.s42.dl.attributes.DefaultDLAttribute;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.InvalidAttribute;
 
-// @todo DL implement mechanism to ensure write only
 /**
  *
  * @author Benjamin Schiller

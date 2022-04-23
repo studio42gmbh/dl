@@ -51,6 +51,7 @@ import java.util.zip.ZipOutputStream;
  *
  * @author Benjamin Schiller
  */
+// @todo https://github.com/studio42gmbh/dl/issues/15 BinaryDLWriter finish first complete version (types, pragmas, requires, annotations, ...)
 public class BinaryDLWriter implements DLWriter
 {
 
@@ -111,6 +112,8 @@ public class BinaryDLWriter implements DLWriter
 
 	private void writeSignature(OutputStream out) throws IOException
 	{
+		assert out != null;
+		
 		//write file header
 		ByteBuffer buf = ByteBuffer.wrap(new byte[4]);
 		buf.putInt(DLHelper.BIN_SIGNATURE);
@@ -121,18 +124,12 @@ public class BinaryDLWriter implements DLWriter
 	public void write(DLPragma pragma) throws IOException
 	{
 		assert pragma != null;
-
-		// @todo DL implement to write pragma
-		//log.debug("write", pragma);
 	}
 
 	@Override
 	public void write(DLType type) throws IOException
 	{
 		assert type != null;
-
-		// @todo DL implement to write type
-		//log.debug("write", type);
 	}
 
 	@Override
@@ -149,6 +146,8 @@ public class BinaryDLWriter implements DLWriter
 
 	protected int getOrMapSymbol(String symbol) throws IOException
 	{
+		assert symbol != null;
+		
 		Integer symbolId = symbols.get(symbol);
 
 		// symbol is mapped - just return

@@ -65,7 +65,7 @@ public class ContainDLAnnotation extends AbstractDLAnnotation
 		{
 			assert instance != null;
 
-			// @todo DL is this risky to do that lookup lazy?
+			// @todo https://github.com/studio42gmbh/dl/issues/14 Remove sketchy lookup of other type at instance validation time and move it back to type validation time
 			if (type == null) {
 				Optional<DLType> optType = core.getType(typeName);
 
