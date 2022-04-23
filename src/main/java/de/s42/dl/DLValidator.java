@@ -23,32 +23,12 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
-
-import de.s42.dl.DLCore;
-import de.s42.dl.core.DefaultCore;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidInstance;
-import org.testng.annotations.Test;
+package de.s42.dl;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class GreaterDLAnnotationTest
+public interface DLValidator extends DLInstanceValidator, DLAttributeValidator, DLTypeValidator
 {
-
-	@Test
-	public void validGreaterAnnotations() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { double min; double max @greater(\"min\"); } T t { min : 1.0; max : 2.0; }");
-	}
-
-	@Test(expectedExceptions = InvalidInstance.class)
-	public void invalidGreaterAnnotations() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { double min; double max @greater(\"min\"); } T t { min : 2.0; max : 1.0; }");
-	}
 }

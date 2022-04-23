@@ -25,13 +25,51 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.instances.DLInstanceValidator;
-import de.s42.dl.attributes.DLAttributeValidator;
+import de.s42.dl.*;
+import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidType;
+import de.s42.dl.types.DefaultDLType;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public abstract class AbstractDLValidator implements DLInstanceValidator, DLAttributeValidator
+public class NoGenericsDLAnnotation extends AbstractDLAnnotation
 {
+
+	private static class NoGenericsValidator implements DLTypeValidator
+	{
+
+		@Override
+		public void validate(DLType type) throws InvalidType
+		{
+			assert type != null;
+
+			for (DLAttribute attribute : type.getAttributes()) {
+				if (attribute.getType().isGenericType()) {
+					throw new InvalidType("Type " + type + " may not contain generics, but " + attribute + " has");
+				}
+			}
+		}
+	}
+
+	public final static String DEFAULT_SYMBOL = "noGenerics";
+
+	public NoGenericsDLAnnotation()
+	{
+		this(DEFAULT_SYMBOL);
+	}
+
+	public NoGenericsDLAnnotation(String name)
+	{
+		super(name);
+	}
+
+	@Override
+	public void bindToType(DLCore core, DLType type, Object... parameters) throws DLException
+	{
+		assert type != null;
+
+		((DefaultDLType) type).addValidator(new NoGenericsValidator());
+	}
 }

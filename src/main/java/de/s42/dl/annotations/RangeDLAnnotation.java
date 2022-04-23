@@ -39,7 +39,7 @@ import de.s42.dl.types.DefaultDLType;
 public class RangeDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class RangeDLInstanceValidator extends AbstractDLValidator
+	private static class RangeDLInstanceValidator implements DLValidator
 	{
 
 		private final String name;
@@ -128,7 +128,7 @@ public class RangeDLAnnotation extends AbstractDLAnnotation
 		double max = (Double) parameters[1];
 
 		RangeDLInstanceValidator validator = new RangeDLInstanceValidator(attribute.getName(), min, max);
-		((DefaultDLType) type).addValidator(validator);
+		((DefaultDLType) type).addInstanceValidator(validator);
 
 		if (attribute instanceof DefaultDLAttribute) {
 			((DefaultDLAttribute) attribute).addValidator(validator);

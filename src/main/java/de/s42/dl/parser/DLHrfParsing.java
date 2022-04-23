@@ -258,7 +258,7 @@ public class DLHrfParsing extends DLParserBaseListener
 
 			// alias for types
 			if (core.hasType(aliasDefinitionName)) {
-				
+
 				if (!core.isAllowDefineTypes()) {
 					throw new InvalidCore(createErrorMessage("May not define types in core", ctx));
 				}
@@ -768,6 +768,8 @@ public class DLHrfParsing extends DLParserBaseListener
 				}
 			}
 
+			attribute.getType().validate();
+
 			currentType.addAttribute(attribute);
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);
@@ -778,16 +780,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	public void exitTypeDefinition(TypeDefinitionContext ctx)
 	{
 		try {
-			//validate all attributes
-			for (DLAttribute attribute : currentType.getAttributes()) {
-
-				try {
-					attribute.validate();
-				} catch (InvalidAttribute ex) {
-					throw new InvalidAnnotation(createErrorMessage("Error validating attribute '" + attribute.getName() + "'", ex, ctx), ex);
-				}
-			}
-		} catch (DLException ex) {
+			currentType.validate();
+		} catch (InvalidType ex) {
 			throw new RuntimeException(ex);
 		}
 	}

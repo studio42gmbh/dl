@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 public class RequiredOrDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class RequiredOrDLInstanceValidator extends AbstractDLValidator
+	private static class RequiredOrDLInstanceValidator implements DLValidator
 	{
 
 		private final DLType type;
@@ -123,6 +123,6 @@ public class RequiredOrDLAnnotation extends AbstractDLAnnotation
 			throw new InvalidAnnotation("has to have parameters");
 		}
 
-		((DefaultDLType) type).addValidator(new RequiredOrDLInstanceValidator(type, attribute, parameters));
+		((DefaultDLType) type).addInstanceValidator(new RequiredOrDLInstanceValidator(type, attribute, parameters));
 	}
 }

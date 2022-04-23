@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.instances;
+package de.s42.dl;
 
 import de.s42.dl.DLInstance;
 import de.s42.dl.exceptions.InvalidInstance;

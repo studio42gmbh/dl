@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.arrays;
+package de.s42.dl.types;
 
 import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
@@ -37,7 +37,7 @@ import org.testng.annotations.Test;
  *
  * @author Benjamin Schiller
  */
-public class DLArrayTest
+public class ArrayDLTypeNGTest
 {
 
 	@Test

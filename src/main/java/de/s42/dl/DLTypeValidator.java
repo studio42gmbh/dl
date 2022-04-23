@@ -23,36 +23,19 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl;
 
-import de.s42.dl.DLCore;
-import de.s42.dl.core.DefaultCore;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidInstance;
-import org.testng.annotations.Test;
+import de.s42.dl.exceptions.InvalidType;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class RequiredOrDLAnnotationTest
+public interface DLTypeValidator
 {
 
-	@Test
-	public void validRequiredOr() throws DLException
+	default public void validate(DLType type) throws InvalidType
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { String a @requiredOr(b); String b @requiredOr(a); }");
-		core.parse("Anonymous2", "T t { a : \"Test\"; }");
-		core.parse("Anonymous3", "T t { b : \"Test\"; }");
-		core.parse("Anonymous4", "T t { a : \"Test\"; b : \"Test\"; }");
-	}
-
-	@Test(expectedExceptions = InvalidInstance.class)
-	public void invalidRequiredOr() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { String a @requiredOr(b); String b @requiredOr(a); }");
-		core.parse("Anonymous2", "T t;");
+		// do nothing - valid by default
 	}
 }

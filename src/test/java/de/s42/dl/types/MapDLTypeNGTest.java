@@ -23,72 +23,72 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.types;
 
 import de.s42.dl.DLCore;
+import de.s42.dl.DLInstance;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidAnnotation;
+import de.s42.dl.exceptions.InvalidType;
+import de.s42.dl.exceptions.InvalidValue;
+import java.util.Map;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DLAnnotationsTest
+public class MapDLTypeNGTest
 {
 
-	public static class TestAnnotation extends TagDLAnnotation
-	{
-
-		public TestAnnotation()
-		{
-			super("test");
-		}
-	}
-
-	@Test(expectedExceptions = {InvalidAnnotation.class})
-	public void invalidInternalAnnotationNotAllowed() throws DLException
+	@Test
+	public void validMapInDL() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "annotation T;");
-	}
+		core.parse("Anonymous", "type T { Map data; } T t @export { data : a, 1, b, 3; }");
+		DLInstance instance = core.getExported("t").orElseThrow();
+		Map data = instance.get("data");
 
-	@Test(expectedExceptions = {InvalidAnnotation.class})
-	public void invalidParametersEmptyBracketsAnnotationForJavaType() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T @contain();");
-	}
-
-	@Test(expectedExceptions = {InvalidAnnotation.class})
-	public void invalidParametersNoneAnnotationForJavaType() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T @contain;");
+		Assert.assertEquals(data, Map.of("a", 1L, "b", 3L));
 	}
 
 	@Test
-	public void validJavaDefinedAnnotation() throws DLException
+	public void validMapWithGenericsStringIntegerInDL() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.defineAnnotation(new TestAnnotation());
-		core.parse("Anonymous2", "type T @test;");
+		core.parse("Anonymous", "type T { Map<String, Integer> data; } T t @export { data : a, 1, b, 3; }");
+		DLInstance instance = core.getExported("t").orElseThrow();
+		Map data = instance.get("data");
+
+		Assert.assertEquals(data, Map.of("a", 1, "b", 3));
 	}
 
-	@Test
-	public void validExternAnnotation() throws DLException
+	@Test(expectedExceptions = InvalidValue.class)
+	public void invalidMapWithWrongNumberOfInput() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "extern annotation de.s42.dl.annotations.DLAnnotationsTest$TestAnnotation;");
-		core.parse("Anonymous2", "type T @de.s42.dl.annotations.DLAnnotationsTest$TestAnnotation;");
-		core.parse("Anonymous3", "type T2 @test;");
+		core.parse("Anonymous", "type T { Map<String, Integer> data; } T t @export { data : a, 1, b; }");
 	}
 
-	@Test(expectedExceptions = InvalidAnnotation.class)
-	public void invalidUndefinedExternAnnotation() throws DLException
+	@Test(expectedExceptions = InvalidValue.class)
+	public void invalidMapWithWrongTypesOfInput() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "extern annotation notDefined;");
+		core.parse("Anonymous", "type T { Map<Integer, Integer> data; } T t @export { data : a, 1; }");
+	}
+
+	@Test(expectedExceptions = InvalidType.class)
+	public void invalidMapWithWrongCountOfGenerics1() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "type T { Map<Integer> data; }");
+	}
+
+	@Test(expectedExceptions = InvalidType.class)
+	public void invalidMapWithWrongCountOfGenerics3() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "type T { Map<Integer, Integer, Integer> data; }");
 	}
 }

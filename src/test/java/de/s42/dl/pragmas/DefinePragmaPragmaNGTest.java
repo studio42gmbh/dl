@@ -23,69 +23,58 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.pragmas;
 
-import de.s42.dl.DLAttribute;
 import de.s42.dl.DLCore;
-import de.s42.dl.DLInstance;
-import de.s42.dl.DLType;
-import de.s42.dl.DLValidator;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.types.DefaultDLType;
-import java.util.UUID;
+import de.s42.dl.core.DefaultCore;
+import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidPragma;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class GenerateUUIDDLAnnotation extends AbstractDLAnnotation
+public class DefinePragmaPragmaNGTest
 {
-
-	private static class GenerateUUIDDLInstanceValidator implements DLValidator
+	public static class TestPragma extends AbstractDLPragma
 	{
-
-		private final DLAttribute attribute;
-
-		GenerateUUIDDLInstanceValidator(DLAttribute attribute)
+		public int called;
+		
+		public TestPragma()
 		{
-			assert attribute != null;
-
-			this.attribute = attribute;
+			super("test");
 		}
 
 		@Override
-		public void validate(DLInstance instance)
+		public void doPragma(DLCore core, Object... parameters) throws InvalidPragma
 		{
-			assert instance != null;
+			assert core != null;
+			assert parameters != null;
+			
+			parameters = validateParameters(parameters, new Class[] { int.class });
+			
+			called+= (int)parameters[0];
+		}	
+	}	
 
-			Object val = instance.get(attribute.getName());
-
-			if (val == null) {
-				instance.set(attribute.getName(), UUID.randomUUID());
-			}
-		}
+	@Test
+	public void validDefinePragma() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "pragma definePragma(de.s42.dl.pragmas.DefinePragmaPragmaNGTest$TestPragma);");
+		core.parse("Anonymous2", "pragma test(3);");
+		core.parse("Anonymous3", "pragma de.s42.dl.pragmas.DefinePragmaPragmaNGTest$TestPragma(39);");
+		TestPragma pragma = (TestPragma)core.getPragma("de.s42.dl.pragmas.DefinePragmaPragmaNGTest$TestPragma").orElseThrow();
+		
+		Assert.assertEquals(pragma.called, 42);
 	}
 
-	public final static String DEFAULT_SYMBOL = "generateUUID";
-
-	public GenerateUUIDDLAnnotation()
+	@Test(expectedExceptions = InvalidPragma.class)
+	public void invalidDisallowedDefineTypes() throws DLException
 	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public GenerateUUIDDLAnnotation(String name)
-	{
-		super(name);
-	}
-
-	@Override
-	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws InvalidAnnotation
-	{
-		assert type != null;
-		assert attribute != null;
-
-		validateParameters(parameters, null);
-
-		((DefaultDLType) type).addInstanceValidator(new GenerateUUIDDLInstanceValidator(attribute));
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "pragma definePragma(notDefined);");
 	}
 }

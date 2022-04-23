@@ -23,34 +23,26 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.pragmas;
+package de.s42.dl;
 
-import de.s42.dl.DLCore;
-import de.s42.dl.core.DefaultCore;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidCore;
+import de.s42.base.testing.AssertHelper;
 import org.testng.annotations.Test;
-import org.testng.Assert;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DisableDefineTypesPragmaTest
+public class DLNGTest
 {
 
-	@Test
-	public void validDisableDefineTypesPragma() throws DLException
+	public DLNGTest()
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "pragma disableDefineTypes;");
-		Assert.assertEquals(core.isAllowDefineTypes(), false);
 	}
 
-	@Test(expectedExceptions = InvalidCore.class)
-	public void invalidDisallowedDefineTypes() throws DLException
+	@Test
+	public void validTestVersion()
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "pragma disableDefineTypes; type A;");
+		AssertHelper.assertStartsWith(DL.getVersion(), "0.1");
 	}
+
 }

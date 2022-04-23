@@ -39,7 +39,7 @@ import de.s42.dl.types.DefaultDLType;
 public class GreaterDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class GreaterDLInstanceValidator extends AbstractDLValidator
+	private static class GreaterDLInstanceValidator implements DLValidator
 	{
 
 		private final String nameRef;
@@ -129,7 +129,7 @@ public class GreaterDLAnnotation extends AbstractDLAnnotation
 		String nameRef = (String) parameters[0];
 
 		GreaterDLInstanceValidator validator = new GreaterDLInstanceValidator(attribute.getName(), nameRef);
-		((DefaultDLType) type).addValidator(validator);
+		((DefaultDLType) type).addInstanceValidator(validator);
 
 		if (attribute instanceof DefaultDLAttribute) {
 			((DefaultDLAttribute) attribute).addValidator(validator);

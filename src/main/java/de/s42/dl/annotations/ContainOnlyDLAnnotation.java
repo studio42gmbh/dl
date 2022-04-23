@@ -38,7 +38,7 @@ import java.util.Optional;
 public class ContainOnlyDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class ContainOnlyDLInstanceValidator extends AbstractDLValidator
+	private static class ContainOnlyDLInstanceValidator implements DLValidator
 	{
 
 		private final DLCore core;
@@ -78,7 +78,7 @@ public class ContainOnlyDLAnnotation extends AbstractDLAnnotation
 
 			int count = instance.getChildren(type).size();
 			int maxCount = instance.getChildren().size();
-			
+
 			if (count != maxCount) {
 				throw new InvalidInstance("Instance may only contain type '" + type + "' between " + min + " and " + max + " times, but contains other types");
 			}
@@ -121,6 +121,6 @@ public class ContainOnlyDLAnnotation extends AbstractDLAnnotation
 			throw new InvalidAnnotation("max has to be >= min but is " + max + " and min is " + min);
 		}
 
-		((DefaultDLType) type).addValidator(new ContainOnlyDLInstanceValidator(core, typeName, min, max));
+		((DefaultDLType) type).addInstanceValidator(new ContainOnlyDLInstanceValidator(core, typeName, min, max));
 	}
 }

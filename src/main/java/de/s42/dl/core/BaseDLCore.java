@@ -392,7 +392,7 @@ public class BaseDLCore implements DLCore
 	@Override
 	public List<DLInstance> getExported()
 	{
-		return exported.asList();
+		return exported.list();
 	}
 
 	@Override
@@ -456,14 +456,14 @@ public class BaseDLCore implements DLCore
 	@Override
 	public List<DLType> getTypes()
 	{
-		return types.asList();
+		return types.list();
 	}
 
 	@Override
 	public List<DLType> getComplexTypes()
 	{
 		return types
-			.asList()
+			.list()
 			.stream()
 			.filter((type) -> {
 				return type.isComplexType();
@@ -475,7 +475,7 @@ public class BaseDLCore implements DLCore
 	public List<DLType> getSimpleTypes()
 	{
 		return types
-			.asList()
+			.list()
 			.stream()
 			.filter((type) -> {
 				return type.isSimpleType();
@@ -487,7 +487,7 @@ public class BaseDLCore implements DLCore
 	public List<DLEnum> getEnums()
 	{
 		return types
-			.asList()
+			.list()
 			.stream()
 			.filter((type) -> {
 				return (type instanceof DLEnum);
@@ -964,7 +964,7 @@ public class BaseDLCore implements DLCore
 			throw new InvalidAnnotation("Annotation '" + annotation.getName() + "' is not defined");
 		}
 
-		annotations.replace(annotation.getName(), annotation);
+		annotations.add(annotation.getName(), annotation);
 	}
 
 	@Override
@@ -986,7 +986,7 @@ public class BaseDLCore implements DLCore
 	@Override
 	public List<DLAnnotation> getAnnotations()
 	{
-		return annotations.asList();
+		return annotations.list();
 	}
 
 	@Override
@@ -1030,7 +1030,7 @@ public class BaseDLCore implements DLCore
 	@Override
 	public List<DLPragma> getPragmas()
 	{
-		return pragmas.asList();
+		return pragmas.list();
 	}
 
 	@Override

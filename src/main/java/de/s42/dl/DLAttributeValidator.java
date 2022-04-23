@@ -23,42 +23,20 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl;
 
-import de.s42.dl.DLCore;
-import de.s42.dl.core.BaseDLCore;
-import de.s42.dl.core.DefaultCore;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.UndefinedAnnotation;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import org.testng.annotations.Test;
+import de.s42.dl.DLAttribute;
+import de.s42.dl.exceptions.InvalidAttribute;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DynamicDLAnnotationTest
+public interface DLAttributeValidator
 {
 
-	@Test
-	public void validAnnotationForDynamicType() throws DLException
+	default public void validate(DLAttribute attribute) throws InvalidAttribute
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type Dynamic @dynamic; Dynamic test { value : 1; }");
-	}
-
-	@Test(expectedExceptions = {UndefinedAnnotation.class})
-	public void invalidUndefinedAnnotationForDynamicType() throws DLException
-	{
-		DLCore core = new BaseDLCore();
-		core.setAllowDefineTypes(true);
-		core.parse("Anonymous", "type Dynamic @dynamic; Dynamic test { value : 1; }");
-	}
-
-	@Test(expectedExceptions = {InvalidAnnotation.class})
-	public void invalidParametersAnnotationForDynamicType() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type Dynamic @dynamic(1);");
+		// do nothing - valid by default
 	}
 }

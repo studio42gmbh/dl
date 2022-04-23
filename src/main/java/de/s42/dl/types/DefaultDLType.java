@@ -25,9 +25,11 @@
 //</editor-fold>
 package de.s42.dl.types;
 
+import de.s42.base.collections.MappedList;
 import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.*;
-import de.s42.dl.instances.DLInstanceValidator;
+import de.s42.dl.exceptions.InvalidAttribute;
+import de.s42.dl.DLInstanceValidator;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidValue;
@@ -49,9 +51,9 @@ import java.util.Set;
 public class DefaultDLType implements DLType
 {
 
-	protected final Map<String, String> meta = new HashMap<>();
-	protected final Map<String, DLAttribute> attributes = new HashMap<>();
-	protected final List<DLInstanceValidator> validators = new ArrayList<>();
+	protected final MappedList<String, DLAttribute> attributes = new MappedList<>();
+	protected final List<DLTypeValidator> validators = new ArrayList<>();
+	protected final List<DLInstanceValidator> instanceValidators = new ArrayList<>();
 	protected final List<DLMappedAnnotation> annotations = new ArrayList<>();
 	protected final List<DLType> parents = new ArrayList<>();
 	protected final List<DLType> genericTypes = new ArrayList<>();
@@ -106,9 +108,9 @@ public class DefaultDLType implements DLType
 			copy.isAbstract = isAbstract;
 			copy.isFinal = isFinal;
 			copy.javaType = javaType;
-			copy.attributes.putAll(attributes);
-			copy.meta.putAll(meta);
+			copy.attributes.addAll(attributes);
 			copy.validators.addAll(validators);
+			copy.instanceValidators.addAll(instanceValidators);
 			copy.parents.addAll(parents);
 			copy.genericTypes.addAll(genericTypes);
 			copy.containedTypes.addAll(containedTypes);
@@ -117,6 +119,26 @@ public class DefaultDLType implements DLType
 			return copy;
 		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
 			throw new RuntimeException("Could not copy type - " + ex.getMessage(), ex);
+		}
+	}
+
+	@Override
+	public void validate() throws InvalidType
+	{
+		for (DLAttribute attribute : getAttributes()) {
+			try {
+				attribute.validate();
+			} catch (InvalidAttribute ex) {
+				throw new InvalidType("Error validating attribute " + attribute.getName() + " - " + ex.getMessage(), ex);
+			}
+		}
+
+		for (DLTypeValidator validator : validators) {
+			validator.validate(this);
+		}
+
+		for (DLType parent : parents) {
+			parent.validate();
 		}
 	}
 
@@ -302,7 +324,14 @@ public class DefaultDLType implements DLType
 		return false;
 	}
 
-	public void addValidator(DLInstanceValidator validator)
+	public void addInstanceValidator(DLInstanceValidator validator)
+	{
+		assert validator != null;
+
+		instanceValidators.add(validator);
+	}
+
+	public void addValidator(DLTypeValidator validator)
 	{
 		assert validator != null;
 
@@ -314,7 +343,7 @@ public class DefaultDLType implements DLType
 	{
 		assert instance != null;
 
-		for (DLInstanceValidator validator : validators) {
+		for (DLInstanceValidator validator : instanceValidators) {
 			validator.validate(instance);
 		}
 
@@ -327,7 +356,7 @@ public class DefaultDLType implements DLType
 	{
 		assert attribute != null;
 
-		attributes.put(attribute.getName(), attribute);
+		attributes.add(attribute.getName(), attribute);
 	}
 
 	@Override
@@ -335,7 +364,7 @@ public class DefaultDLType implements DLType
 	{
 		assert name != null;
 
-		if (attributes.containsKey(name)) {
+		if (attributes.contains(name)) {
 			return true;
 		}
 
@@ -351,7 +380,7 @@ public class DefaultDLType implements DLType
 	@Override
 	public Set<DLAttribute> getOwnAttributes()
 	{
-		return Collections.unmodifiableSet(new HashSet<>(attributes.values()));
+		return attributes.values();
 	}
 
 	@Override
@@ -359,7 +388,7 @@ public class DefaultDLType implements DLType
 	{
 		Map<String, DLAttribute> result = new HashMap<>();
 
-		result.putAll(attributes);
+		result.putAll(attributes.map());
 
 		for (DLType parent : parents) {
 
@@ -374,7 +403,7 @@ public class DefaultDLType implements DLType
 	@Override
 	public Set<String> getAttributeNames()
 	{
-		Set<String> result = new HashSet<>(attributes.keySet());
+		Set<String> result = new HashSet<>(attributes.keys());
 
 		for (DLType parent : parents) {
 
@@ -416,10 +445,10 @@ public class DefaultDLType implements DLType
 	{
 		assert name != null;
 
-		DLAttribute attribute = attributes.get(name);
+		Optional<DLAttribute> attribute = attributes.get(name);
 
-		if (attribute != null) {
-			return Optional.of(attribute);
+		if (attribute.isPresent()) {
+			return attribute;
 		}
 
 		for (DLType parent : parents) {

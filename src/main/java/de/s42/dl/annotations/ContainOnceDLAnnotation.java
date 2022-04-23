@@ -33,12 +33,13 @@ import java.util.Optional;
 
 /**
  * This annotation allows to constrain contains of other Instances. The resolvment of the other type is lazy.
+ *
  * @author Benjamin Schiller
  */
 public class ContainOnceDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class ContainOnceDLInstanceValidator extends AbstractDLValidator
+	private static class ContainOnceDLInstanceValidator implements DLValidator
 	{
 
 		private final DLCore core;
@@ -58,7 +59,7 @@ public class ContainOnceDLAnnotation extends AbstractDLAnnotation
 		public void validate(DLInstance instance) throws InvalidInstance
 		{
 			assert instance != null;
-			
+
 			// @todo DL is this risky to do that lookup lazy?
 			if (type == null) {
 				Optional<DLType> optType = core.getType(typeName);
@@ -100,6 +101,6 @@ public class ContainOnceDLAnnotation extends AbstractDLAnnotation
 
 		String typeName = (String) parameters[0];
 
-		((DefaultDLType) type).addValidator(new ContainOnceDLInstanceValidator(core, typeName));
+		((DefaultDLType) type).addInstanceValidator(new ContainOnceDLInstanceValidator(core, typeName));
 	}
 }

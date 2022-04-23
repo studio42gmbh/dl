@@ -23,9 +23,9 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl;
 
-import de.s42.dl.DLCore;
+import de.s42.dl.annotations.TagDLAnnotation;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
@@ -35,27 +35,60 @@ import org.testng.annotations.Test;
  *
  * @author Benjamin Schiller
  */
-public class JavaDLAnnotationTest
+public class DLAnnotationNGTest
 {
 
+	public static class TestAnnotation extends TagDLAnnotation
+	{
+
+		public TestAnnotation()
+		{
+			super("test");
+		}
+	}
+
+	@Test(expectedExceptions = {InvalidAnnotation.class})
+	public void invalidInternalAnnotationNotAllowed() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "annotation T;");
+	}
+
+	@Test(expectedExceptions = {InvalidAnnotation.class})
+	public void invalidParametersEmptyBracketsAnnotationForJavaType() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "type T @contain();");
+	}
+
+	@Test(expectedExceptions = {InvalidAnnotation.class})
+	public void invalidParametersNoneAnnotationForJavaType() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "type T @contain;");
+	}
+
 	@Test
-	public void validAnnotationForJavaType() throws DLException
+	public void validJavaDefinedAnnotation() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type Java @java(\"java.lang.Object\"); Java test;");
+		core.defineAnnotation(new TestAnnotation());
+		core.parse("Anonymous2", "type T @test;");
 	}
 
-	@Test(expectedExceptions = {InvalidAnnotation.class})
-	public void invalidParametersTooManyAnnotationForJavaType() throws DLException
+	@Test
+	public void validExternAnnotation() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type Java @java(\"java.lang.Object\", 1.0);");
+		core.parse("Anonymous", "extern annotation de.s42.dl.DLAnnotationNGTest$TestAnnotation;");
+		core.parse("Anonymous2", "type T @de.s42.dl.DLAnnotationNGTest$TestAnnotation;");
+		core.parse("Anonymous3", "type T2 @test;");
 	}
 
-	@Test(expectedExceptions = {InvalidAnnotation.class})
-	public void invalidParametersTypeAnnotationForJavaType() throws DLException
+	@Test(expectedExceptions = InvalidAnnotation.class)
+	public void invalidUndefinedExternAnnotation() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type Java @java(1.0);");
+		core.parse("Anonymous", "extern annotation notDefined;");
 	}
 }

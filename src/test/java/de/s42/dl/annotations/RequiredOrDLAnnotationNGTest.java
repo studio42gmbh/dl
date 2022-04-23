@@ -23,34 +23,36 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.pragmas;
+package de.s42.dl.annotations;
 
 import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidCore;
+import de.s42.dl.exceptions.InvalidInstance;
 import org.testng.annotations.Test;
-import org.testng.Assert;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DisableRequirePragmaTest
+public class RequiredOrDLAnnotationNGTest
 {
 
 	@Test
-	public void validDisableRequirePragma() throws DLException
+	public void validRequiredOr() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "pragma disableRequire;");
-		Assert.assertEquals(core.isAllowRequire(), false);
+		core.parse("Anonymous", "type T { String a @requiredOr(b); String b @requiredOr(a); }");
+		core.parse("Anonymous2", "T t { a : \"Test\"; }");
+		core.parse("Anonymous3", "T t { b : \"Test\"; }");
+		core.parse("Anonymous4", "T t { a : \"Test\"; b : \"Test\"; }");
 	}
 
-	@Test(expectedExceptions = InvalidCore.class)
-	public void invalidDisallowedDefineTypes() throws DLException
+	@Test(expectedExceptions = InvalidInstance.class)
+	public void invalidRequiredOr() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "pragma disableRequire; require mayNotRequire;");
+		core.parse("Anonymous", "type T { String a @requiredOr(b); String b @requiredOr(a); }");
+		core.parse("Anonymous2", "T t;");
 	}
 }

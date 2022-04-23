@@ -25,14 +25,20 @@
 //</editor-fold>
 package de.s42.dl.types;
 
+import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLType;
+import de.s42.dl.exceptions.InvalidType;
+import de.s42.dl.exceptions.InvalidValue;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  *
  * @author Benjamin Schiller
  */
-// @todo https://github.com/studio42gmbh/dl/issues/11 add map support
+// https://github.com/studio42gmbh/dl/issues/11 map support
 public class MapDLType extends DefaultDLType
 {
 
@@ -45,20 +51,99 @@ public class MapDLType extends DefaultDLType
 
 	public MapDLType(String name)
 	{
+		this(name, null, null);
+	}
+
+	public MapDLType(String name, DLType genericKeyType, DLType genericValueType)
+	{
 		super(name);
+
+		init(genericKeyType, genericValueType);
+	}
+
+	private void init(DLType genericKeyType, DLType genericValueType)
+	{
+		setAllowGenericTypes(true);
+
+		if (genericKeyType != null && genericValueType != null) {
+			try {
+				addGenericType(genericKeyType);
+				addGenericType(genericValueType);
+			} catch (InvalidType ex) {
+				throw new RuntimeException("This should not happen as setAllowGenericTypes was just called - " + ex, ex);
+			}
+		}
 	}
 
 	@Override
-	public Object read(Object... sources)
+	public Object read(Object... sources) throws InvalidType, InvalidValue
 	{
 		assert sources != null;
 
-		throw new UnsupportedOperationException("Not supported yet");
+		if (sources.length % 2 != 0) {
+			throw new InvalidValue("has to contain an even number of inputs, but has " + sources.length);
+		}
+
+		Map result = new HashMap();
+
+		int genericTypesSize = getGenericTypes().size();
+		if (genericTypesSize > 0) {
+
+			if (genericTypesSize != 2) {
+				throw new InvalidType("may contain either 0 or 2 generic types");
+			}
+
+			Class keyType = getGenericTypes().get(0).getJavaDataType();
+			Class valueType = getGenericTypes().get(1).getJavaDataType();
+
+			// Make map be type checked
+			result = Collections.checkedMap(
+				result,
+				keyType,
+				valueType
+			);
+
+			for (int i = 0; i < sources.length; i += 2) {
+				result.put(
+					ConversionHelper.convert(sources[i], keyType),
+					ConversionHelper.convert(sources[i + 1], valueType)
+				);
+			}
+		} else {
+			for (int i = 0; i < sources.length; i += 2) {
+				result.put(sources[i], sources[i + 1]);
+			}
+		}
+
+		return result;
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return HashMap.class;
+		return Map.class;
+	}
+
+	@Override
+	public void addGenericType(DLType genericType) throws InvalidType
+	{
+		assert genericType != null;
+
+		if (getGenericTypes().size() >= 2) {
+			throw new InvalidType("may only contain 2 generic types");
+		}
+
+		super.addGenericType(genericType);
+	}
+
+	@Override
+	public void validate() throws InvalidType
+	{
+		super.validate();
+		
+		int count = getGenericTypes().size();
+		if (count != 0 && count != 2) {
+			throw new InvalidType("may only contain 0 or 2 generic types");
+		}
 	}
 }

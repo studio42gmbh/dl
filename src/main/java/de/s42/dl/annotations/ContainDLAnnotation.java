@@ -38,7 +38,7 @@ import java.util.Optional;
 public class ContainDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class ContainDLInstanceValidator extends AbstractDLValidator
+	private static class ContainDLInstanceValidator implements DLValidator
 	{
 
 		private final DLCore core;
@@ -116,6 +116,6 @@ public class ContainDLAnnotation extends AbstractDLAnnotation
 			throw new InvalidAnnotation("max has to be >= min but is " + max + " and min is " + min);
 		}
 
-		((DefaultDLType) type).addValidator(new ContainDLInstanceValidator(core, typeName, min, max));
+		((DefaultDLType) type).addInstanceValidator(new ContainDLInstanceValidator(core, typeName, min, max));
 	}
 }

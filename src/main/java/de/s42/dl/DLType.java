@@ -27,6 +27,7 @@ package de.s42.dl;
 
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidInstance;
+import de.s42.dl.exceptions.InvalidType;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -37,6 +38,10 @@ import java.util.Set;
  */
 public interface DLType extends DLEntity, DLAnnotated
 {
+
+	public void validate() throws InvalidType;
+
+	public void validateInstance(DLInstance instance) throws InvalidInstance;
 
 	public Object read(Object... sources) throws DLException;
 
@@ -67,8 +72,6 @@ public interface DLType extends DLEntity, DLAnnotated
 	public boolean mayContainSpecificType(DLType type);
 
 	public boolean mayContainType(DLType type);
-
-	public void validateInstance(DLInstance instance) throws InvalidInstance;
 
 	public Set<DLAttribute> getOwnAttributes();
 

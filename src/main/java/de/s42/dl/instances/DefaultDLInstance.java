@@ -36,10 +36,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -58,7 +56,7 @@ public class DefaultDLInstance implements DLInstance
 	protected Object javaObject;
 	protected String name;
 	protected DLType type;
-	protected final Map<String, Object> attributes = new HashMap<>();
+	protected final MappedList<String, Object> attributes = new MappedList<>();
 	protected final MappedList<String, DLInstance> children = new MappedList<>();
 	protected final List<DLMappedAnnotation> annotations = new ArrayList<>();
 
@@ -112,7 +110,7 @@ public class DefaultDLInstance implements DLInstance
 			// @todo DL is there a faster way to combine the attributes of the instance and the type?
 			// merge type and instance attributes in case of a dynamic type
 			//if (getType().isAllowDynamicAttributes()) {
-			Set<String> attributeNames = new HashSet<>(attributes.keySet());
+			Set<String> attributeNames = new HashSet<>(attributes.map().keySet());
 
 			attributeNames.addAll(getType().getAttributeNames());
 
@@ -123,7 +121,7 @@ public class DefaultDLInstance implements DLInstance
 			//}
 		}
 
-		return Collections.unmodifiableSet(attributes.keySet());
+		return Collections.unmodifiableSet(attributes.map().keySet());
 	}
 
 	@Override
@@ -131,13 +129,13 @@ public class DefaultDLInstance implements DLInstance
 	{
 		assert key != null;
 
-		attributes.put(key, value);
+		attributes.add(key, value);
 	}
 
 	@Override
 	public boolean hasAttribute(String key)
 	{
-		return attributes.containsKey(key);
+		return attributes.contains(key);
 	}
 
 	@Override
@@ -145,8 +143,10 @@ public class DefaultDLInstance implements DLInstance
 	{
 		assert key != null;
 
-		if (attributes.containsKey(key)) {
-			return (ReturnType) attributes.get(key);
+		Optional attribute = attributes.get(key);
+
+		if (attribute.isPresent()) {
+			return (ReturnType) attribute.orElseThrow();
 		} else if (getType() != null && getType().hasAttribute(key)) {
 			return (ReturnType) getType().getAttribute(key).orElseThrow().getDefaultValue();
 		}
@@ -289,7 +289,7 @@ public class DefaultDLInstance implements DLInstance
 	{
 		assert type != null;
 
-		for (DLInstance child : children.asList()) {
+		for (DLInstance child : children.list()) {
 			if (type.isAssignableFrom(child.getType())) {
 				return Optional.of(child);
 			}
@@ -319,7 +319,7 @@ public class DefaultDLInstance implements DLInstance
 
 		List<DLInstance> result = new ArrayList<>(children.size());
 
-		for (DLInstance child : children.asList()) {
+		for (DLInstance child : children.list()) {
 			if (type.isAssignableFrom(child.getType())) {
 				result.add(child);
 			}
@@ -386,7 +386,7 @@ public class DefaultDLInstance implements DLInstance
 	@Override
 	public List<DLInstance> getChildren()
 	{
-		return children.asList();
+		return children.list();
 	}
 
 	@Override
@@ -547,7 +547,7 @@ public class DefaultDLInstance implements DLInstance
 	{
 		List<JavaType> result = new ArrayList<>(children.size());
 
-		for (DLInstance child : children.asList()) {
+		for (DLInstance child : children.list()) {
 
 			Object childJavaObject = child.toJavaObject(core);
 
@@ -564,7 +564,7 @@ public class DefaultDLInstance implements DLInstance
 	{
 		List<JavaType> result = new ArrayList<>(children.size());
 
-		for (DLInstance child : children.asList()) {
+		for (DLInstance child : children.list()) {
 
 			result.add(child.toJavaObject(core));
 		}
@@ -583,10 +583,9 @@ public class DefaultDLInstance implements DLInstance
 	{
 		if (getType() != null) {
 			return getType().getCanonicalName() + " " + getName();
-		}
-		else {
+		} else {
 			return "Instance " + getName();
 		}
-		
+
 	}
 }

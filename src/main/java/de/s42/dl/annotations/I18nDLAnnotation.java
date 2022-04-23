@@ -29,6 +29,7 @@ import de.s42.dl.DLAttribute;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
+import de.s42.dl.DLValidator;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.types.DefaultDLType;
 
@@ -39,7 +40,7 @@ import de.s42.dl.types.DefaultDLType;
 public class I18nDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class I18nDLInstanceValidator extends AbstractDLValidator
+	private static class I18nDLInstanceValidator implements DLValidator
 	{
 
 		private final DLAttribute attribute;
@@ -84,6 +85,6 @@ public class I18nDLAnnotation extends AbstractDLAnnotation
 
 		validateParameters(parameters, null);
 
-		((DefaultDLType) type).addValidator(new I18nDLInstanceValidator(attribute));
+		((DefaultDLType) type).addInstanceValidator(new I18nDLInstanceValidator(attribute));
 	}
 }

@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl.attributes;
 
+import de.s42.dl.DLAttributeValidator;
 import de.s42.dl.*;
 import de.s42.base.strings.StringHelper;
 import de.s42.dl.exceptions.DLException;

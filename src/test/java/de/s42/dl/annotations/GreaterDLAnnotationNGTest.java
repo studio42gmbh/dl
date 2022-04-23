@@ -25,67 +25,30 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.DLAttribute;
 import de.s42.dl.DLCore;
-import de.s42.dl.DLInstance;
-import de.s42.dl.DLType;
-import de.s42.dl.DLValidator;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.types.DefaultDLType;
-import java.util.UUID;
+import de.s42.dl.core.DefaultCore;
+import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidInstance;
+import org.testng.annotations.Test;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class GenerateUUIDDLAnnotation extends AbstractDLAnnotation
+public class GreaterDLAnnotationNGTest
 {
 
-	private static class GenerateUUIDDLInstanceValidator implements DLValidator
+	@Test
+	public void validGreaterAnnotations() throws DLException
 	{
-
-		private final DLAttribute attribute;
-
-		GenerateUUIDDLInstanceValidator(DLAttribute attribute)
-		{
-			assert attribute != null;
-
-			this.attribute = attribute;
-		}
-
-		@Override
-		public void validate(DLInstance instance)
-		{
-			assert instance != null;
-
-			Object val = instance.get(attribute.getName());
-
-			if (val == null) {
-				instance.set(attribute.getName(), UUID.randomUUID());
-			}
-		}
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "type T { double min; double max @greater(\"min\"); } T t { min : 1.0; max : 2.0; }");
 	}
 
-	public final static String DEFAULT_SYMBOL = "generateUUID";
-
-	public GenerateUUIDDLAnnotation()
+	@Test(expectedExceptions = InvalidInstance.class)
+	public void invalidGreaterAnnotations() throws DLException
 	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public GenerateUUIDDLAnnotation(String name)
-	{
-		super(name);
-	}
-
-	@Override
-	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws InvalidAnnotation
-	{
-		assert type != null;
-		assert attribute != null;
-
-		validateParameters(parameters, null);
-
-		((DefaultDLType) type).addInstanceValidator(new GenerateUUIDDLInstanceValidator(attribute));
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "type T { double min; double max @greater(\"min\"); } T t { min : 2.0; max : 1.0; }");
 	}
 }

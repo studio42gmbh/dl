@@ -23,32 +23,26 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.pragmas;
 
 import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidInstance;
 import org.testng.annotations.Test;
+import org.testng.Assert;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class LengthDLAnnotationTest
+public class DisableDefineAnnotationPragmaNGTest
 {
 
 	@Test
-	public void validGreaterAnnotations() throws DLException
+	public void validDisableDefineAnnotationsPragma() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { String v @length(5, 20); } T t { v : \"LongEnough\"; }");
-	}
-
-	@Test(expectedExceptions = InvalidInstance.class)
-	public void invalidGreaterAnnotations() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { String v @length(10, 20); } T t { v : \"TooShort\"; }");
+		core.parse("Anonymous", "pragma disableDefineAnnotations;");
+		Assert.assertEquals(core.isAllowDefineAnnotations(), false);
 	}
 }

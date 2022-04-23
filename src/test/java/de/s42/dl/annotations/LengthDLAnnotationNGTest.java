@@ -23,58 +23,32 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.pragmas;
+package de.s42.dl.annotations;
 
 import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidPragma;
-import org.testng.Assert;
+import de.s42.dl.exceptions.InvalidInstance;
 import org.testng.annotations.Test;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DefinePragmaPragmaTest
+public class LengthDLAnnotationNGTest
 {
-	public static class TestPragma extends AbstractDLPragma
-	{
-		public int called;
-		
-		public TestPragma()
-		{
-			super("test");
-		}
-
-		@Override
-		public void doPragma(DLCore core, Object... parameters) throws InvalidPragma
-		{
-			assert core != null;
-			assert parameters != null;
-			
-			parameters = validateParameters(parameters, new Class[] { int.class });
-			
-			called+= (int)parameters[0];
-		}	
-	}	
 
 	@Test
-	public void validDefinePragma() throws DLException
+	public void validGreaterAnnotations() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "pragma definePragma(de.s42.dl.pragmas.DefinePragmaPragmaTest$TestPragma);");
-		core.parse("Anonymous2", "pragma test(3);");
-		core.parse("Anonymous3", "pragma de.s42.dl.pragmas.DefinePragmaPragmaTest$TestPragma(39);");
-		TestPragma pragma = (TestPragma)core.getPragma("de.s42.dl.pragmas.DefinePragmaPragmaTest$TestPragma").orElseThrow();
-		
-		Assert.assertEquals(pragma.called, 42);
+		core.parse("Anonymous", "type T { String v @length(5, 20); } T t { v : \"LongEnough\"; }");
 	}
 
-	@Test(expectedExceptions = InvalidPragma.class)
-	public void invalidDisallowedDefineTypes() throws DLException
+	@Test(expectedExceptions = InvalidInstance.class)
+	public void invalidGreaterAnnotations() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "pragma definePragma(notDefined);");
+		core.parse("Anonymous", "type T { String v @length(10, 20); } T t { v : \"TooShort\"; }");
 	}
 }

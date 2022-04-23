@@ -74,8 +74,9 @@ public class DefaultCore extends BaseDLCore
 			// Define array types
 			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
 			defineType(new ArrayDLType(), "java.lang.Array");
-			
-			// @todo Define map types https://github.com/studio42gmbh/dl/issues/11
+
+			// Define map types https://github.com/studio42gmbh/dl/issues/11
+			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
 			defineType(new MapDLType(), "java.util.Map");
 
 			// Define type Core and map $core with this
@@ -103,6 +104,7 @@ public class DefaultCore extends BaseDLCore
 			defineAnnotation(new RequiredOrDLAnnotation());
 			defineAnnotation(new UniqueDLAnnotation());
 			defineAnnotation(new WriteOnlyDLAnnotation());
+			defineAnnotation(new NoGenericsDLAnnotation());
 
 			// Define basic pragmas
 			definePragma(new BasePathPragma());

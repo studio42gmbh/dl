@@ -29,9 +29,9 @@ import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.exceptions.UndefinedType;
-import java.util.ArrayList;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -40,7 +40,7 @@ import org.testng.annotations.Test;
  *
  * @author Benjamin Schiller
  */
-public class DLListTypesTest
+public class ListDLTypeNGTest
 {
 
 	@Test
@@ -62,7 +62,7 @@ public class DLListTypesTest
 		List data = instance.get("data");
 		Assert.assertEquals(data, List.of(1, 2, 3));
 	}
-	
+
 	// @todo allow to assign lists from outside
 	@Test(enabled = false)
 	public void validListGenericsInJava() throws DLException
@@ -76,7 +76,7 @@ public class DLListTypesTest
 		List data = instance.get("data");
 		Assert.assertEquals(data, List.of(1, 2, 3));
 	}
-	
+
 	@Test(expectedExceptions = InvalidValue.class)
 	public void invalidListWrongData() throws DLException
 	{
@@ -89,5 +89,12 @@ public class DLListTypesTest
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type T { List<NotDefined> data; } T t @export { data : a, b, c; }");
+	}
+
+	@Test(expectedExceptions = InvalidType.class)
+	public void invalidListWrongNumberOfGenericTypes() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "type T { List<Integer, Integer> data; }");
 	}
 }

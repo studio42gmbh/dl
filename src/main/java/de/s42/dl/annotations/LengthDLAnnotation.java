@@ -39,7 +39,7 @@ import de.s42.dl.types.DefaultDLType;
 public class LengthDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class LengthDLInstanceValidator extends AbstractDLValidator
+	private static class LengthDLInstanceValidator implements DLValidator
 	{
 
 		private final String name;
@@ -129,7 +129,7 @@ public class LengthDLAnnotation extends AbstractDLAnnotation
 		int max = (Integer) parameters[1];
 
 		LengthDLInstanceValidator validator = new LengthDLInstanceValidator(attribute.getName(), min, max);
-		((DefaultDLType) type).addValidator(validator);
+		((DefaultDLType) type).addInstanceValidator(validator);
 
 		if (attribute instanceof DefaultDLAttribute) {
 			((DefaultDLAttribute) attribute).addValidator(validator);

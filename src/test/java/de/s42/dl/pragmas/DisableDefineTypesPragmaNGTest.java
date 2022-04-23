@@ -23,20 +23,34 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.attributes;
+package de.s42.dl.pragmas;
 
-import de.s42.dl.DLAttribute;
-import de.s42.dl.exceptions.InvalidAttribute;
+import de.s42.dl.DLCore;
+import de.s42.dl.core.DefaultCore;
+import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidCore;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public interface DLAttributeValidator
+public class DisableDefineTypesPragmaNGTest
 {
 
-	default public void validate(DLAttribute attribute) throws InvalidAttribute
+	@Test
+	public void validDisableDefineTypesPragma() throws DLException
 	{
-		// do nothing - valid by default
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "pragma disableDefineTypes;");
+		Assert.assertEquals(core.isAllowDefineTypes(), false);
+	}
+
+	@Test(expectedExceptions = InvalidCore.class)
+	public void invalidDisallowedDefineTypes() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "pragma disableDefineTypes; type A;");
 	}
 }

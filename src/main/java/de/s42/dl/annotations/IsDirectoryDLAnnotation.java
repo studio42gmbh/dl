@@ -42,7 +42,7 @@ import java.nio.file.Path;
 public class IsDirectoryDLAnnotation extends AbstractDLAnnotation
 {
 
-	private static class IsDirectoryDLInstanceValidator extends AbstractDLValidator
+	private static class IsDirectoryDLInstanceValidator implements DLValidator
 	{
 
 		private final String attributeName;
@@ -120,6 +120,6 @@ public class IsDirectoryDLAnnotation extends AbstractDLAnnotation
 			((DefaultDLAttribute) attribute).addValidator(validator);
 		}
 
-		((DefaultDLType) type).addValidator(validator);
+		((DefaultDLType) type).addInstanceValidator(validator);
 	}
 }

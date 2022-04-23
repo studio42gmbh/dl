@@ -23,36 +23,39 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.pragmas;
+package de.s42.dl.annotations;
 
 import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidPragma;
+import de.s42.dl.exceptions.InvalidType;
 import org.testng.annotations.Test;
-import org.testng.Assert;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DisableDefinePragmasPragmaTest
+public class NoGenericsDLAnnotationNGTest
 {
 
 	@Test
-	public void validDisableDefinePragma() throws DLException
+	public void validNoGenerics() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "pragma disableDefinePragmas;");
-		Assert.assertEquals(core.isAllowDefinePragmas(), false);
+		core.parse("Anonymous", "type T @noGenerics { int a ; boolean b; }");
 	}
 
-	@Test(expectedExceptions = InvalidPragma.class)
-	public void invalidDisallowedDefinePragmas() throws DLException
+	@Test(expectedExceptions = InvalidType.class)
+	public void invalidNoGenerics() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous",
-			"pragma disableDefinePragmas;"
-			+ "pragma definePragma(de.s42.dl.pragmas.DefinePragmaPragmaTest$TestPragma);");
+		core.parse("Anonymous", "type T @noGenerics { int a ; List<String> b; }");
+	}
+
+	@Test
+	public void validNoGenericsInParent() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "type P @noGenerics; type T extends P { int a ; List<String> b; }");
 	}
 }

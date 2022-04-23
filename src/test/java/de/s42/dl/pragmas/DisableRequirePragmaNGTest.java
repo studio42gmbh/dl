@@ -28,6 +28,7 @@ package de.s42.dl.pragmas;
 import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidCore;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
@@ -35,14 +36,21 @@ import org.testng.Assert;
  *
  * @author Benjamin Schiller
  */
-public class DisableDefineAnnotationPragmaTest
+public class DisableRequirePragmaNGTest
 {
 
 	@Test
-	public void validDisableDefineAnnotationsPragma() throws DLException
+	public void validDisableRequirePragma() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "pragma disableDefineAnnotations;");
-		Assert.assertEquals(core.isAllowDefineAnnotations(), false);
+		core.parse("Anonymous", "pragma disableRequire;");
+		Assert.assertEquals(core.isAllowRequire(), false);
+	}
+
+	@Test(expectedExceptions = InvalidCore.class)
+	public void invalidDisallowedDefineTypes() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "pragma disableRequire; require mayNotRequire;");
 	}
 }

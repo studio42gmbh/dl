@@ -36,7 +36,7 @@ import java.util.List;
  *
  * @author Benjamin Schiller
  */
-// @todo https://github.com/studio42gmbh/dl/issues/10 add List support
+// https://github.com/studio42gmbh/dl/issues/10 List support
 public class ListDLType extends DefaultDLType
 {
 
@@ -73,14 +73,22 @@ public class ListDLType extends DefaultDLType
 	}
 
 	@Override
-	public Object read(Object... sources)
+	public Object read(Object... sources) throws InvalidType
 	{
 		assert sources != null;
 
 		List result;
 
-		if (getGenericTypes().size() > 0) {
-			result = ConversionHelper.convertList(sources, getGenericTypes().get(0).getJavaDataType());
+		int size = getGenericTypes().size();
+		if (size > 0) {
+
+			if (size != 1) {
+				throw new InvalidType("may contain either 0 or 1 generic types");
+			}
+
+			Class type = getGenericTypes().get(0).getJavaDataType();
+
+			result = ConversionHelper.convertList(sources, type);
 		} else {
 			result = Arrays.asList(sources);
 		}
@@ -92,5 +100,28 @@ public class ListDLType extends DefaultDLType
 	public Class getJavaDataType()
 	{
 		return List.class;
+	}
+
+	@Override
+	public void addGenericType(DLType genericType) throws InvalidType
+	{
+		assert genericType != null;
+
+		if (getGenericTypes().size() >= 1) {
+			throw new InvalidType("may only contain 1 generic types");
+		}
+
+		super.addGenericType(genericType);
+	}
+
+	@Override
+	public void validate() throws InvalidType
+	{
+		super.validate();
+
+		int count = getGenericTypes().size();
+		if (count != 0 && count != 1) {
+			throw new InvalidType("may only contain 0 or 1 generic types");
+		}
 	}
 }

@@ -23,55 +23,36 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.pragmas;
 
-import de.s42.base.testing.AssertHelper;
 import de.s42.dl.DLCore;
-import de.s42.dl.DLModule;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidPragma;
 import org.testng.annotations.Test;
+import org.testng.Assert;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DoubleDLTest
+public class DisableDefinePragmasPragmaNGTest
 {
 
-	public static class TestType
-	{
-
-		protected double doubleValue;
-
-		public double getDoubleValue()
-		{
-			return doubleValue;
-		}
-
-		public void setDoubleValue(double doubleValue)
-		{
-			this.doubleValue = doubleValue;
-		}
-	}
-
 	@Test
-	public void validDoubleNormalNotation() throws DLException
+	public void validDisableDefinePragma() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.defineType(core.createType(TestType.class), "TestType");
-		DLModule module = core.parse("Anonymous", "TestType { doubleValue : 103455.2346634; }");
-		TestType instance = module.getChild(0).toJavaObject(core);
-		AssertHelper.assertEpsilonEquals(instance.getDoubleValue(), 103455.2346634, "Double is not matching");
+		core.parse("Anonymous", "pragma disableDefinePragmas;");
+		Assert.assertEquals(core.isAllowDefinePragmas(), false);
 	}
 
-	@Test
-	public void validDoubleScientificNotation() throws DLException
+	@Test(expectedExceptions = InvalidPragma.class)
+	public void invalidDisallowedDefinePragmas() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.defineType(core.createType(TestType.class), "TestType");
-		DLModule module = core.parse("Anonymous", "TestType { doubleValue : 1.43E-4; }");
-		TestType instance = module.getChild(0).toJavaObject(core);
-		AssertHelper.assertEpsilonEquals(instance.getDoubleValue(), 1.43E-4, "Double is not matching");
+		core.parse("Anonymous",
+			"pragma disableDefinePragmas;"
+			+ "pragma definePragma(de.s42.dl.pragmas.DefinePragmaPragmaTest$TestPragma);");
 	}
 }

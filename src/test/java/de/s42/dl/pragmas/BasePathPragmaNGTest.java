@@ -23,32 +23,35 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.pragmas;
 
 import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidInstance;
+import de.s42.dl.exceptions.InvalidPragma;
+import java.nio.file.Path;
 import org.testng.annotations.Test;
+import org.testng.Assert;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class RangeDLAnnotationTest
+public class BasePathPragmaNGTest
 {
 
 	@Test
-	public void validGreaterAnnotations() throws DLException
+	public void validBasePathPragma() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { double v @range(5, 20); } T t { v : 7.5654; }");
+		core.parse("Anonymous", "pragma basePath(\".\");");
+		Assert.assertEquals(core.getBasePath(), Path.of("."));
 	}
 
-	@Test(expectedExceptions = InvalidInstance.class)
-	public void invalidGreaterAnnotations() throws DLException
+	@Test(expectedExceptions = InvalidPragma.class)
+	public void invalidBasePathPragmaNotADirectory() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { double v @range(10, 20); } T t { v : 9.9; }");
+		core.parse("Anonymous", "pragma basePath(\".\\FileNotThere\");");
 	}
 }
