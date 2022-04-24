@@ -729,7 +729,7 @@ public class DLHrfParsing extends DLParserBaseListener
 		}
 	}
 
-	// @todo https://github.com/studio42gmbh/dl/issues/28 DLHrfParsing Allow multiple value assignment as default values in type attribute definition
+	// @todo https://github.com/studio42gmbh/dl/issues/28 DLHrfParsing Allow multiple value and expression assignment as default values in type attribute definition
 	@Override
 	public void enterTypeAttributeDefinition(DLParser.TypeAttributeDefinitionContext ctx)
 	{
