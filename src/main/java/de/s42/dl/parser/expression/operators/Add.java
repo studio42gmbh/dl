@@ -27,6 +27,8 @@ package de.s42.dl.parser.expression.operators;
 
 import de.s42.dl.DLModule;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.parser.DLHrfParsing;
 import de.s42.dl.parser.DLParser.ExpressionContext;
 import de.s42.dl.parser.expression.Expression;
 import de.s42.dl.parser.expression.BinaryOperator;
@@ -44,8 +46,19 @@ public class Add extends BinaryOperator
 	}
 
 	@Override
-	public Double evaluate() throws DLException
+	public Object evaluate() throws DLException
 	{
-		return (Double) first.evaluate() + (Double) second.evaluate();
+		Object firstEval = first.evaluate();
+		Object secondEval = second.evaluate();
+
+		if (firstEval instanceof Double && secondEval instanceof Double) {
+			return (Double) firstEval + (Double) secondEval;
+		}
+
+		if (firstEval instanceof String && secondEval instanceof String ) {
+			return (String) firstEval + (String ) secondEval;
+		}
+		
+		throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Types invalid in '" + context.getText() + "' both have to be either boolean or String", context));
 	}
 }

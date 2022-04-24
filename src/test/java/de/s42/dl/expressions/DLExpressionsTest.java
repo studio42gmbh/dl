@@ -98,6 +98,15 @@ public class DLExpressionsTest
 		DLModule module = core.parse("Anonymous", "String t : apple; String t2 : orange; boolean t3 : $t != $t2 ;");
 		Assert.assertTrue(module.getBoolean("t3"));
 	}
+	
+	@Test
+	public void validExpressionAddStrings() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("Anonymous", "String t : apple; String t2 : orange; String t3 : $t + \" \" + $t2 ;");
+		Assert.assertEquals(module.getString("t3"), "apple orange");
+	}
+	
 
 	@Test(expectedExceptions = InvalidValue.class)
 	public void invalidExpressionIntAnd() throws DLException
