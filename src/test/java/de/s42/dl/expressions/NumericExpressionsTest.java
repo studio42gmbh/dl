@@ -28,6 +28,7 @@ package de.s42.dl.expressions;
 import de.s42.dl.*;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
+import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -88,4 +89,13 @@ public class NumericExpressionsTest
 		DLModule module = core.parse("Anonymous", "Double t : 5.123 ^ 4.234;");
 		Assert.assertEquals(module.getDouble("t"), Math.pow(5.123, 4.234));
 	}	
+	
+	@Test
+	public void validExpressionExpressionsInMultiAssignment() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("Anonymous", "List<Integer> t : 3 * 2, 3 + 2, 3 - 2, 3 / 2, 3 ^ 2, 3 & 2, 3 | 2;");
+		Assert.assertEquals(module.get("t"), List.of(3 * 2, 3 + 2, 3 - 2, 3 / 2, (int)Math.pow(3, 2), 3 & 2, 3 | 2));
+	}	
+	
 }
