@@ -28,7 +28,6 @@ package de.s42.dl.expressions;
 import de.s42.dl.*;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -65,4 +64,28 @@ public class NumericExpressionsTest
 		double v = 1.33;
 		Assert.assertEquals(module.getDouble("t"), (6.5 * (7.12 + -v) - 5.3E2 * (5 - 3)) / 3.0);
 	}
+	
+	@Test
+	public void validExpressionIntBitwiseAndOr() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("Anonymous", "Integer t : 0b1000101 & 4 | 0x35;");
+		Assert.assertEquals(module.getInt("t"), 0b1000101 & 4 | 0x35);
+	}	
+
+	@Test
+	public void validExpressionIntPow() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("Anonymous", "Integer t : 5 ^ 4;");
+		Assert.assertEquals(module.getInt("t"), (int)Math.pow(5, 4));
+	}	
+
+	@Test
+	public void validExpressionDoublePow() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("Anonymous", "Double t : 5.123 ^ 4.234;");
+		Assert.assertEquals(module.getDouble("t"), Math.pow(5.123, 4.234));
+	}	
 }

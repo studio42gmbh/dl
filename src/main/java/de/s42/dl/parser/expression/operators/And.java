@@ -46,7 +46,7 @@ public class And extends BinaryOperator
 	}
 
 	@Override
-	public Boolean evaluate() throws DLException
+	public Object evaluate() throws DLException
 	{
 		Object firstEval = first.evaluate();
 		Object secondEval = second.evaluate();
@@ -55,6 +55,22 @@ public class And extends BinaryOperator
 			return (Boolean) firstEval && (Boolean) secondEval;
 		}
 
-		throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Types invalid in '" + context.getText() + "' both have to be boolean", context));
+		// Bitwise And for Integer
+		if (firstEval instanceof Integer && secondEval instanceof Integer) {
+			return (Integer) firstEval & (Integer) secondEval;
+		}
+
+		// Bitwise And for Long
+		if (firstEval instanceof Long && secondEval instanceof Long) {
+			return (Long) firstEval & (Long) secondEval;
+		}
+
+		// Bitwise And for Long / Int
+		if ((firstEval instanceof Long && secondEval instanceof Integer) ||
+			(firstEval instanceof Integer && secondEval instanceof Long)){
+			return ((Number) firstEval).longValue() & ((Number) secondEval).longValue();
+		}
+		
+		throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Types invalid in '" + context.getText() + "' both have to be boolean, int or long", context));
 	}
 }

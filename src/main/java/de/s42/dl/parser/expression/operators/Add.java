@@ -55,10 +55,27 @@ public class Add extends BinaryOperator
 			return (Double) firstEval + (Double) secondEval;
 		}
 
-		if (firstEval instanceof String && secondEval instanceof String ) {
-			return (String) firstEval + (String ) secondEval;
+		if (firstEval instanceof Integer && secondEval instanceof Integer) {
+			return (Integer) firstEval + (Integer) secondEval;
 		}
-		
-		throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Types invalid in '" + context.getText() + "' both have to be either boolean or String", context));
+
+		if (firstEval instanceof Long && secondEval instanceof Long) {
+			return (Long) firstEval + (Long) secondEval;
+		}
+
+		if (firstEval instanceof Float && secondEval instanceof Float) {
+			return (Float) firstEval + (Float) secondEval;
+		}
+
+		// If different number types - convert both to double
+		if (firstEval instanceof Number && secondEval instanceof Number) {
+			return ((Number) firstEval).doubleValue() + ((Number) secondEval).doubleValue();
+		}
+
+		if (firstEval instanceof String && secondEval instanceof String) {
+			return (String) firstEval + (String) secondEval;
+		}
+
+		throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Types invalid in '" + context.getText() + "' both have to be either int, long, float, double or String", context));
 	}
 }

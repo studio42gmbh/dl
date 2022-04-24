@@ -53,6 +53,7 @@ public abstract class BinaryOperator implements Expression
 		this.module = module;
 	}
 
+	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
 	public Expression getFirst()
 	{
 		return first;
@@ -72,4 +73,5 @@ public abstract class BinaryOperator implements Expression
 	{
 		return module;
 	}
+	//</editor-fold>
 }

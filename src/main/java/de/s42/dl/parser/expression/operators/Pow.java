@@ -37,10 +37,10 @@ import de.s42.dl.parser.expression.BinaryOperator;
  *
  * @author Benjamin Schiller
  */
-public class Multiply extends BinaryOperator
+public class Pow extends BinaryOperator
 {
 
-	public Multiply(Expression first, Expression second, ExpressionContext context, DLModule module)
+	public Pow(Expression first, Expression second, ExpressionContext context, DLModule module)
 	{
 		super(first, second, context, module);
 	}
@@ -52,26 +52,26 @@ public class Multiply extends BinaryOperator
 		Object secondEval = second.evaluate();
 
 		if (firstEval instanceof Double && secondEval instanceof Double) {
-			return (Double) firstEval * (Double) secondEval;
+			return Math.pow((Double) firstEval, (Double) secondEval);
 		}
 
 		if (firstEval instanceof Integer && secondEval instanceof Integer) {
-			return (Integer) firstEval * (Integer) secondEval;
+			return (int) Math.pow((Integer) firstEval, (Integer) secondEval);
 		}
 
 		if (firstEval instanceof Long && secondEval instanceof Long) {
-			return (Long) firstEval * (Long) secondEval;
+			return (long) Math.pow((Long) firstEval, (Long) secondEval);
 		}
 
 		if (firstEval instanceof Float && secondEval instanceof Float) {
-			return (Float) firstEval * (Float) secondEval;
+			return (float) Math.pow((Float) firstEval, (Float) secondEval);
 		}
 
 		// If different number types - convert both to double
 		if (firstEval instanceof Number && secondEval instanceof Number) {
-			return ((Number) firstEval).doubleValue() * ((Number) secondEval).doubleValue();
+			return Math.pow(((Number) firstEval).doubleValue(), ((Number) secondEval).doubleValue());
 		}
 
-		throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Types invalid in '" + context.getText() + "' both have to be either int, long, float or double", context));
+		throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Types invalid in '" + context.getText() + "' both have to be either int, long, float, double", context));
 	}
 }

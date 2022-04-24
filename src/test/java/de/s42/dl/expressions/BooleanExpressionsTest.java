@@ -82,11 +82,4 @@ public class BooleanExpressionsTest
 			+ "boolean t3 : $t != $t2 ;");
 		Assert.assertTrue(module.getBoolean("t3"));
 	}
-
-	@Test(expectedExceptions = InvalidValue.class)
-	public void invalidExpressionIntAnd() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "Integer t : 6 & 4;");
-	}
 }

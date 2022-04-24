@@ -195,7 +195,19 @@ public class DLHrfParsing extends DLParserBaseListener
 			} else if (assignable.SYMBOL() != null) {
 				assignables[i] = assignable.getText();
 			} else if (assignable.INTEGER_LITERAL() != null) {
-				assignables[i] = Long.parseLong(assignable.INTEGER_LITERAL().getText());
+				// https://github.com/studio42gmbh/dl/issues/26
+				String t = assignable.INTEGER_LITERAL().getText();
+				if (t.startsWith("0")) {
+					if (t.startsWith("0x")) {
+						assignables[i] = Long.parseLong(t.substring(2), 16);
+					} else if (t.startsWith("0b")) {
+						assignables[i] = Long.parseLong(t.substring(2), 2);
+					} else {
+						assignables[i] = Long.parseLong(t.substring(1), 8);
+					}
+				} else {
+					assignables[i] = Long.parseLong(t);
+				}
 			} else if (assignable.FLOAT_LITERAL() != null) {
 				assignables[i] = Double.parseDouble(assignable.FLOAT_LITERAL().getText());
 			} else if (assignable.BOOLEAN_LITERAL() != null) {
@@ -874,11 +886,11 @@ public class DLHrfParsing extends DLParserBaseListener
 					throw new InvalidAttribute(createErrorMessage("Instance " + currentInstance.getName()
 						+ " already has the attribute " + key, ctx.attributeName()));
 				}
-				
+
 				List<DLType> genericTypes = fetchGenericParameters(ctx.attributeType().genericParameters());
-				
+
 				Optional<DLType> optType = core.getType(typeName, genericTypes);
-				
+
 				if (optType.isEmpty()) {
 					throw new UndefinedType(createErrorMessage("Type '" + typeName + "' is not defined", ctx.attributeType()));
 				}

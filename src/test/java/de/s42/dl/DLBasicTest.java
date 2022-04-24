@@ -120,4 +120,40 @@ public class DLBasicTest
 		// attribute login missing
 		core.parse("Anonymous", "de.s42.dl.DLBasicTest$TestData data1 { id : 14; }");
 	}
+	
+	/**
+	 * See https://github.com/studio42gmbh/dl/issues/26
+	 * @throws DLException 
+	 */
+	@Test
+	public void validExpressionIntHexadecimal() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("Anonymous", "Integer t : 0x35;");
+		Assert.assertEquals(module.getInt("t"), 0x35);
+	}
+	
+	/**
+	 * See https://github.com/studio42gmbh/dl/issues/26
+	 * @throws DLException 
+	 */
+	@Test
+	public void validExpressionIntOctal() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("Anonymous", "Integer t : 035;");
+		Assert.assertEquals(module.getInt("t"), 035);
+	}
+	
+	/**
+	 * See https://github.com/studio42gmbh/dl/issues/26
+	 * @throws DLException 
+	 */
+	@Test
+	public void validExpressionIntBinary() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("Anonymous", "Integer t : 0b1011010;");
+		Assert.assertEquals(module.getInt("t"), 0b1011010);
+	}
 }

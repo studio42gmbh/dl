@@ -47,10 +47,6 @@ public class Atom<DataType> implements Expression
 	@Override
 	public DataType evaluate()
 	{
-		if (value instanceof Number) {
-			return (DataType)(Double)((Number)value).doubleValue();
-		}
-		
 		return value;
 	}
 

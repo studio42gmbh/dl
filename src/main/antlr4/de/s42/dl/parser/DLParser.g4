@@ -52,7 +52,7 @@ genericParameter : identifier;
 symbolOrString : STRING_LITERAL | SYMBOL ;
 
 
-/* expression */
+/* expression https://github.com/studio42gmbh/dl/issues/20 */
 
 expression : 
 	PARENTHESES_OPEN expression PARENTHESES_CLOSE
@@ -123,8 +123,7 @@ annotationDefinitionName : identifier;
 /* typeDefinition */
 
 typeDefinition : 
-	KEYWORD_EXTERN? 
-	( KEYWORD_FINAL | KEYWORD_ABSTRACT )?
+	( KEYWORD_EXTERN | KEYWORD_FINAL | KEYWORD_ABSTRACT )?
 	KEYWORD_TYPE 
 	typeDefinitionName 
 	annotation* 

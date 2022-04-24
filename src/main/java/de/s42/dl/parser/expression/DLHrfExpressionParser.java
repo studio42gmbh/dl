@@ -43,6 +43,7 @@ import de.s42.dl.instances.SimpleTypeDLInstance;
 import de.s42.dl.parser.DLHrfParsing;
 import de.s42.dl.parser.DLParser.AtomContext;
 import de.s42.dl.parser.DLParser.ExpressionContext;
+import de.s42.dl.parser.expression.operators.Pow;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.util.Optional;
@@ -119,6 +120,12 @@ public final class DLHrfExpressionParser
 				buildExpression(core, module, ctx.expression(1)),
 				ctx, module
 			);
+		} else if (ctx.POW() != null) {
+			return new Pow(
+				buildExpression(core, module, ctx.expression(0)),
+				buildExpression(core, module, ctx.expression(1)),
+				ctx, module
+			);
 		} else if (ctx.XOR() != null) {
 			return new Xor(
 				buildExpression(core, module, ctx.expression(0)),
@@ -151,7 +158,19 @@ public final class DLHrfExpressionParser
 		} else if (ctx.SYMBOL() != null) {
 			value = ctx.getText();
 		} else if (ctx.INTEGER_LITERAL() != null) {
-			value = Long.parseLong(ctx.INTEGER_LITERAL().getText());
+			// https://github.com/studio42gmbh/dl/issues/26
+			String t = ctx.INTEGER_LITERAL().getText();
+			if (t.startsWith("0")) {
+				if (t.startsWith("0x")) {
+					value = Long.parseLong(t.substring(2), 16);
+				} else if (t.startsWith("0b")) {
+					value = Long.parseLong(t.substring(2), 2);
+				} else {
+					value = Long.parseLong(t.substring(1), 8);
+				}
+			} else {
+				value = Long.parseLong(t);
+			}
 		} else if (ctx.FLOAT_LITERAL() != null) {
 			value = Double.parseDouble(ctx.FLOAT_LITERAL().getText());
 		} else if (ctx.BOOLEAN_LITERAL() != null) {
@@ -195,13 +214,13 @@ public final class DLHrfExpressionParser
 		}
 
 		Object resolved = ref.orElseThrow();
-		
+
 		// Unwrap simple instances
 		// @improvement this unwrapping should be done more generic if possible
 		if (resolved instanceof SimpleTypeDLInstance) {
-			return ((SimpleTypeDLInstance)resolved).getData();
+			return ((SimpleTypeDLInstance) resolved).getData();
 		}
-		
+
 		return resolved;
 	}
 }

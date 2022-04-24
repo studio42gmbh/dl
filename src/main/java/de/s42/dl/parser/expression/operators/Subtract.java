@@ -27,6 +27,8 @@ package de.s42.dl.parser.expression.operators;
 
 import de.s42.dl.DLModule;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.parser.DLHrfParsing;
 import de.s42.dl.parser.DLParser.ExpressionContext;
 import de.s42.dl.parser.expression.Expression;
 import de.s42.dl.parser.expression.BinaryOperator;
@@ -44,8 +46,32 @@ public class Subtract extends BinaryOperator
 	}
 
 	@Override
-	public Double evaluate() throws DLException
+	public Object evaluate() throws DLException
 	{
-		return (Double) first.evaluate() - (Double) second.evaluate();
+		Object firstEval = first.evaluate();
+		Object secondEval = second.evaluate();
+
+		if (firstEval instanceof Double && secondEval instanceof Double) {
+			return (Double) firstEval - (Double) secondEval;
+		}
+
+		if (firstEval instanceof Integer && secondEval instanceof Integer) {
+			return (Integer) firstEval - (Integer) secondEval;
+		}
+
+		if (firstEval instanceof Long && secondEval instanceof Long) {
+			return (Long) firstEval - (Long) secondEval;
+		}
+
+		if (firstEval instanceof Float && secondEval instanceof Float) {
+			return (Float) firstEval - (Float) secondEval;
+		}
+
+		// If different number types - convert both to double
+		if (firstEval instanceof Number && secondEval instanceof Number) {
+			return ((Number) firstEval).doubleValue() - ((Number) secondEval).doubleValue();
+		}
+
+		throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Types invalid in '" + context.getText() + "' both have to be either int, long, float or double", context));
 	}
 }

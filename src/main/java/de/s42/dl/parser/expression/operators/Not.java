@@ -66,6 +66,7 @@ public class Not implements Expression
 		throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Type invalid in '" + context.getText() + "' has to be boolean", context));
 	}
 
+	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
 	public Expression getFirst()
 	{
 		return first;
@@ -75,4 +76,5 @@ public class Not implements Expression
 	{
 		return context;
 	}
+	//</editor-fold>
 }
