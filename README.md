@@ -39,60 +39,88 @@ Find the [Javadoc here](https://studio42gmbh.github.io/dl/javadoc/)
 
 The following example gives a short glimpse into the possibilities of DL.
 
+The [full example](https://github.com/studio42gmbh/dle#simple-configuration-example) is contained in the DL Examples.
 For more examples see the [Data Language Examples](https://github.com/studio42gmbh/dle)
 
 Especially the example [DL Only Example](https://github.com/studio42gmbh/dle#dl-only-example) showcases the possibilites of DL.
 
+### File in DL
+
+In its simple uage DL resembles JS like data structures.
+
+```js
+/*
+ * A simple configuration mapped onto a java class in app
+ */
+
+Configuration config @export {
+
+	login	: "Arthur Smith"; 
+	id		: 1456745655;
+	depth	: 1.5629345793985692;
+	active	: true;
+	uuid	: "ad232384-4a04-4119-9e95-4753f31e3b09";
+	tags	: modern, simple, flexible;
+	scores	: 1.453, 2.534, 9.232, 4.553;
+	mapped	: a, 1.2, b, 2.7, c, 3.3; // always key, value, ...
+}
 ```
 
-// simple enum defined inside DL
-enum MemberLevel 
+### Java code to load DL
+
+With a few lines of Java code you can load the DL already converted into your POJO Configuration class:
+
+```java
+package de.s42.dl.examples.simpleconfiguration;
+
+import de.s42.dl.DLType;
+import de.s42.dl.core.DefaultCore;
+import de.s42.dl.util.DLHelper;
+import java.nio.file.Path;
+
+public class Main
 {
-  Guest, Member, Gold, Platin
+	
+	protected final static Path CONFIG_PATH = Path.of("de/s42/dl/examples/simpleconfiguration/config.dl");
+	
+	public static void main(String[] args) throws Exception
+	{
+		// Setup dl core and map own POJO class Configuration
+		DefaultCore core = new DefaultCore();
+		DLType type = core.defineType(Configuration.class, "Configuration");
+
+		// Load config -> as it is a dl file with just a single entity we can use this helper method
+		Configuration config = DLHelper.readInstanceFromFile(core, CONFIG_PATH);
+	}
 }
+```
 
-extern annotation de.myapp.CheckConsistencyAnnotation;
-alias checkConsistency de.myapp.CheckConsistencyAnnotation;
+This is the Data Class Configuration:
 
-extern type de.myapp.Entity;
-alias Entity de.myapp.Entity;
+```java
+package de.s42.dl.examples.simpleconfiguration;
 
-/**
- * Represents a user in the app.
- */
-type User @checkConsistency extends Entity
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+public class Configuration
 {
-  String login @required @length(4, 120);
-  UUID id @required;
-  MemberLevel level @required : Guest;
-}
 
-/**
- * Represents the app config.
- */
-type Config @checkConsistency extends Entity contains User
-{
-  String title @required @length(5, 50) : "My App";
-  int seed @required @range(1, 1000000000);
-  boolean debug : false;
-  UUID id @required;
-}
-
-// from here on no types or enums can be defined
-pragma disableDefineTypes;
-
-// Defines a named instance configuration of type Config
-Config configuration @export {
-  seed : 1536;
-  id : "4a38dc5c-13b4-4817-ac24-b3e15616f884";
+	protected String login;
+	protected UUID uuid;
+	protected int id;
+	protected double depth;
+	protected boolean active;
+	protected String[] tags;
+	protected final List<Double> scores = new ArrayList<>();
+	protected Map<String, Double> mapped = new HashMap<>();
   
-  User {
-    login : "Arthur";
-    level : Gold;
-    id : "2310889e-2bc9-4641-b930-dcc59c3818a4";
-  }
+  // ... getters and setters
 }
-
 ```
 
 
@@ -107,14 +135,23 @@ Config configuration @export {
   * Define types directly from java classes with DLCore.defineTypeFromClass(...)
 
 
-## Future Plans
+## Roadmap / Future Plans
 
+The current ALPHA state means that there will still be regular and potentially breaking changes in DL. During the ALPHA phase Java will remain the supported integration language.
+
+The BETA phase will provide a stable DL. The focus will be on stability and performance. In this phase new language integrations will be added.
+
+This are the overall next bigger features:
+
+* Finish DL specification
+  * Explore expressions in Assignments
+  * Explore combined annotations (for contracts etc.)
+* Improve performance of readers and writers
+* Extend the unit tests to cover even more examples and constructs
 * Add integration for C++
 * Add integration for C#
 * Add integration for Python
 * Add integration for JS
-* Improve performance of readers and writers
-* Extend the unit tests to cover even more examples and constructs
 
 
 ## The Language
