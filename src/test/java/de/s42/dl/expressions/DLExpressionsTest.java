@@ -121,4 +121,16 @@ public class DLExpressionsTest
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "String t : apple; Object t2 : -$t;");
 	}
+	
+	@Test
+	public void validExpressionWithJavaSetData() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		int width = 640;
+		core.addExported("width", width);
+		int height = 400;
+		core.addExported("height", height);
+		DLModule module = core.parse("Anonymous", "Integer pixels : $width * $height;");
+		Assert.assertEquals(module.getInt("pixels"), width * height);
+	}
 }

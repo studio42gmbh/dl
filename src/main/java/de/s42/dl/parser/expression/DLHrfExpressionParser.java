@@ -39,6 +39,7 @@ import de.s42.dl.DLCore;
 import de.s42.dl.DLModule;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.instances.SimpleTypeDLInstance;
 import de.s42.dl.parser.DLHrfParsing;
 import de.s42.dl.parser.DLParser.AtomContext;
 import de.s42.dl.parser.DLParser.ExpressionContext;
@@ -193,6 +194,14 @@ public final class DLHrfExpressionParser
 			throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Reference $" + refId + " is not defined in module", ctx));
 		}
 
-		return ref.orElseThrow();
+		Object resolved = ref.orElseThrow();
+		
+		// Unwrap simple instances
+		// @improvement this unwrapping should be done more generic if possible
+		if (resolved instanceof SimpleTypeDLInstance) {
+			return ((SimpleTypeDLInstance)resolved).getData();
+		}
+		
+		return resolved;
 	}
 }
