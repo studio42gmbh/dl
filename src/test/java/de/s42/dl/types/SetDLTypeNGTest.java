@@ -32,7 +32,9 @@ import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.exceptions.UndefinedType;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -40,62 +42,58 @@ import org.testng.annotations.Test;
  *
  * @author Benjamin Schiller
  */
-public class ListDLTypeNGTest
+public class SetDLTypeNGTest
 {
 
 	@Test
-	public void validListInDL() throws DLException
+	public void validSetInDL() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { List data; } T t @export { data : 1, a, true; }");
+		core.parse("Anonymous", "type T { Set data; } T t @export { data : 1, a, true; }");
 		DLInstance instance = core.getExported("t").orElseThrow();
-		List data = instance.get("data");
-		Assert.assertEquals(data, List.of(1L, "a", true));
+		Set data = instance.get("data");
+		Assert.assertEquals(data, Set.of(1L, "a", true));
 	}
 
 	@Test
-	public void validListGenericsInDL() throws DLException
+	public void validSetGenericsInDL() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { List<Integer> data; } T t @export { data : 1, 2, 3; }");
+		core.parse("Anonymous", "type T { Set<Integer> data; } T t @export { data : 1, 2, 3; }");
 		DLInstance instance = core.getExported("t").orElseThrow();
-		List data = instance.get("data");
-		Assert.assertEquals(data, List.of(1, 2, 3));
+		Set<Integer> data = instance.get("data");
+		Assert.assertEquals(data, Set.of(1, 2, 3));
 	}
 
 	@Test
-	public void validListGenericsInJava() throws DLException
+	public void validSetGenericsInJava() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		core.defineAliasForType(
-			"java.util.ImmutableCollections$ListN",
-			core.getType(List.class).orElseThrow());
-		core.addExported("listData", List.of(1, 2, 3));
-		core.parse("Anonymous", "type T { List data; } T t @export { data : $listData; }");
+		core.addExported("setData", new HashSet<>(Set.of(1, 2, 3)));
+		core.parse("Anonymous", "type T { Set<Integer> data; } T t @export { data : $setData; }");
 		DLInstance instance = core.getExported("t").orElseThrow();
-		// https://github.com/studio42gmbh/dl/issues/13 avoid sketchy SimpleTypeDLInstance wrappings when getting values from instances that were added with addExported
-		List data = instance.get("data");
-		Assert.assertEquals(data, List.of(1, 2, 3));
+		Set<Integer> data = instance.get("data");
+		Assert.assertEquals(data, Set.of(1, 2, 3));
 	}
 
 	@Test(expectedExceptions = InvalidValue.class)
-	public void invalidListWrongData() throws DLException
+	public void invalidSetWrongData() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { List<Integer> data; } T t @export { data : a, b, c; }");
+		core.parse("Anonymous", "type T { Set<Integer> data; } T t @export { data : a, b, c; }");
 	}
 
 	@Test(expectedExceptions = UndefinedType.class)
 	public void invalidListUndefinedGenericType() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { List<NotDefined> data; }");
+		core.parse("Anonymous", "type T { Set<NotDefined> data; }");
 	}
 
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidListWrongNumberOfGenericTypes() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { List<Integer, Integer> data; }");
+		core.parse("Anonymous", "type T { Set<Integer, Integer> data; }");
 	}
 }
