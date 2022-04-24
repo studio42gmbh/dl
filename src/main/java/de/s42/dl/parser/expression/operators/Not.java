@@ -23,62 +23,56 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.instances;
+package de.s42.dl.parser.expression.operators;
 
-import de.s42.dl.*;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.types.ModuleDLType;
-import java.io.File;
-import java.util.Optional;
+import de.s42.dl.DLModule;
+import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.parser.DLHrfParsing;
+import de.s42.dl.parser.DLParser.ExpressionContext;
+import de.s42.dl.parser.expression.Expression;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DefaultDLModule extends DefaultDLInstance implements DLModule
+public class Not implements Expression
 {
 
-	public DefaultDLModule()
+	protected final DLModule module;
+	protected final ExpressionContext context;
+	protected final Expression first;
+
+	public Not(Expression first, ExpressionContext context, DLModule module)
 	{
-		super(new ModuleDLType());
-	}
-
-	public DefaultDLModule(String name)
-	{
-		super(new ModuleDLType(), name);
-	}
-
-	@Override
-	public String getShortName()
-	{
-		String shortName = getName();
-
-		if (!shortName.contains(File.separator)) {
-			return shortName;
-		}
-
-		return shortName.substring(shortName.lastIndexOf(File.separator) + 1);
-	}
-
-	public void addRequiredModule(DLModule module) throws InvalidInstance
-	{
+		assert first != null;
+		assert context != null;
 		assert module != null;
 
-		addChild(module);
+		this.first = first;
+		this.context = context;
+		this.module = module;
 	}
 
 	@Override
-	public <ObjectType> Optional<ObjectType> resolveReference(DLCore core, String path)
+	public Boolean evaluate() throws DLException
 	{
-		assert core != null;
-		assert path != null;
+		Object firstEval = first.evaluate();
 
-		Object exportedOpt = core.resolveExportedPath(path);
-
-		if (exportedOpt != null) {
-			return Optional.of((ObjectType)exportedOpt);
+		if (firstEval instanceof Boolean) {
+			return !(Boolean) firstEval;
 		}
 
-		return resolvePath(path);
+		throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Type invalid in '" + context.getText() + "' has to be boolean", context));
+	}
+
+	public Expression getFirst()
+	{
+		return first;
+	}
+
+	public ExpressionContext getContext()
+	{
+		return context;
 	}
 }

@@ -50,6 +50,20 @@ staticParameter : STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LIT
 symbolOrString : STRING_LITERAL | SYMBOL ;
 
 
+/* expression */
+
+expression : 
+	PARENTHESES_OPEN expression PARENTHESES_CLOSE
+	| expression POW expression
+	| expression ( MUL | DIV ) expression
+	| expression ( PLUS | MINUS ) expression
+	| expression ( AND | OR | XOR | EQUALS ) expression
+	| NOT expression
+	| MINUS? atom ;
+
+atom : FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | STRING_LITERAL | SYMBOL | REF ;
+
+
 /* pragma */
 
 pragma : 
@@ -176,4 +190,4 @@ attributeAssignment :
 
 attributeType : typeIdentifier ;
 attributeName : identifier ;
-attributeAssignable : instanceDefinition | STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | SYMBOL | REF ;
+attributeAssignable : instanceDefinition | STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | SYMBOL | REF | expression ;

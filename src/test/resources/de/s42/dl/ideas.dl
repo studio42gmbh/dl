@@ -1,3 +1,53 @@
+// https://github.com/studio42gmbh/dl/issues/20 BOOLEAN/NUMERICAL TERMS IN ASSIGNMENTS (could also help in the combined annotations)
+
+// new - shorter and results in "native" boolean - also consider stativ vs. dynamic (with $refs) terms
+boolean b	: ($state & $state2) | (true != !$state3);
+boolean b2	: 7 != 6;
+boolean b3	: 7 != $val;
+int i		: 5 * 3 + 2;
+int i2		: 5 * $val2 - 2;
+
+// currently possible with DL - own type tree BoolT, Or, And, Bool, Not, Xor, True, False
+BoolT b : Or { 
+	And { 
+		Bool { value : $state; }
+		Bool { value : $state2; } 
+	} 
+	Xor { 
+		True {}
+		Not { value : $state3; } 
+	}
+};
+
+// Or special Eval with subparser ... might also use ANTLR ...
+Eval var : Eval { expr : "$0 != $1", data : $a, $b; };
+Eval var : Eval { expr : "7 != $ref"; };
+
+
+// Potential grammar extension in DLParser.g4 and DLLexer.g4
+
+expression
+   : expression ( AND | OR | XOR ) expression
+   | NOT expression 
+   | expression POW expression
+   | expression ( MUL | DIV ) expression
+   | expression ( PLUS | MINUS ) expression
+   | PARENTHESES_OPEN expression PARENTHESES_CLOSE
+   | ( PLUS | MINUS )* atom ;
+
+atom : FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | REF;
+
+NOT : '!' ;
+AND : '&' ;
+OR : '|' ;
+XOR : '!=' ;
+PLUS : '+' ;
+MINUS : '-' ;
+MUL : '*' ;
+DIV : '/' ;
+POW : '^' ;
+
+
 // DEFINE ANNOTATION IN DL
 
 // allow to combine other annotations into my own like a specific contract
@@ -21,7 +71,6 @@ DefineExternType	name:1
 EndModule
 
 
-
 type User {
 	
 	UUID id @required;
@@ -37,7 +86,6 @@ DefineSymbol			id:4 string:required
 DefineAnnotation		type:4
 EndDefineAttribute
 EndModule
-
 
 
 type User @dynamic {
@@ -135,15 +183,6 @@ namespace mqrc {
 
 }
 
-// ??? ALLOW SIMPLE EQUATION IN ASSIGNMENTS (does break the data language into being a full language ...)
-
-int var : 5 * 6 - 2;
-
-boolean var : 7 != 6;
-
-IDEA within current model: 
-
-boolean var : Eval { expr : "$0 != $1", data : $a, $b; };
 
 // DEFINE OR TYPES IN TYPE DEF (SORT OF AN INSTA UNION)
 

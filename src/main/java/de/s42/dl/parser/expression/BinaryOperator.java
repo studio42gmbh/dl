@@ -23,62 +23,53 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.instances;
+package de.s42.dl.parser.expression;
 
-import de.s42.dl.*;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.types.ModuleDLType;
-import java.io.File;
-import java.util.Optional;
+import de.s42.dl.DLModule;
+import de.s42.dl.parser.DLParser.ExpressionContext;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DefaultDLModule extends DefaultDLInstance implements DLModule
+public abstract class BinaryOperator implements Expression
 {
 
-	public DefaultDLModule()
+	protected final DLModule module;
+	protected final ExpressionContext context;
+	protected final Expression first;
+	protected final Expression second;
+
+	public BinaryOperator(Expression first, Expression second, ExpressionContext context, DLModule module)
 	{
-		super(new ModuleDLType());
-	}
-
-	public DefaultDLModule(String name)
-	{
-		super(new ModuleDLType(), name);
-	}
-
-	@Override
-	public String getShortName()
-	{
-		String shortName = getName();
-
-		if (!shortName.contains(File.separator)) {
-			return shortName;
-		}
-
-		return shortName.substring(shortName.lastIndexOf(File.separator) + 1);
-	}
-
-	public void addRequiredModule(DLModule module) throws InvalidInstance
-	{
+		assert first != null;
+		assert second != null;
+		assert context != null;
 		assert module != null;
 
-		addChild(module);
+		this.first = first;
+		this.second = second;
+		this.context = context;
+		this.module = module;
 	}
 
-	@Override
-	public <ObjectType> Optional<ObjectType> resolveReference(DLCore core, String path)
+	public Expression getFirst()
 	{
-		assert core != null;
-		assert path != null;
+		return first;
+	}
 
-		Object exportedOpt = core.resolveExportedPath(path);
+	public Expression getSecond()
+	{
+		return second;
+	}
 
-		if (exportedOpt != null) {
-			return Optional.of((ObjectType)exportedOpt);
-		}
+	public ExpressionContext getContext()
+	{
+		return context;
+	}
 
-		return resolvePath(path);
+	public DLModule getModule()
+	{
+		return module;
 	}
 }

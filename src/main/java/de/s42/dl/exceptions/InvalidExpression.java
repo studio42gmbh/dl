@@ -23,62 +23,31 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.instances;
-
-import de.s42.dl.*;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.types.ModuleDLType;
-import java.io.File;
-import java.util.Optional;
+package de.s42.dl.exceptions;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DefaultDLModule extends DefaultDLInstance implements DLModule
+public class InvalidExpression extends DLException
 {
 
-	public DefaultDLModule()
+	public InvalidExpression()
 	{
-		super(new ModuleDLType());
 	}
 
-	public DefaultDLModule(String name)
+	public InvalidExpression(String msg)
 	{
-		super(new ModuleDLType(), name);
+		super(msg);
 	}
 
-	@Override
-	public String getShortName()
+	public InvalidExpression(Throwable cause)
 	{
-		String shortName = getName();
-
-		if (!shortName.contains(File.separator)) {
-			return shortName;
-		}
-
-		return shortName.substring(shortName.lastIndexOf(File.separator) + 1);
+		super(cause);
 	}
 
-	public void addRequiredModule(DLModule module) throws InvalidInstance
+	public InvalidExpression(String msg, Throwable cause)
 	{
-		assert module != null;
-
-		addChild(module);
-	}
-
-	@Override
-	public <ObjectType> Optional<ObjectType> resolveReference(DLCore core, String path)
-	{
-		assert core != null;
-		assert path != null;
-
-		Object exportedOpt = core.resolveExportedPath(path);
-
-		if (exportedOpt != null) {
-			return Optional.of((ObjectType)exportedOpt);
-		}
-
-		return resolvePath(path);
+		super(msg, cause);
 	}
 }

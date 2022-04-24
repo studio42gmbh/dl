@@ -23,62 +23,44 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.instances;
+package de.s42.dl.parser.expression.operators;
 
-import de.s42.dl.*;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.types.ModuleDLType;
-import java.io.File;
-import java.util.Optional;
+import de.s42.dl.parser.expression.Expression;
 
 /**
  *
  * @author Benjamin Schiller
+ * @param <DataType>
  */
-public class DefaultDLModule extends DefaultDLInstance implements DLModule
+public class Atom<DataType> implements Expression
 {
 
-	public DefaultDLModule()
+	protected DataType value;
+
+	public Atom(DataType value)
 	{
-		super(new ModuleDLType());
-	}
+		assert value != null;
 
-	public DefaultDLModule(String name)
-	{
-		super(new ModuleDLType(), name);
-	}
-
-	@Override
-	public String getShortName()
-	{
-		String shortName = getName();
-
-		if (!shortName.contains(File.separator)) {
-			return shortName;
-		}
-
-		return shortName.substring(shortName.lastIndexOf(File.separator) + 1);
-	}
-
-	public void addRequiredModule(DLModule module) throws InvalidInstance
-	{
-		assert module != null;
-
-		addChild(module);
+		this.value = value;
 	}
 
 	@Override
-	public <ObjectType> Optional<ObjectType> resolveReference(DLCore core, String path)
+	public DataType evaluate()
 	{
-		assert core != null;
-		assert path != null;
-
-		Object exportedOpt = core.resolveExportedPath(path);
-
-		if (exportedOpt != null) {
-			return Optional.of((ObjectType)exportedOpt);
+		if (value instanceof Number) {
+			return (DataType)(Double)((Number)value).doubleValue();
 		}
+		
+		return value;
+	}
 
-		return resolvePath(path);
+	public Object getValue()
+	{
+		return value;
+	}
+
+	public void setValue(DataType value)
+	{
+		this.value = value;
 	}
 }

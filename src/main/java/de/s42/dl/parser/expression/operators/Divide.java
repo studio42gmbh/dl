@@ -23,62 +23,29 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.instances;
+package de.s42.dl.parser.expression.operators;
 
-import de.s42.dl.*;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.types.ModuleDLType;
-import java.io.File;
-import java.util.Optional;
+import de.s42.dl.DLModule;
+import de.s42.dl.exceptions.DLException;
+import de.s42.dl.parser.DLParser.ExpressionContext;
+import de.s42.dl.parser.expression.Expression;
+import de.s42.dl.parser.expression.BinaryOperator;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DefaultDLModule extends DefaultDLInstance implements DLModule
+public class Divide extends BinaryOperator
 {
 
-	public DefaultDLModule()
+	public Divide(Expression first, Expression second, ExpressionContext context, DLModule module)
 	{
-		super(new ModuleDLType());
-	}
-
-	public DefaultDLModule(String name)
-	{
-		super(new ModuleDLType(), name);
+		super(first, second, context, module);
 	}
 
 	@Override
-	public String getShortName()
+	public Double evaluate() throws DLException
 	{
-		String shortName = getName();
-
-		if (!shortName.contains(File.separator)) {
-			return shortName;
-		}
-
-		return shortName.substring(shortName.lastIndexOf(File.separator) + 1);
-	}
-
-	public void addRequiredModule(DLModule module) throws InvalidInstance
-	{
-		assert module != null;
-
-		addChild(module);
-	}
-
-	@Override
-	public <ObjectType> Optional<ObjectType> resolveReference(DLCore core, String path)
-	{
-		assert core != null;
-		assert path != null;
-
-		Object exportedOpt = core.resolveExportedPath(path);
-
-		if (exportedOpt != null) {
-			return Optional.of((ObjectType)exportedOpt);
-		}
-
-		return resolvePath(path);
+		return (Double) first.evaluate() / (Double) second.evaluate();
 	}
 }

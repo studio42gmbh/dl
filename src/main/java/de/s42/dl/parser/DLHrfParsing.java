@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl.parser;
 
+import de.s42.dl.parser.expression.DLHrfExpressionParser;
 import de.s42.base.files.FilesHelper;
 import de.s42.dl.exceptions.UndefinedAnnotation;
 import de.s42.dl.exceptions.UndefinedType;
@@ -91,7 +92,12 @@ public class DLHrfParsing extends DLParserBaseListener
 		instances.push(currentInstance);
 	}
 
-	protected String createErrorMessage(String reason, ParserRuleContext context) throws RuntimeException
+	public String createErrorMessage(String reason, ParserRuleContext context) throws RuntimeException
+	{
+		return createErrorMessage(module, reason, context);
+	}
+
+	public static String createErrorMessage(DLModule module, String reason, ParserRuleContext context) throws RuntimeException
 	{
 		// https://github.com/apache/netbeans/blob/c084119009d2e0f736f225d706bc1827af283501/java/maven/src/org/netbeans/modules/maven/output/GlobalOutputProcessor.java
 		//"Das sollte gehen @ GPClient, C:\\home\\f12\\development\\gods_playground\\gp-client\\data\\renderdoc.config.dl, line 5, column 6");
@@ -107,7 +113,12 @@ public class DLHrfParsing extends DLParserBaseListener
 		return message.toString();
 	}
 
-	protected String createErrorMessage(String reason, Throwable cause, ParserRuleContext context) throws RuntimeException
+	public String createErrorMessage(String reason, Throwable cause, ParserRuleContext context) throws RuntimeException
+	{
+		return createErrorMessage(module, reason, cause, context);
+	}
+
+	public static String createErrorMessage(DLModule module, String reason, Throwable cause, ParserRuleContext context) throws RuntimeException
 	{
 		StringBuilder message = new StringBuilder();
 
@@ -131,13 +142,13 @@ public class DLHrfParsing extends DLParserBaseListener
 
 	protected Object resolveReference(String refId, ParserRuleContext context) throws InvalidValue
 	{
-		Object ref = module.resolveReference(core, refId);
+		Optional ref = module.resolveReference(core, refId);
 
-		if (ref == null) {
+		if (ref.isEmpty()) {
 			throw new InvalidValue(createErrorMessage("Reference $" + refId + " is not defined in module", context));
 		}
 
-		return ref;
+		return ref.orElseThrow();
 	}
 
 	protected static class SynonymableIdentifier
@@ -155,14 +166,16 @@ public class DLHrfParsing extends DLParserBaseListener
 
 		String typeName = ctx.identifier().getText();
 
-		if (!core.hasType(typeName)) {
+		Optional<DLType> optType = core.getType(typeName);
+
+		if (optType.isEmpty()) {
 			throw new InvalidType(createErrorMessage("Type '" + typeName + "' is not defined", ctx));
 		}
 
-		return core.getType(typeName).get();
+		return optType.orElseThrow();
 	}
 
-	protected Object[] fetchAssignables(AttributeAssignmentContext ctx) throws InvalidValue
+	protected Object[] fetchAssignables(AttributeAssignmentContext ctx) throws DLException
 	{
 		if (ctx.attributeAssignable() == null || ctx.attributeAssignable().isEmpty()) {
 			return null;
@@ -189,6 +202,9 @@ public class DLHrfParsing extends DLParserBaseListener
 				}
 			} else if (assignable.REF() != null) {
 				assignables[i] = resolveReference(assignable.getText(), ctx);
+			} else if (assignable.expression() != null) {
+				//log.debug("Expression", assignable.expression().getText());
+				assignables[i] = DLHrfExpressionParser.resolveExpression(core, module, assignable.expression());
 			}
 
 			i++;

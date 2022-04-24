@@ -36,6 +36,7 @@ import java.util.Set;
  *
  * @author Benjamin Schiller
  */
+// @todo https://github.com/studio42gmbh/dl/issues/21 DLInstance rethink interface and implementation of getters - Optional? Performance, Security, Convenience
 public interface DLInstance extends DLEntity, DLAnnotated
 {
 
@@ -99,7 +100,7 @@ public interface DLInstance extends DLEntity, DLAnnotated
 
 	public boolean hasChildren();
 
-	public <ObjectType> ObjectType resolvePath(String path);
+	public <ObjectType> Optional<ObjectType> resolvePath(String path);
 
 	public boolean hasName();
 

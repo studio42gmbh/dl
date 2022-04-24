@@ -47,6 +47,7 @@ import java.util.function.Consumer;
  *
  * @author Benjamin Schiller
  */
+// @todo https://github.com/studio42gmbh/dl/issues/21 DLInstance rethink interface and implementation of getters - Optional? Performance, Security, Convenience
 public class DefaultDLInstance implements DLInstance
 {
 
@@ -174,7 +175,7 @@ public class DefaultDLInstance implements DLInstance
 	{
 		assert key != null;
 
-		return (String) get(key);
+		return get(key);
 	}
 
 	@Override
@@ -182,7 +183,7 @@ public class DefaultDLInstance implements DLInstance
 	{
 		assert key != null;
 
-		return (Number) get(key);
+		return get(key);
 	}
 
 	@Override
@@ -190,7 +191,7 @@ public class DefaultDLInstance implements DLInstance
 	{
 		assert key != null;
 
-		return (int) getNumber(key).intValue();
+		return getNumber(key).intValue();
 	}
 
 	@Override
@@ -198,7 +199,7 @@ public class DefaultDLInstance implements DLInstance
 	{
 		assert key != null;
 
-		return (long) getNumber(key).longValue();
+		return getNumber(key).longValue();
 	}
 
 	@Override
@@ -206,7 +207,7 @@ public class DefaultDLInstance implements DLInstance
 	{
 		assert key != null;
 
-		return (float) getNumber(key).floatValue();
+		return getNumber(key).floatValue();
 	}
 
 	@Override
@@ -214,7 +215,7 @@ public class DefaultDLInstance implements DLInstance
 	{
 		assert key != null;
 
-		return (double) getNumber(key).doubleValue();
+		return getNumber(key).doubleValue();
 	}
 
 	@Override
@@ -222,7 +223,7 @@ public class DefaultDLInstance implements DLInstance
 	{
 		assert key != null;
 
-		return (boolean) get(key);
+		return get(key);
 	}
 
 	@Override
@@ -419,7 +420,7 @@ public class DefaultDLInstance implements DLInstance
 	}
 
 	@Override
-	public <ObjectType> ObjectType resolvePath(String path)
+	public <ObjectType> Optional<ObjectType> resolvePath(String path)
 	{
 		assert path != null;
 
@@ -432,20 +433,20 @@ public class DefaultDLInstance implements DLInstance
 
 			if (child == null) {
 				//throw new InvalidValue("Path " + path + " could not get resolved for " + pathSegment);
-				return null;
+				return Optional.empty();
 			}
 
 			if (child instanceof DefaultDLInstance) {
 				current = (DefaultDLInstance) child;
 			} else if (i < pathSegments.length - 1) {
 				//throw new InvalidValue("Path " + path + " could not get resolved for " + pathSegment);
-				return null;
+				return Optional.empty();
 			} else {
-				return (ObjectType) child;
+				return Optional.of((ObjectType) child);
 			}
 		}
 
-		return (ObjectType) current;
+		return Optional.of((ObjectType) current);
 	}
 
 	@Override

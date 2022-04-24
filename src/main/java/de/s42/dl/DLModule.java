@@ -25,6 +25,8 @@
 //</editor-fold>
 package de.s42.dl;
 
+import java.util.Optional;
+
 /**
  *
  * @author Benjamin Schiller
@@ -34,5 +36,5 @@ public interface DLModule extends DLInstance
 
 	public String getShortName();
 
-	public <ObjectType> ObjectType resolveReference(DLCore core, String path);
+	public <ObjectType> Optional<ObjectType> resolveReference(DLCore core, String path);
 }
