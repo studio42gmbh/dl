@@ -110,10 +110,9 @@ requireModule : symbolOrString ;
 /* annotationDefinition */
 
 annotationDefinition : 
-	KEYWORD_EXTERN? 
+	KEYWORD_EXTERN 
 	KEYWORD_ANNOTATION 
 	annotationDefinitionName
-	annotation* 
 	SEMI_COLON ;
 
 annotationDefinitionName : identifier;
@@ -184,7 +183,6 @@ instanceBody : SCOPE_OPEN ( attributeAssignment | instanceDefinition | require )
 
 attributeAssignment : 
 	( ( attributeType attributeName ) | attributeName )
-	annotation* 
 	COLON attributeAssignable ( COMMA attributeAssignable )* COMMA? 
 	SEMI_COLON ;
 

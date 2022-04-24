@@ -47,8 +47,13 @@ public class DLAnnotationNGTest
 		}
 	}
 
-	@Test(expectedExceptions = {InvalidAnnotation.class})
-	public void invalidInternalAnnotationNotAllowed() throws DLException
+	/**
+	 * Just extern annotations are allowed
+	 * @throws DLException 
+	 * @throws RuntimeException expected -> "extraneous input 'annotation' expecting {<EOF>, 'type', 'extern', 'require', 'enum', 'abstract', 'alias', 'final', 'pragma', SYMBOL}"
+	 */
+	@Test(expectedExceptions = {RuntimeException.class})
+	public void invalidInternalAnnotationNotAllowed() throws DLException, RuntimeException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "annotation T;");
@@ -73,7 +78,8 @@ public class DLAnnotationNGTest
 	{
 		DLCore core = new DefaultCore();
 		core.defineAnnotation(new TestAnnotation());
-		core.parse("Anonymous2", "type T @test;");
+		core.parse("Anonymous", "type T @test;");
+		core.parse("Anonymous2", "type T2 @test();");
 	}
 
 	@Test

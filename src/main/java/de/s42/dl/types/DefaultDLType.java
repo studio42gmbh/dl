@@ -271,9 +271,9 @@ public class DefaultDLType implements DLType
 
 		for (DLType parent : parents) {
 
-			for (DLType grandParent : parent.getContainedTypes()) {
-				if (!result.contains(grandParent)) {
-					result.add(grandParent);
+			for (DLType containedParent : parent.getContainedTypes()) {
+				if (!result.contains(containedParent)) {
+					result.add(containedParent);
 				}
 			}
 		}
@@ -281,6 +281,31 @@ public class DefaultDLType implements DLType
 		return Collections.unmodifiableList(result);
 	}
 
+	@Override
+	public boolean hasOwnContainedTypes()
+	{
+		return !containedTypes.isEmpty();
+	}
+
+	@Override
+	public boolean hasContainedTypes()
+	{
+		List<DLType> result = new ArrayList<>();
+
+		if (hasOwnContainedTypes()) {
+			return true;
+		}
+
+		for (DLType parent : parents) {
+			
+			if (parent.hasOwnContainedTypes()) {
+				return true;
+			}
+		}
+
+		return false;
+	}	
+	
 	public void addContainedType(DLType containedType)
 	{
 		assert containedType != null;
@@ -461,9 +486,14 @@ public class DefaultDLType implements DLType
 	}
 
 	@Override
+	// @todo https://github.com/studio42gmbh/dl/issues/23 DLType/DefaultDLType Improve and sharpen definition of complex and simple types - does it need further distinction?
 	public boolean isComplexType()
 	{
-		return hasAttributes() || complexType;
+		return 
+			complexType || 
+			isAllowDynamicAttributes() ||
+			hasAttributes() || 
+			hasContainedTypes();
 	}
 
 	@Override

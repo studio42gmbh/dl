@@ -36,6 +36,7 @@ import java.util.Set;
  *
  * @author Benjamin Schiller
  */
+// @todo https://github.com/studio42gmbh/dl/issues/23 DLType/DefaultDLType Improve and sharpen definition of complex and simple types - does it need further distinction?
 public interface DLType extends DLEntity, DLAnnotated
 {
 
@@ -68,6 +69,10 @@ public interface DLType extends DLEntity, DLAnnotated
 	public List<DLType> getOwnContainedTypes();
 
 	public List<DLType> getContainedTypes();
+	
+	public boolean hasOwnContainedTypes();
+	
+	public boolean hasContainedTypes();
 
 	public boolean mayContainSpecificType(DLType type);
 

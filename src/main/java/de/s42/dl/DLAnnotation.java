@@ -78,9 +78,4 @@ public interface DLAnnotation extends DLEntity
 	{
 		throw new InvalidAnnotation("Can not be bound to instances");
 	}
-
-	default public void bindToAnnotation(DLCore core, DLAnnotation annotation, Object... parameters) throws InvalidAnnotation
-	{
-		throw new InvalidAnnotation("Can not be bound to annotations");
-	}
 }

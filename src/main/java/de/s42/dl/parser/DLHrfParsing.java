@@ -421,6 +421,11 @@ public class DLHrfParsing extends DLParserBaseListener
 				throw new InvalidInstance(createErrorMessage("Error creating instance type " + type.getCanonicalName() + " is abstract", ctx.instanceType().typeIdentifier()));
 			}
 
+			// https://github.com/studio42gmbh/dl/issues/23 dont allow simple types to be generated as instances -> simple types have to be assigned?
+			/*if (type.isSimpleType()) {
+				throw new InvalidType(createErrorMessage("Error creating instance as type " + type.getCanonicalName() + " is simple", ctx.instanceType().typeIdentifier()));
+			}*/
+
 			String identifier = null;
 
 			if (ctx.instanceName() != null) {
