@@ -50,6 +50,7 @@ import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidCore;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.UndefinedAnnotation;
+import de.s42.dl.instances.ComplexTypeDLInstance;
 import de.s42.dl.instances.DefaultDLInstance;
 import de.s42.dl.instances.DefaultDLModule;
 import de.s42.dl.instances.SimpleTypeDLInstance;
@@ -341,22 +342,38 @@ public class BaseDLCore implements DLCore
 		return pragma;
 	}
 
-	public <DataType> SimpleTypeDLInstance<DataType> addExported(String key, DataType value) throws UndefinedType, InvalidInstance, InvalidType
+	public <DataType> DLInstance addExported(String key, DataType value) throws UndefinedType, InvalidInstance, InvalidType
 	{
 		assert key != null;
 		assert value != null;
 
-		Optional<DLType> type = getType(value.getClass());
+		Optional<DLType> optType = getType(value.getClass());
 
-		if (type.isEmpty()) {
+		if (optType.isEmpty()) {
 			throw new UndefinedType("No type mapped for " + value.getClass().getName());
 		}
 
-		SimpleTypeDLInstance<DataType> dataInstance = new SimpleTypeDLInstance<>(value, type.orElseThrow(), key);
+		DLType type = optType.orElseThrow();
 
-		addExported(dataInstance);
+		// Map a simple type
+		if (type.isSimpleType()) {
+			SimpleTypeDLInstance<DataType> dataInstance = new SimpleTypeDLInstance<>(value, type, key);
+			dataInstance.validate();
+			addExported(dataInstance);
+			return dataInstance;
+		} // https://github.com/studio42gmbh/dl/issues/29
+		// Map a complex type
+		else {
 
-		return dataInstance;
+			try {
+				ComplexTypeDLInstance<DataType> instance = new ComplexTypeDLInstance<>(value, type, key);
+				instance.validate();
+				addExported(instance);
+				return instance;
+			} catch (InvalidBean ex) {
+				throw new InvalidInstance("Could not map value into instance - " + ex.getMessage(), ex);
+			}
+		}
 	}
 
 	@Override

@@ -96,8 +96,13 @@ public class DLTypesTest
 		log.debug(DLHelper.toString(core.getType(TestClass.class).orElseThrow()));
 	}
 
-	@Test(expectedExceptions = InvalidType.class)
-	public void invalidExternTypeNoAbstractAllowed() throws DLException
+	/**
+	 * extern and abstract not allowed in parser
+	 * @throws DLException 
+	 * @throws RuntimeException expected -> "no viable alternative at input 'externabstract'"
+	 */
+	@Test(expectedExceptions = RuntimeException.class)
+	public void invalidExternTypeNoAbstractAllowed() throws DLException, RuntimeException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "extern abstract type de.s42.dl.types.DLTypesTest$TestClass;");
@@ -196,7 +201,7 @@ public class DLTypesTest
 	}
 
 	// @todo https://github.com/studio42gmbh/dl/issues/12 raise exception when trying to assign into a complex type
-	@Test(expectedExceptions = InvalidType.class, enabled = false)
+	@Test(expectedExceptions = InvalidType.class/*, enabled = false*/)
 	public void invalidComplexTypeAssigned() throws DLException
 	{
 		DLCore core = new DefaultCore();

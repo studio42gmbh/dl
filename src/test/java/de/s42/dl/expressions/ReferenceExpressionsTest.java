@@ -45,8 +45,8 @@ public class ReferenceExpressionsTest
 	public void validExpressionWithJavaSetData() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		SimpleTypeDLInstance<Integer> width = core.addExported("width", 640);
-		SimpleTypeDLInstance<Integer> height = core.addExported("height", 400);
+		SimpleTypeDLInstance<Integer> width = (SimpleTypeDLInstance<Integer>)core.addExported("width", 640);
+		SimpleTypeDLInstance<Integer> height = (SimpleTypeDLInstance<Integer>)core.addExported("height", 400);
 		DLModule module = core.parse("Anonymous", "Integer pixels : $width * $height;");
 		Assert.assertEquals(module.getInt("pixels"), width.getData() * height.getData());
 	}

@@ -28,40 +28,30 @@ package de.s42.dl.instances;
 import de.s42.dl.DLModule;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import java.util.ArrayList;
-import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- *
+ * See https://github.com/studio42gmbh/dl/issues/29
  * @author Benjamin Schiller
  */
-public class SimpleTypeDLInstanceNGTest
+public class ComplexTypeDLInstanceNGTest
 {
-
-	@Test
-	public void validDoubleType() throws DLException
+	public static class ComplexType
 	{
-		DefaultCore core = new DefaultCore();
-		SimpleTypeDLInstance<Double> value = (SimpleTypeDLInstance<Double>) core.addExported("value", 1.23);
-		DLModule module = core.parse("Anonymous", "Double dlValue : $value;");
-		Assert.assertEquals((double) module.getDouble("dlValue"), (double) value.getData());
+
+		public String val;
 	}
 
-	/**
-	 * Even list types with generics can easily be added and assigned properly also without unboxing of
-	 * SimpleTypeDLInstance
-	 * See https://github.com/studio42gmbh/dl/issues/13
-	 *
-	 * @throws DLException not thrown
-	 */
 	@Test
-	public void validListType() throws DLException
+	public void validComplexType() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		List<String> value = ((SimpleTypeDLInstance<List<String>>) core.addExported("value", new ArrayList<>(List.of("a", "b")))).getData();
-		DLModule module = core.parse("Anonymous", "List<String> dlValue : $value;");
-		Assert.assertEquals(module.get("dlValue"), value);
-	}
+		ComplexType t = new ComplexType();
+		t.val = "Aha";
+		core.defineType(ComplexType.class);
+		core.addExported("t", t);
+		DLModule module = core.parse("Anonymous", "String a : $t.val;");
+		Assert.assertEquals(module.get("a"), t.val);
+	}		
 }

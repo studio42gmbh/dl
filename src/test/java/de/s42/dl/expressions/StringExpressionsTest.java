@@ -29,6 +29,7 @@ import de.s42.dl.*;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.instances.SimpleTypeDLInstance;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -45,7 +46,7 @@ public class StringExpressionsTest
 	public void validExpressionAddStrings() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		String fromJava = core.addExported("fromJava", "orange").getData();
+		String fromJava = ((SimpleTypeDLInstance<String>) core.addExported("fromJava", "orange")).getData();
 		DLModule module = core.parse("Anonymous",
 			"String t : apple; "
 			+ "String t3 : $t + \" \" + $fromJava ;");

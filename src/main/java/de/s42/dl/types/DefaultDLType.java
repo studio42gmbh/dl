@@ -190,10 +190,11 @@ public class DefaultDLType implements DLType
 			throw new InvalidType("Type '" + getCanonicalName() + "' is abstract and thus can not be used to read input");
 		}
 
-		// complex types cannot be read from
-		//if (isComplexType()) {
-		//	throw new InvalidType("Type '" + getCanonicalName() + "' is complex and thus can not be used to read input");
-		//}
+		// https://github.com/studio42gmbh/dl/issues/12 complex types cannot be read from
+		if (isComplexType()) {
+			throw new InvalidType("Type '" + getCanonicalName() + "' is complex and thus can not be used to read input");
+		}
+		
 		if (sources != null && sources.length == 1) {
 
 			Object source = sources[0];

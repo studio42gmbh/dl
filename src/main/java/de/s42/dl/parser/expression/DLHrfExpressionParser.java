@@ -160,7 +160,7 @@ public final class DLHrfExpressionParser
 		} else if (ctx.INTEGER_LITERAL() != null) {
 			// https://github.com/studio42gmbh/dl/issues/26
 			String t = ctx.INTEGER_LITERAL().getText();
-			if (t.startsWith("0")) {
+			if (t.startsWith("0") && t.length() > 1) {
 				if (t.startsWith("0x")) {
 					value = Long.parseLong(t.substring(2), 16);
 				} else if (t.startsWith("0b")) {

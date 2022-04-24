@@ -51,5 +51,4 @@ public class DLInstanceTest
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type A; type B { A test; } B test2 { test: A{}; test : A{}; }");
 	}
-
 }

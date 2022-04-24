@@ -197,7 +197,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			} else if (assignable.INTEGER_LITERAL() != null) {
 				// https://github.com/studio42gmbh/dl/issues/26
 				String t = assignable.INTEGER_LITERAL().getText();
-				if (t.startsWith("0")) {
+				if (t.startsWith("0") && t.length() > 1) {
 					if (t.startsWith("0x")) {
 						assignables[i] = Long.parseLong(t.substring(2), 16);
 					} else if (t.startsWith("0b")) {
