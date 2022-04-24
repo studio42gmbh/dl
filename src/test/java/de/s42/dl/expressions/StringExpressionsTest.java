@@ -23,29 +23,39 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.core;
+package de.s42.dl.expressions;
 
-import de.s42.dl.DLCore;
-import de.s42.dl.DLType;
-import de.s42.dl.exceptions.InvalidType;
-import de.s42.dl.instances.SimpleTypeDLInstance;
+import de.s42.dl.*;
+import de.s42.dl.core.DefaultCore;
+import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidValue;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
+ * This shows some of the potential of expressions in DL
+ * See https://github.com/studio42gmbh/dl/issues/20
  *
  * @author Benjamin Schiller
  */
-public class CoreDLInstance extends SimpleTypeDLInstance<DLCore>
+public class StringExpressionsTest
 {
 
-	public final static String DEFAULT_INSTANCE_NAME = "core";
-
-	public CoreDLInstance(DLCore core, DLType type) throws InvalidType
+	@Test
+	public void validExpressionAddStrings() throws DLException
 	{
-		this(core, type, DEFAULT_INSTANCE_NAME);
+		DefaultCore core = new DefaultCore();
+		String fromJava = core.addExported("fromJava", "orange").getData();
+		DLModule module = core.parse("Anonymous",
+			"String t : apple; "
+			+ "String t3 : $t + \" \" + $fromJava ;");
+		Assert.assertEquals(module.getString("t3"), "apple" + " " + fromJava);
 	}
 
-	public CoreDLInstance(DLCore core, DLType type, String name) throws InvalidType
+	@Test(expectedExceptions = InvalidValue.class)
+	public void invalidExpressionNegateString() throws DLException
 	{
-		super(core, type, name);
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "String t : apple; Object t2 : -$t;");
 	}
 }

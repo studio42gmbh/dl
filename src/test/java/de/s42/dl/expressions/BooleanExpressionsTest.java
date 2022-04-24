@@ -38,39 +38,16 @@ import org.testng.annotations.Test;
  *
  * @author Benjamin Schiller
  */
-public class DLExpressionsTest
+public class BooleanExpressionsTest
 {
-
-	@Test
-	public void validExpressionInteger() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "Integer t : (6 * (7 + 3) - 5 * (5 - 3)) / 3;");
-		Assert.assertEquals(module.getInt("t"), (6 * (7 + 3) - 5 * (5 - 3)) / 3);
-	}
-
-	@Test
-	public void validExpressionDouble() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "Double t : (6.5 * (7.12 + -3) - 5.3E2 * (5 - 3)) / 3.0;");
-		Assert.assertEquals(module.getDouble("t"), (6.5 * (7.12 + -3) - 5.3E2 * (5 - 3)) / 3.0);
-	}
-
-	@Test
-	public void validExpressionDoubleRef() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "Double v : 1.33; Double t : (6.5 * (7.12 + -$v) - 5.3E2 * (5 - 3)) / 3.0;");
-		double v = 1.33;
-		Assert.assertEquals(module.getDouble("t"), (6.5 * (7.12 + -v) - 5.3E2 * (5 - 3)) / 3.0);
-	}
 
 	@Test
 	public void validExpressionBoolean() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "boolean t : true; boolean t2 : ( true & $t ) | ( $t == false ) ;");
+		DLModule module = core.parse("Anonymous",
+			"boolean t : true; "
+			+ "boolean t2 : ( true & $t ) | ( $t == false ) ;");
 		boolean t = false;
 		Assert.assertEquals(module.getBoolean("t2"), (true & t) | (t == false));
 	}
@@ -79,7 +56,9 @@ public class DLExpressionsTest
 	public void validExpressionStringCompareEqual() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "String t : apple; boolean t2 : $t == apple ;");
+		DLModule module = core.parse("Anonymous",
+			"String t : apple; "
+			+ "boolean t2 : $t == apple ;");
 		Assert.assertTrue(module.getBoolean("t2"));
 	}
 
@@ -87,7 +66,9 @@ public class DLExpressionsTest
 	public void validExpressionStringCompareTypeNotEqual() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "String t : apple; boolean t2 : $t != 7.345 ;");
+		DLModule module = core.parse("Anonymous",
+			"String t : apple; "
+			+ "boolean t2 : $t != 7.345 ;");
 		Assert.assertTrue(module.getBoolean("t2"));
 	}
 
@@ -95,42 +76,17 @@ public class DLExpressionsTest
 	public void validExpressionStringCompareTwoRefs() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "String t : apple; String t2 : orange; boolean t3 : $t != $t2 ;");
+		DLModule module = core.parse("Anonymous",
+			"String t : apple; "
+			+ "String t2 : orange; "
+			+ "boolean t3 : $t != $t2 ;");
 		Assert.assertTrue(module.getBoolean("t3"));
 	}
-	
-	@Test
-	public void validExpressionAddStrings() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "String t : apple; String t2 : orange; String t3 : $t + \" \" + $t2 ;");
-		Assert.assertEquals(module.getString("t3"), "apple orange");
-	}
-	
 
 	@Test(expectedExceptions = InvalidValue.class)
 	public void invalidExpressionIntAnd() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "Integer t : 6 & 4;");
-	}
-
-	@Test(expectedExceptions = InvalidValue.class)
-	public void invalidExpressionNegateString() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "String t : apple; Object t2 : -$t;");
-	}
-	
-	@Test
-	public void validExpressionWithJavaSetData() throws DLException
-	{
-		DefaultCore core = new DefaultCore();
-		int width = 640;
-		core.addExported("width", width);
-		int height = 400;
-		core.addExported("height", height);
-		DLModule module = core.parse("Anonymous", "Integer pixels : $width * $height;");
-		Assert.assertEquals(module.getInt("pixels"), width * height);
 	}
 }

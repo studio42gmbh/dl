@@ -47,6 +47,8 @@ identifier : SYMBOL ;
 typeIdentifier : identifier ;
 staticParameters : PARENTHESES_OPEN ( staticParameter ( COMMA staticParameter )* )? PARENTHESES_CLOSE ;
 staticParameter : STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | SYMBOL ;
+genericParameters : GENERIC_OPEN genericParameter ( COMMA genericParameter )* COMMA? GENERIC_CLOSE ;
+genericParameter : identifier;
 symbolOrString : STRING_LITERAL | SYMBOL ;
 
 
@@ -161,9 +163,8 @@ typeAttributeDefinition :
 	// ( COLON typeAttributeDefinitionDefault ( COMMA typeAttributeDefinitionDefault )* COMMA? )? 
 	SEMI_COLON ;
 
-typeAttributeDefinitionType : typeIdentifier typeAttributeDefinitionGeneric? ;
+typeAttributeDefinitionType : typeIdentifier genericParameters? ;
 typeAttributeDefinitionName : identifier ;
-typeAttributeDefinitionGeneric : GENERIC_OPEN identifier ( COMMA identifier )* COMMA? GENERIC_CLOSE ;
 typeAttributeDefinitionDefault : instanceDefinition | STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | SYMBOL | REF ;
 
 
@@ -186,6 +187,6 @@ attributeAssignment :
 	COLON attributeAssignable ( COMMA attributeAssignable )* COMMA? 
 	SEMI_COLON ;
 
-attributeType : typeIdentifier ;
+attributeType : typeIdentifier genericParameters? ;
 attributeName : identifier ;
 attributeAssignable : instanceDefinition | STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | SYMBOL | REF | expression ;

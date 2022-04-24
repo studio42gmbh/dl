@@ -45,9 +45,13 @@ import de.s42.dl.instances.DefaultDLInstance;
 import de.s42.dl.instances.DefaultDLModule;
 import de.s42.dl.parser.DLParser.AttributeAssignableContext;
 import de.s42.dl.parser.DLParser.AttributeAssignmentContext;
-import de.s42.dl.parser.DLParser.IdentifierContext;
+import de.s42.dl.parser.DLParser.StaticParameterContext;
+import de.s42.dl.parser.DLParser.GenericParametersContext;
+import de.s42.dl.parser.DLParser.GenericParameterContext;
+import de.s42.dl.parser.DLParser.StaticParametersContext;
 import de.s42.dl.parser.DLParser.TypeAttributeDefinitionContext;
 import de.s42.dl.parser.DLParser.TypeDefinitionContext;
+import de.s42.dl.parser.DLParser.TypeIdentifierContext;
 import de.s42.dl.types.ArrayDLType;
 import de.s42.dl.types.DefaultDLEnum;
 import de.s42.dl.types.DefaultDLType;
@@ -158,7 +162,7 @@ public class DLHrfParsing extends DLParserBaseListener
 		public String[] aliases;
 	}
 
-	protected DLType fetchTypeIdentifier(DLParser.TypeIdentifierContext ctx) throws InvalidType
+	protected DLType fetchTypeIdentifier(TypeIdentifierContext ctx) throws InvalidType
 	{
 		if (ctx == null) {
 			return null;
@@ -213,7 +217,7 @@ public class DLHrfParsing extends DLParserBaseListener
 		return assignables;
 	}
 
-	protected Object[] fetchStaticParameters(DLParser.StaticParametersContext ctx) throws InvalidValue
+	protected Object[] fetchStaticParameters(StaticParametersContext ctx) throws InvalidValue
 	{
 		if (ctx == null || ctx.staticParameter() == null || ctx.staticParameter().isEmpty()) {
 			return new Object[0];
@@ -230,7 +234,7 @@ public class DLHrfParsing extends DLParserBaseListener
 		return parameters;
 	}
 
-	protected Object fetchStaticParameter(DLParser.StaticParameterContext ctx) throws InvalidValue
+	protected Object fetchStaticParameter(StaticParameterContext ctx) throws InvalidValue
 	{
 		if (ctx.STRING_LITERAL() != null) {
 			return ctx.getText();
@@ -249,6 +253,28 @@ public class DLHrfParsing extends DLParserBaseListener
 		}
 
 		throw new InvalidValue(createErrorMessage("Unknown parameter type", ctx));
+	}
+
+	public List<DLType> fetchGenericParameters(GenericParametersContext ctx) throws UndefinedType
+	{
+		List<DLType> genericTypes = new ArrayList<>();
+
+		// parse generic types
+		if (ctx != null) {
+
+			for (GenericParameterContext genericParameter : ctx.genericParameter()) {
+
+				String genericTypeName = genericParameter.getText();
+
+				if (!core.hasType(genericTypeName)) {
+					throw new UndefinedType(createErrorMessage("Attribute generic type '" + genericTypeName + "' is not defined", genericParameter));
+				}
+
+				genericTypes.add(core.getType(genericTypeName).get());
+			}
+		}
+
+		return genericTypes;
 	}
 
 	@Override
@@ -425,7 +451,6 @@ public class DLHrfParsing extends DLParserBaseListener
 			/*if (type.isSimpleType()) {
 				throw new InvalidType(createErrorMessage("Error creating instance as type " + type.getCanonicalName() + " is simple", ctx.instanceType().typeIdentifier()));
 			}*/
-
 			String identifier = null;
 
 			if (ctx.instanceName() != null) {
@@ -702,29 +727,14 @@ public class DLHrfParsing extends DLParserBaseListener
 				throw new UndefinedType(createErrorMessage("Attribute type '" + typeName + "' is not defined", ctx));
 			}
 
-			List<DLType> genericTypes = new ArrayList<>();
-
-			// parse generic types
-			if (ctx.typeAttributeDefinitionType().typeAttributeDefinitionGeneric() != null) {
-
-				for (IdentifierContext identifier : ctx.typeAttributeDefinitionType().typeAttributeDefinitionGeneric().identifier()) {
-
-					String genericTypeName = identifier.getText();
-
-					if (!core.hasType(genericTypeName)) {
-						throw new UndefinedType(createErrorMessage("Attribute generic type '" + genericTypeName + "' is not defined", ctx.typeAttributeDefinitionType().typeAttributeDefinitionGeneric()));
-					}
-
-					genericTypes.add(core.getType(genericTypeName).get());
-				}
-			}
+			List<DLType> genericTypes = fetchGenericParameters(ctx.typeAttributeDefinitionType().genericParameters());
 
 			DLType type;
 
 			try {
 				type = core.getType(typeName, genericTypes).get();
 			} catch (InvalidType ex) {
-				throw new InvalidType(createErrorMessage("Error retrieving type '" + typeName + "'", ex, ctx.typeAttributeDefinitionType().typeAttributeDefinitionGeneric()), ex);
+				throw new InvalidType(createErrorMessage("Error retrieving type '" + typeName + "'", ex, ctx.typeAttributeDefinitionType().typeIdentifier()), ex);
 			}
 
 			String name = ctx.typeAttributeDefinitionName().getText();
@@ -857,19 +867,23 @@ public class DLHrfParsing extends DLParserBaseListener
 
 			//type key -> explicit type or type collision if instance defines it
 			if (ctx.attributeType() != null) {
-				String typeName = ctx.attributeType().getText();
+				String typeName = ctx.attributeType().typeIdentifier().getText();
 				String key = ctx.attributeName().getText();
-
-				if (!core.hasType(typeName)) {
-					throw new UndefinedType(createErrorMessage("Type '" + typeName + "' is not defined", ctx.attributeType()));
-				}
 
 				if (currentInstance.hasAttribute(key)) {
 					throw new InvalidAttribute(createErrorMessage("Instance " + currentInstance.getName()
 						+ " already has the attribute " + key, ctx.attributeName()));
 				}
+				
+				List<DLType> genericTypes = fetchGenericParameters(ctx.attributeType().genericParameters());
+				
+				Optional<DLType> optType = core.getType(typeName, genericTypes);
+				
+				if (optType.isEmpty()) {
+					throw new UndefinedType(createErrorMessage("Type '" + typeName + "' is not defined", ctx.attributeType()));
+				}
 
-				DLType type = core.getType(typeName).get();
+				DLType type = optType.orElseThrow();
 
 				//check if type contradicts
 				if (instanceType != null) {

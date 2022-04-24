@@ -28,6 +28,7 @@ package de.s42.dl.instances;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
+import de.s42.dl.exceptions.InvalidType;
 
 /**
  *
@@ -39,9 +40,13 @@ public class SimpleTypeDLInstance<DataType> extends DefaultDLInstance
 
 	protected final DataType data;
 
-	public SimpleTypeDLInstance(DataType data, DLType type, String instanceName)
+	public SimpleTypeDLInstance(DataType data, DLType type, String instanceName) throws InvalidType
 	{
 		super(type, instanceName);
+		
+		if (type.isComplexType()) {
+			throw new InvalidType("Can not be created for complex type like " + type);
+		}
 
 		assert data != null;
 
@@ -53,7 +58,7 @@ public class SimpleTypeDLInstance<DataType> extends DefaultDLInstance
 	{
 		return getData();
 	}
-
+	
 	@Override
 	public void set(String key, Object value)
 	{

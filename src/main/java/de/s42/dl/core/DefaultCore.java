@@ -69,7 +69,7 @@ public class DefaultCore extends BaseDLCore
 
 			// Define list types https://github.com/studio42gmbh/dl/issues/10
 			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
-			defineType(new ListDLType(), "java.util.List");
+			defineType(new ListDLType(), "java.util.List", "java.util.ArrayList", "java.util.LinkedList");
 
 			// Define array types
 			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
@@ -77,7 +77,7 @@ public class DefaultCore extends BaseDLCore
 
 			// Define map types https://github.com/studio42gmbh/dl/issues/11
 			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
-			defineType(new MapDLType(), "java.util.Map");
+			defineType(new MapDLType(), "java.util.Map", "java.util.HashMap" );
 
 			// Define type Core and map $core with this
 			CoreDLType coreType = (CoreDLType) defineType(new CoreDLType(), "Core", "de.s42.dl.DLCore");

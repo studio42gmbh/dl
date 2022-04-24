@@ -183,7 +183,11 @@ public class DefaultDLInstance implements DLInstance
 	{
 		assert key != null;
 
-		return get(key);
+		try {
+			return get(key);
+		} catch (ClassCastException ex) {
+			throw new RuntimeException("Error getting " + key + " as number as its class is " + key.getClass().getCanonicalName());
+		}
 	}
 
 	@Override
@@ -444,6 +448,12 @@ public class DefaultDLInstance implements DLInstance
 			} else {
 				return Optional.of((ObjectType) child);
 			}
+		}
+
+		// https://github.com/studio42gmbh/dl/issues/13 Unwrap simple instances
+		// @improvement this unwrapping should be done more generic if possible
+		if (current instanceof SimpleTypeDLInstance) {
+			return Optional.ofNullable((ObjectType) ((SimpleTypeDLInstance) current).getData());
 		}
 
 		return Optional.of((ObjectType) current);

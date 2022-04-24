@@ -341,7 +341,7 @@ public class BaseDLCore implements DLCore
 		return pragma;
 	}
 
-	public void addExported(String key, Object value) throws UndefinedType, InvalidInstance
+	public <DataType> SimpleTypeDLInstance<DataType> addExported(String key, DataType value) throws UndefinedType, InvalidInstance, InvalidType
 	{
 		assert key != null;
 		assert value != null;
@@ -352,7 +352,11 @@ public class BaseDLCore implements DLCore
 			throw new UndefinedType("No type mapped for " + value.getClass().getName());
 		}
 
-		addExported(new SimpleTypeDLInstance<>(value, type.orElseThrow(), key));
+		SimpleTypeDLInstance<DataType> dataInstance = new SimpleTypeDLInstance<>(value, type.orElseThrow(), key);
+
+		addExported(dataInstance);
+
+		return dataInstance;
 	}
 
 	@Override
@@ -448,6 +452,12 @@ public class BaseDLCore implements DLCore
 			} else {
 				return child;
 			}
+		}
+
+		// https://github.com/studio42gmbh/dl/issues/13 Unwrap simple instances
+		// @improvement this unwrapping should be done more generic if possible
+		if (current instanceof SimpleTypeDLInstance) {
+			return ((SimpleTypeDLInstance) current).getData();
 		}
 
 		return current;
@@ -925,7 +935,7 @@ public class BaseDLCore implements DLCore
 
 		types.add(canonicalName, specificType);
 
-		//log.debug("Mapping generic type " + genericName);
+		//log.debug("Mapping generic type " + canonicalName);
 		return Optional.of(specificType);
 	}
 

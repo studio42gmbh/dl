@@ -23,29 +23,46 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.core;
+package de.s42.dl.expressions;
 
-import de.s42.dl.DLCore;
-import de.s42.dl.DLType;
-import de.s42.dl.exceptions.InvalidType;
-import de.s42.dl.instances.SimpleTypeDLInstance;
+import de.s42.dl.*;
+import de.s42.dl.core.DefaultCore;
+import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidValue;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
+ * This shows some of the potential of expressions in DL
+ * See https://github.com/studio42gmbh/dl/issues/20
  *
  * @author Benjamin Schiller
  */
-public class CoreDLInstance extends SimpleTypeDLInstance<DLCore>
+public class NumericExpressionsTest
 {
 
-	public final static String DEFAULT_INSTANCE_NAME = "core";
-
-	public CoreDLInstance(DLCore core, DLType type) throws InvalidType
+	@Test
+	public void validExpressionInteger() throws DLException
 	{
-		this(core, type, DEFAULT_INSTANCE_NAME);
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("Anonymous", "Integer t : (6 * (7 + 3) - 5 * (5 - 3)) / 3;");
+		Assert.assertEquals(module.getInt("t"), (6 * (7 + 3) - 5 * (5 - 3)) / 3);
 	}
 
-	public CoreDLInstance(DLCore core, DLType type, String name) throws InvalidType
+	@Test
+	public void validExpressionDouble() throws DLException
 	{
-		super(core, type, name);
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("Anonymous", "Double t : (6.5 * (7.12 + -3) - 5.3E2 * (5 - 3)) / 3.0;");
+		Assert.assertEquals(module.getDouble("t"), (6.5 * (7.12 + -3) - 5.3E2 * (5 - 3)) / 3.0);
+	}
+
+	@Test
+	public void validExpressionDoubleRef() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("Anonymous", "Double v : 1.33; Double t : (6.5 * (7.12 + -$v) - 5.3E2 * (5 - 3)) / 3.0;");
+		double v = 1.33;
+		Assert.assertEquals(module.getDouble("t"), (6.5 * (7.12 + -v) - 5.3E2 * (5 - 3)) / 3.0);
 	}
 }

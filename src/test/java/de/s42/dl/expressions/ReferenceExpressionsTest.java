@@ -23,29 +23,42 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.core;
+package de.s42.dl.expressions;
 
-import de.s42.dl.DLCore;
-import de.s42.dl.DLType;
-import de.s42.dl.exceptions.InvalidType;
+import de.s42.dl.*;
+import de.s42.dl.core.DefaultCore;
+import de.s42.dl.exceptions.DLException;
 import de.s42.dl.instances.SimpleTypeDLInstance;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
+ * This shows some of the potential of expressions in DL
+ * See https://github.com/studio42gmbh/dl/issues/20
  *
  * @author Benjamin Schiller
  */
-public class CoreDLInstance extends SimpleTypeDLInstance<DLCore>
+public class ReferenceExpressionsTest
 {
 
-	public final static String DEFAULT_INSTANCE_NAME = "core";
-
-	public CoreDLInstance(DLCore core, DLType type) throws InvalidType
+	@Test
+	public void validExpressionWithJavaSetData() throws DLException
 	{
-		this(core, type, DEFAULT_INSTANCE_NAME);
+		DefaultCore core = new DefaultCore();
+		SimpleTypeDLInstance<Integer> width = core.addExported("width", 640);
+		SimpleTypeDLInstance<Integer> height = core.addExported("height", 400);
+		DLModule module = core.parse("Anonymous", "Integer pixels : $width * $height;");
+		Assert.assertEquals(module.getInt("pixels"), width.getData() * height.getData());
 	}
 
-	public CoreDLInstance(DLCore core, DLType type, String name) throws InvalidType
+	@Test
+	public void validExpressionWithComplexTypeAndStatic() throws DLException
 	{
-		super(core, type, name);
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("Anonymous",
+			"type T { Integer val; }"
+			+ "T t { val : 123; }"
+			+ "Integer p : $t.val * 654.5;");
+		Assert.assertEquals(module.getInt("p"), (int)(123 * 654.5));
 	}
 }
