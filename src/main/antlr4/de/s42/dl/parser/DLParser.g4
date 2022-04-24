@@ -158,7 +158,7 @@ typeAttributeDefinition :
 	typeAttributeDefinitionName 
 	annotation* 
 	( COLON typeAttributeDefinitionDefault )? 
-	// @todo DL allow multiple value assignment as default value
+	// @todo https://github.com/studio42gmbh/dl/issues/28 DLHrfParsing Allow multiple value assignment as default values in type attribute definition
 	// ( COLON typeAttributeDefinitionDefault ( COMMA typeAttributeDefinitionDefault )* COMMA? )? 
 	SEMI_COLON ;
 

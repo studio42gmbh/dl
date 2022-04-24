@@ -729,6 +729,7 @@ public class DLHrfParsing extends DLParserBaseListener
 		}
 	}
 
+	// @todo https://github.com/studio42gmbh/dl/issues/28 DLHrfParsing Allow multiple value assignment as default values in type attribute definition
 	@Override
 	public void enterTypeAttributeDefinition(DLParser.TypeAttributeDefinitionContext ctx)
 	{
@@ -859,8 +860,8 @@ public class DLHrfParsing extends DLParserBaseListener
 		}
 	}
 
-	@Override
 	// @todo https://github.com/studio42gmbh/dl/issues/17 DLHrfParsing improve, refactor and cleanup enterAttributeAssignment
+	@Override
 	@SuppressWarnings("null")
 	public void enterAttributeAssignment(AttributeAssignmentContext ctx)
 	{
