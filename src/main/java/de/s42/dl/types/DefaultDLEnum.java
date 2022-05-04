@@ -25,13 +25,13 @@
 //</editor-fold>
 package de.s42.dl.types;
 
+import de.s42.base.collections.MappedList;
 import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.*;
-import de.s42.dl.exceptions.InvalidEnumValue;
-import java.util.ArrayList;
+import de.s42.dl.exceptions.InvalidValue;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -40,7 +40,7 @@ import java.util.List;
 public class DefaultDLEnum extends DefaultDLType implements DLEnum
 {
 
-	private final List<String> values = new ArrayList<>();
+	private final MappedList<String, Object> values = new MappedList<>();
 
 	public DefaultDLEnum()
 	{
@@ -68,44 +68,68 @@ public class DefaultDLEnum extends DefaultDLType implements DLEnum
 		javaType = enumImpl;
 
 		for (Object enumC : enumImpl.getEnumConstants()) {
-			values.add((String) enumC.toString());
+			values.add(enumC.toString(), enumC);
 		}
 	}
 
 	@Override
-	public List<String> getValues()
+	public List getValues()
 	{
-		return Collections.unmodifiableList(values);
+		return values.list();
 	}
 
-	public void addValue(String value) throws InvalidEnumValue
+	public void addValue(String value) throws InvalidValue
 	{
 		assert value != null;
 
 		if (javaType != null && Enum.class.isAssignableFrom(javaType)) {
-			throw new InvalidEnumValue("May not add values to enum backed DLEnum '" + getName() + "'");
+			throw new InvalidValue("May not add values to enum backed DLEnum '" + getName() + "'");
 		}
 
 		if (values.contains(value)) {
-			throw new InvalidEnumValue("Value '" + value + "' is already contained in enum");
+			throw new InvalidValue("Value '" + value + "' is already contained in enum");
 		}
 
-		values.add(value);
+		values.add(value, value);
 	}
 
 	@Override
-	public Object read(Object... sources) throws InvalidEnumValue
+	public boolean contains(String name)
 	{
-		assert sources != null;
+		return values.contains(name);
+	}
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{String.class});
+	@Override
+	public Object valueOf(String name) throws InvalidValue
+	{
+		Optional<Object> value = values.get(name);
 
-		if (!values.contains((String) result[0])) {
-			throw new InvalidEnumValue(
-				"Value '" + result[0]
+		if (value.isEmpty()) {
+			throw new InvalidValue(
+				"Value '" + name
 				+ "' is not contained in enum '" + getName() + "' "
 				+ Arrays.toString(values.toArray())
 			);
+		}
+
+		return value.orElseThrow();
+	}
+
+	@Override
+	public Object read(Object... sources) throws InvalidValue
+	{
+		assert sources != null;
+
+		Object[] result = ConversionHelper.convertArray(sources, new Class[]{getJavaType()});
+
+		if (getJavaType().equals(String.class)) {
+			if (!values.contains(result[0].toString())) {
+				throw new InvalidValue(
+					"Value '" + result[0]
+					+ "' is not contained in enum '" + getName() + "' "
+					+ Arrays.toString(values.toArray())
+				);
+			}
 		}
 
 		return result[0];

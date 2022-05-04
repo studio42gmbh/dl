@@ -56,10 +56,4 @@ public abstract class TagDLAnnotation extends AbstractDLAnnotation
 	{
 		// do nothing - just a tag
 	}
-
-	@Override
-	public void bindToEnum(DLCore core, DLEnum enumDef, Object... parameters)
-	{
-		// do nothing - just a tag
-	}
 }

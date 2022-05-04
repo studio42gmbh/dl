@@ -29,7 +29,6 @@ import de.s42.dl.parser.expression.DLHrfExpressionParser;
 import de.s42.base.files.FilesHelper;
 import de.s42.dl.exceptions.UndefinedAnnotation;
 import de.s42.dl.exceptions.UndefinedType;
-import de.s42.dl.exceptions.InvalidEnumValue;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.exceptions.InvalidAttribute;
@@ -425,7 +424,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					Object[] parameters = fetchStaticParameters(aCtx.staticParameters());
 
 					DLAnnotation annotation = core.getAnnotation(annotationTypeName).get();
-					annotation.bindToEnum(core, currentEnum, parameters);
+					annotation.bindToType(core, currentEnum, parameters);
 					currentEnum.addAnnotation(annotation, parameters);
 				}
 
@@ -787,9 +786,6 @@ public class DLHrfParsing extends DLParserBaseListener
 				} else {
 					try {
 						defaultValue = type.read(ctx.typeAttributeDefinitionDefault().getText());
-					} catch (InvalidEnumValue ex) {
-						throw new InvalidEnumValue(createErrorMessage("Error reading default value for attribute '"
-							+ name + "'", ex, ctx.typeAttributeDefinitionDefault()), ex);
 					} catch (AssertionError | Exception ex) {
 						throw new InvalidValue(createErrorMessage("Error reading default value for attribute '"
 							+ name + "'", ex, ctx.typeAttributeDefinitionDefault()), ex);

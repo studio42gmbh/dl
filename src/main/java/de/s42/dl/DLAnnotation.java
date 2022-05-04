@@ -64,11 +64,6 @@ public interface DLAnnotation extends DLEntity
 		throw new InvalidAnnotation("Can not be bound to types");
 	}
 
-	default public void bindToEnum(DLCore core, DLEnum enumDef, Object... parameters) throws DLException
-	{
-		throw new InvalidAnnotation("Can not be bound to enums");
-	}
-
 	default public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws DLException
 	{
 		throw new InvalidAnnotation("Can not be bound to attributes");

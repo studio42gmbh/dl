@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl;
 
+import de.s42.dl.exceptions.InvalidValue;
 import java.util.List;
 
 /**
@@ -34,5 +35,9 @@ import java.util.List;
 public interface DLEnum extends DLType
 {
 
-	public List<String> getValues();
+	public List getValues();
+	
+	public boolean contains(String name);
+	
+	public Object valueOf(String name) throws InvalidValue;
 }
