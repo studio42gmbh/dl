@@ -29,6 +29,7 @@ import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLType;
 import de.s42.dl.exceptions.InvalidType;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -95,6 +96,22 @@ public class SetDLType extends DefaultDLType
 		}
 
 		return result;
+	}
+
+	@Override
+	public Object createJavaInstance() throws InvalidType
+	{
+		if (isGenericType()) {
+
+			Class valueType = getGenericTypes().get(0).getJavaDataType();
+
+			return Collections.checkedSet(
+				new HashSet<>(),
+				valueType
+			);
+		} else {
+			return new HashSet<>();
+		}
 	}
 
 	@Override

@@ -47,10 +47,10 @@ import de.s42.dl.parser.DLParser.AttributeAssignmentContext;
 import de.s42.dl.parser.DLParser.StaticParameterContext;
 import de.s42.dl.parser.DLParser.GenericParametersContext;
 import de.s42.dl.parser.DLParser.GenericParameterContext;
+import de.s42.dl.parser.DLParser.InstanceTypeContext;
 import de.s42.dl.parser.DLParser.StaticParametersContext;
 import de.s42.dl.parser.DLParser.TypeAttributeDefinitionContext;
 import de.s42.dl.parser.DLParser.TypeDefinitionContext;
-import de.s42.dl.parser.DLParser.TypeIdentifierContext;
 import de.s42.dl.types.ArrayDLType;
 import de.s42.dl.types.DefaultDLEnum;
 import de.s42.dl.types.DefaultDLType;
@@ -161,15 +161,18 @@ public class DLHrfParsing extends DLParserBaseListener
 		public String[] aliases;
 	}
 
-	protected DLType fetchTypeIdentifier(TypeIdentifierContext ctx) throws InvalidType
+	protected DLType fetchTypeIdentifier(InstanceTypeContext ctx) throws DLException
 	{
 		if (ctx == null) {
 			return null;
 		}
 
-		String typeName = ctx.identifier().getText();
-
-		Optional<DLType> optType = core.getType(typeName);
+		String typeName = ctx.typeIdentifier().identifier().getText();
+		
+		// Map generics
+		List<DLType> genericTypes = fetchGenericParameters(ctx.genericParameters());
+		
+		Optional<DLType> optType = core.getType(typeName, genericTypes);
 
 		if (optType.isEmpty()) {
 			throw new InvalidType(createErrorMessage("Type '" + typeName + "' is not defined", ctx));
@@ -449,7 +452,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			DLType type = null;
 
 			if (ctx.instanceType() != null) {
-				type = fetchTypeIdentifier(ctx.instanceType().typeIdentifier());
+				type = fetchTypeIdentifier(ctx.instanceType());
 			} else {
 				throw new InvalidInstance("Missing type identifier");
 			}
@@ -468,9 +471,9 @@ public class DLHrfParsing extends DLParserBaseListener
 				identifier = ctx.instanceName().getText();
 			}
 
-			DefaultDLInstance instance = (DefaultDLInstance) core.createInstance(type, identifier);
+			DefaultDLInstance instance = (DefaultDLInstance) core.createInstance(type, identifier);			
 
-			//map annotations
+			// Map annotations
 			for (DLParser.AnnotationContext aCtx : ctx.annotation()) {
 
 				String annotationTypeName = aCtx.annotationName().getText();
@@ -491,8 +494,8 @@ public class DLHrfParsing extends DLParserBaseListener
 						createErrorMessage(
 							"Error binding annotation '"
 							+ annotation.getName()
-							+ "' to type '"
-							+ currentType.getName() + "'", ex, aCtx.annotationName()), ex);
+							+ "' to instance '"
+							+ instance.getName() + "'", ex, aCtx.annotationName()), ex);
 				}
 			}
 
@@ -979,7 +982,7 @@ public class DLHrfParsing extends DLParserBaseListener
 								DLType refType = ((DLInstance) ref).getType();
 
 								if (!refType.isDerivedTypeOf(currentInstance.getType().getAttribute(key).orElseThrow().getType())) {
-									throw new InvalidType(createErrorMessage("Type of reference $" + assignable.getText() + " is not matching it is " + refType.getName() + " but should be " + currentInstance.getType().getAttribute(key).orElseThrow().getType().getName(), ctx));
+									throw new InvalidType(createErrorMessage("Type of reference $" + assignable.getText() + " is not matching it is " + refType.getCanonicalName() + " but should be " + currentInstance.getType().getAttribute(key).orElseThrow().getType().getCanonicalName(), ctx));
 								}
 							}
 

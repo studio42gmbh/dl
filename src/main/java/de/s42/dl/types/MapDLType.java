@@ -26,7 +26,9 @@
 package de.s42.dl.types;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
+import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
 import java.util.Collections;
@@ -54,6 +56,11 @@ public class MapDLType extends DefaultDLType
 		this(name, null, null);
 	}
 
+	public MapDLType(DLType genericKeyType, DLType genericValueType)
+	{
+		this(DEFAULT_SYMBOL, genericKeyType, genericValueType);
+	}
+	
 	public MapDLType(String name, DLType genericKeyType, DLType genericValueType)
 	{
 		super(name);
@@ -64,6 +71,7 @@ public class MapDLType extends DefaultDLType
 	private void init(DLType genericKeyType, DLType genericValueType)
 	{
 		setAllowGenericTypes(true);
+		setAllowDynamicAttributes(true);
 
 		if (genericKeyType != null && genericValueType != null) {
 			try {
@@ -119,9 +127,79 @@ public class MapDLType extends DefaultDLType
 	}
 
 	@Override
+	public void validateInstance(DLInstance instance) throws InvalidInstance
+	{
+		super.validateInstance(instance);
+
+		// Validate entries (dynamic atributes) for generic types of map 
+		if (isGenericType() && instance.hasAttributes()) {
+
+			try {
+				Class keyType = getMapKeyType();
+
+				if (!String.class.isAssignableFrom(keyType)) {
+					throw new InvalidInstance("Key type " + keyType.getName() + " is not supporting dynamic attributes");
+				}
+
+				Class valueType = getMapValueType();
+
+				for (Map.Entry<String, Object> entry : instance.getAttributes().entrySet()) {
+
+					Object value = entry.getValue();
+
+					if (value != null && !valueType.isAssignableFrom(value.getClass())) {
+						throw new InvalidInstance(
+							"Value " + value + " is not of value type "
+							+ valueType.getName() + " but "
+							+ value.getClass().getName());
+					}
+				}
+			} catch (InvalidType ex) {
+				throw new InvalidInstance("Error validating instance - " + ex.getMessage(), ex);
+			}
+		}
+	}
+
+	@Override
+	public Map<?, ?> createJavaInstance() throws InvalidType
+	{
+		if (isGenericType()) {
+
+			Class keyType = getMapKeyType();
+			Class valueType = getMapValueType();
+
+			return Collections.checkedMap(
+				new HashMap<>(),
+				keyType,
+				valueType
+			);
+		} else {
+			return new HashMap<>();
+		}
+	}
+
+	@Override
 	public Class getJavaDataType()
 	{
 		return Map.class;
+	}
+
+	public Class getMapKeyType() throws InvalidType
+	{
+		if (!isGenericType()) {
+			return Object.class;
+		}
+
+		return getGenericTypes().get(0).getJavaDataType();
+	}
+
+	public Class getMapValueType() throws InvalidType
+	{
+		if (!isGenericType()) {
+			return Object.class;
+		}
+
+		return getGenericTypes().get(1).getJavaDataType();
 	}
 
 	@Override
@@ -140,7 +218,7 @@ public class MapDLType extends DefaultDLType
 	public void validate() throws InvalidType
 	{
 		super.validate();
-		
+
 		int count = getGenericTypes().size();
 		if (count != 0 && count != 2) {
 			throw new InvalidType("may only contain 0 or 2 generic types");

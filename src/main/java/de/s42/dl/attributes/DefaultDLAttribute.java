@@ -134,7 +134,13 @@ public class DefaultDLAttribute implements DLAttribute
 
 		return false;
 	}
-
+	
+	@Override
+	public boolean hasAnnotations()
+	{
+		return !annotations.isEmpty();
+	}
+	
 	@Override
 	public List<DLMappedAnnotation> getAnnotations()
 	{

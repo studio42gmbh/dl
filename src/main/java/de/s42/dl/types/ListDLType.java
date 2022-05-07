@@ -28,7 +28,9 @@ package de.s42.dl.types;
 import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLType;
 import de.s42.dl.exceptions.InvalidType;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -94,6 +96,22 @@ public class ListDLType extends DefaultDLType
 		}
 
 		return result;
+	}
+
+	@Override
+	public Object createJavaInstance() throws InvalidType
+	{
+		if (isGenericType()) {
+
+			Class valueType = getGenericTypes().get(0).getJavaDataType();
+
+			return Collections.checkedList(
+				new ArrayList<>(),
+				valueType
+			);
+		} else {
+			return new ArrayList<>();
+		}
 	}
 
 	@Override

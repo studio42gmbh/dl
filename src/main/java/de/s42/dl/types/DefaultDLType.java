@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -194,7 +195,7 @@ public class DefaultDLType implements DLType
 		if (isComplexType()) {
 			throw new InvalidType("Type '" + getCanonicalName() + "' is complex and thus can not be used to read input");
 		}
-		
+
 		if (sources != null && sources.length == 1) {
 
 			Object source = sources[0];
@@ -298,15 +299,15 @@ public class DefaultDLType implements DLType
 		}
 
 		for (DLType parent : parents) {
-			
+
 			if (parent.hasOwnContainedTypes()) {
 				return true;
 			}
 		}
 
 		return false;
-	}	
-	
+	}
+
 	public void addContainedType(DLType containedType)
 	{
 		assert containedType != null;
@@ -490,11 +491,10 @@ public class DefaultDLType implements DLType
 	// @todo https://github.com/studio42gmbh/dl/issues/23 DLType/DefaultDLType Improve and sharpen definition of complex and simple types - does it need further distinction?
 	public boolean isComplexType()
 	{
-		return 
-			complexType || 
-			isAllowDynamicAttributes() ||
-			hasAttributes() || 
-			hasContainedTypes();
+		return complexType
+			|| isAllowDynamicAttributes()
+			|| hasAttributes()
+			|| hasContainedTypes();
 	}
 
 	@Override
@@ -696,6 +696,12 @@ public class DefaultDLType implements DLType
 	}
 
 	@Override
+	public boolean hasAnnotations()
+	{
+		return !annotations.isEmpty();
+	}
+
+	@Override
 	public boolean hasParent(DLType parent)
 	{
 		return getParents().contains(parent);
@@ -705,5 +711,38 @@ public class DefaultDLType implements DLType
 	public boolean hasOwnParent(DLType parent)
 	{
 		return getOwnParents().contains(parent);
+	}
+
+	@Override
+	public <ObjectType> ObjectType createJavaInstance() throws InvalidType
+	{
+		try {
+			return (ObjectType) getJavaDataType().getConstructor().newInstance();
+		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
+			throw new InvalidType("Type can not create a java instance - " + ex.getMessage(), ex);
+		}
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(name, genericTypes);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj == null) {
+			return false;
+		}
+
+		if (!(obj instanceof DefaultDLType)) {
+			return false;
+		}
+
+		DefaultDLType other = (DefaultDLType) obj;
+
+		return Objects.equals(name, other.name)
+			&& Objects.equals(genericTypes, other.genericTypes);
 	}
 }

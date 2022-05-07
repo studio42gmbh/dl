@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -125,6 +126,32 @@ public class DefaultDLInstance implements DLInstance
 		assert key != null;
 
 		attributes.add(key, value);
+	}
+
+	@Override
+	public Map<String, Object> getAttributes()
+	{
+		return attributes.map();
+	}
+
+	@Override
+	public boolean hasAttributes()
+	{
+		return !attributes.isEmpty();
+	}
+
+	@Override
+	public boolean hasDynamicAttributes()
+	{
+		Set<String> attributeNames = getType().getAttributeNames();
+
+		for (String attributeName : attributes.keys()) {
+			if (!attributeNames.contains(attributeName)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	@Override
@@ -545,6 +572,12 @@ public class DefaultDLInstance implements DLInstance
 		}
 
 		return false;
+	}
+
+	@Override
+	public boolean hasAnnotations()
+	{
+		return !annotations.isEmpty();
 	}
 
 	@Override

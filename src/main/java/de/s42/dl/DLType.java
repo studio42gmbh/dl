@@ -49,6 +49,8 @@ public interface DLType extends DLEntity, DLAnnotated
 	public Object write(Object data) throws DLException;
 
 	public Class getJavaDataType();
+	
+	public <ObjectType> ObjectType createJavaInstance() throws DLException;
 
 	public String getCanonicalName();
 
@@ -89,7 +91,7 @@ public interface DLType extends DLEntity, DLAnnotated
 	public Optional<DLAttribute> getAttribute(String name);
 
 	public boolean hasOwnAttributes();
-
+	
 	public boolean hasAttributes();
 
 	public boolean isAllowDynamicAttributes();

@@ -1257,12 +1257,10 @@ public class BaseDLCore implements DLCore
 
 		try {
 
-			Class convertClass = instance.getType().getJavaDataType();
-
-			BeanInfo info = BeanHelper.getBeanInfo(convertClass);
+			DLType type = instance.getType();
 
 			Object convertInstance;
-			String cacheKey = convertClass.getName() + ":" + instance.hashCode();
+			String cacheKey = "" + instance.hashCode();
 
 			WeakReference cacheRef = convertedCache.get(cacheKey);
 
@@ -1278,10 +1276,10 @@ public class BaseDLCore implements DLCore
 				convertedCache.remove(cacheKey);
 			}
 
-			convertInstance = convertClass.getConstructor().newInstance();
+			convertInstance = type.createJavaInstance();
 
 			//allow maps to be set by that
-			if (Map.class.isAssignableFrom(convertClass)) {
+			if (convertInstance instanceof Map) {
 
 				//write properties of the instance
 				for (String attributeName : instance.getAttributeNames()) {
@@ -1322,6 +1320,9 @@ public class BaseDLCore implements DLCore
 				}
 			} //default to assume its a bean
 			else {
+
+				Class convertClass = type.getJavaDataType();
+				BeanInfo info = BeanHelper.getBeanInfo(convertClass);
 
 				//write properties of the instance
 				for (String attributeName : instance.getAttributeNames()) {

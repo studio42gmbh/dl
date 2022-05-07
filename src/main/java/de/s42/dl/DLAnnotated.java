@@ -60,6 +60,8 @@ public interface DLAnnotated
 			return parameters;
 		}
 	}
+	
+	public boolean hasAnnotations();
 
 	public List<DLMappedAnnotation> getAnnotations();
 

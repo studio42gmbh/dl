@@ -174,7 +174,7 @@ instanceDefinition :
 	annotation* 
 	( instanceBody | SEMI_COLON ) ;
 
-instanceType : typeIdentifier ;
+instanceType : typeIdentifier genericParameters? ;
 instanceName : identifier ;
 instanceBody : SCOPE_OPEN ( attributeAssignment | instanceDefinition | require )* SCOPE_CLOSE ;
 
