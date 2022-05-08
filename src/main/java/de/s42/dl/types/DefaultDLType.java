@@ -25,14 +25,19 @@
 //</editor-fold>
 package de.s42.dl.types;
 
+import de.s42.base.beans.BeanHelper;
+import de.s42.base.beans.BeanInfo;
+import de.s42.base.beans.InvalidBean;
 import de.s42.base.collections.MappedList;
 import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.*;
 import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.DLInstanceValidator;
+import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.exceptions.UndefinedType;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -214,6 +219,75 @@ public class DefaultDLType implements DLType
 		return sources;
 	}
 
+	@Override
+	public DLInstance fromJavaObject(DLCore core, Object object) throws DLException
+	{
+		try {
+			BeanInfo info = BeanHelper.getBeanInfo(object.getClass());			
+
+			String instanceName = null;
+
+			// write the name
+			if (info.hasReadProperty("name")) {
+				instanceName = (String) info.read(object, "name");
+			}
+
+			DLInstance instance = core.createInstance(this, instanceName);
+
+			// fill instance from object
+			for (DLAttribute attribute : getAttributes()) {
+
+				if (attribute.isWritable()) {
+
+					Object rawValue = (Object) info.read(object, attribute.getName());
+
+					DLType valueType = attribute.getType();
+					Object value;
+
+					if (valueType.isSimpleType()) {
+						value = attribute.getType().read(rawValue);
+					} else {
+						value = valueType.fromJavaObject(core, rawValue);
+					}
+
+					instance.set(attribute.getName(), value);
+
+					//log.debug("Set attribute", attribute.getName(), value);
+				}
+			}
+			
+			instance.validate();
+			
+			return instance;
+		} catch (InvalidInstance | UndefinedType | InvalidBean ex) {
+			throw new InvalidInstance("Error converting from object - " + ex.getMessage(), ex);
+		}		
+	}
+
+	@Override
+	public void setAttributeFromValue(DLCore core, DLInstance instance, String name, Object value) throws DLException
+	{
+		assert core != null;
+		assert instance != null;
+		assert name != null;
+		
+		Optional<DLAttribute> attributeType = getAttribute(name);
+
+		// Set a defined attribute
+		if (attributeType.isPresent()) {
+
+			if (value instanceof DLInstance) {
+				instance.set(name, value);
+			} else {
+				instance.set(name, attributeType.orElseThrow().getType().read(value));
+			}
+		} // Set a dynamic attribute
+		else {
+
+			instance.set(name, value);
+		}
+	}
+	
 	@Override
 	public Object write(Object data)
 	{

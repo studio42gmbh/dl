@@ -73,7 +73,6 @@ public class BinaryDLWriter implements DLWriter
 	{
 		{
 			assert file != null;
-			assert Files.isRegularFile(file);
 			assert core != null;
 
 			this.core = core;

@@ -31,6 +31,7 @@ import de.s42.dl.exceptions.InvalidType;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -88,10 +89,22 @@ public class SetDLType extends DefaultDLType
 				throw new InvalidType("may contain either 0 or 1 generic types");
 			}
 
-			Class type = getGenericTypes().get(0).getJavaDataType();
+			Class type = getSetValueType();
+
+			if (sources.length == 1 && Set.class.isAssignableFrom(sources[0].getClass())) {
+				// Ensure the list contains only allowed data
+				Set data = Collections.checkedSet(new HashSet(), type);
+				data.addAll((Set)sources[0]);
+				return data;
+			}			
 
 			result = ConversionHelper.convertSet(sources, type);
 		} else {
+			
+			if (sources.length == 1 && Set.class.isAssignableFrom(sources[0].getClass())) {
+				return sources[0];
+			}	
+			
 			result = new HashSet(Arrays.asList(sources));
 		}
 
@@ -103,7 +116,7 @@ public class SetDLType extends DefaultDLType
 	{
 		if (isGenericType()) {
 
-			Class valueType = getGenericTypes().get(0).getJavaDataType();
+			Class valueType = getSetValueType();
 
 			return Collections.checkedSet(
 				new HashSet<>(),
@@ -120,6 +133,15 @@ public class SetDLType extends DefaultDLType
 		return Set.class;
 	}
 
+	public Class getSetValueType() throws InvalidType
+	{
+		if (!isGenericType()) {
+			return Object.class;
+		}
+
+		return getGenericTypes().get(0).getJavaDataType();
+	}
+		
 	@Override
 	public void addGenericType(DLType genericType) throws InvalidType
 	{

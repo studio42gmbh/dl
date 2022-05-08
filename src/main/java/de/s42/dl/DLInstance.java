@@ -106,6 +106,8 @@ public interface DLInstance extends DLEntity, DLAnnotated
 	public boolean hasName(String name);
 
 	public boolean hasChildren();
+	
+	public int getChildCount();
 
 	public <ObjectType> Optional<ObjectType> resolvePath(String path);
 

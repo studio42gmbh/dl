@@ -617,6 +617,12 @@ public class DefaultDLInstance implements DLInstance
 	}
 
 	@Override
+	public int getChildCount()
+	{
+		return children.size();
+	}
+
+	@Override
 	public String toString()
 	{
 		if (getType() != null) {
@@ -624,6 +630,5 @@ public class DefaultDLInstance implements DLInstance
 		} else {
 			return "Instance " + getName();
 		}
-
 	}
 }

@@ -26,14 +26,17 @@
 package de.s42.dl.types;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
+import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -60,7 +63,7 @@ public class MapDLType extends DefaultDLType
 	{
 		this(DEFAULT_SYMBOL, genericKeyType, genericValueType);
 	}
-	
+
 	public MapDLType(String name, DLType genericKeyType, DLType genericValueType)
 	{
 		super(name);
@@ -84,10 +87,57 @@ public class MapDLType extends DefaultDLType
 	}
 
 	@Override
+	public DLInstance fromJavaObject(DLCore core, Object object) throws DLException
+	{
+		if (!(object instanceof Map)) {
+			throw new InvalidInstance("object is required to be of class Map");
+		}
+
+		DLInstance instance = core.createInstance(this);
+
+		if (isGenericType()) {
+
+			Class valueType = getMapValueType();
+
+			for (Map.Entry entry : (Set<Map.Entry>) ((Map) object).entrySet()) {
+				instance.set(entry.getKey().toString(), ConversionHelper.convert(entry.getValue(), valueType));
+			}
+		} else {
+			for (Map.Entry entry : (Set<Map.Entry>) ((Map) object).entrySet()) {
+				instance.set(entry.getKey().toString(), entry.getValue());
+			}
+		}
+
+		instance.validate();
+
+		return instance;
+	}
+
+	@Override
+	public void setAttributeFromValue(DLCore core, DLInstance instance, String name, Object value) throws DLException
+	{
+		if (isGenericType()) {
+
+			Class valueType = getMapValueType();
+
+			try {
+				instance.set(name, ConversionHelper.convert(value, valueType));
+			} catch (RuntimeException ex) {
+				throw new InvalidValue(
+					"Error converting attribute " + name
+					+ " to value type " + valueType.getCanonicalName() + " - " + ex.getMessage(), ex);
+			}
+		} else {
+			instance.set(name, value);
+		}
+	}
+
+	@Override
 	public Object read(Object... sources) throws InvalidType, InvalidValue
 	{
 		assert sources != null;
 
+		// @todo handle reading of maps
 		if (sources.length % 2 != 0) {
 			throw new InvalidValue("has to contain an even number of inputs, but has " + sources.length);
 		}
@@ -101,8 +151,8 @@ public class MapDLType extends DefaultDLType
 				throw new InvalidType("may contain either 0 or 2 generic types");
 			}
 
-			Class keyType = getGenericTypes().get(0).getJavaDataType();
-			Class valueType = getGenericTypes().get(1).getJavaDataType();
+			Class keyType = getMapKeyType();
+			Class valueType = getMapValueType();
 
 			// Make map be type checked
 			result = Collections.checkedMap(
@@ -149,7 +199,7 @@ public class MapDLType extends DefaultDLType
 
 					if (value != null && !valueType.isAssignableFrom(value.getClass())) {
 						throw new InvalidInstance(
-							"Value " + value + " is not of value type "
+							"Value " + value + " in Map is not of value type "
 							+ valueType.getName() + " but "
 							+ value.getClass().getName());
 					}

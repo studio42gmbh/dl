@@ -29,7 +29,9 @@ import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
+import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
+import java.util.List;
 
 /**
  *
@@ -52,14 +54,14 @@ public class ArrayDLType extends DefaultDLType
 		allowGenericTypes = true;
 	}
 
-	public ArrayDLType(String name, String genericTypeName, DLCore core) throws InvalidType
+	public ArrayDLType(String name, String genericTypeName, DLCore core) throws DLException
 	{
 		super(name);
 
 		init(genericTypeName, core);
 	}
 
-	private void init(String genericTypeName, DLCore core) throws InvalidType
+	private void init(String genericTypeName, DLCore core) throws DLException
 	{
 		setAllowGenericTypes(true);
 		addGenericType(core.getType(genericTypeName).orElseThrow());
@@ -72,6 +74,25 @@ public class ArrayDLType extends DefaultDLType
 			return new Object[0];
 		}
 
+		// Handle if sources[0] is an array
+		if (sources.length == 1) {
+
+			if (sources[0].getClass().isArray()) {
+			
+				if (!isGenericType()) {
+					return sources[0];
+				} else {
+
+					return ConversionHelper.convert(sources[0], getArrayValueArrayType());
+				}
+			}
+			else if (List.class.isAssignableFrom(sources[0].getClass())) {
+				
+				sources = ((List)sources[0]).toArray();				
+			}
+		}
+
+		// If it is not a generic array -> just return the given data
 		if (!isGenericType()) {
 			return sources;
 		}
@@ -110,7 +131,7 @@ public class ArrayDLType extends DefaultDLType
 				// https://github.com/studio42gmbh/dl/issues/9 validate/convert types of contents if it has 1 generic type					
 				if (genericTypes.size() == 1) {
 
-					result[i] = ConversionHelper.convert(source, genericTypes.get(0).getJavaDataType());
+					result[i] = ConversionHelper.convert(source, getArrayValueType());
 				} // @improvement with multiple generic types can not be dealt with atm
 				else if (source != null && getJavaDataType().isAssignableFrom(source.getClass())) {
 					throw new InvalidType("Source '" + source + "' is not contained in genericTypes");
@@ -119,6 +140,20 @@ public class ArrayDLType extends DefaultDLType
 		}
 
 		return result;
+	}
+
+	public Class getArrayValueType() throws InvalidType
+	{
+		if (!isGenericType()) {
+			return Object.class;
+		}
+
+		return getGenericTypes().get(0).getJavaDataType();
+	}
+
+	public Class getArrayValueArrayType() throws InvalidType
+	{
+		return getArrayValueType().arrayType();
 	}
 
 	@Override

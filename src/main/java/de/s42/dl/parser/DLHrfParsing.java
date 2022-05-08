@@ -269,7 +269,7 @@ public class DLHrfParsing extends DLParserBaseListener
 		throw new InvalidValue(createErrorMessage("Unknown parameter type", ctx));
 	}
 
-	public List<DLType> fetchGenericParameters(GenericParametersContext ctx) throws UndefinedType
+	public List<DLType> fetchGenericParameters(GenericParametersContext ctx) throws DLException
 	{
 		List<DLType> genericTypes = new ArrayList<>();
 

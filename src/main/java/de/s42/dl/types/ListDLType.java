@@ -88,10 +88,29 @@ public class ListDLType extends DefaultDLType
 				throw new InvalidType("may contain either 0 or 1 generic types");
 			}
 
-			Class type = getGenericTypes().get(0).getJavaDataType();
+			Class type = getListValueType();
+			
+			// @todo make this conversion consistent and test it
+			if (sources.length == 1) {
+				// Ensure the list contains only allowed data
+				//List data = Collections.checkedList(new ArrayList(), type);
+				//data.addAll((List)sources[0]);
+				
+				if (List.class.isAssignableFrom(sources[0].getClass())) {				
+					return ConversionHelper.convertList((List)sources[0], type);
+				}
+				else if (sources[0].getClass().isArray()) {
+					return ConversionHelper.convertList((Object[])sources[0], type);
+				}
+			}			
 
 			result = ConversionHelper.convertList(sources, type);
 		} else {
+			
+			if (sources.length == 1 && List.class.isAssignableFrom(sources[0].getClass())) {
+				return sources[0];
+			}			
+			
 			result = Arrays.asList(sources);
 		}
 
@@ -103,7 +122,7 @@ public class ListDLType extends DefaultDLType
 	{
 		if (isGenericType()) {
 
-			Class valueType = getGenericTypes().get(0).getJavaDataType();
+			Class valueType = getListValueType();
 
 			return Collections.checkedList(
 				new ArrayList<>(),
@@ -120,6 +139,15 @@ public class ListDLType extends DefaultDLType
 		return List.class;
 	}
 
+	public Class getListValueType() throws InvalidType
+	{
+		if (!isGenericType()) {
+			return Object.class;
+		}
+
+		return getGenericTypes().get(0).getJavaDataType();
+	}
+	
 	@Override
 	public void addGenericType(DLType genericType) throws InvalidType
 	{

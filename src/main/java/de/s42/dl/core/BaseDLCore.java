@@ -176,7 +176,7 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public DLAttribute createAttribute(String attributeName, String typeName)
+	public DLAttribute createAttribute(String attributeName, String typeName) throws DLException
 	{
 		assert attributeName != null;
 		assert typeName != null;
@@ -342,7 +342,7 @@ public class BaseDLCore implements DLCore
 		return pragma;
 	}
 
-	public <DataType> DLInstance addExported(String key, DataType value) throws UndefinedType, InvalidInstance, InvalidType
+	public <DataType> DLInstance addExported(String key, DataType value) throws DLException
 	{
 		assert key != null;
 		assert value != null;
@@ -806,7 +806,7 @@ public class BaseDLCore implements DLCore
 		return types.contains(javaType.getName());
 	}
 
-	public boolean hasArrayType(Class javaType)
+	public boolean hasArrayType(Class javaType) throws DLException
 	{
 		assert javaType != null;
 
@@ -836,7 +836,7 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public Optional<DLType> getType(Class javaClass)
+	public Optional<DLType> getType(Class javaClass) throws DLException
 	{
 		assert javaClass != null;
 
@@ -867,13 +867,77 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public Optional<DLType> getType(String name)
+	public Optional<DLType> getType(String name) throws DLException
 	{
 		assert name != null;
-
-		return types.get(name);
+		
+		Optional<DLType> type = types.get(name);
+		
+		if (type.isPresent()) {
+			return type;
+		}
+		
+		// No generics -> no dynamic type generation
+		if (!isGenericTypeName(name)) {
+			return Optional.empty();
+		}
+		
+		String rawTypeName = getRawTypeName(name);
+		List<DLType> generics = getGenericsFromTypeName(name);
+		
+		return getType(rawTypeName, generics);
 	}
+	
+	protected boolean isGenericTypeName(String name)
+	{
+		assert name != null;
+		
+		return name.contains("<");
+	}
+	
+	protected String getRawTypeName(String name)
+	{
+		int index = name.indexOf('<');
+		
+		if (index < 0) {
+			return name;
+		}
+		
+		return name.substring(0, index);
+	}
+	
+	// @todo Add support for nested generic types
+	protected List<DLType> getGenericsFromTypeName(String name) throws DLException
+	{
+		List<DLType> result = new ArrayList<>();
+		
+		int index = name.indexOf('<');
+		int index2 = name.indexOf('>');
+		
+		if (index < 0) {
+			return result;
+		}
+		
+		if (index2 <= index) {
+			throw new InvalidType("Type name " + name + " is invalid");
+		}
+		
+		String[] genericTypeNames = name.substring(index + 1, index2).split("\\s*,\\s*");
+		
+		for (String genericTypeName : genericTypeNames) {
+			
+			Optional<DLType> optType = getType(genericTypeName);
+			
+			if (optType.isEmpty()) {
+				throw new UndefinedType("Type " + genericTypeName + " is not defined");
+			}
+			
+			result.add(optType.orElseThrow());
+		}		
 
+		return result;		
+	}
+	
 	protected String getTypeName(String name, List<DLType> genericTypes)
 	{
 		if (genericTypes == null || genericTypes.isEmpty()) {
@@ -896,7 +960,7 @@ public class BaseDLCore implements DLCore
 		return genericName;
 	}
 
-	public Optional<DLType> getArrayType(Class genericJavaType) throws InvalidCore, InvalidType, UndefinedType
+	public Optional<DLType> getArrayType(Class genericJavaType) throws DLException
 	{
 		assert genericJavaType != null;
 
@@ -1130,48 +1194,17 @@ public class BaseDLCore implements DLCore
 	@Override
 	public DLInstance convertFromJavaObject(Object object) throws DLException
 	{
-		try {
-			assert object != null;
+		assert object != null;
 
-			DLType type = getType(object.getClass()).get();
+		Optional<DLType> optType = getType(object.getClass());
 
-			BeanInfo info = BeanHelper.getBeanInfo(object.getClass());
-
-			String name = null;
-
-			// write the name
-			if (info.hasReadProperty("name")) {
-				name = (String) info.read(object, "name");
-			}
-
-			DLInstance instance = createInstance(type, name);
-
-			// fill instance from object
-			for (DLAttribute attribute : type.getAttributes()) {
-
-				if (attribute.isWritable()) {
-
-					Object rawValue = (Object) info.read(object, attribute.getName());
-
-					DLType valueType = attribute.getType();
-					Object value;
-
-					if (valueType.isSimpleType()) {
-						value = attribute.getType().read(rawValue);
-					} else {
-						value = convertFromJavaObject(rawValue);
-					}
-
-					instance.set(attribute.getName(), value);
-
-					//log.debug("Set attribute", attribute.getName(), value);
-				}
-			}
-
-			return instance;
-		} catch (InvalidInstance | UndefinedType | InvalidBean ex) {
-			throw new InvalidInstance("Error converting from object - " + ex.getMessage(), ex);
+		if (optType.isEmpty()) {
+			throw new InvalidType("No type mapped for java class " + object.getClass());
 		}
+
+		DLType type = optType.orElseThrow();
+
+		return (DLInstance) type.fromJavaObject(this, object);
 	}
 
 	public void writeToFile(Path file, DLModule module) throws IOException

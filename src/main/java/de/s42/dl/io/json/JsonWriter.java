@@ -29,11 +29,14 @@ import de.s42.base.files.FilesHelper;
 import de.s42.dl.DLAnnotated.DLMappedAnnotation;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
-import de.s42.dl.DLModule;
-import java.io.Closeable;
-import java.io.Flushable;
+import de.s42.dl.DLPragma;
+import de.s42.dl.DLType;
+import de.s42.dl.exceptions.DLException;
+import de.s42.dl.io.DLWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -43,12 +46,12 @@ import org.json.JSONObject;
  * @author Benjamin Schiller
  */
 // @todo Add the complete json bridge also supporting types, annotations, etc.
-public class JsonWriter implements Closeable, Flushable, AutoCloseable
+public class JsonWriter implements DLWriter
 {
 
 	protected final Path file;
 	protected final DLCore core;
-	protected JSONObject json;
+	protected final List<JSONObject> json = new ArrayList<>();
 
 	public JsonWriter(Path file, DLCore core)
 	{
@@ -59,14 +62,39 @@ public class JsonWriter implements Closeable, Flushable, AutoCloseable
 		this.core = core;
 	}
 
-	public void write(DLModule module) throws IOException
+	@Override
+	public void write(DLPragma pragma) throws IOException
 	{
-		assert module != null;
-
-		json = writeToJSON(module);
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
-	protected JSONObject writeToJSON(DLInstance instance)
+	@Override
+	public void write(DLType type) throws IOException
+	{
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public void write(DLInstance instance) throws IOException
+	{
+		assert instance != null;
+
+		json.add(toJSON(instance));
+	}
+
+	@Override
+	public void write(Object instance) throws IOException
+	{
+		assert instance != null;
+
+		try {
+			write(core.convertFromJavaObject(instance));
+		} catch (DLException ex) {
+			throw new IOException("Error writing - " + ex.getMessage(), ex);
+		}
+	}
+
+	public static JSONObject toJSON(DLInstance instance)
 	{
 		JSONObject result = new JSONObject();
 
@@ -80,11 +108,10 @@ public class JsonWriter implements Closeable, Flushable, AutoCloseable
 		for (String attributeName : instance.getAttributeNames()) {
 
 			Object value = (Object) instance.get(attributeName);
-			
+
 			if (value instanceof DLInstance) {
-				result.put(attributeName, writeToJSON((DLInstance)value));
-			}
-			else {
+				result.put(attributeName, toJSON((DLInstance) value));
+			} else {
 				result.put(attributeName, value);
 			}
 		}
@@ -125,7 +152,7 @@ public class JsonWriter implements Closeable, Flushable, AutoCloseable
 			result.put("children", children);
 
 			for (DLInstance child : instance.getChildren()) {
-				children.put(writeToJSON(child));
+				children.put(toJSON(child));
 			}
 		}
 
@@ -135,7 +162,22 @@ public class JsonWriter implements Closeable, Flushable, AutoCloseable
 	@Override
 	public void close() throws IOException
 	{
-		FilesHelper.writeStringToFile(file, json.toString(1));
+		// Write empty json
+		if (json.isEmpty()) {
+			FilesHelper.writeStringToFile(file, "{}");
+			return;
+		}
+
+		// Write 1 object directly to file
+		if (json.size() == 1) {
+			FilesHelper.writeStringToFile(file, json.get(0).toString(2));
+			return;
+		}
+
+		// Write multiple objects as array
+		JSONArray data = new JSONArray();
+		data.putAll(json);
+		FilesHelper.writeStringToFile(file, data.toString(2));
 	}
 
 	@Override
@@ -143,5 +185,4 @@ public class JsonWriter implements Closeable, Flushable, AutoCloseable
 	{
 		// do nothing
 	}
-
 }

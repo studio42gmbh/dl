@@ -66,7 +66,7 @@ public interface DLCore
 
 	public DLEnum createEnum(Class<? extends Enum> enumImpl);
 
-	public DLAttribute createAttribute(String attributeName, String typeName);
+	public DLAttribute createAttribute(String attributeName, String typeName) throws DLException;
 
 	public DLAttribute createAttribute(String attributeName, DLType type);
 
@@ -102,9 +102,9 @@ public interface DLCore
 
 	public boolean hasEnum(String name);
 
-	public Optional<DLType> getType(Class javaType);
+	public Optional<DLType> getType(Class javaType) throws DLException;
 
-	public Optional<DLType> getType(String name);
+	public Optional<DLType> getType(String name) throws DLException;
 
 	public Optional<DLType> getType(String name, List<DLType> genericTypes) throws DLException;
 

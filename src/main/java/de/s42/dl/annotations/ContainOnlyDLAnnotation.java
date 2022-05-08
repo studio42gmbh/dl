@@ -28,6 +28,7 @@ package de.s42.dl.annotations;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.*;
+import de.s42.dl.exceptions.DLException;
 import de.s42.dl.types.DefaultDLType;
 import java.util.Optional;
 
@@ -67,7 +68,12 @@ public class ContainOnlyDLAnnotation extends AbstractDLAnnotation
 
 			// @todo https://github.com/studio42gmbh/dl/issues/14 Remove sketchy lookup of other type at instance validation time and move it back to type validation time
 			if (type == null) {
-				Optional<DLType> optType = core.getType(typeName);
+				Optional<DLType> optType;
+				try {
+					optType = core.getType(typeName);
+				} catch (DLException ex) {
+					throw new InvalidInstance("OContained type not found - " + ex.getMessage(), ex);
+				}
 
 				if (optType.isEmpty()) {
 					throw new InvalidInstance("Contained type '" + typeName + "' is not defined");
