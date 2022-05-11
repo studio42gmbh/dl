@@ -165,12 +165,18 @@ public class DefaultDLType implements DLType
 	{
 		assert other != null;
 
-		// equal type
+		// Equal type
 		if (this.equals(other)) {
 			return true;
 		}
+		
+		// More specific generic of other non generic
+		if (this.getName().equals(other.getName()) &&
+			this.isGenericType() && !other.isGenericType()) {
+			return true;
+		}
 
-		// traverse parents
+		// Traverse parents
 		for (DLType parentType : getParents()) {
 			if (parentType.isDerivedTypeOf(other)) {
 				return true;

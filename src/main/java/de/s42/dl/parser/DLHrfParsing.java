@@ -851,7 +851,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				AttributeAssignableContext assignable = ctx.attributeAssignable().get(0);
 
 				if (!lastInstance.getType().isDerivedTypeOf(attributeInstance.getType().getAttribute(attributeAssignableKey).orElseThrow().getType())) {
-					throw new InvalidType(createErrorMessage("Type of instance assignment " + assignable.getText() + " is not matching it is " + lastInstance.getType().getName() + " but should be " + currentInstance.getType().getAttribute(attributeAssignableKey).orElseThrow().getType().getName(), ctx));
+					throw new InvalidType(createErrorMessage("Type of instance assignment " + assignable.getText() + " is not matching it is " + lastInstance.getType().getCanonicalName()+ " but should be " + currentInstance.getType().getAttribute(attributeAssignableKey).orElseThrow().getType().getCanonicalName(), ctx));
 				}
 			}
 		} catch (DLException ex) {
