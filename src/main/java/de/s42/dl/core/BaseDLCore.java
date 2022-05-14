@@ -747,20 +747,14 @@ public class BaseDLCore implements DLCore
 			}
 		}
 
-		// Direct interfaces
-		for (Class interfaceClass : typeClass.getInterfaces()) {
-			if (hasType(interfaceClass)) {
-				DLType interfaceType = getType(interfaceClass).get();
-				classType.addParent(interfaceType);
-			}
-		}
-
 		// Make type derive from Object if given in core
 		if (!classType.hasParents()
 			&& hasType(ObjectDLType.DEFAULT_SYMBOL)) {
 			classType.addParent(getType(ObjectDLType.DEFAULT_SYMBOL).get());
 		}
 
+		boolean handledDLContainer = false;
+		
 		// Handle contains with searching for DLContainer<?>
 		for (Type interfaceType : typeClass.getGenericInterfaces()) {
 			if (interfaceType instanceof ParameterizedType) {
@@ -776,17 +770,33 @@ public class BaseDLCore implements DLCore
 						// container uses the current type - use the new type
 						if ((type instanceof Class) && ((Class) type).equals(typeClass)) {
 							classType.addContainedType(classType);
+							handledDLContainer = true;
 						} // other type -> find in core
 						else if (type instanceof TypeVariable) {
-							throw new InvalidType("Can not use generic type arguments");
+							// This allows to contain Object as it is not determined
+							classType.addContainedType(getType(Object.class).orElseThrow());
+							handledDLContainer = true;
 						} else {
 							classType.addContainedType(getType((Class) type).orElseThrow());
+							handledDLContainer = true;
 						}
 					}
 				}
 			}
 		}
 
+		// Direct interfaces
+		for (Class interfaceClass : typeClass.getInterfaces()) {
+			
+			if (!handledDLContainer && DLContainer.class.equals(interfaceClass)) {
+				classType.addContainedType(getType(Object.class).orElseThrow());
+			}
+			else if (hasType(interfaceClass)) {
+				DLType interfaceType = getType(interfaceClass).get();
+				classType.addParent(interfaceType);
+			}
+		}
+		
 		return classType;
 	}
 
@@ -870,74 +880,74 @@ public class BaseDLCore implements DLCore
 	public Optional<DLType> getType(String name) throws DLException
 	{
 		assert name != null;
-		
+
 		Optional<DLType> type = types.get(name);
-		
+
 		if (type.isPresent()) {
 			return type;
 		}
-		
+
 		// No generics -> no dynamic type generation
 		if (!isGenericTypeName(name)) {
 			return Optional.empty();
 		}
-		
+
 		String rawTypeName = getRawTypeName(name);
 		List<DLType> generics = getGenericsFromTypeName(name);
-		
+
 		return getType(rawTypeName, generics);
 	}
-	
+
 	protected boolean isGenericTypeName(String name)
 	{
 		assert name != null;
-		
+
 		return name.contains("<");
 	}
-	
+
 	protected String getRawTypeName(String name)
 	{
 		int index = name.indexOf('<');
-		
+
 		if (index < 0) {
 			return name;
 		}
-		
+
 		return name.substring(0, index);
 	}
-	
+
 	// @todo Add support for nested generic types
 	protected List<DLType> getGenericsFromTypeName(String name) throws DLException
 	{
 		List<DLType> result = new ArrayList<>();
-		
+
 		int index = name.indexOf('<');
 		int index2 = name.indexOf('>');
-		
+
 		if (index < 0) {
 			return result;
 		}
-		
+
 		if (index2 <= index) {
 			throw new InvalidType("Type name " + name + " is invalid");
 		}
-		
+
 		String[] genericTypeNames = name.substring(index + 1, index2).split("\\s*,\\s*");
-		
+
 		for (String genericTypeName : genericTypeNames) {
-			
+
 			Optional<DLType> optType = getType(genericTypeName);
-			
+
 			if (optType.isEmpty()) {
 				throw new UndefinedType("Type " + genericTypeName + " is not defined");
 			}
-			
-			result.add(optType.orElseThrow());
-		}		
 
-		return result;		
+			result.add(optType.orElseThrow());
+		}
+
+		return result;
 	}
-	
+
 	protected String getTypeName(String name, List<DLType> genericTypes)
 	{
 		if (genericTypes == null || genericTypes.isEmpty()) {
