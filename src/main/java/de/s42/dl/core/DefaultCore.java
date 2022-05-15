@@ -63,8 +63,8 @@ public class DefaultCore extends BaseDLCore
 			defineType(new ObjectDLType(), "java.lang.Object");
 			defineType(new PathDLType(), "java.nio.file.Path");
 			defineType(new SymbolDLType());
-			defineType(new UUIDDLType(), "java.util.UUID");
-			defineType(new StringDLType(), "java.lang.String");
+			defineType(new UUIDDLType(), "java.util.UUID", "uuid");
+			defineType(new StringDLType(), "java.lang.String", "string", "str");
 			defineType(new DateDLType(), "java.util.Date");
 
 			// Define List types https://github.com/studio42gmbh/dl/issues/10

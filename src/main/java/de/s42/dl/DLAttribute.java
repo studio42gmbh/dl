@@ -46,6 +46,8 @@ public interface DLAttribute extends DLEntity, DLAnnotated
 		public String defaultValue() default "";
 
 		public boolean required() default false;
+		
+		public boolean ignore() default false;
 	}
 
 	public void validate() throws InvalidAttribute;

@@ -644,8 +644,18 @@ public class BaseDLCore implements DLCore
 			// Map properties
 			for (BeanProperty<?> property : info.getProperties()) {
 
-				String attributeName = property.getName();
+				// Check for annotation AttributeDL.ignore -> continue if true
+				if (property.isAnnotationPresent(AttributeDL.class)) {
 
+					AttributeDL attr = property.getAnnotation(AttributeDL.class);
+					
+					if (attr.ignore()) {
+						continue;
+					}
+				}
+				
+				String attributeName = property.getName();
+				
 				// Dont map name and class
 				if ("class".equals(attributeName)
 					|| "name".equals(attributeName)) {
@@ -666,7 +676,7 @@ public class BaseDLCore implements DLCore
 						Optional<DLType> optType = getArrayType(attributeJavaType.getComponentType());
 
 						if (optType.isEmpty()) {
-							log.info("Ignoring attribute", attributeName, "as array type", attributeJavaType, "is unknown");
+							log.info("Ignoring attribute", attributeName, "as array type", attributeJavaType, "is unknown for type " + classType.getCanonicalName());
 							continue;
 						}
 
@@ -677,7 +687,7 @@ public class BaseDLCore implements DLCore
 						Optional<DLType> optType = getType(attributeJavaType, property.getGenericTypes());
 
 						if (optType.isEmpty()) {
-							log.info("Ignoring attribute", attributeName, "as type", attributeJavaType, "is unknown");
+							log.info("Ignoring attribute", attributeName, "as type", attributeJavaType, "is unknown for type " + classType.getCanonicalName());
 							continue;
 						}
 
