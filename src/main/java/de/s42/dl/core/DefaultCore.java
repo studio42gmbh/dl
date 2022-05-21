@@ -111,6 +111,7 @@ public class DefaultCore extends BaseDLCore
 			defineAnnotation(new UniqueDLAnnotation());
 			defineAnnotation(new WriteOnlyDLAnnotation());
 			defineAnnotation(new NoGenericsDLAnnotation());
+			defineAnnotation(new RegexDLAnnotation());
 
 			// Define basic pragmas
 			definePragma(new BasePathPragma());
