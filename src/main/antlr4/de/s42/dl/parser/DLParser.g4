@@ -115,10 +115,11 @@ annotationDefinition :
 	KEYWORD_EXTERN 
 	KEYWORD_ANNOTATION 
 	annotationDefinitionName
+	( KEYWORD_ALIAS aliasAnnotationDefinitionName ( COMMA aliasAnnotationDefinitionName )* )?
 	SEMI_COLON ;
 
 annotationDefinitionName : identifier;
-
+aliasAnnotationDefinitionName : identifier ;
 
 /* typeDefinition */
 
@@ -129,11 +130,13 @@ typeDefinition :
 	annotation* 
 	( KEYWORD_EXTENDS parentTypeName ( COMMA parentTypeName )* )?
 	( KEYWORD_CONTAINS containsTypeName ( COMMA containsTypeName )* )?
+	( KEYWORD_ALIAS aliasTypeName ( COMMA aliasTypeName )* )?
 	( typeBody | SEMI_COLON ) ;
 
 typeDefinitionName : identifier;
 parentTypeName : identifier ;
 containsTypeName : identifier ;
+aliasTypeName : identifier ;
 typeBody : SCOPE_OPEN ( typeAttributeDefinition | require )* SCOPE_CLOSE ;
 
 
@@ -144,9 +147,11 @@ enumDefinition :
 	KEYWORD_ENUM 
 	enumName
 	annotation* 
+	( KEYWORD_ALIAS aliasEnumName ( COMMA aliasEnumName )* )?
 	( enumBody | SEMI_COLON ) ;
 
 enumName : identifier;
+aliasEnumName : identifier;
 enumBody : SCOPE_OPEN enumValueDefinition ( COMMA enumValueDefinition )* COMMA? SCOPE_CLOSE ;
 enumValueDefinition : symbolOrString ;
 

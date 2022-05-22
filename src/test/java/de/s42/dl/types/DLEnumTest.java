@@ -23,8 +23,12 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
+package de.s42.dl.types;
 
+import de.s42.dl.DLCore;
+import de.s42.dl.DLEnum;
+import de.s42.dl.DLInstance;
+import de.s42.dl.DLType;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
@@ -51,8 +55,8 @@ public class DLEnumTest
 	public void validExternEnumDefined() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "extern enum de.s42.dl.DLEnumTest$Status;");
-		core.parse("Anonymous2", "alias Status de.s42.dl.DLEnumTest$Status;");
+		core.parse("Anonymous", "extern enum de.s42.dl.types.DLEnumTest$Status;");
+		core.parse("Anonymous2", "alias Status de.s42.dl.types.DLEnumTest$Status;");
 		core.parse("Anonymous3", "type T { Status status : New; }");
 		core.parse("Anonymous4", "T t @export; T t2 @export { status : Done; }");
 
@@ -135,4 +139,27 @@ public class DLEnumTest
 
 		status.valueOf("NotContained");
 	}
+	
+
+	@Test
+	public void validAliasEnum() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "enum T alias U, V { A, B }");
+		DLType typeU = core.getType("U").orElseThrow();
+		Assert.assertEquals(typeU.getName(), "T");
+		DLType typeV = core.getType("V").orElseThrow();
+		Assert.assertEquals(typeV.getName(), "T");
+	}
+
+	@Test
+	public void validExternAliasEnum() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "extern enum de.s42.dl.types.DLEnumTest$Status alias U, V;");
+		DLType typeU = core.getType("U").orElseThrow();
+		Assert.assertEquals(typeU.getName(), "de.s42.dl.types.DLEnumTest$Status");
+		DLType typeV = core.getType("V").orElseThrow();
+		Assert.assertEquals(typeV.getName(), "de.s42.dl.types.DLEnumTest$Status");
+	}	
 }

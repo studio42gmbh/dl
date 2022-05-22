@@ -28,6 +28,7 @@ package de.s42.dl.types;
 import de.s42.base.testing.AssertHelper;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLModule;
+import de.s42.dl.DLType;
 import de.s42.dl.core.BaseDLCore;
 import de.s42.dl.exceptions.UndefinedAnnotation;
 import de.s42.dl.exceptions.UndefinedType;
@@ -69,6 +70,7 @@ public class DLTypesTest
 
 	/**
 	 * Tests https://github.com/studio42gmbh/dl/issues/3
+	 *
 	 * @throws de.s42.dl.exceptions.DLException never thrown here
 	 */
 	@Test
@@ -98,7 +100,8 @@ public class DLTypesTest
 
 	/**
 	 * extern and abstract not allowed in parser
-	 * @throws DLException 
+	 *
+	 * @throws DLException
 	 * @throws RuntimeException expected -> "no viable alternative at input 'externabstract'"
 	 */
 	@Test(expectedExceptions = RuntimeException.class)
@@ -224,5 +227,27 @@ public class DLTypesTest
 		Double value2 = module.get("test2");
 		Assert.assertEquals(value, "Hallo");
 		AssertHelper.assertEpsilonEquals(value2, 1.34);
+	}
+
+	@Test
+	public void validAliasType() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "type T alias U, V;");
+		DLType typeU = core.getType("U").orElseThrow();
+		Assert.assertEquals(typeU.getName(), "T");
+		DLType typeV = core.getType("V").orElseThrow();
+		Assert.assertEquals(typeV.getName(), "T");
+	}
+
+	@Test
+	public void validExternAliasType() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("Anonymous", "extern type de.s42.dl.types.DLTypesTest$TestClass alias U, V;");
+		DLType typeU = core.getType("U").orElseThrow();
+		Assert.assertEquals(typeU.getName(), "de.s42.dl.types.DLTypesTest$TestClass");
+		DLType typeV = core.getType("V").orElseThrow();
+		Assert.assertEquals(typeV.getName(), "de.s42.dl.types.DLTypesTest$TestClass");
 	}
 }

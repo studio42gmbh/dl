@@ -168,10 +168,10 @@ public class DLHrfParsing extends DLParserBaseListener
 		}
 
 		String typeName = ctx.typeIdentifier().identifier().getText();
-		
+
 		// Map generics
 		List<DLType> genericTypes = fetchGenericParameters(ctx.genericParameters());
-		
+
 		Optional<DLType> optType = core.getType(typeName, genericTypes);
 
 		if (optType.isEmpty()) {
@@ -338,7 +338,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				}
 
 				core.defineAliasForAnnotation(aliasRedefinitionName, core.getAnnotation(aliasDefinitionName).orElseThrow());
-			} // alias for annotations
+			} // alias for pragmas
 			else if (core.hasPragma(aliasDefinitionName)) {
 
 				if (!core.isAllowDefinePragmas()) {
@@ -405,6 +405,14 @@ public class DLHrfParsing extends DLParserBaseListener
 					if (!enumImpl.getName().equals(enumName)) {
 						core.defineAliasForType(enumName, enumImpl);
 					}
+
+					// Define aliases from enum definition
+					if (ctx.KEYWORD_ALIAS() != null) {
+						for (DLParser.AliasEnumNameContext aliasCtx : ctx.aliasEnumName()) {
+							core.defineAliasForType(aliasCtx.identifier().getText(), enumImpl);
+						}
+					}
+
 				} catch (ClassNotFoundException ex) {
 					throw new InvalidType(createErrorMessage("Class not found for enum '" + enumName + "' - " + ex.getMessage(), ctx), ex);
 				}
@@ -429,6 +437,13 @@ public class DLHrfParsing extends DLParserBaseListener
 					DLAnnotation annotation = core.getAnnotation(annotationTypeName).get();
 					annotation.bindToType(core, currentEnum, parameters);
 					currentEnum.addAnnotation(annotation, parameters);
+				}
+
+				// Define aliases from enum definition
+				if (ctx.KEYWORD_ALIAS() != null) {
+					for (DLParser.AliasEnumNameContext aliasCtx : ctx.aliasEnumName()) {
+						core.defineAliasForType(aliasCtx.identifier().getText(), currentEnum);
+					}
 				}
 
 				//map values
@@ -471,7 +486,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				identifier = ctx.instanceName().getText();
 			}
 
-			DefaultDLInstance instance = (DefaultDLInstance) core.createInstance(type, identifier);			
+			DefaultDLInstance instance = (DefaultDLInstance) core.createInstance(type, identifier);
 
 			// Map annotations
 			for (DLParser.AnnotationContext aCtx : ctx.annotation()) {
@@ -569,6 +584,14 @@ public class DLHrfParsing extends DLParserBaseListener
 					if (!annotation.getName().equals(annotationName)) {
 						core.defineAliasForAnnotation(annotationName, annotation);
 					}
+
+					// Define aliases from type definition
+					if (ctx.KEYWORD_ALIAS() != null) {
+						for (DLParser.AliasAnnotationDefinitionNameContext aliasCtx : ctx.aliasAnnotationDefinitionName()) {
+							core.defineAliasForAnnotation(aliasCtx.identifier().getText(), annotation);
+						}
+					}
+
 				} catch (ClassNotFoundException ex) {
 					throw new InvalidAnnotation(createErrorMessage("Class not found for annotation '" + annotationName + "' - " + ex.getMessage(), ctx), ex);
 				}
@@ -611,6 +634,13 @@ public class DLHrfParsing extends DLParserBaseListener
 					// define alias for the given typeName
 					if (!currentType.getName().equals(typeName)) {
 						core.defineAliasForType(typeName, currentType);
+					}
+
+					// Define aliases from type definition
+					if (ctx.KEYWORD_ALIAS() != null) {
+						for (DLParser.AliasTypeNameContext aliasCtx : ctx.aliasTypeName()) {
+							core.defineAliasForType(aliasCtx.identifier().getText(), currentType);
+						}
 					}
 
 				} catch (ClassNotFoundException ex) {
@@ -714,6 +744,13 @@ public class DLHrfParsing extends DLParserBaseListener
 						}
 
 						currentType.addContainedType(core.getType(containsTypeName).get());
+					}
+				}
+
+				// Define aliases from type definition
+				if (ctx.KEYWORD_ALIAS() != null) {
+					for (DLParser.AliasTypeNameContext aliasCtx : ctx.aliasTypeName()) {
+						core.defineAliasForType(aliasCtx.identifier().getText(), currentType);
 					}
 				}
 			}
@@ -851,7 +888,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				AttributeAssignableContext assignable = ctx.attributeAssignable().get(0);
 
 				if (!lastInstance.getType().isDerivedTypeOf(attributeInstance.getType().getAttribute(attributeAssignableKey).orElseThrow().getType())) {
-					throw new InvalidType(createErrorMessage("Type of instance assignment " + assignable.getText() + " is not matching it is " + lastInstance.getType().getCanonicalName()+ " but should be " + currentInstance.getType().getAttribute(attributeAssignableKey).orElseThrow().getType().getCanonicalName(), ctx));
+					throw new InvalidType(createErrorMessage("Type of instance assignment " + assignable.getText() + " is not matching it is " + lastInstance.getType().getCanonicalName() + " but should be " + currentInstance.getType().getAttribute(attributeAssignableKey).orElseThrow().getType().getCanonicalName(), ctx));
 				}
 			}
 		} catch (DLException ex) {
