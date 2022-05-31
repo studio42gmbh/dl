@@ -87,6 +87,16 @@ public class MapDLType extends DefaultDLType
 	}
 
 	@Override
+	public boolean mayContainType(DLType type)
+	{
+		if (!isGenericType()) {
+			return true;
+		}
+		
+		return super.mayContainType(type);
+	}
+
+	@Override
 	public DLInstance fromJavaObject(DLCore core, Object object) throws DLException
 	{
 		if (!(object instanceof Map)) {

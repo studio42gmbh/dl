@@ -787,7 +787,14 @@ public class BaseDLCore implements DLCore
 							classType.addContainedType(getType(Object.class).orElseThrow());
 							handledDLContainer = true;
 						} else {
-							classType.addContainedType(getType((Class) type).orElseThrow());
+							
+							Optional<DLType> containedType = getType((Class) type);
+							
+							if (containedType.isEmpty()) {
+								throw new InvalidType("Contained type for java type '" + type + "' not found");
+							}
+							
+							classType.addContainedType(containedType.orElseThrow());
 							handledDLContainer = true;
 						}
 					}
