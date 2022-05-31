@@ -126,7 +126,16 @@ public final class DLHelper
 				.append("\tAttribute ")
 				.append(attribute.getType().getName())
 				.append(" ")
-				.append(attribute.getName())
+				.append(attribute.getName());
+			
+			if (attribute.getDefaultValue() != null) {
+			
+				builder
+					.append(" = ")
+					.append(attribute.getDefaultValue());
+			}			
+			
+			builder
 				.append("\n");
 
 			for (DLMappedAnnotation mappedAnnotation : attribute.getAnnotations()) {
