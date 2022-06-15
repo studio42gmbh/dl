@@ -25,7 +25,6 @@
 //</editor-fold>
 package de.s42.dl;
 
-import de.s42.dl.DLAttribute;
 import de.s42.dl.exceptions.InvalidAttribute;
 
 /**
