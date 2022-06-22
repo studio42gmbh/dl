@@ -31,7 +31,7 @@ import de.s42.dl.DLCore;
  *
  * @author Benjamin Schiller
  */
-public class CoreDLType extends DefaultDLType
+public class CoreDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "DLCore";

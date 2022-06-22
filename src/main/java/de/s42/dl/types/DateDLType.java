@@ -32,7 +32,7 @@ import java.util.Date;
  *
  * @author Benjamin Schiller
  */
-public class DateDLType extends DefaultDLType
+public class DateDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "Date";

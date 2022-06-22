@@ -31,7 +31,7 @@ import de.s42.base.conversion.ConversionHelper;
  *
  * @author Benjamin Schiller
  */
-public class FloatDLType extends DefaultDLType
+public class FloatDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "Float";

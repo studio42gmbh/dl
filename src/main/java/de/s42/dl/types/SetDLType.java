@@ -31,7 +31,6 @@ import de.s42.dl.exceptions.InvalidType;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -40,7 +39,7 @@ import java.util.Set;
  * @author Benjamin Schiller
  */
 // https://github.com/studio42gmbh/dl/issues/10 List support
-public class SetDLType extends DefaultDLType
+public class SetDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "Set";
@@ -94,17 +93,17 @@ public class SetDLType extends DefaultDLType
 			if (sources.length == 1 && Set.class.isAssignableFrom(sources[0].getClass())) {
 				// Ensure the list contains only allowed data
 				Set data = Collections.checkedSet(new HashSet(), type);
-				data.addAll((Set)sources[0]);
+				data.addAll((Set) sources[0]);
 				return data;
-			}			
+			}
 
 			result = ConversionHelper.convertSet(sources, type);
 		} else {
-			
+
 			if (sources.length == 1 && Set.class.isAssignableFrom(sources[0].getClass())) {
 				return sources[0];
-			}	
-			
+			}
+
 			result = new HashSet(Arrays.asList(sources));
 		}
 
@@ -141,7 +140,7 @@ public class SetDLType extends DefaultDLType
 
 		return getGenericTypes().get(0).getJavaDataType();
 	}
-		
+
 	@Override
 	public void addGenericType(DLType genericType) throws InvalidType
 	{

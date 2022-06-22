@@ -32,7 +32,7 @@ import java.util.UUID;
  *
  * @author Benjamin Schiller
  */
-public class UUIDDLType extends DefaultDLType
+public class UUIDDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "UUID";

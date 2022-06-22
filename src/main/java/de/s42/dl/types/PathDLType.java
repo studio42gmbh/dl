@@ -32,7 +32,7 @@ import java.nio.file.Path;
  *
  * @author Benjamin Schiller
  */
-public class PathDLType extends DefaultDLType
+public class PathDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "Path";

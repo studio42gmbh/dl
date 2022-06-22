@@ -39,7 +39,7 @@ import java.util.List;
  * @author Benjamin Schiller
  */
 // https://github.com/studio42gmbh/dl/issues/10 List support
-public class ListDLType extends DefaultDLType
+public class ListDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "List";

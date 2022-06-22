@@ -37,7 +37,7 @@ import java.util.List;
  *
  * @author Benjamin Schiller
  */
-public class ArrayDLType extends DefaultDLType
+public class ArrayDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "Array";
@@ -78,17 +78,16 @@ public class ArrayDLType extends DefaultDLType
 		if (sources.length == 1) {
 
 			if (sources[0].getClass().isArray()) {
-			
+
 				if (!isGenericType()) {
 					return sources[0];
 				} else {
 
 					return ConversionHelper.convert(sources[0], getArrayValueArrayType());
 				}
-			}
-			else if (List.class.isAssignableFrom(sources[0].getClass())) {
-				
-				sources = ((List)sources[0]).toArray();				
+			} else if (List.class.isAssignableFrom(sources[0].getClass())) {
+
+				sources = ((List) sources[0]).toArray();
 			}
 		}
 

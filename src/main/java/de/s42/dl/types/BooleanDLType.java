@@ -31,7 +31,7 @@ import de.s42.base.conversion.ConversionHelper;
  *
  * @author Benjamin Schiller
  */
-public class BooleanDLType extends DefaultDLType
+public class BooleanDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "Boolean";

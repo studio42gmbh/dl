@@ -103,7 +103,7 @@ public class JsonWriter implements DLWriter
 		}
 
 		result.put("type", instance.getType().getCanonicalName());
-
+		
 		// write attributes
 		for (String attributeName : instance.getAttributeNames()) {
 

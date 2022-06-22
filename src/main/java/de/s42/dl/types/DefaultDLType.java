@@ -169,10 +169,10 @@ public class DefaultDLType implements DLType
 		if (this.equals(other)) {
 			return true;
 		}
-		
+
 		// More specific generic of other non generic
-		if (this.getName().equals(other.getName()) &&
-			this.isGenericType() && !other.isGenericType()) {
+		if (this.getName().equals(other.getName())
+			&& this.isGenericType() && !other.isGenericType()) {
 			return true;
 		}
 
@@ -229,7 +229,7 @@ public class DefaultDLType implements DLType
 	public DLInstance fromJavaObject(DLCore core, Object object) throws DLException
 	{
 		try {
-			BeanInfo info = BeanHelper.getBeanInfo(object.getClass());			
+			BeanInfo info = BeanHelper.getBeanInfo(object.getClass());
 
 			String instanceName = null;
 
@@ -261,13 +261,13 @@ public class DefaultDLType implements DLType
 					//log.debug("Set attribute", attribute.getName(), value);
 				}
 			}
-			
+
 			instance.validate();
-			
+
 			return instance;
 		} catch (InvalidInstance | UndefinedType | InvalidBean ex) {
 			throw new InvalidInstance("Error converting from object - " + ex.getMessage(), ex);
-		}		
+		}
 	}
 
 	@Override
@@ -276,7 +276,7 @@ public class DefaultDLType implements DLType
 		assert core != null;
 		assert instance != null;
 		assert name != null;
-		
+
 		Optional<DLAttribute> attributeType = getAttribute(name);
 
 		// Set a defined attribute
@@ -293,7 +293,7 @@ public class DefaultDLType implements DLType
 			instance.set(name, value);
 		}
 	}
-	
+
 	@Override
 	public Object write(Object data)
 	{
@@ -372,8 +372,6 @@ public class DefaultDLType implements DLType
 	@Override
 	public boolean hasContainedTypes()
 	{
-		List<DLType> result = new ArrayList<>();
-
 		if (hasOwnContainedTypes()) {
 			return true;
 		}
@@ -597,7 +595,7 @@ public class DefaultDLType implements DLType
 	@Override
 	public boolean isGenericType()
 	{
-		return allowGenericTypes && (genericTypes.size() > 0);
+		return allowGenericTypes && (!genericTypes.isEmpty());
 	}
 
 	public void addGenericType(DLType genericType) throws InvalidType

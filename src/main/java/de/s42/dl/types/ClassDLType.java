@@ -32,7 +32,7 @@ import de.s42.dl.exceptions.InvalidValue;
  *
  * @author Benjamin Schiller
  */
-public class ClassDLType extends DefaultDLType
+public class ClassDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "Class";

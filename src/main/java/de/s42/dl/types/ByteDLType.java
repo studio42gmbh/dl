@@ -31,7 +31,7 @@ import de.s42.base.conversion.ConversionHelper;
  *
  * @author Benjamin Schiller
  */
-public class ByteDLType extends DefaultDLType
+public class ByteDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "Byte";

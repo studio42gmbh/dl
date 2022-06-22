@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  *
  * @author Benjamin Schiller
  */
-public class SymbolDLType extends DefaultDLType
+public class SymbolDLType extends SimpleDLType
 {
 
 	public final static Pattern SYMBOL_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_\\$\\.-]+");

@@ -31,7 +31,7 @@ import de.s42.base.conversion.ConversionHelper;
  *
  * @author Benjamin Schiller
  */
-public class CharDLType extends DefaultDLType
+public class CharDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "Character";

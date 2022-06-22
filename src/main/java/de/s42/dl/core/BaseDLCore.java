@@ -1234,18 +1234,6 @@ public class BaseDLCore implements DLCore
 		return (DLInstance) type.fromJavaObject(this, object);
 	}
 
-	public void writeToFile(Path file, DLModule module) throws IOException
-	{
-		assert module != null;
-		assert file != null;
-
-		// store module to the given file
-		String stringData = DLHelper.toString(module, true);
-
-		//log.debug("\n" + stringData);
-		FilesHelper.writeStringToFile(file, stringData);
-	}
-
 	@Override
 	public Path getBasePath()
 	{

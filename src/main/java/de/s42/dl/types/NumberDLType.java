@@ -31,7 +31,7 @@ import de.s42.base.conversion.ConversionHelper;
  *
  * @author Benjamin Schiller
  */
-public class NumberDLType extends DefaultDLType
+public class NumberDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "Number";

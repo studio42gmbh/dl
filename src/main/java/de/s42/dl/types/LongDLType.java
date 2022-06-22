@@ -31,7 +31,7 @@ import de.s42.base.conversion.ConversionHelper;
  *
  * @author Benjamin Schiller
  */
-public class LongDLType extends DefaultDLType
+public class LongDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "Long";

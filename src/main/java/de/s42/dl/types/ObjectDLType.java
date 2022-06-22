@@ -31,7 +31,7 @@ import de.s42.base.conversion.ConversionHelper;
  *
  * @author Benjamin Schiller
  */
-public class ObjectDLType extends DefaultDLType
+public class ObjectDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "Object";
