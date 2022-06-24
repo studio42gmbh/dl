@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl.instances;
 
+import de.s42.dl.DLInstance;
 import de.s42.dl.DLModule;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
@@ -60,8 +61,8 @@ public class SimpleTypeDLInstanceNGTest
 	public void validListType() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		List<String> value = ((SimpleTypeDLInstance<List<String>>) core.addExported("value", new ArrayList<>(List.of("a", "b")))).getData();
+		List<String> value = ((ComplexTypeDLInstance<List<String>>) core.addExported("value", new ArrayList<>(List.of("a", "b")))).getData();
 		DLModule module = core.parse("Anonymous", "List<String> dlValue : $value;");
-		Assert.assertEquals(module.get("dlValue"), value);
+		Assert.assertEquals(((ComplexTypeDLInstance<List<String>>)module.get("dlValue")).getData(), value);
 	}
 }

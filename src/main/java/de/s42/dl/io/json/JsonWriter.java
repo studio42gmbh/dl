@@ -36,9 +36,8 @@ import de.s42.dl.io.DLWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -100,11 +99,11 @@ public class JsonWriter implements DLWriter
 	{
 		if (value instanceof DLInstance) {
 			return toJSON((DLInstance) value);
-		} else if (value instanceof Iterable) {
+		} else if (value instanceof Collection) {
 
 			List list = new ArrayList();
 
-			for (Object el : (Iterable) value) {
+			for (Object el : (Collection) value) {
 
 				list.add(convert(el));
 			}

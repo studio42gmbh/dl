@@ -641,18 +641,21 @@ public class BaseDLCore implements DLCore
 			// Map properties
 			for (BeanProperty<?> property : info.getProperties()) {
 
-				// Check for annotation AttributeDL.ignore -> continue if true
-				if (property.isAnnotationPresent(AttributeDL.class)) {
-
-					AttributeDL attr = property.getAnnotation(AttributeDL.class);
-					
-					if (attr.ignore()) {
-						continue;
-					}
+				Optional<AttributeDL> optAttributeDL = property.getAnnotation(AttributeDL.class);
+								
+				AttributeDL attributeDL = null;
+				
+				if (optAttributeDL.isPresent()) {
+					attributeDL = optAttributeDL.orElseThrow();
 				}
 				
+				// Check for annotation AttributeDL.ignore -> continue if true
+				if (attributeDL!= null && attributeDL.ignore()) {
+					continue;
+				}
+
 				String attributeName = property.getName();
-				
+
 				// Dont map name and class
 				if ("class".equals(attributeName)
 					|| "name".equals(attributeName)) {
@@ -695,12 +698,10 @@ public class BaseDLCore implements DLCore
 				DefaultDLAttribute attribute = new DefaultDLAttribute(attributeName, attributeType);
 
 				// Check for annotation AttributeDL
-				if (property.isAnnotationPresent(AttributeDL.class)) {
-
-					AttributeDL attr = property.getAnnotation(AttributeDL.class);
+				if (attributeDL != null) {
 
 					// Set default value if the annotated defaultvalue is not blank
-					String defValue = attr.defaultValue();
+					String defValue = attributeDL.defaultValue();
 					if (!defValue.isBlank()) {
 						try {
 							attribute.setDefaultValue(
@@ -712,20 +713,20 @@ public class BaseDLCore implements DLCore
 					}
 
 					// Add required if the annotated attribute is required
-					if (attr.required()) {
+					if (attributeDL.required()) {
 						addAnnotationToAttribute(classType, attribute, RequiredDLAnnotation.DEFAULT_SYMBOL);
 					}
 				}
 
 				// Add single annotated annotations
 				if (property.isAnnotationPresent(AnnotationDL.class)) {
-					AnnotationDL annotation = property.getAnnotation(AnnotationDL.class);
+					AnnotationDL annotation = property.getAnnotation(AnnotationDL.class).orElseThrow();
 					addAnnotationToAttribute(classType, attribute, annotation.value(), (Object[]) annotation.parameters());
 				}
 
 				// Add multiple annotated annotations
 				if (property.isAnnotationPresent(AnnotationDLContainer.class)) {
-					AnnotationDLContainer annotationContainer = property.getAnnotation(AnnotationDLContainer.class);
+					AnnotationDLContainer annotationContainer = property.getAnnotation(AnnotationDLContainer.class).orElseThrow();
 
 					for (AnnotationDL annotation : annotationContainer.value()) {
 						addAnnotationToAttribute(classType, attribute, annotation.value(), (Object[]) annotation.parameters());
@@ -761,7 +762,7 @@ public class BaseDLCore implements DLCore
 		}
 
 		boolean handledDLContainer = false;
-		
+
 		// Handle contains with searching for DLContainer<?>
 		for (Type interfaceType : typeClass.getGenericInterfaces()) {
 			if (interfaceType instanceof ParameterizedType) {
@@ -784,13 +785,13 @@ public class BaseDLCore implements DLCore
 							classType.addContainedType(getType(Object.class).orElseThrow());
 							handledDLContainer = true;
 						} else {
-							
+
 							Optional<DLType> containedType = getType((Class) type);
-							
+
 							if (containedType.isEmpty()) {
 								throw new InvalidType("Contained type for java type '" + type + "' not found");
 							}
-							
+
 							classType.addContainedType(containedType.orElseThrow());
 							handledDLContainer = true;
 						}
@@ -801,16 +802,15 @@ public class BaseDLCore implements DLCore
 
 		// Direct interfaces
 		for (Class interfaceClass : typeClass.getInterfaces()) {
-			
+
 			if (!handledDLContainer && DLContainer.class.equals(interfaceClass)) {
 				classType.addContainedType(getType(Object.class).orElseThrow());
-			}
-			else if (hasType(interfaceClass)) {
+			} else if (hasType(interfaceClass)) {
 				DLType interfaceType = getType(interfaceClass).get();
 				classType.addParent(interfaceType);
 			}
 		}
-		
+
 		return classType;
 	}
 

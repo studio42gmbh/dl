@@ -26,11 +26,16 @@
 package de.s42.dl.types;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLCore;
+import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
+import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
+import de.s42.dl.exceptions.InvalidValue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -39,7 +44,7 @@ import java.util.Set;
  * @author Benjamin Schiller
  */
 // https://github.com/studio42gmbh/dl/issues/10 List support
-public class SetDLType extends SimpleDLType
+public class SetDLType extends DefaultDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "Set";
@@ -64,6 +69,7 @@ public class SetDLType extends SimpleDLType
 	private void init(DLType genericType)
 	{
 		setAllowGenericTypes(true);
+		setComplexType(true);
 
 		if (genericType != null) {
 			try {
@@ -72,6 +78,41 @@ public class SetDLType extends SimpleDLType
 				throw new RuntimeException("This should not happen as setAllowGenericTypes was just called - " + ex, ex);
 			}
 		}
+	}
+
+	@Override
+	public DLInstance fromJavaObject(DLCore core, Object value) throws DLException
+	{
+		if (!(value instanceof Set)) {
+			throw new InvalidValue("value has to be instanceof Set");
+		}
+
+		DLInstance instance = core.createInstance(this);
+
+		// @todo properly handle generic and complex elements
+		
+		Set converted = new HashSet<>();
+
+		for (Object el : (Set) value) {
+
+			Optional<DLType> optElType = core.getType(el.getClass());
+
+			if (optElType.isPresent()) {
+				DLType elType = optElType.orElseThrow();
+
+				if (elType.isComplexType()) {
+					converted.add(core.convertFromJavaObject(el));
+				} else {
+					converted.add(el);
+				}
+			} else {
+				converted.add(el);
+			}
+		}
+
+		instance.set(SimpleDLType.ATTRIBUTE_VALUE, converted);
+
+		return instance;
 	}
 
 	@Override

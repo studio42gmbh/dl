@@ -26,12 +26,18 @@
 package de.s42.dl.types;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLCore;
+import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
+import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
+import de.s42.dl.exceptions.InvalidValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  *
@@ -39,7 +45,7 @@ import java.util.List;
  * @author Benjamin Schiller
  */
 // https://github.com/studio42gmbh/dl/issues/10 List support
-public class ListDLType extends SimpleDLType
+public class ListDLType extends DefaultDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "List";
@@ -64,6 +70,7 @@ public class ListDLType extends SimpleDLType
 	private void init(DLType genericType)
 	{
 		setAllowGenericTypes(true);
+		setComplexType(true);
 
 		if (genericType != null) {
 			try {
@@ -72,6 +79,41 @@ public class ListDLType extends SimpleDLType
 				throw new RuntimeException("This should not happen as setAllowGenericTypes was just called - " + ex, ex);
 			}
 		}
+	}
+
+	@Override
+	public DLInstance fromJavaObject(DLCore core, Object value) throws DLException
+	{
+		if (!(value instanceof Set)) {
+			throw new InvalidValue("value has to be instanceof Set");
+		}
+
+		DLInstance instance = core.createInstance(this);
+
+		// @todo properly handle generic and complex elements
+		
+		List converted = new ArrayList<>();
+
+		for (Object el : (List) value) {
+
+			Optional<DLType> optElType = core.getType(el.getClass());
+
+			if (optElType.isPresent()) {
+				DLType elType = optElType.orElseThrow();
+
+				if (elType.isComplexType()) {
+					converted.add(core.convertFromJavaObject(el));
+				} else {
+					converted.add(el);
+				}
+			} else {
+				converted.add(el);
+			}
+		}
+
+		instance.set(SimpleDLType.ATTRIBUTE_VALUE, converted);
+
+		return instance;
 	}
 
 	@Override
@@ -89,28 +131,27 @@ public class ListDLType extends SimpleDLType
 			}
 
 			Class type = getListValueType();
-			
+
 			// @todo make this conversion consistent and test it
 			if (sources.length == 1) {
 				// Ensure the list contains only allowed data
 				//List data = Collections.checkedList(new ArrayList(), type);
 				//data.addAll((List)sources[0]);
-				
-				if (List.class.isAssignableFrom(sources[0].getClass())) {				
-					return ConversionHelper.convertList((List)sources[0], type);
+
+				if (List.class.isAssignableFrom(sources[0].getClass())) {
+					return ConversionHelper.convertList((List) sources[0], type);
+				} else if (sources[0].getClass().isArray()) {
+					return ConversionHelper.convertList((Object[]) sources[0], type);
 				}
-				else if (sources[0].getClass().isArray()) {
-					return ConversionHelper.convertList((Object[])sources[0], type);
-				}
-			}			
+			}
 
 			result = ConversionHelper.convertList(sources, type);
 		} else {
-			
+
 			if (sources.length == 1 && List.class.isAssignableFrom(sources[0].getClass())) {
 				return sources[0];
-			}			
-			
+			}
+
 			result = Arrays.asList(sources);
 		}
 
@@ -147,7 +188,7 @@ public class ListDLType extends SimpleDLType
 
 		return getGenericTypes().get(0).getJavaDataType();
 	}
-	
+
 	@Override
 	public void addGenericType(DLType genericType) throws InvalidType
 	{

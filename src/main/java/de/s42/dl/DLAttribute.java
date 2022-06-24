@@ -39,7 +39,7 @@ public interface DLAttribute extends DLEntity, DLAnnotated
 {
 
 	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
+	@Target(value = {ElementType.FIELD, ElementType.METHOD})
 	public static @interface AttributeDL
 	{
 

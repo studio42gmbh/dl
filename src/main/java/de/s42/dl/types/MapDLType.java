@@ -104,6 +104,8 @@ public class MapDLType extends DefaultDLType
 		}
 
 		DLInstance instance = core.createInstance(this);
+		
+		// @todo properly handle complex elements
 
 		if (isGenericType()) {
 

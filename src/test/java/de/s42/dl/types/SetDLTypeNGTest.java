@@ -32,8 +32,8 @@ import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.exceptions.UndefinedType;
+import de.s42.dl.instances.ComplexTypeDLInstance;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -70,9 +70,9 @@ public class SetDLTypeNGTest
 	{
 		DefaultCore core = new DefaultCore();
 		core.addExported("setData", new HashSet<>(Set.of(1, 2, 3)));
-		core.parse("Anonymous", "type T { Set<Integer> data; } T t @export { data : $setData; }");
+		core.parse("validSetGenericsInJava", "type T { Set data; } T t @export { data : $setData; }");
 		DLInstance instance = core.getExported("t").orElseThrow();
-		Set<Integer> data = instance.get("data");
+		Set<Integer> data = (Set)((ComplexTypeDLInstance)instance.get("data")).getData();
 		Assert.assertEquals(data, Set.of(1, 2, 3));
 	}
 
