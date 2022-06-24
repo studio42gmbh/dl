@@ -36,7 +36,9 @@ import de.s42.dl.io.DLWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -94,6 +96,25 @@ public class JsonWriter implements DLWriter
 		}
 	}
 
+	protected static Object convert(Object value)
+	{
+		if (value instanceof DLInstance) {
+			return toJSON((DLInstance) value);
+		} else if (value instanceof Iterable) {
+
+			List list = new ArrayList();
+
+			for (Object el : (Iterable) value) {
+
+				list.add(convert(el));
+			}
+
+			return list;
+		}
+
+		return value;
+	}
+
 	public static JSONObject toJSON(DLInstance instance)
 	{
 		JSONObject result = new JSONObject();
@@ -103,17 +124,14 @@ public class JsonWriter implements DLWriter
 		}
 
 		result.put("type", instance.getType().getCanonicalName());
-		
+
 		// write attributes
 		for (String attributeName : instance.getAttributeNames()) {
 
-			Object value = (Object) instance.get(attributeName);
-
-			if (value instanceof DLInstance) {
-				result.put(attributeName, toJSON((DLInstance) value));
-			} else {
-				result.put(attributeName, value);
-			}
+			result.put(
+				attributeName,
+				convert(instance.get(attributeName))
+			);
 		}
 
 		// @todo write dynamic attributes with types

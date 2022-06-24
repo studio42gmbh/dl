@@ -248,10 +248,21 @@ public class DefaultDLType implements DLType
 					Object rawValue = (Object) info.read(object, attribute.getName());
 
 					DLType valueType = attribute.getType();
+					
+					if (rawValue != null) {
+						Optional<DLType> optType = core.getType(rawValue.getClass());
+						
+						if (optType.isEmpty()) {
+							throw new InvalidType("Type " + rawValue.getClass().getName() + " of attribute " + attribute.getName() + " is not mapped");
+						}
+						
+						valueType = optType.orElseThrow();
+					}
+					
 					Object value;
 
 					if (valueType.isSimpleType()) {
-						value = attribute.getType().read(rawValue);
+							value = attribute.getType().read(rawValue);
 					} else {
 						value = valueType.fromJavaObject(core, rawValue);
 					}

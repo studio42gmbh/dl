@@ -64,7 +64,7 @@ public class DefaultCore extends BaseDLCore
 			defineType(new LongDLType(), "java.lang.Long", "long");
 			defineType(new NumberDLType(), "java.lang.Number");
 			defineType(new ObjectDLType(), "java.lang.Object");
-			defineType(new PathDLType(), "java.nio.file.Path");
+			defineType(new PathDLType(), "java.nio.file.Path", "sun.nio.fs.WindowsPath");
 			defineType(new SymbolDLType());
 			defineType(new UUIDDLType(), "java.util.UUID", "uuid");
 			defineType(new StringDLType(), "java.lang.String", "string", "str");
