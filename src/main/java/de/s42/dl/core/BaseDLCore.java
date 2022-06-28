@@ -610,7 +610,7 @@ public class BaseDLCore implements DLCore
 
 		try {
 
-			BeanInfo<?> info = BeanHelper.getBeanInfo(typeClass);
+			BeanInfo info = BeanHelper.getBeanInfo(typeClass);
 
 			// Check abstract
 			if (info.isInterface()
@@ -639,18 +639,18 @@ public class BaseDLCore implements DLCore
 			}
 
 			// Map properties
-			for (BeanProperty<?> property : info.getProperties()) {
+			for (BeanProperty property : (Set<BeanProperty>) info.getProperties()) {
 
 				Optional<AttributeDL> optAttributeDL = property.getAnnotation(AttributeDL.class);
-								
+
 				AttributeDL attributeDL = null;
-				
+
 				if (optAttributeDL.isPresent()) {
 					attributeDL = optAttributeDL.orElseThrow();
 				}
-				
+
 				// Check for annotation AttributeDL.ignore -> continue if true
-				if (attributeDL!= null && attributeDL.ignore()) {
+				if (attributeDL != null && attributeDL.ignore()) {
 					continue;
 				}
 
@@ -720,13 +720,13 @@ public class BaseDLCore implements DLCore
 
 				// Add single annotated annotations
 				if (property.isAnnotationPresent(AnnotationDL.class)) {
-					AnnotationDL annotation = property.getAnnotation(AnnotationDL.class).orElseThrow();
+					AnnotationDL annotation = (AnnotationDL) property.getAnnotation(AnnotationDL.class).orElseThrow();
 					addAnnotationToAttribute(classType, attribute, annotation.value(), (Object[]) annotation.parameters());
 				}
 
 				// Add multiple annotated annotations
 				if (property.isAnnotationPresent(AnnotationDLContainer.class)) {
-					AnnotationDLContainer annotationContainer = property.getAnnotation(AnnotationDLContainer.class).orElseThrow();
+					AnnotationDLContainer annotationContainer = (AnnotationDLContainer) property.getAnnotation(AnnotationDLContainer.class).orElseThrow();
 
 					for (AnnotationDL annotation : annotationContainer.value()) {
 						addAnnotationToAttribute(classType, attribute, annotation.value(), (Object[]) annotation.parameters());
