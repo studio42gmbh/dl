@@ -68,7 +68,7 @@ public class DefaultCore extends BaseDLCore
 			defineType(new SymbolDLType());
 			defineType(new UUIDDLType(), "java.util.UUID", "uuid");
 			defineType(new StringDLType(), "java.lang.String", "string", "str");
-			defineType(new DateDLType(), "java.util.Date");
+			defineType(new DateDLType(), "java.util.Date", "java.sql.Timestamp");
 
 			// Define List types https://github.com/studio42gmbh/dl/issues/10
 			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
