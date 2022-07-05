@@ -124,8 +124,13 @@ public class DefaultDLInstance implements DLInstance
 	public void set(String key, Object value)
 	{
 		assert key != null;
-
-		attributes.add(key, value);
+		
+		if (value != null) {
+			attributes.add(key, value);
+		}
+		else {
+			attributes.remove(key);
+		}
 	}
 
 	@Override
