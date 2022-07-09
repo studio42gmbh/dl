@@ -16,7 +16,7 @@
 		<dependency>
 			<groupId>de.s42</groupId>
 			<artifactId>base42</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.2</version>
 			<scope>compile</scope>
 			<type>jar</type>
 		</dependency>
