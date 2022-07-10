@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  *
@@ -84,14 +83,13 @@ public class ListDLType extends DefaultDLType
 	@Override
 	public DLInstance fromJavaObject(DLCore core, Object value) throws DLException
 	{
-		if (!(value instanceof Set)) {
-			throw new InvalidValue("value has to be instanceof Set");
+		if (!(value instanceof List)) {
+			throw new InvalidValue("value has to be instanceof List");
 		}
 
 		DLInstance instance = core.createInstance(this);
 
 		// @todo properly handle generic and complex elements
-		
 		List converted = new ArrayList<>();
 
 		for (Object el : (List) value) {
