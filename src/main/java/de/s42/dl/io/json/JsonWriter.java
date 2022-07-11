@@ -113,7 +113,12 @@ public class JsonWriter implements DLWriter
 
 		return value;
 	}
-
+	
+	public static JSONObject toJSON(DLCore core, Object object) throws DLException
+	{
+		return toJSON(core.convertFromJavaObject(object));
+	}
+	
 	public static JSONObject toJSON(DLInstance instance)
 	{
 		JSONObject result = new JSONObject();
