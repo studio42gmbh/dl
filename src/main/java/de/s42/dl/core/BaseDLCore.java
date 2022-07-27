@@ -421,6 +421,11 @@ public class BaseDLCore implements DLCore
 		return exported.get(name);
 	}
 
+	public <ReturnType> ReturnType getExportedAsObject(String name)
+	{
+		return getExported(name).orElseThrow().toJavaObject(this);
+	}
+
 	protected Object resolveChildOrAttribute(DLInstance instance, String name)
 	{
 		assert instance != null;
@@ -642,15 +647,15 @@ public class BaseDLCore implements DLCore
 			for (BeanProperty<?> property : info.getProperties()) {
 
 				Optional<AttributeDL> optAttributeDL = property.getAnnotation(AttributeDL.class);
-								
+
 				AttributeDL attributeDL = null;
-				
+
 				if (optAttributeDL.isPresent()) {
 					attributeDL = optAttributeDL.orElseThrow();
 				}
-				
+
 				// Check for annotation AttributeDL.ignore -> continue if true
-				if (attributeDL!= null && attributeDL.ignore()) {
+				if (attributeDL != null && attributeDL.ignore()) {
 					continue;
 				}
 
