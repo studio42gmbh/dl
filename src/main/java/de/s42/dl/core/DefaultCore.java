@@ -84,7 +84,11 @@ public class DefaultCore extends BaseDLCore
 
 			// Define Set types https://github.com/studio42gmbh/dl/issues/24
 			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
-			defineType(new SetDLType(), "java.util.Set", "java.util.HashSet", "java.util.Collections$UnmodifiableSet");
+			defineType(new SetDLType(), 
+				"java.util.Set", 
+				"java.util.HashSet", 
+				"java.util.Collections$UnmodifiableSet",
+				"java.util.ImmutableCollections$SetN");
 
 			// Define type Core and map $core with this
 			CoreDLType coreType = (CoreDLType) defineType(new CoreDLType(), "Core", "de.s42.dl.DLCore");
