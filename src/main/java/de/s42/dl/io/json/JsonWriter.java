@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl.io.json;
 
+import de.s42.base.conversion.ConversionHelper;
 import de.s42.base.files.FilesHelper;
 import de.s42.dl.DLAnnotated.DLMappedAnnotation;
 import de.s42.dl.DLCore;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -110,8 +112,12 @@ public class JsonWriter implements DLWriter
 
 			return list;
 		}
+		
+		if (value instanceof Date) {
+			return ((Date)value).getTime();
+		}
 
-		return value;
+		return ConversionHelper.convert(value, String.class);
 	}
 	
 	public static JSONObject toJSON(DLCore core, Object object) throws DLException
