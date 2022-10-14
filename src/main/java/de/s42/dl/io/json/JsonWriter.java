@@ -112,19 +112,31 @@ public class JsonWriter implements DLWriter
 
 			return list;
 		}
-		
+
 		if (value instanceof Date) {
-			return ((Date)value).getTime();
+			return ((Date) value).getTime();
+		} else if (value instanceof Boolean) {
+			return value;
+		} else if (value instanceof Float) {
+			return value;
+		} else if (value instanceof Double) {
+			return value;
+		} else if (value instanceof Long) {
+			return value;
+		} else if (value instanceof Integer) {
+			return value;
+		} else if (value instanceof Short) {
+			return value;
 		}
 
 		return ConversionHelper.convert(value, String.class);
 	}
-	
+
 	public static JSONObject toJSON(DLCore core, Object object) throws DLException
 	{
 		return toJSON(core.convertFromJavaObject(object));
 	}
-	
+
 	public static JSONObject toJSON(DLInstance instance)
 	{
 		JSONObject result = new JSONObject();
