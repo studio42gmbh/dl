@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl.io.json;
 
+import de.s42.base.collections.MapHelper;
 import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.types.BooleanDLType;
@@ -38,6 +39,7 @@ import de.s42.dl.types.ShortDLType;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.util.Date;
+import java.util.Map;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.Assert;
@@ -174,4 +176,60 @@ public class JsonWriterTest
 
 		log.debug(json.toString(2));
 	}
+	
+	public static class MapEntry 
+	{
+		protected String testStr;
+		protected int testInt;
+		
+		public MapEntry()
+		{
+			
+		}
+		
+		public MapEntry(String testStr, int testInt)
+		{
+			this.testStr = testStr;
+			this.testInt = testInt;
+		}
+
+		public String getTestStr()
+		{
+			return testStr;
+		}
+
+		public void setTestStr(String testStr)
+		{
+			this.testStr = testStr;
+		}
+
+		public int getTestInt()
+		{
+			return testInt;
+		}
+
+		public void setTestInt(int testInt)
+		{
+			this.testInt = testInt;
+		}
+		
+	}
+	
+	
+	@Test
+	public void testWriteMapWithDLInstances() throws Exception
+	{
+		DefaultCore core = new DefaultCore();		
+		core.defineType(MapEntry.class);
+
+		Map data = MapHelper.of(
+			"A" , new MapEntry("AHA", 42),
+			"B" , new MapEntry("BAB", 21)
+		);
+
+		JSONObject json = JsonWriter.toJSON(core, data);
+
+		log.debug(json.toString(2));
+	}
+	
 }

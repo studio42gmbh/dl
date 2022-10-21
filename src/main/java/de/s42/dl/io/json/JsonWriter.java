@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -82,7 +83,11 @@ public class JsonWriter implements DLWriter
 	{
 		assert instance != null;
 
-		json.add(toJSON(instance));
+		try {
+			json.add(toJSON(core, instance));
+		} catch (DLException ex) {
+			throw new IOException(ex);
+		}
 	}
 
 	@Override
@@ -97,23 +102,25 @@ public class JsonWriter implements DLWriter
 		}
 	}
 
-	protected static Object convert(Object value)
+	protected static Object convert(DLCore core, Object value) throws DLException
 	{
-		if (value instanceof DLInstance) {
-			return toJSON((DLInstance) value);
+		assert core != null;
+
+		if (value == null) {
+			return null;
+		} else if (value instanceof DLInstance) {
+			return toJSON(core, (DLInstance) value);
 		} else if (value instanceof Collection) {
 
 			List list = new ArrayList();
 
 			for (Object el : (Collection) value) {
 
-				list.add(convert(el));
+				list.add(convert(core, el));
 			}
 
 			return list;
-		}
-
-		if (value instanceof Date) {
+		} else if (value instanceof Date) {
 			return ((Date) value).getTime();
 		} else if (value instanceof Boolean) {
 			return value;
@@ -127,6 +134,14 @@ public class JsonWriter implements DLWriter
 			return value;
 		} else if (value instanceof Short) {
 			return value;
+		} else if (value instanceof String) {
+			return value;
+		}
+
+		// If the value has a mapped type and the type is complex -> convert it through DL
+		Optional<DLType> optType = core.getType(value.getClass());
+		if (optType.isPresent() && optType.orElseThrow().isComplexType()) {
+			return toJSON(core, core.convertFromJavaObject(value));
 		}
 
 		return ConversionHelper.convert(value, String.class);
@@ -134,10 +149,10 @@ public class JsonWriter implements DLWriter
 
 	public static JSONObject toJSON(DLCore core, Object object) throws DLException
 	{
-		return toJSON(core.convertFromJavaObject(object));
+		return toJSON(core, core.convertFromJavaObject(object));
 	}
 
-	public static JSONObject toJSON(DLInstance instance)
+	public static JSONObject toJSON(DLCore core, DLInstance instance) throws DLException
 	{
 		JSONObject result = new JSONObject();
 
@@ -150,9 +165,11 @@ public class JsonWriter implements DLWriter
 		// write attributes
 		for (String attributeName : instance.getAttributeNames()) {
 
+			Object val = instance.get(attributeName);
+
 			result.put(
 				attributeName,
-				convert(instance.get(attributeName))
+				convert(core, val)
 			);
 		}
 
@@ -192,7 +209,7 @@ public class JsonWriter implements DLWriter
 			result.put("children", children);
 
 			for (DLInstance child : instance.getChildren()) {
-				children.put(toJSON(child));
+				children.put(toJSON(core, child));
 			}
 		}
 
