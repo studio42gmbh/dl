@@ -23,43 +23,80 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.attributes;
+package de.s42.dl.generator;
 
-import de.s42.dl.DLAttribute;
-import de.s42.dl.DLCore;
-import de.s42.dl.core.DefaultCore;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.types.StringDLType;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DLAttributesTest
+public class ValidationResult
 {
-
-	private final static Logger log = LogManager.getLogger(DLAttributesTest.class.getName());
-
-	@Test
-	public void validComplexNestedInstanceAssignment() throws DLException
+	public final static class InvalidElement
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type C { String d; } type A { C e @required; C c @required; } type B { A b @required; } B test { b : A a1 { e : C c1 { d : YAY1; }; c : C c2 { d : YAY2; }; }; }");
-	}
-
-	@Test
-	public void validAttributeToString() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		DLAttribute attribute = new DefaultDLAttribute("testAttribute", core.getType(StringDLType.DEFAULT_SYMBOL).get());
-		String toString = attribute.toString();
-
-		//log.debug("toString", toString);
+		protected String rule;
+		protected String attribute;
+		protected String message; 
 		
-		Assert.assertEquals(toString, "de.s42.dl.attributes.DefaultDLAttribute testAttribute { type : String; readable : true; writable : true; defaultValue : null; }");
+		public InvalidElement()
+		{
+			
+		}
+		
+		public InvalidElement(String rule, String attribute, String message)
+		{
+			this.rule = rule;
+			this.attribute = attribute;
+			this.message = message;
+		}
+
+		public String getRule()
+		{
+			return rule;
+		}
+
+		public void setRule(String rule)
+		{
+			this.rule = rule;
+		}
+
+		public String getAttribute()
+		{
+			return attribute;
+		}
+
+		public void setAttribute(String attribute)
+		{
+			this.attribute = attribute;
+		}
+
+		public String getMessage()
+		{
+			return message;
+		}
+
+		public void setMessage(String message)
+		{
+			this.message = message;
+		}
+	}
+	
+	protected final List<InvalidElement> invalidElements = new ArrayList<>();
+
+	public List<InvalidElement> getInvalidElements()
+	{
+		return Collections.unmodifiableList(invalidElements);
+	}
+	
+	public InvalidElement addInvalid(String rule, String attribute, String message)
+	{
+		InvalidElement element = new InvalidElement(rule, attribute, message);
+		
+		invalidElements.add(element);
+		
+		return element;
 	}
 }

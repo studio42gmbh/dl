@@ -30,6 +30,10 @@ import de.s42.dl.DLInstance;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
+import de.s42.dl.util.DLHelper;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
+import java.util.Arrays;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -39,6 +43,8 @@ import org.testng.annotations.Test;
  */
 public class ArrayDLTypeNGTest
 {
+	
+	private final static Logger log = LogManager.getLogger(ArrayDLTypeNGTest.class.getName());
 
 	public static enum State
 	{
@@ -110,5 +116,49 @@ public class ArrayDLTypeNGTest
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type T { Array<Integer, Integer> data; }");
+	}
+	
+	public static class TestData {
+		protected String name;
+		protected String[] data;
+
+		public String[] getData()
+		{
+			return data;
+		}
+
+		public void setData(String[] data)
+		{
+			this.data = data;
+		}		
+
+		public String getName()
+		{
+			return name;
+		}
+
+		public void setName(String name)
+		{
+			this.name = name;
+		}
+	}
+		
+	@Test
+	public void serializeAndDeserializeArrayData() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		core.defineType(TestData.class);
+		
+		TestData t1 = new TestData();
+		t1.setData(new String[] {"A", "B", "C"});
+		t1.setName("t1");
+		
+		DLInstance t1Instance = core.convertFromJavaObject(t1);
+		
+		log.warn(Arrays.toString((String[])t1Instance.get("data")));
+		
+		String t1Str = DLHelper.toString(t1Instance, true, 2);
+		
+		log.warn(t1Str);
 	}
 }

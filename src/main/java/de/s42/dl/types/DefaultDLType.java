@@ -38,6 +38,7 @@ import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.exceptions.UndefinedType;
+import de.s42.dl.java.DLContainer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -240,7 +241,7 @@ public class DefaultDLType implements DLType
 
 			DLInstance instance = core.createInstance(this, instanceName);
 
-			// fill instance from object
+			// Fill instance from object
 			for (DLAttribute attribute : getAttributes()) {
 
 				if (attribute.isWritable()) {
@@ -248,8 +249,9 @@ public class DefaultDLType implements DLType
 					Object rawValue = (Object) info.read(object, attribute.getName());
 
 					DLType valueType = attribute.getType();
-					
-					if (rawValue != null) {
+
+					// @todo why did i put the raw value conversion in? it seems to break generic types like maps Map<String, Object> to be reduced to Map
+					/*if (rawValue != null) {
 						Optional<DLType> optType = core.getType(rawValue.getClass());
 						
 						if (optType.isEmpty()) {
@@ -257,12 +259,11 @@ public class DefaultDLType implements DLType
 						}
 						
 						valueType = optType.orElseThrow();
-					}
-					
+					}*/
 					Object value;
 
 					if (valueType.isSimpleType()) {
-							value = attribute.getType().read(rawValue);
+						value = attribute.getType().read(rawValue);
 					} else {
 						value = valueType.fromJavaObject(core, rawValue);
 					}
@@ -273,10 +274,21 @@ public class DefaultDLType implements DLType
 				}
 			}
 
+			// Add children if the object is a DLContainer and has the trivial method getChildren
+			if (object instanceof DLContainer && object.getClass().getMethod("getChildren") != null) {
+
+				List children = (List) object.getClass().getMethod("getChildren").invoke(object);
+
+				for (Object child : children) {
+					instance.addChild(core.convertFromJavaObject(child));
+				}
+
+			}
+
 			instance.validate();
 
 			return instance;
-		} catch (InvalidInstance | UndefinedType | InvalidBean ex) {
+		} catch (InvalidInstance | UndefinedType | InvalidBean | NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
 			throw new InvalidInstance("Error converting from object - " + ex.getMessage(), ex);
 		}
 	}

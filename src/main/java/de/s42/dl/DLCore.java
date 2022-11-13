@@ -91,6 +91,8 @@ public interface DLCore
 	public List<DLInstance> getExported();
 
 	public Optional<DLInstance> getExported(String name);
+	
+	public List<DLInstance> getExported(Class<? extends DLAnnotation> annotationType);
 
 	public Object resolveExportedPath(String path);
 
@@ -109,6 +111,8 @@ public interface DLCore
 	public Optional<DLType> getType(String name, List<DLType> genericTypes) throws DLException;
 
 	public List<DLType> getTypes();
+	
+	public List<DLType> getTypes(Class<? extends DLAnnotation> annotationType);
 
 	public List<DLType> getComplexTypes();
 

@@ -26,9 +26,11 @@
 package de.s42.dl.types;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLAttribute;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
+import de.s42.dl.attributes.DefaultDLAttribute;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidType;
@@ -36,6 +38,7 @@ import de.s42.dl.exceptions.InvalidValue;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -263,7 +266,25 @@ public class MapDLType extends DefaultDLType
 
 		return getGenericTypes().get(1).getJavaDataType();
 	}
+	
+	public Optional<DLType> getGenericKeyType()
+	{
+		if (!isGenericType()) {
+			return Optional.empty();
+		}
+		
+		return Optional.of(getGenericTypes().get(0));
+	}
 
+	public Optional<DLType> getGenericValueType()
+	{
+		if (!isGenericType()) {
+			return Optional.empty();
+		}
+		
+		return Optional.of(getGenericTypes().get(1));
+	}
+	
 	@Override
 	public void addGenericType(DLType genericType) throws InvalidType
 	{

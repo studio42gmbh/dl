@@ -46,7 +46,7 @@ public abstract class AbstractDLAnnotation implements DLAnnotation
 	}
 
 	@SuppressWarnings("UseSpecificCatch")
-	protected Object[] validateParameters(Object[] parameters, Class[] requiredParameterClasses) throws InvalidAnnotation
+	protected static Object[] validateParameters(Object[] parameters, Class[] requiredParameterClasses) throws InvalidAnnotation
 	{
 		if (parameters == null && requiredParameterClasses == null) {
 			return new Object[0];

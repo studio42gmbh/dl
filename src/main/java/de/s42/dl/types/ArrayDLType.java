@@ -71,11 +71,15 @@ public class ArrayDLType extends SimpleDLType
 	public Object read(Object... sources) throws InvalidType
 	{
 		if (sources == null) {
-			return new Object[0];
+			return null;
 		}
 
 		// Handle if sources[0] is an array
 		if (sources.length == 1) {
+			
+			if (sources[0] == null) {
+				return null;
+			}
 
 			if (sources[0].getClass().isArray()) {
 

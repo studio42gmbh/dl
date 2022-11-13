@@ -37,7 +37,6 @@ import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.util.DLHelper;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import org.testng.Assert;
@@ -94,8 +93,9 @@ public class DLTypesTest
 	public void validExternTypeDefinition() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "extern type de.s42.dl.types.DLTypesTest$TestClass;");
-		log.debug(DLHelper.toString(core.getType(TestClass.class).orElseThrow()));
+		core.parse("Anonymous", "extern type de.s42.dl.types.DLTypesTest$TestClass; de.s42.dl.types.DLTypesTest$TestClass t;");
+
+		//log.debug(DLHelper.toString(core.getType(TestClass.class).orElseThrow()));
 	}
 
 	/**

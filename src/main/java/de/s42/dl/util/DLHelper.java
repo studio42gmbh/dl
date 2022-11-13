@@ -35,6 +35,10 @@ import de.s42.dl.io.binary.BinaryDLWriter;
 import de.s42.dl.io.hrf.HrfDLWriter;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
+import java.awt.Color;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
@@ -72,7 +76,11 @@ public final class DLHelper
 		new AbstractMap.SimpleEntry<>(Float.class, true),
 		new AbstractMap.SimpleEntry<>(Double.class, true),
 		new AbstractMap.SimpleEntry<>(Long.class, true),
-		new AbstractMap.SimpleEntry<>(Integer.class, true)
+		new AbstractMap.SimpleEntry<>(Integer.class, true),
+		new AbstractMap.SimpleEntry<>(Rectangle.class, true),
+		new AbstractMap.SimpleEntry<>(Insets.class, true),
+		new AbstractMap.SimpleEntry<>(Color.class, true),
+		new AbstractMap.SimpleEntry<>(Point.class, true)
 	);
 
 	private DLHelper()
@@ -88,7 +96,7 @@ public final class DLHelper
 
 		builder
 			.append("Type ")
-			.append(type.getName());
+			.append(type.getCanonicalName());
 
 		if (type.isAbstract()) {
 			builder.append(" abstract");
@@ -117,24 +125,24 @@ public final class DLHelper
 		for (DLType parent : type.getParents()) {
 			builder
 				.append("\tParent ")
-				.append(parent.getName())
+				.append(parent.getCanonicalName())
 				.append("\n");
 		}
 
 		for (DLAttribute attribute : type.getAttributes()) {
 			builder
 				.append("\tAttribute ")
-				.append(attribute.getType().getName())
+				.append(attribute.getType().getCanonicalName())
 				.append(" ")
 				.append(attribute.getName());
-			
+
 			if (attribute.getDefaultValue() != null) {
-			
+
 				builder
 					.append(" = ")
 					.append(attribute.getDefaultValue());
-			}			
-			
+			}
+
 			builder
 				.append("\n");
 
@@ -261,7 +269,7 @@ public final class DLHelper
 		}
 
 		// extends
-		if (type.getOwnParents().size() > 0) {
+		if (!type.getOwnParents().isEmpty()) {
 			result
 				.append(" extends ");
 
@@ -276,7 +284,7 @@ public final class DLHelper
 		}
 
 		// contains
-		if (type.getOwnContainedTypes().size() > 0) {
+		if (!type.getOwnContainedTypes().isEmpty()) {
 			result
 				.append(" contains ");
 
@@ -370,13 +378,51 @@ public final class DLHelper
 		return toString(instance, prettyPrint, 1);
 	}
 
+	protected static String singleValueToString(Object value, boolean prettyPrint, int indent)
+	{
+		if (value == null) {
+			return "";
+		} else if (value instanceof DLInstance) {
+			return toString((DLInstance) value, prettyPrint, indent + 1);
+		} else if (value instanceof Date) {
+			return "\"" + ConversionHelper.DATE_FORMAT.format(value) + "\"";
+		} else if (value.getClass().isArray()) {
+
+			StringBuilder builder = new StringBuilder();
+
+			boolean first = true;
+			for (Object val : (Object[]) value) {
+
+				if (!first) {
+					if (prettyPrint) {
+						builder.append(", ");
+					} else {
+						builder.append(",");
+					}
+				}
+
+				builder.append(singleValueToString(val, prettyPrint, indent + 1));
+
+				first = false;
+			}
+
+			return builder.toString();
+		} else if (!unescapedTypes.containsKey(value.getClass())) {
+			return "\"" + ConversionHelper.convert(value, String.class) + "\"";
+		} else if (!value.getClass().isPrimitive()) {
+			return ConversionHelper.convert(value, String.class);
+		}
+
+		throw new RuntimeException("Unknown single value");
+	}
+
 	public static String toString(DLInstance instance, boolean prettyPrint, int indent)
 	{
 		assert instance != null;
 
 		StringBuilder result = new StringBuilder();
 
-		result.append(instance.getType().getName());
+		result.append(instance.getType().getCanonicalName());
 
 		if (instance.getName() != null) {
 			result.append(" ");
@@ -389,11 +435,20 @@ public final class DLHelper
 			result.append("{");
 		}
 
-		for (DLAttribute attribute : instance.getType().getAttributes()) {
+		// Make sure the attributes are sorted alphabetically		
+		List<String> attributeNames = new ArrayList<>(instance.getAttributeNames());
+		Collections.sort(attributeNames);
 
-			Object value = (Object) instance.get(attribute.getName());
+		// Write out the attributes
+		for (String attributeName : attributeNames) {
 
-			if (value != null) {
+			Object value = (Object) instance.get(attributeName);
+
+			// @todo https://github.com/studio42gmbh/dl/issues/19 Deal in a more generic manner with string conversion of values
+			// -> Use DLType.write, Use Stringhelper
+			value = singleValueToString(value, prettyPrint, indent);
+
+			if (value != null && !((String) value).isBlank()) {
 
 				if (prettyPrint) {
 					for (int i = 0; i < indent; ++i) {
@@ -401,22 +456,12 @@ public final class DLHelper
 					}
 				}
 
-				result.append(attribute.getName());
+				result.append(attributeName);
 
 				if (prettyPrint) {
 					result.append(" : ");
 				} else {
 					result.append(":");
-				}
-
-				// @todo https://github.com/studio42gmbh/dl/issues/19 Deal in a more generic manner with string conversion of values
-				// -> Use DLType.write, Use Stringhelper
-				if (value instanceof DLInstance) {
-					value = toString((DLInstance) value, prettyPrint, indent + 1);
-				} else if (value instanceof Date) {
-					value = "\"" + ConversionHelper.DATE_FORMAT.format(value) + "\"";
-				} else if (!unescapedTypes.containsKey(value.getClass())) {
-					value = "\"" + value + "\"";
 				}
 
 				result.append(value);
@@ -425,6 +470,25 @@ public final class DLHelper
 					result.append(";\n");
 				} else {
 					result.append(";");
+				}
+			}
+		}
+
+		// Children
+		if (instance.hasChildren()) {
+
+			for (DLInstance child : instance.getChildren()) {
+				if (prettyPrint) {
+					result.append("\n");
+					for (int i = 0; i < indent; ++i) {
+						result.append("\t");
+					}
+				}
+				
+				result.append(toString(child, prettyPrint, indent + 1));
+				
+				if (prettyPrint) {
+					result.append("\n");
 				}
 			}
 		}
@@ -456,7 +520,7 @@ public final class DLHelper
 		assert Files.isRegularFile(file);
 
 		int fileSignature = 0;
-		try (RandomAccessFile raf = new RandomAccessFile(file.toFile(), "r")) {
+		try ( RandomAccessFile raf = new RandomAccessFile(file.toFile(), "r")) {
 			fileSignature = raf.readInt();
 		} catch (IOException e) {
 			// handle if you like
@@ -487,12 +551,12 @@ public final class DLHelper
 
 		// Write human readable format
 		if (fileType == DLFileType.HRF || fileType == DLFileType.HRFMIN) {
-			try (DLWriter writer = new HrfDLWriter(file, core, fileType == DLFileType.HRF)) {
+			try ( DLWriter writer = new HrfDLWriter(file, core, fileType == DLFileType.HRF)) {
 				writer.write(entity);
 			}
 		} // Write binary format 
 		else if (fileType == DLFileType.BIN || fileType == DLFileType.BINCOMPRESSED) {
-			try (DLWriter writer = new BinaryDLWriter(file, core, fileType == DLFileType.BINCOMPRESSED)) {
+			try ( DLWriter writer = new BinaryDLWriter(file, core, fileType == DLFileType.BINCOMPRESSED)) {
 				writer.write(entity);
 			}
 		}
@@ -512,7 +576,7 @@ public final class DLHelper
 		assert fileType != null;
 
 		if (fileType == DLFileType.HRF || fileType == DLFileType.HRFMIN) {
-			try (DLWriter writer = new HrfDLWriter(file, core, fileType == DLFileType.HRF)) {
+			try ( DLWriter writer = new HrfDLWriter(file, core, fileType == DLFileType.HRF)) {
 
 				for (DLType type : core.getTypes()) {
 					if (filter.test(type)) {

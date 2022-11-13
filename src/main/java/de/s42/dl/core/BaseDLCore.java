@@ -421,6 +421,24 @@ public class BaseDLCore implements DLCore
 		return exported.get(name);
 	}
 
+	@Override
+	public List<DLInstance> getExported(Class<? extends DLAnnotation> annotationType)
+	{
+		assert annotationType != null;
+
+		List<DLInstance> result = new ArrayList<>();
+
+		for (DLInstance instance : exported.values()) {
+			Optional<DLAnnotated.DLMappedAnnotation> optEventAnnotation = instance.getAnnotation(annotationType);
+
+			if (optEventAnnotation.isPresent()) {
+				result.add(instance);
+			}
+		}
+
+		return result;
+	}
+
 	public <ReturnType> ReturnType getExportedAsObject(String name)
 	{
 		return getExported(name).orElseThrow().toJavaObject(this);
@@ -486,6 +504,24 @@ public class BaseDLCore implements DLCore
 	public List<DLType> getTypes()
 	{
 		return types.list();
+	}
+
+	@Override
+	public List<DLType> getTypes(Class<? extends DLAnnotation> annotationType)
+	{
+		assert annotationType != null;
+
+		List<DLType> result = new ArrayList<>();
+
+		for (DLType type : types.values()) {
+			Optional<DLAnnotated.DLMappedAnnotation> optEventAnnotation = type.getAnnotation(annotationType);
+
+			if (optEventAnnotation.isPresent()) {
+				result.add(type);
+			}
+		}
+
+		return result;
 	}
 
 	@Override
@@ -598,6 +634,11 @@ public class BaseDLCore implements DLCore
 			} catch (Exception ex) {
 				throw new DLException("Error instantiating DLType '" + typeClass + "' implementation - " + ex.getMessage(), ex);
 			}
+		}
+
+		// Special handling for enum types
+		if (typeClass.isEnum()) {
+			return createEnum((Class<Enum>) typeClass);
 		}
 
 		// Create type from introspecting the given class
@@ -1186,9 +1227,9 @@ public class BaseDLCore implements DLCore
 			}
 		}
 
-		// still not loaded -> sry thats
+		// Still not loaded -> No resolver was found for the given path
 		if (module == null) {
-			throw new InvalidModule("No parser found for module " + moduleId);
+			throw new InvalidModule("No resolver found for module id " + moduleId);
 		}
 
 		requiredModules.put(moduleId, module);

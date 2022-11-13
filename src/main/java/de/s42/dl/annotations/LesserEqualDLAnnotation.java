@@ -29,17 +29,17 @@ package de.s42.dl.annotations;
  *
  * @author Benjamin Schiller
  */
-public class GreaterDLAnnotation extends AbstractComparisonDLAnnotation<Object>
+public class LesserEqualDLAnnotation extends AbstractComparisonDLAnnotation<Object>
 {
 
-	public final static String DEFAULT_SYMBOL = "greater";
+	public final static String DEFAULT_SYMBOL = "lesserEqual";
 
-	public GreaterDLAnnotation()
+	public LesserEqualDLAnnotation()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public GreaterDLAnnotation(String name)
+	public LesserEqualDLAnnotation(String name)
 	{
 		super(name);
 	}
@@ -47,7 +47,7 @@ public class GreaterDLAnnotation extends AbstractComparisonDLAnnotation<Object>
 	@Override
 	protected String errorMessage(Object val, Object refVal)
 	{
-		return "val '" + val + "' must be greater than refval '" + refVal + "'";
+		return "val '" + val + "' must be lesser or equal than refval '" + refVal + "'";
 	}
 
 	@Override
@@ -57,17 +57,17 @@ public class GreaterDLAnnotation extends AbstractComparisonDLAnnotation<Object>
 		assert refVal != null;
 
 		if (val instanceof Double && refVal instanceof Double) {
-			return ((Double) val > (Double) refVal);
+			return ((Double) val <= (Double) refVal);
 		} else if (val instanceof Float && refVal instanceof Float) {
-			return ((Float) val > (Float) refVal);
+			return ((Float) val <= (Float) refVal);
 		} else if (val instanceof Long && refVal instanceof Long) {
-			return ((Long) val > (Long) refVal);
+			return ((Long) val <= (Long) refVal);
 		} else if (val instanceof Integer && refVal instanceof Integer) {
-			return ((Integer) val > (Integer) refVal);
+			return ((Integer) val <= (Integer) refVal);
 		} else if (val instanceof Short && refVal instanceof Short) {
-			return ((Short) val > (Short) refVal);
+			return ((Short) val <= (Short) refVal);
 		} else if (val instanceof String && refVal instanceof String) {
-			return ((String) val).compareTo((String) refVal) > 0;
+			return ((String) val).compareTo((String) refVal) <= 0;
 		}
 
 		throw new IllegalArgumentException("Types of val and refVal have to be Number or String");

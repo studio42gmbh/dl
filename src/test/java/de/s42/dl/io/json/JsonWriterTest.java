@@ -69,7 +69,7 @@ public class JsonWriterTest
 		Assert.assertEquals(json.getString("type"), ClassDLType.DEFAULT_SYMBOL);
 		Assert.assertEquals(json.getString("value"), data.getName());
 
-		log.debug(json.toString(2));
+		//log.debug(json.toString(2));
 	}
 
 	@Test
@@ -84,7 +84,7 @@ public class JsonWriterTest
 		Assert.assertEquals(json.getString("type"), DateDLType.DEFAULT_SYMBOL);
 		Assert.assertEquals(json.get("value"), data.getTime());
 
-		log.debug(json.toString(2));
+		//log.debug(json.toString(2));
 	}
 
 	@Test
@@ -99,7 +99,7 @@ public class JsonWriterTest
 		Assert.assertEquals(json.getString("type"), BooleanDLType.DEFAULT_SYMBOL);
 		Assert.assertEquals(json.get("value"), data);
 
-		log.debug(json.toString(2));
+		//log.debug(json.toString(2));
 	}
 
 	@Test
@@ -114,7 +114,7 @@ public class JsonWriterTest
 		Assert.assertEquals(json.getString("type"), IntegerDLType.DEFAULT_SYMBOL);
 		Assert.assertEquals(json.get("value"), data);
 
-		log.debug(json.toString(2));
+		//log.debug(json.toString(2));
 	}
 
 	@Test
@@ -129,7 +129,7 @@ public class JsonWriterTest
 		Assert.assertEquals(json.getString("type"), LongDLType.DEFAULT_SYMBOL);
 		Assert.assertEquals(json.get("value"), data);
 
-		log.debug(json.toString(2));
+		//log.debug(json.toString(2));
 	}
 
 	@Test
@@ -144,7 +144,7 @@ public class JsonWriterTest
 		Assert.assertEquals(json.getString("type"), ShortDLType.DEFAULT_SYMBOL);
 		Assert.assertEquals(json.get("value"), data);
 
-		log.debug(json.toString(2));
+		//log.debug(json.toString(2));
 	}
 
 	@Test
@@ -159,7 +159,7 @@ public class JsonWriterTest
 		Assert.assertEquals(json.getString("type"), FloatDLType.DEFAULT_SYMBOL);
 		Assert.assertEquals(json.get("value"), data);
 
-		log.debug(json.toString(2));
+		//log.debug(json.toString(2));
 	}
 
 	@Test
@@ -174,19 +174,20 @@ public class JsonWriterTest
 		Assert.assertEquals(json.getString("type"), DoubleDLType.DEFAULT_SYMBOL);
 		Assert.assertEquals(json.get("value"), data);
 
-		log.debug(json.toString(2));
+		//log.debug(json.toString(2));
 	}
-	
-	public static class MapEntry 
+
+	public static class MapEntry
 	{
+
 		protected String testStr;
 		protected int testInt;
-		
+
 		public MapEntry()
 		{
-			
+
 		}
-		
+
 		public MapEntry(String testStr, int testInt)
 		{
 			this.testStr = testStr;
@@ -212,24 +213,28 @@ public class JsonWriterTest
 		{
 			this.testInt = testInt;
 		}
-		
+
 	}
-	
-	
+
 	@Test
 	public void testWriteMapWithDLInstances() throws Exception
 	{
-		DefaultCore core = new DefaultCore();		
+		DefaultCore core = new DefaultCore();
 		core.defineType(MapEntry.class);
 
 		Map data = MapHelper.of(
-			"A" , new MapEntry("AHA", 42),
-			"B" , new MapEntry("BAB", 21)
+			"A", new MapEntry("AHA", 42),
+			"B", new MapEntry("BAB", 21)
 		);
 
 		JSONObject json = JsonWriter.toJSON(core, data);
 
-		log.debug(json.toString(2));
+		Assert.assertEquals(json.getJSONObject("A").getString("testStr"), "AHA");
+		Assert.assertEquals(json.getJSONObject("A").getInt("testInt"), 42);
+		Assert.assertEquals(json.getJSONObject("B").getString("testStr"), "BAB");
+		Assert.assertEquals(json.getJSONObject("B").getInt("testInt"), 21);
+
+		//log.debug(json.toString(2));
 	}
-	
+
 }

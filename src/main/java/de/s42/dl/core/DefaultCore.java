@@ -25,10 +25,14 @@
 //</editor-fold>
 package de.s42.dl.core;
 
+import de.s42.dl.DLCore;
 import de.s42.dl.annotations.*;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.pragmas.*;
 import de.s42.dl.types.*;
+import de.s42.log.LogLevel;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 
 /**
  *
@@ -52,6 +56,42 @@ public class DefaultCore extends BaseDLCore
 			allowDefinePragmas = true;
 			allowRequire = true;
 
+			// Define basic annotations
+			defineAnnotation(new ContainDLAnnotation());
+			defineAnnotation(new ContainOnlyDLAnnotation());
+			defineAnnotation(new ContainOnceDLAnnotation());
+			defineAnnotation(new DynamicDLAnnotation());
+			defineAnnotation(new ExportDLAnnotation());
+			defineAnnotation(new GenerateUUIDDLAnnotation());
+			defineAnnotation(new GenericDLAnnotation());
+			defineAnnotation(new IsDirectoryDLAnnotation());
+			defineAnnotation(new IsFileDLAnnotation());
+			defineAnnotation(new JavaDLAnnotation());
+			defineAnnotation(new LengthDLAnnotation());
+			defineAnnotation(new RangeDLAnnotation());
+			defineAnnotation(new GreaterDLAnnotation());
+			defineAnnotation(new GreaterEqualDLAnnotation());
+			defineAnnotation(new EqualDLAnnotation());
+			defineAnnotation(new NotEqualDLAnnotation());
+			defineAnnotation(new LesserEqualDLAnnotation());
+			defineAnnotation(new LesserDLAnnotation());
+			defineAnnotation(new PreliminaryDLAnnotation());
+			defineAnnotation(new ReadOnlyDLAnnotation());
+			defineAnnotation(new RequiredDLAnnotation());
+			defineAnnotation(new RequiredOrDLAnnotation());
+			defineAnnotation(new UniqueDLAnnotation());
+			defineAnnotation(new WriteOnlyDLAnnotation());
+			defineAnnotation(new NoGenericsDLAnnotation());
+			defineAnnotation(new RegexDLAnnotation());
+
+			// Define basic pragmas
+			definePragma(new BasePathPragma());
+			definePragma(new DefinePragmaPragma());
+			definePragma(new DisableDefinePragmasPragma());
+			definePragma(new DisableDefineTypesPragma());
+			definePragma(new DisableDefineAnnotationsPragma());
+			definePragma(new DisableRequirePragma());
+
 			// Define basic simple types
 			defineType(new BooleanDLType(), "java.lang.Boolean", "boolean", "bool");
 			defineType(new ByteDLType(), "java.lang.Byte", "byte");
@@ -70,12 +110,17 @@ public class DefaultCore extends BaseDLCore
 			defineType(new StringDLType(), "java.lang.String", "string", "str");
 			defineType(new DateDLType(), "java.util.Date", "java.sql.Timestamp");
 
+			// Define log types
+			defineType(LogLevel.class, "LogLevel");
+			defineType(Logger.class, "Logger");
+			defineType(LogManager.class, "LogManager");
+
 			// Define List types https://github.com/studio42gmbh/dl/issues/10
 			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
-			defineType(new ListDLType(), 
-				"java.util.List", 
-				"java.util.ArrayList", 
-				"java.util.LinkedList", 
+			defineType(new ListDLType(),
+				"java.util.List",
+				"java.util.ArrayList",
+				"java.util.LinkedList",
 				"java.util.Collections$UnmodifiableList"
 			);
 
@@ -85,55 +130,30 @@ public class DefaultCore extends BaseDLCore
 
 			// Define Map types https://github.com/studio42gmbh/dl/issues/11
 			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
-			defineType(new MapDLType(), 
-				"java.util.Map", 
-				"java.util.HashMap", 
+			defineType(new MapDLType(),
+				"java.util.Map",
+				"java.util.HashMap",
 				"java.util.Collections$UnmodifiableMap",
-				"de.s42.base.collections.MapHelper$MapN"				
+				"de.s42.base.collections.MapHelper$MapN",
+				"java.util.Collections$CheckedMap"
 			);
 
 			// Define Set types https://github.com/studio42gmbh/dl/issues/24
 			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
-			defineType(new SetDLType(), 
-				"java.util.Set", 
-				"java.util.HashSet", 
+			defineType(new SetDLType(),
+				"java.util.Set",
+				"java.util.HashSet",
 				"java.util.Collections$UnmodifiableSet",
 				"java.util.ImmutableCollections$SetN");
 
 			// Define type Core and map $core with this
-			CoreDLType coreType = (CoreDLType) defineType(new CoreDLType(), "Core", "de.s42.dl.DLCore");
+			CoreDLType coreType = (CoreDLType) defineType(new CoreDLType(),
+				"Core",
+				DLCore.class.getName(),
+				DefaultCore.class.getName()
+			);
 			addExported(new CoreDLInstance(this, coreType));
 
-			// Define basic annotations
-			defineAnnotation(new ContainDLAnnotation());
-			defineAnnotation(new ContainOnlyDLAnnotation());
-			defineAnnotation(new ContainOnceDLAnnotation());
-			defineAnnotation(new DynamicDLAnnotation());
-			defineAnnotation(new ExportDLAnnotation());
-			defineAnnotation(new GenerateUUIDDLAnnotation());
-			defineAnnotation(new GenericDLAnnotation());
-			defineAnnotation(new IsDirectoryDLAnnotation());
-			defineAnnotation(new IsFileDLAnnotation());
-			defineAnnotation(new JavaDLAnnotation());
-			defineAnnotation(new LengthDLAnnotation());
-			defineAnnotation(new RangeDLAnnotation());
-			defineAnnotation(new GreaterDLAnnotation());
-			defineAnnotation(new PreliminaryDLAnnotation());
-			defineAnnotation(new ReadOnlyDLAnnotation());
-			defineAnnotation(new RequiredDLAnnotation());
-			defineAnnotation(new RequiredOrDLAnnotation());
-			defineAnnotation(new UniqueDLAnnotation());
-			defineAnnotation(new WriteOnlyDLAnnotation());
-			defineAnnotation(new NoGenericsDLAnnotation());
-			defineAnnotation(new RegexDLAnnotation());
-
-			// Define basic pragmas
-			definePragma(new BasePathPragma());
-			definePragma(new DefinePragmaPragma());
-			definePragma(new DisableDefinePragmasPragma());
-			definePragma(new DisableDefineTypesPragma());
-			definePragma(new DisableDefineAnnotationsPragma());
-			definePragma(new DisableRequirePragma());
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);
 		}

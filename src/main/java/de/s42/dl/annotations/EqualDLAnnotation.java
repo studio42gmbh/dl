@@ -23,43 +23,39 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.attributes;
-
-import de.s42.dl.DLAttribute;
-import de.s42.dl.DLCore;
-import de.s42.dl.core.DefaultCore;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.types.StringDLType;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+package de.s42.dl.annotations;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DLAttributesTest
+public class EqualDLAnnotation extends AbstractComparisonDLAnnotation<Object>
 {
 
-	private final static Logger log = LogManager.getLogger(DLAttributesTest.class.getName());
+	public final static String DEFAULT_SYMBOL = "equal";
 
-	@Test
-	public void validComplexNestedInstanceAssignment() throws DLException
+	public EqualDLAnnotation()
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type C { String d; } type A { C e @required; C c @required; } type B { A b @required; } B test { b : A a1 { e : C c1 { d : YAY1; }; c : C c2 { d : YAY2; }; }; }");
+		this(DEFAULT_SYMBOL);
 	}
 
-	@Test
-	public void validAttributeToString() throws DLException
+	public EqualDLAnnotation(String name)
 	{
-		DLCore core = new DefaultCore();
-		DLAttribute attribute = new DefaultDLAttribute("testAttribute", core.getType(StringDLType.DEFAULT_SYMBOL).get());
-		String toString = attribute.toString();
+		super(name);
+	}
 
-		//log.debug("toString", toString);
-		
-		Assert.assertEquals(toString, "de.s42.dl.attributes.DefaultDLAttribute testAttribute { type : String; readable : true; writable : true; defaultValue : null; }");
+	@Override
+	protected String errorMessage(Object val, Object refVal)
+	{
+		return "val '" + val + "' must be equal to refval '" + refVal + "'";
+	}
+
+	@Override
+	protected boolean compare(Object val, Object refVal)
+	{
+		assert val != null;
+		assert refVal != null;
+
+		return val.equals(refVal);
 	}
 }

@@ -23,43 +23,53 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.attributes;
-
-import de.s42.dl.DLAttribute;
-import de.s42.dl.DLCore;
-import de.s42.dl.core.DefaultCore;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.types.StringDLType;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+package de.s42.dl.annotations;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DLAttributesTest
+public class LesserDLAnnotation extends AbstractComparisonDLAnnotation<Object>
 {
 
-	private final static Logger log = LogManager.getLogger(DLAttributesTest.class.getName());
+	public final static String DEFAULT_SYMBOL = "lesser";
 
-	@Test
-	public void validComplexNestedInstanceAssignment() throws DLException
+	public LesserDLAnnotation()
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type C { String d; } type A { C e @required; C c @required; } type B { A b @required; } B test { b : A a1 { e : C c1 { d : YAY1; }; c : C c2 { d : YAY2; }; }; }");
+		this(DEFAULT_SYMBOL);
 	}
 
-	@Test
-	public void validAttributeToString() throws DLException
+	public LesserDLAnnotation(String name)
 	{
-		DLCore core = new DefaultCore();
-		DLAttribute attribute = new DefaultDLAttribute("testAttribute", core.getType(StringDLType.DEFAULT_SYMBOL).get());
-		String toString = attribute.toString();
+		super(name);
+	}
 
-		//log.debug("toString", toString);
-		
-		Assert.assertEquals(toString, "de.s42.dl.attributes.DefaultDLAttribute testAttribute { type : String; readable : true; writable : true; defaultValue : null; }");
+	@Override
+	protected String errorMessage(Object val, Object refVal)
+	{
+		return "val '" + val + "' must be lesser than refval '" + refVal + "'";
+	}
+
+	@Override
+	protected boolean compare(Object val, Object refVal)
+	{
+		assert val != null;
+		assert refVal != null;
+
+		if (val instanceof Double && refVal instanceof Double) {
+			return ((Double) val < (Double) refVal);
+		} else if (val instanceof Float && refVal instanceof Float) {
+			return ((Float) val < (Float) refVal);
+		} else if (val instanceof Long && refVal instanceof Long) {
+			return ((Long) val < (Long) refVal);
+		} else if (val instanceof Integer && refVal instanceof Integer) {
+			return ((Integer) val < (Integer) refVal);
+		} else if (val instanceof Short && refVal instanceof Short) {
+			return ((Short) val < (Short) refVal);
+		} else if (val instanceof String && refVal instanceof String) {
+			return ((String) val).compareTo((String) refVal) < 0;
+		}
+
+		throw new IllegalArgumentException("Types of val and refVal have to be Number or String");
 	}
 }
