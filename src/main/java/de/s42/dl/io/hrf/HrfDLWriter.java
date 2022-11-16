@@ -51,6 +51,8 @@ public class HrfDLWriter implements DLWriter
 	protected final DLCore core;
 	protected final boolean prettyPrint;
 
+	public final static Charset UTF8 = Charset.forName("UTF-8");
+
 	public HrfDLWriter(Path file, DLCore core) throws IOException
 	{
 		this(file, core, false);
@@ -82,11 +84,11 @@ public class HrfDLWriter implements DLWriter
 		String instStr = DLHelper.toString(type, prettyPrint);
 
 		if (prettyPrint) {
-			out.write("\n".getBytes(Charset.defaultCharset()));
-			out.write(instStr.getBytes(Charset.defaultCharset()));
-			out.write("\n".getBytes(Charset.defaultCharset()));
+			out.write("\n".getBytes(UTF8));
+			out.write(instStr.getBytes(UTF8));
+			out.write("\n".getBytes(UTF8));
 		} else {
-			out.write(instStr.getBytes(Charset.defaultCharset()));
+			out.write(instStr.getBytes(UTF8));
 		}
 
 	}
@@ -111,11 +113,11 @@ public class HrfDLWriter implements DLWriter
 		String instStr = DLHelper.toString(instance, prettyPrint);
 
 		if (prettyPrint) {
-			out.write("\n".getBytes(Charset.defaultCharset()));
-			out.write(instStr.getBytes(Charset.defaultCharset()));
-			out.write("\n".getBytes(Charset.defaultCharset()));
+			out.write("\n".getBytes(UTF8));
+			out.write(instStr.getBytes(UTF8));
+			out.write("\n".getBytes(UTF8));
 		} else {
-			out.write(instStr.getBytes(Charset.defaultCharset()));
+			out.write(instStr.getBytes(UTF8));
 		}
 	}
 
