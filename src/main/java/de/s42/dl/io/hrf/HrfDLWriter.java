@@ -32,6 +32,7 @@ import de.s42.dl.util.DLHelper;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -81,11 +82,11 @@ public class HrfDLWriter implements DLWriter
 		String instStr = DLHelper.toString(type, prettyPrint);
 
 		if (prettyPrint) {
-			out.write("\n".getBytes());
-			out.write(instStr.getBytes());
-			out.write("\n".getBytes());
+			out.write("\n".getBytes(Charset.defaultCharset()));
+			out.write(instStr.getBytes(Charset.defaultCharset()));
+			out.write("\n".getBytes(Charset.defaultCharset()));
 		} else {
-			out.write(instStr.getBytes());
+			out.write(instStr.getBytes(Charset.defaultCharset()));
 		}
 
 	}
@@ -110,11 +111,11 @@ public class HrfDLWriter implements DLWriter
 		String instStr = DLHelper.toString(instance, prettyPrint);
 
 		if (prettyPrint) {
-			out.write("\n".getBytes());
-			out.write(instStr.getBytes());
-			out.write("\n".getBytes());
+			out.write("\n".getBytes(Charset.defaultCharset()));
+			out.write(instStr.getBytes(Charset.defaultCharset()));
+			out.write("\n".getBytes(Charset.defaultCharset()));
 		} else {
-			out.write(instStr.getBytes());
+			out.write(instStr.getBytes(Charset.defaultCharset()));
 		}
 	}
 
