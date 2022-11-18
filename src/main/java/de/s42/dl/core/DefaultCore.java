@@ -26,6 +26,7 @@
 package de.s42.dl.core;
 
 import de.s42.dl.DLCore;
+import de.s42.dl.DLEntity;
 import de.s42.dl.annotations.*;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.pragmas.*;
@@ -109,6 +110,8 @@ public class DefaultCore extends BaseDLCore
 			defineType(new UUIDDLType(), "java.util.UUID", "uuid");
 			defineType(new StringDLType(), "java.lang.String", "string", "str");
 			defineType(new DateDLType(), "java.util.Date", "java.sql.Timestamp");
+			
+			defineType(DLEntity.class, "DLEntity");
 
 			// Define log types
 			defineType(LogLevel.class, "LogLevel");

@@ -36,6 +36,7 @@ import de.s42.dl.io.hrf.HrfDLWriter;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -80,7 +81,8 @@ public final class DLHelper
 		new AbstractMap.SimpleEntry<>(Rectangle.class, true),
 		new AbstractMap.SimpleEntry<>(Insets.class, true),
 		new AbstractMap.SimpleEntry<>(Color.class, true),
-		new AbstractMap.SimpleEntry<>(Point.class, true)
+		new AbstractMap.SimpleEntry<>(Point.class, true),
+		new AbstractMap.SimpleEntry<>(Dimension.class, true)
 	);
 
 	private DLHelper()
@@ -484,9 +486,9 @@ public final class DLHelper
 						result.append("\t");
 					}
 				}
-				
+
 				result.append(toString(child, prettyPrint, indent + 1));
-				
+
 				if (prettyPrint) {
 					result.append("\n");
 				}
