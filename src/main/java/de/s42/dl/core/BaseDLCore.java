@@ -685,7 +685,7 @@ public class BaseDLCore implements DLCore
 			}
 
 			// Map properties
-			for (BeanProperty<?> property : info.getProperties()) {
+			for (BeanProperty<?, ?> property : info.getProperties()) {
 
 				Optional<AttributeDL> optAttributeDL = property.getAnnotation(AttributeDL.class);
 

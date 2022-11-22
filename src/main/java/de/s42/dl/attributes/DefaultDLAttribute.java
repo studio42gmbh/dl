@@ -25,6 +25,10 @@
 //</editor-fold>
 package de.s42.dl.attributes;
 
+import de.s42.base.beans.BeanHelper;
+import de.s42.base.beans.BeanInfo;
+import de.s42.base.beans.BeanProperty;
+import de.s42.base.beans.InvalidBean;
 import de.s42.dl.DLAttributeValidator;
 import de.s42.dl.*;
 import de.s42.base.strings.StringHelper;
@@ -75,6 +79,40 @@ public class DefaultDLAttribute implements DLAttribute
 			this.defaultValue = type.read(defaultValue);
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);
+		}
+	}
+
+	public <ReturnType> ReturnType getValueFromJavaObject(Object object) throws InvalidAttribute
+	{
+		try {
+			assert object != null;
+
+			BeanInfo<?> info = BeanHelper.getBeanInfo(object.getClass());
+
+			BeanProperty property = info.getProperty(getName()).orElseThrow(() -> {
+				return new InvalidAttribute("Attribute '" + getName() + "' is not a valid bean property");
+			});
+
+			return (ReturnType) property.read(object);
+		} catch (InvalidBean ex) {
+			throw new InvalidAttribute("Object is not a valid bean - " + ex.getMessage(), ex);
+		}
+	}
+
+	public void setValueToJavaObject(Object object, Object value) throws InvalidAttribute
+	{
+		try {
+			assert object != null;
+
+			BeanInfo<?> info = BeanHelper.getBeanInfo(object.getClass());
+
+			BeanProperty property = info.getProperty(getName()).orElseThrow(() -> {
+				return new InvalidAttribute("Attribute '" + getName() + "' is not a valid bean property");
+			});
+
+			property.write(object, value);
+		} catch (InvalidBean ex) {
+			throw new InvalidAttribute("Object is not a valid bean - " + ex.getMessage(), ex);
 		}
 	}
 
@@ -134,13 +172,13 @@ public class DefaultDLAttribute implements DLAttribute
 
 		return false;
 	}
-	
+
 	@Override
 	public boolean hasAnnotations()
 	{
 		return !annotations.isEmpty();
 	}
-	
+
 	@Override
 	public List<DLMappedAnnotation> getAnnotations()
 	{

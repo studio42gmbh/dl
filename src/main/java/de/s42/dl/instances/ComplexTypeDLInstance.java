@@ -37,6 +37,7 @@ import java.util.Optional;
 
 /**
  * See https://github.com/studio42gmbh/dl/issues/29
+ *
  * @author Benjamin Schiller
  * @param <DataType> defines the concrete data type of this instance
  */
@@ -57,7 +58,7 @@ public class ComplexTypeDLInstance<DataType> extends DefaultDLInstance
 		assert data != null;
 
 		this.data = data;
-		info = BeanHelper.getBeanInfo((Class<DataType>)data.getClass());
+		info = BeanHelper.getBeanInfo((Class<DataType>) data.getClass());
 	}
 
 	@Override
@@ -69,8 +70,8 @@ public class ComplexTypeDLInstance<DataType> extends DefaultDLInstance
 	@Override
 	public <ReturnType> ReturnType get(String key)
 	{
-		Optional<BeanProperty<DataType>> property = info.getProperty(key);
-		
+		Optional<BeanProperty<DataType, ReturnType>> property = info.getProperty(key);
+
 		if (property.isPresent()) {
 			try {
 				return property.orElseThrow().read(data);
@@ -78,10 +79,10 @@ public class ComplexTypeDLInstance<DataType> extends DefaultDLInstance
 				throw new RuntimeException("Error reading attribute " + key + " - " + ex.getMessage(), ex);
 			}
 		}
-		
+
 		return super.get(key);
 	}
-	
+
 	@Override
 	public void set(String key, Object value)
 	{
