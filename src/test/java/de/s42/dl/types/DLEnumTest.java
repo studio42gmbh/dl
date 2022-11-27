@@ -55,10 +55,10 @@ public class DLEnumTest
 	public void validExternEnumDefined() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "extern enum de.s42.dl.types.DLEnumTest$Status;");
-		core.parse("Anonymous2", "alias Status de.s42.dl.types.DLEnumTest$Status;");
-		core.parse("Anonymous3", "type T { Status status : New; }");
-		core.parse("Anonymous4", "T t @export; T t2 @export { status : Done; }");
+		core.parse("validExternEnumDefined", "extern enum de.s42.dl.types.DLEnumTest$Status;");
+		core.parse("validExternEnumDefined2", "alias Status de.s42.dl.types.DLEnumTest$Status;");
+		core.parse("validExternEnumDefined3", "type T { Status status : New; }");
+		core.parse("validExternEnumDefined4", "T t @export; T t2 @export { status : Done; }");
 
 		DLInstance t = core.getExported("t").orElseThrow();
 		DLInstance t2 = core.getExported("t2").orElseThrow();
@@ -78,15 +78,14 @@ public class DLEnumTest
 	public void validDefineEnum() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "enum Status { New, InProgress, Done, Error, }");
-		core.parse("Anonymous2", "type T { Status status : New; }");
+		core.parse("validDefineEnum", "enum Status @noGenerics { New, InProgress, Done, Error, } type T { Status status : New; }");
 	}
 
 	@Test(expectedExceptions = InvalidValue.class)
 	public void invalidDefineInvalidEnumDuplicateEnumValue() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "enum Status { New, InProgress, Done, Error, New }");
+		core.parse("invalidDefineInvalidEnumDuplicateEnumValue", "enum Status { New, InProgress, Done, Error, New }");
 	}
 
 	@Test
@@ -94,7 +93,7 @@ public class DLEnumTest
 	{
 		DLCore core = new DefaultCore();
 		core.defineType(core.createEnum("Status", Status.class));
-		core.parse("Anonymous", "type UseEnum { Status status : New; }");
+		core.parse("validUseEnumValueAsDefaultInType", "type UseEnum { Status status : New; }");
 	}
 
 	@Test(expectedExceptions = InvalidValue.class)
@@ -102,21 +101,21 @@ public class DLEnumTest
 	{
 		DLCore core = new DefaultCore();
 		core.defineType(core.createEnum("Status", Status.class));
-		core.parse("Anonymous", "type UseEnum { Status status : NotInEnum; }");
+		core.parse("invalidUseIncorrectEnumValueAsDefaultInType", "type UseEnum { Status status : NotInEnum; }");
 	}
 
 	@Test(expectedExceptions = InvalidValue.class)
 	public void invalidValueNotInCodeDefinedEnumTypedef() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "enum Status { New, InProgress, Done, Error, New } type Test { Status t : NotInEnum; }");
+		core.parse("invalidValueNotInCodeDefinedEnumTypedef", "enum Status { New, InProgress, Done, Error, New } type Test { Status t : NotInEnum; }");
 	}
 
 	@Test(expectedExceptions = InvalidValue.class)
 	public void invalidValueNotInCodeDefinedEnumInstancedef() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "enum Status { New, InProgress, Done, Error, New } type Test { Status t; } Test { t : NotInEnum; }");
+		core.parse("invalidValueNotInCodeDefinedEnumInstancedef", "enum Status { New, InProgress, Done, Error, New } type Test { Status t; } Test { t : NotInEnum; }");
 	}
 
 	@Test
@@ -140,12 +139,11 @@ public class DLEnumTest
 		status.valueOf("NotContained");
 	}
 	
-
 	@Test
 	public void validAliasEnum() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "enum T alias U, V { A, B }");
+		core.parse("validAliasEnum", "enum T alias U, V { A, B }");
 		DLType typeU = core.getType("U").orElseThrow();
 		Assert.assertEquals(typeU.getName(), "T");
 		DLType typeV = core.getType("V").orElseThrow();
@@ -156,7 +154,7 @@ public class DLEnumTest
 	public void validExternAliasEnum() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "extern enum de.s42.dl.types.DLEnumTest$Status alias U, V;");
+		core.parse("validExternAliasEnum", "extern enum de.s42.dl.types.DLEnumTest$Status alias U, V;");
 		DLType typeU = core.getType("U").orElseThrow();
 		Assert.assertEquals(typeU.getName(), "de.s42.dl.types.DLEnumTest$Status");
 		DLType typeV = core.getType("V").orElseThrow();

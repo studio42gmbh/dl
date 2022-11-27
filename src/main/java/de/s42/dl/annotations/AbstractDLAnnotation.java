@@ -27,7 +27,11 @@ package de.s42.dl.annotations;
 
 import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLAnnotation;
+import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
+import de.s42.dl.parameters.NamedParameters;
+import java.lang.annotation.Annotation;
+import java.util.Map;
 
 /**
  *
@@ -37,15 +41,66 @@ public abstract class AbstractDLAnnotation implements DLAnnotation
 {
 
 	protected final String name;
+	protected final NamedParameters parameters;
 
 	protected AbstractDLAnnotation(String name)
 	{
 		assert name != null;
 
 		this.name = name;
+		parameters = null;
+	}
+
+	protected AbstractDLAnnotation(Class<? extends Annotation> annotationClass)
+	{
+		assert annotationClass != null;
+
+		this.name = annotationClass.getSimpleName();
+		this.parameters = new NamedParameters(annotationClass);
+	}
+
+	protected AbstractDLAnnotation(String name, NamedParameters parameters)
+	{
+		assert name != null;
+		assert parameters != null;
+
+		this.name = name;
+		this.parameters = parameters;
+	}
+
+	protected AbstractDLAnnotation(String name, Class<? extends Annotation> annotationClass)
+	{
+		assert name != null;
+		assert annotationClass != null;
+
+		this.name = name;
+		this.parameters = new NamedParameters(annotationClass);
+	}
+
+	@Override
+	public Object[] toFlatParameters(Map<String, Object> namedParameters) throws DLException
+	{
+		return parameters.toFlatParameters(namedParameters);
+	}
+
+	@Override
+	public boolean isValidNamedParameter(String parameterName, Object value)
+	{
+		return parameters.isValidNamedParameter(parameterName, value);
+	}
+
+	public boolean isValidFlatParameters(Object[] flatParameters)
+	{
+		return parameters.isValidFlatParameters(flatParameters);
+	}
+
+	public <ObjectType> ObjectType getNamedParameter(String parameterName, Object[] flatParameters) throws InvalidAnnotation
+	{
+		return parameters.get(parameterName, flatParameters);
 	}
 
 	@SuppressWarnings("UseSpecificCatch")
+	@Deprecated
 	protected static Object[] validateParameters(Object[] parameters, Class[] requiredParameterClasses) throws InvalidAnnotation
 	{
 		if (parameters == null && requiredParameterClasses == null) {
@@ -65,7 +120,7 @@ public abstract class AbstractDLAnnotation implements DLAnnotation
 		}
 
 		if (parameters.length != requiredParameterClasses.length) {
-			throw new InvalidAnnotation("parameter count not matching has to have " + requiredParameterClasses.length + " parameter(s) but has " + parameters.length);
+			throw new InvalidAnnotation("Parameter count not matching has to have " + requiredParameterClasses.length + " parameter(s) but has " + parameters.length);
 		}
 
 		Object[] result = new Object[parameters.length];
@@ -75,7 +130,7 @@ public abstract class AbstractDLAnnotation implements DLAnnotation
 			assert requiredParameterClasses[i] != null;
 
 			if (parameters[i] == null) {
-				throw new InvalidAnnotation("parameter " + (i + 1) + " may not be null");
+				throw new InvalidAnnotation("Parameter " + (i + 1) + " may not be null");
 			}
 
 			try {
@@ -92,5 +147,10 @@ public abstract class AbstractDLAnnotation implements DLAnnotation
 	public String getName()
 	{
 		return name;
+	}
+
+	public NamedParameters getParameters()
+	{
+		return parameters;
 	}
 }

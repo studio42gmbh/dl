@@ -30,6 +30,8 @@ import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
@@ -39,6 +41,8 @@ import org.testng.Assert;
  */
 public class DLAnnotationTest
 {
+
+	private final static Logger log = LogManager.getLogger(DLAnnotationTest.class.getName());
 
 	public static class TestAnnotation extends TagDLAnnotation
 	{
@@ -101,7 +105,7 @@ public class DLAnnotationTest
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "extern annotation notDefined;");
 	}
-	
+
 	@Test
 	public void validExternAliasAnnotation() throws DLException
 	{

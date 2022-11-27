@@ -46,14 +46,14 @@ public class GreaterEqualDLAnnotationTest
 		core.parse("Anonymous2", "type T2 { float min; float max @greaterEqual(\"min\"); } T2 t2 { min : 1.0; max : 2.0; }");
 		core.parse("Anonymous3", "type T3 { int min; int max @greaterEqual(\"min\"); } T3 t3 { min : 1; max : 2; }");
 		core.parse("Anonymous4", "type T4 { long min; long max @greaterEqual(\"min\"); } T4 t4 { min : 1; max : 2; }");
-		core.parse("Anonymous4", "type T5 { short min; short max @greaterEqual(\"min\"); } T5 t5 { min : 1; max : 2; }");
-		core.parse("Anonymous5", "type T6 { String min; String max @greaterEqual(\"min\"); } T6 t6 { min : aa; max : bb; }");
-		core.parse("Anonymous6", "type T7 { double min; double max @greaterEqual(\"min\"); } T7 t7 { min : 1.0; max : 1.0; }");
-		core.parse("Anonymous7", "type T8 { float min; float max @greaterEqual(\"min\"); } T8 t8 { min : 1.0; max : 1.0; }");
-		core.parse("Anonymous8", "type T9 { int min; int max @greaterEqual(\"min\"); } T9 t9 { min : 1; max : 1; }");
-		core.parse("Anonymous9", "type T10 { long min; long max @greaterEqual(\"min\"); } T10 t10 { min : 1; max : 1; }");
-		core.parse("Anonymous10", "type T11 { short min; short max @greaterEqual(\"min\"); } T11 t11 { min : 1; max : 1; }");
-		core.parse("Anonymous11", "type T12 { String min; String max @greaterEqual(\"min\"); } T12 t12 { min : aa; max : aa; }");
+		core.parse("Anonymous5", "type T5 { short min; short max @greaterEqual(\"min\"); } T5 t5 { min : 1; max : 2; }");
+		core.parse("Anonymous6", "type T6 { String min; String max @greaterEqual(\"min\"); } T6 t6 { min : aa; max : bb; }");
+		core.parse("Anonymous7", "type T7 { double min; double max @greaterEqual(\"min\"); } T7 t7 { min : 1.0; max : 1.0; }");
+		core.parse("Anonymous8", "type T8 { float min; float max @greaterEqual(\"min\"); } T8 t8 { min : 1.0; max : 1.0; }");
+		core.parse("Anonymous9", "type T9 { int min; int max @greaterEqual(\"min\"); } T9 t9 { min : 1; max : 1; }");
+		core.parse("Anonymous10", "type T10 { long min; long max @greaterEqual(\"min\"); } T10 t10 { min : 1; max : 1; }");
+		core.parse("Anonymous11", "type T11 { short min; short max @greaterEqual(\"min\"); } T11 t11 { min : 1; max : 1; }");
+		core.parse("Anonymous12", "type T12 { String min; String max @greaterEqual(\"min\"); } T12 t12 { min : aa; max : aa; }");
 	}
 
 	@Test(expectedExceptions = InvalidInstance.class)

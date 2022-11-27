@@ -32,6 +32,7 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Map;
 
 /**
  *
@@ -72,5 +73,15 @@ public interface DLAnnotation extends DLEntity
 	default public void bindToInstance(DLCore core, DLModule module, DLInstance instance, Object... parameters) throws DLException
 	{
 		throw new InvalidAnnotation("Can not be bound to instances");
+	}
+
+	default public boolean isValidNamedParameter(String name, Object value)
+	{
+		return false;
+	}
+	
+	default public Object[] toFlatParameters(Map<String, Object> namedParameters) throws DLException
+	{
+		throw new InvalidAnnotation("Can not flatten parameters");
 	}
 }

@@ -25,11 +25,15 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
+import de.s42.base.validation.ValidationHelper;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.*;
+import de.s42.dl.DLAnnotated.DLMappedAnnotation;
 import de.s42.dl.attributes.DefaultDLAttribute;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.parameters.NamedParameter;
+import de.s42.dl.parameters.NamedParameters;
 import de.s42.dl.types.DefaultDLType;
 import java.util.function.BiFunction;
 
@@ -40,6 +44,17 @@ import java.util.function.BiFunction;
  */
 public abstract class AbstractComparisonDLAnnotation<DataType> extends AbstractDLAnnotation
 {
+
+	/* OTHER */
+	public final static NamedParameter OTHER = new NamedParameter(
+		"other",
+		String.class,
+		null,
+		ValidationHelper::isString
+	);
+
+	/* PARAMETERS */
+	public final static NamedParameters PARAMETERS = new NamedParameters(OTHER);
 
 	private class ComparisonDLInstanceValidator implements DLInstanceValidator, DLAttributeValidator
 	{
@@ -105,7 +120,12 @@ public abstract class AbstractComparisonDLAnnotation<DataType> extends AbstractD
 
 	public AbstractComparisonDLAnnotation(String name)
 	{
-		super(name);
+		super(name, PARAMETERS);
+	}
+
+	public String getOther(DLMappedAnnotation mappedAnnotation) throws InvalidAnnotation
+	{
+		return OTHER.get(mappedAnnotation.getParameters());
 	}
 
 	@Override
@@ -114,15 +134,21 @@ public abstract class AbstractComparisonDLAnnotation<DataType> extends AbstractD
 		assert type != null;
 		assert attribute != null;
 
-		parameters = validateParameters(parameters, new Class[]{String.class});
+		if (!isValidFlatParameters(parameters)) {
+			throw new InvalidAnnotation("flat parameters are not valid");
+		}
 
-		String nameRef = (String) parameters[0];
+		String nameRef = OTHER.get(parameters);
 
-		ComparisonDLInstanceValidator validator = new ComparisonDLInstanceValidator(attribute.getName(), nameRef, (t, u) -> {
-			return compare(t, u);
-		}, (t, u) -> {
-			return errorMessage(t, u);
-		});
+		ComparisonDLInstanceValidator validator = new ComparisonDLInstanceValidator(
+			attribute.getName(),
+			nameRef,
+			(val, refVal) -> {
+				return compare(val, refVal);
+			},
+			(val, refVal) -> {
+				return errorMessage(val, refVal);
+			});
 		((DefaultDLType) type).addInstanceValidator(validator);
 
 		if (attribute instanceof DefaultDLAttribute) {

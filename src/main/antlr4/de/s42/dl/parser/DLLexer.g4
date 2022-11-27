@@ -40,6 +40,8 @@ KEYWORD_ABSTRACT :		'abstract' ;
 KEYWORD_ALIAS :			'alias' ;
 KEYWORD_FINAL :			'final' ;
 KEYWORD_PRAGMA :		'pragma' ;
+KEYWORD_SCOPE :			'scope' ;
+KEYWORD_DECLARE :		'declare' ;
 
 BOOLEAN_LITERAL :		'true' | 'false' ;
 

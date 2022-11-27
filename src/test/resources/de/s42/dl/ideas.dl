@@ -1,7 +1,143 @@
-// DEFINE ANNOTATION IN DL
+
+// DL MISSION:
+// DL shall provide an environment dependable constraining and validation of data in a consistent and foremost easy readable and understandable language 
+// (types, generics, annotations/contracts, scope)
+
+
+// TYPE GENERICS
+
+type T<U> 
+{
+	U y @required;
+	U z;
+}
+
+
+// WAY TO DEFINE SIMPLE TYPES IN DL
+// How could i define a constrained Float within DL but adding annotations?
+
+type Percentage extends float
+{
+	float value @required @range(0.0, 100.0);
+}
+
+Percentage g : 95.0;
+
+type T 
+{
+	Percentage p : 95.0;
+	float other : $g;
+}
+
+
+// WAY TO APPLY ANNOTATIONS ON ALL ATTRIBUTES IN TYPE?
+// use @@ ?
+
+@forall(int, min(0))
+@forall _ : @reqired 
+@@<int .*>(min(0))
+
+// Applies required to all ints in this type
+type T
+@@<int .*>(required)
+{
+	String s;
+	int x; // <- required
+	int y; // <- required
+}
+
+// KOMBINATORISCHES ANNOTATION/CONTRACT FRAMEWORK - mit EI besprechen
+// -> annotation auf type die auf selection attributes in type angewendet werden
+// -> combined annotations
+
+annotation combined : hasJustSimpleMembers & isComplex & !isDerived;
+annotation combined { hasJustSimpleMembers & isComplex & !isDerived }
+
+so in der art bzw.
+
+annotation combined(int min, int max) { hasJustSimpleMembers(min, max) & isComplex & !isDerived }
+annotation combined(int min, int max, type t) { hasJustSimpleMembers(min, max) & isComplex & !isDerived & hasmemberoftypewithname(t.x) & hasmemberoftypewithname(t.y)  }
+
+// @prime means the number is a integer/long/short and is a primenumber
+extern annotation prime @customType; // currently has to be pulled from implementing environment (i.e. java)
+
+annotation typeOf(var, type) : @assert(typeOf($var) == $type);
+
+annotation tlike : 
+	@typeOf(y, Number) & 
+	@typeOf(z, Number) & 
+	@assert(typeOf(y) == typeOf(z)) & 
+	@assert(y == z + 1);
+
+type T
+@export{client}
+@tlike{!client|windows}
+extends Object, MathObject
+{
+	String x @required;
+	int y @prime : 42 * 3 - 5;
+	int z @requiredIf(y > 2);
+}
+
+type T2
+@isTlike
+{
+	double y;
+	float z; // <- ERROR: type is different to y type
+}
+
+
+// ADD GENERICS IN DL
+
+type T<U,V> 
+{
+	Map<U, V> data;
+}
+
+
+// SCOPE FOR KEYWORDS
+
+type{editor} User {
+	
+}
+
+
+// SCOPES
+// scopes could be OS(windows, linux, macos), App(client, server), Runmode (release, debug, testing)
+// scopes can be used with bool operators !, |, &
+
+scope editor {
+
+...
+
+}
+
+
+// SCOPED ANNOTATIONS
+// allow to have annotations just be used in certain environments/scopes (scopes 'all' and 'none'(?) are inbuilt)
+// scopes could be OS(windows, linux, macos), App(client, server), Runmode (release, debug, testing)
+// over time DL will provide a rich set of standardized scopes
+// scopes can be used with bool operators !, |, &
+
+
+@disallowComponent(DebugComponent):server&release
+
+@{server&release}disallowComponent(DebugComponent)
+
+
+type Node 
+@requireComponent(FinalRenderComponent, 1, 1) // equivalent to @all:requireComponent(FinalRenderComponent, 1, 1)
+@disallowComponent(DebugComponent):server&release
+@disallowComponent(DebugComponent):server
+@disallowComponent(EditorComponent):!editor
+@requireComponent(EditorComponent, 1, 1):editor|batch
+{
+}
+
+// DEFINE/COMBINE ANNOTATION IN DL
 
 // allow to combine other annotations into my own like a specific contract
-annotation myKeyword (required & length(5, 10)) & !upperCase;
+annotation lowerCaseKeyword5t10 (required & length(5, 10)) & !upperCase;
 
 type User {
 	

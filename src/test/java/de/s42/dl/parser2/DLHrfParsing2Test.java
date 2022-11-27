@@ -23,54 +23,27 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.instances;
+package de.s42.dl.parser2;
 
-import de.s42.dl.*;
-import de.s42.dl.types.ModuleDLType;
-import java.io.File;
-import java.util.Optional;
+import de.s42.dl.DLCore;
+import de.s42.dl.DLModule;
+import de.s42.dl.core.DefaultCore;
+import org.testng.annotations.Test;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DefaultDLModule extends DefaultDLInstance implements DLModule
+public class DLHrfParsing2Test
 {
-
-	public DefaultDLModule()
+	
+	@Test
+	public void validParse() throws Exception
 	{
-		super(new ModuleDLType());
+		DLCore core = new DefaultCore();
+		String data = "type T { int x : 5; }";
+		DLModule result = DLHrfParsing2.parse(core, "DLHrfParsing2Test.validParse", data);
+		//assertEquals(result, expResult);
 	}
-
-	public DefaultDLModule(String name)
-	{
-		super(new ModuleDLType(), name);
-	}
-
-	@Override
-	public String getShortName()
-	{
-		String shortName = getName();
-
-		if (!shortName.contains(File.separator)) {
-			return shortName;
-		}
-
-		return shortName.substring(shortName.lastIndexOf(File.separator) + 1);
-	}
-
-	@Override
-	public <ObjectType> Optional<ObjectType> resolveReference(DLCore core, String path)
-	{
-		assert core != null;
-		assert path != null;
-
-		Object exportedOpt = core.resolveExportedPath(path);
-
-		if (exportedOpt != null) {
-			return Optional.of((ObjectType)exportedOpt);
-		}
-
-		return resolvePath(path);
-	}
+	
 }

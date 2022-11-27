@@ -740,6 +740,12 @@ public class DefaultDLType implements DLType
 		this.isFinal = isFinal;
 	}
 
+	@Override
+	public boolean isDeclaration()
+	{
+		return !isFinal() && !isAbstract() && !isGenericType() && !hasAttributes() && !hasAnnotations() && !hasParents();
+	}
+
 	public void setComplexType(boolean complexType)
 	{
 		this.complexType = complexType;

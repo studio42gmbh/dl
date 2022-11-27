@@ -32,13 +32,12 @@ import de.s42.base.beans.BeanProperty;
 import de.s42.base.beans.InvalidBean;
 import de.s42.base.collections.MappedList;
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLAnnotated.DLMappedAnnotation;
 import de.s42.dl.DLAnnotation.AnnotationDL;
 import de.s42.dl.DLAnnotation.AnnotationDLContainer;
 import de.s42.dl.DLAttribute.AttributeDL;
 import de.s42.dl.annotations.*;
 import de.s42.dl.attributes.DefaultDLAttribute;
-import de.s42.dl.core.resolvers.FileCoreResolver;
-import de.s42.dl.core.resolvers.ResourceCoreResolver;
 import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.UndefinedType;
@@ -95,8 +94,6 @@ public class BaseDLCore implements DLCore
 
 	private void init()
 	{
-		addResolver(new FileCoreResolver(this));
-		addResolver(new ResourceCoreResolver(this));
 		addResolver(new StringCoreResolver(this));
 	}
 
@@ -105,13 +102,27 @@ public class BaseDLCore implements DLCore
 		try {
 			BaseDLCore core = getClass().getConstructor().newInstance();
 
+			core.convertedCache.clear();
 			core.convertedCache.putAll(convertedCache);
+
+			core.resolvers.clear();
 			core.resolvers.addAll(resolvers);
+
+			core.types.clear();
 			core.types.addAll(types);
+
+			core.pragmas.clear();
 			core.pragmas.addAll(pragmas);
+
+			core.annotations.clear();
 			core.annotations.addAll(annotations);
+
+			core.requiredModules.clear();
 			core.requiredModules.putAll(requiredModules);
+
+			core.exported.clear();
 			core.exported.addAll(exported);
+
 			core.basePath = basePath;
 			core.allowDefineTypes = allowDefineTypes;
 			core.allowDefineAnnotations = allowDefineAnnotations;
@@ -253,13 +264,9 @@ public class BaseDLCore implements DLCore
 		assert annotationName != null;
 		assert parameters != null;
 
-		Optional<DLAnnotation> optAnnotation = getAnnotation(annotationName);
-
-		if (optAnnotation.isEmpty()) {
-			throw new UndefinedAnnotation("Annotation '" + annotationName + "' is not defined");
-		}
-
-		DLAnnotation annotation = optAnnotation.orElseThrow();
+		DLAnnotation annotation = getAnnotation(annotationName).orElseThrow(() -> {
+			return new UndefinedAnnotation("Annotation '" + annotationName + "' is not defined");
+		});
 
 		annotation.bindToInstance(this, module, instance, parameters);
 		((DefaultDLInstance) instance).addAnnotation(annotation, parameters);
@@ -563,6 +570,42 @@ public class BaseDLCore implements DLCore
 			.collect(Collectors.toUnmodifiableList());
 	}
 
+	/**
+	 * ATTENTION: You may call declareType multiple times but you will get the initially declared type multiple times.
+	 * This allows to declare types across different modules without issues
+	 *
+	 * @param typeName
+	 *
+	 * @return
+	 *
+	 * @throws DLException If a type can not be retrieved for this name
+	 * @throws InvalidType If a type is already defined (not only declared) for this typename
+	 */
+	@Override
+	public DLType declareType(String typeName) throws DLException, InvalidType
+	{
+		assert typeName != null;
+
+		Optional<DLType> optPresentType = getType(typeName);
+
+		if (optPresentType.isPresent()) {
+
+			DLType presentType = optPresentType.orElseThrow();
+
+			// Type was already declared -> Multiple declaration calls are allowed
+			if (presentType.isDeclaration()) {
+				return presentType;
+			}
+
+			// Type is defined -> always an exception
+			throw new InvalidType("Type '" + typeName + "' already defined");
+		}
+
+		DefaultDLType declaredType = new DefaultDLType(typeName);
+
+		return defineType(declaredType);
+	}
+
 	public DLType defineType(Class javaType, String... aliases) throws DLException
 	{
 		assert javaType != null;
@@ -684,6 +727,12 @@ public class BaseDLCore implements DLCore
 				}
 			}
 
+			// Map special java dl annotations
+			List<DLMappedAnnotation> dlAnnotations = DLAnnotationHelper.getDLAnnotations(typeClass);
+			for (DLMappedAnnotation dlAnnotation : dlAnnotations) {
+				addAnnotationToType(classType, dlAnnotation.getAnnotation().getName(), (Object[]) dlAnnotation.getParameters());
+			}
+
 			// Map properties
 			for (BeanProperty<?, ?> property : info.getProperties()) {
 
@@ -776,6 +825,14 @@ public class BaseDLCore implements DLCore
 
 					for (AnnotationDL annotation : annotationContainer.value()) {
 						addAnnotationToAttribute(classType, attribute, annotation.value(), (Object[]) annotation.parameters());
+					}
+				}
+
+				// Map special java dl annotations
+				if (property.getField() != null) {
+					List<DLMappedAnnotation> dlAttributeAnnotations = DLAnnotationHelper.getDLAnnotations(property.getField().getAnnotations());
+					for (DLMappedAnnotation dlAttributeAnnotation : dlAttributeAnnotations) {
+						addAnnotationToAttribute(classType, attribute, dlAttributeAnnotation.getAnnotation().getName(), (Object[]) dlAttributeAnnotation.getParameters());
 					}
 				}
 
@@ -1205,7 +1262,7 @@ public class BaseDLCore implements DLCore
 	{
 		assert moduleId != null;
 
-		// if the module was already loaded -> just return from cache
+		// If the module was already loaded -> just return from cache
 		if (requiredModules.containsKey(moduleId)) {
 			log.debug("Ignoring file module (already loaded) " + moduleId);
 			return requiredModules.get(moduleId);
@@ -1213,16 +1270,19 @@ public class BaseDLCore implements DLCore
 
 		DLModule module = null;
 
+		// Find first resolver that can parse the resource and let it parse it
 		if (data != null) {
 			for (DLCoreResolver resolver : resolvers) {
 				if (resolver.canParse(moduleId, data)) {
 					module = resolver.parse(moduleId, data);
+					break;
 				}
 			}
 		} else {
 			for (DLCoreResolver resolver : resolvers) {
 				if (resolver.canParse(moduleId)) {
 					module = resolver.parse(moduleId);
+					break;
 				}
 			}
 		}

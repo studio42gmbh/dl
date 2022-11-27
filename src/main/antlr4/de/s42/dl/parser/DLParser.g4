@@ -46,10 +46,12 @@ declaration :
 identifier : SYMBOL ;
 typeIdentifier : identifier ;
 staticParameters : PARENTHESES_OPEN ( staticParameter ( COMMA staticParameter )* )? PARENTHESES_CLOSE ;
-staticParameter : STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | SYMBOL ;
+staticParameterName : identifier ;
+staticParameter : ( staticParameterName COLON )? ( STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | SYMBOL );
 genericParameters : GENERIC_OPEN genericParameter ( COMMA genericParameter )* COMMA? GENERIC_CLOSE ;
 genericParameter : identifier;
 symbolOrString : STRING_LITERAL | SYMBOL ;
+scopeExpression : COLON identifier ( OR identifier )* ;
 
 
 /* expression https://github.com/studio42gmbh/dl/issues/20 */
@@ -82,7 +84,8 @@ pragmaName : identifier ;
 annotation : 
 	AT 
 	annotationName
-	staticParameters? ;
+	staticParameters? 
+	/*scopeExpression?*/ ;
 
 annotationName : identifier ;
 
@@ -124,7 +127,7 @@ aliasAnnotationDefinitionName : identifier ;
 /* typeDefinition */
 
 typeDefinition : 
-	( KEYWORD_EXTERN | KEYWORD_FINAL | KEYWORD_ABSTRACT )?
+	( KEYWORD_DECLARE | KEYWORD_EXTERN | KEYWORD_FINAL | KEYWORD_ABSTRACT )?
 	KEYWORD_TYPE 
 	typeDefinitionName 
 	annotation* 

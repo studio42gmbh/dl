@@ -26,31 +26,9 @@
 package de.s42.dl.parser;
 
 import de.s42.dl.parser.expression.DLHrfExpressionParser;
-import de.s42.base.files.FilesHelper;
-import de.s42.dl.exceptions.UndefinedAnnotation;
-import de.s42.dl.exceptions.UndefinedType;
-import de.s42.dl.exceptions.InvalidType;
-import de.s42.dl.exceptions.InvalidValue;
-import de.s42.dl.exceptions.InvalidAttribute;
-import de.s42.dl.exceptions.InvalidModule;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.*;
+import de.s42.dl.exceptions.*;
 import de.s42.dl.attributes.DefaultDLAttribute;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidCore;
-import de.s42.dl.exceptions.InvalidPragma;
-import de.s42.dl.instances.DefaultDLInstance;
-import de.s42.dl.instances.DefaultDLModule;
-import de.s42.dl.parser.DLParser.AttributeAssignableContext;
-import de.s42.dl.parser.DLParser.AttributeAssignmentContext;
-import de.s42.dl.parser.DLParser.StaticParameterContext;
-import de.s42.dl.parser.DLParser.GenericParametersContext;
-import de.s42.dl.parser.DLParser.GenericParameterContext;
-import de.s42.dl.parser.DLParser.InstanceTypeContext;
-import de.s42.dl.parser.DLParser.StaticParametersContext;
-import de.s42.dl.parser.DLParser.TypeAttributeDefinitionContext;
-import de.s42.dl.parser.DLParser.TypeDefinitionContext;
 import de.s42.dl.types.ArrayDLType;
 import de.s42.dl.types.DefaultDLEnum;
 import de.s42.dl.types.DefaultDLType;
@@ -61,7 +39,10 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import static de.s42.dl.parser.DLHrfParsingErrorHandler.*;
+import de.s42.dl.parser.DLParser.*;
 
 /**
  *
@@ -73,21 +54,27 @@ public class DLHrfParsing extends DLParserBaseListener
 	private final static Logger log = LogManager.getLogger(DLHrfParsing.class.getName());
 
 	private final Deque<DLInstance> instances = new ArrayDeque<>();
+	private final DLCore core;
+	private final DLModule module;
+
 	private DLInstance currentInstance;
 	private DLInstance lastInstance;
-	private final DefaultDLModule module;
 	private DefaultDLType currentType;
 	private DefaultDLEnum currentEnum;
-	private final DLCore core;
 
 	// @todo https://github.com/studio42gmbh/dl/issues/18 this is a preliminary prototypal implementation of dlinstance attribute assignments!
 	private final Deque<AttributeAssignmentContext> attributeAssignableContextQueue = new ArrayDeque<>();
 	private final Deque<String> attributeAssignableKeyQueue = new ArrayDeque<>();
 	private final Deque<DLInstance> currentAttributeAssignmentInstances = new ArrayDeque<>();
-
 	protected DefaultDLAttribute dlInstanceAssignAttribute;
 
-	public DLHrfParsing(DLCore core, DefaultDLModule module)
+	protected interface AnnotationMapper
+	{
+
+		public void accept(DLAnnotation annotation, Object[] parameters, AnnotationContext ctx) throws DLException;
+	}
+
+	public DLHrfParsing(DLCore core, DLModule module)
 	{
 		this.core = core;
 		this.module = module;
@@ -95,70 +82,15 @@ public class DLHrfParsing extends DLParserBaseListener
 		instances.push(currentInstance);
 	}
 
-	public String createErrorMessage(String reason, ParserRuleContext context) throws RuntimeException
-	{
-		return createErrorMessage(module, reason, context);
-	}
-
-	public static String createErrorMessage(DLModule module, String reason, ParserRuleContext context) throws RuntimeException
-	{
-		// https://github.com/apache/netbeans/blob/c084119009d2e0f736f225d706bc1827af283501/java/maven/src/org/netbeans/modules/maven/output/GlobalOutputProcessor.java
-		//"Das sollte gehen @ GPClient, C:\\home\\f12\\development\\gods_playground\\gp-client\\data\\renderdoc.config.dl, line 5, column 6");
-
-		StringBuilder message = new StringBuilder();
-		message
-			.append(reason)
-			.append("\n")
-			.append(FilesHelper.createMavenNetbeansFileConsoleLink("\t ",
-				module.getShortName(), module.getName(),
-				context.start.getLine(), context.start.getCharPositionInLine() + 1, false));
-
-		return message.toString();
-	}
-
-	public String createErrorMessage(String reason, Throwable cause, ParserRuleContext context) throws RuntimeException
-	{
-		return createErrorMessage(module, reason, cause, context);
-	}
-
-	public static String createErrorMessage(DLModule module, String reason, Throwable cause, ParserRuleContext context) throws RuntimeException
-	{
-		StringBuilder message = new StringBuilder();
-
-		message
-			.append(reason);
-		if (cause.getMessage() != null) {
-			message
-				.append(" - ")
-				// @improvement DL why is the exception throwing if i leave " in there?
-				.append(cause.getMessage().replace("\"", ""));
-		}
-
-		message
-			.append("\n")
-			.append(FilesHelper.createMavenNetbeansFileConsoleLink("\t ",
-				module.getShortName(), module.getName(),
-				context.start.getLine(), context.start.getCharPositionInLine() + 1, false));
-
-		return message.toString();
-	}
-
 	protected Object resolveReference(String refId, ParserRuleContext context) throws InvalidValue
 	{
 		Optional ref = module.resolveReference(core, refId);
 
 		if (ref.isEmpty()) {
-			throw new InvalidValue(createErrorMessage("Reference $" + refId + " is not defined in module", context));
+			throw new InvalidValue(createErrorMessage(module, "Reference $" + refId + " is not defined in module", context));
 		}
 
 		return ref.orElseThrow();
-	}
-
-	protected static class SynonymableIdentifier
-	{
-
-		public String identifier;
-		public String[] aliases;
 	}
 
 	protected DLType fetchTypeIdentifier(InstanceTypeContext ctx) throws DLException
@@ -175,7 +107,7 @@ public class DLHrfParsing extends DLParserBaseListener
 		Optional<DLType> optType = core.getType(typeName, genericTypes);
 
 		if (optType.isEmpty()) {
-			throw new InvalidType(createErrorMessage("Type '" + typeName + "' is not defined", ctx));
+			throw new InvalidType(createErrorMessage(module, "Type '" + typeName + "' is not defined", ctx));
 		}
 
 		return optType.orElseThrow();
@@ -231,6 +163,48 @@ public class DLHrfParsing extends DLParserBaseListener
 		return assignables;
 	}
 
+	protected Object[] fetchStaticParameters(DLAnnotation annotation, StaticParametersContext ctx) throws InvalidValue, DLException
+	{
+		if (ctx == null || ctx.staticParameter() == null || ctx.staticParameter().isEmpty()) {
+			return new Object[0];
+		}
+
+		int size = ctx.staticParameter().size();
+
+		// Get named parameters if present - all parameters have to be named then
+		if (size > 0 && isNamedStaticParameter(ctx.staticParameter().get(0))) {
+
+			Map<String, Object> namedParameters = new HashMap<>();
+
+			for (int i = 0; i < size; ++i) {
+
+				Pair<String, Object> namedParameter = fetchNamedStaticParameter(ctx.staticParameter().get(i));
+
+				if (!annotation.isValidNamedParameter(namedParameter.a, namedParameter.b)) {
+					throw new InvalidAnnotation(createErrorMessage(module, "Parameter " + namedParameter.a + " is not a valid named parameter - value " + namedParameter.b, ctx.staticParameter(i)));
+				}
+
+				namedParameters.put(namedParameter.a, namedParameter.b);
+			}
+
+			return annotation.toFlatParameters(namedParameters);
+		}
+
+		// Fill unnamed parameters in order
+		Object[] parameters = new Object[size];
+
+		for (int i = 0; i < size; ++i) {
+			parameters[i] = fetchStaticParameter(ctx.staticParameter().get(i));
+		}
+
+		return parameters;
+	}
+
+	protected boolean isNamedStaticParameter(StaticParameterContext ctx) throws InvalidValue
+	{
+		return ctx.staticParameterName() != null;
+	}
+
 	protected Object[] fetchStaticParameters(StaticParametersContext ctx) throws InvalidValue
 	{
 		if (ctx == null || ctx.staticParameter() == null || ctx.staticParameter().isEmpty()) {
@@ -248,12 +222,20 @@ public class DLHrfParsing extends DLParserBaseListener
 		return parameters;
 	}
 
+	protected Pair<String, Object> fetchNamedStaticParameter(StaticParameterContext ctx) throws InvalidValue
+	{
+		String name = ctx.staticParameterName().identifier().getText();
+		Object value = fetchStaticParameter(ctx);
+
+		return new Pair<>(name, value);
+	}
+
 	protected Object fetchStaticParameter(StaticParameterContext ctx) throws InvalidValue
 	{
 		if (ctx.STRING_LITERAL() != null) {
-			return ctx.getText();
+			return ctx.STRING_LITERAL().getText();
 		} else if (ctx.SYMBOL() != null) {
-			return ctx.getText();
+			return ctx.SYMBOL().getText();
 		} else if (ctx.INTEGER_LITERAL() != null) {
 			return Long.parseLong(ctx.INTEGER_LITERAL().getText());
 		} else if (ctx.FLOAT_LITERAL() != null) {
@@ -266,7 +248,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 		}
 
-		throw new InvalidValue(createErrorMessage("Unknown parameter type", ctx));
+		throw new InvalidValue(createErrorMessage(module, "Unknown parameter type", ctx));
 	}
 
 	public List<DLType> fetchGenericParameters(GenericParametersContext ctx) throws DLException
@@ -281,7 +263,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				String genericTypeName = genericParameter.getText();
 
 				if (!core.hasType(genericTypeName)) {
-					throw new UndefinedType(createErrorMessage("Attribute generic type '" + genericTypeName + "' is not defined", genericParameter));
+					throw new UndefinedType(createErrorMessage(module, "Attribute generic type '" + genericTypeName + "' is not defined", genericParameter));
 				}
 
 				genericTypes.add(core.getType(genericTypeName).get());
@@ -291,69 +273,92 @@ public class DLHrfParsing extends DLParserBaseListener
 		return genericTypes;
 	}
 
+	public void mapAnnotations(List<AnnotationContext> annotations, AnnotationMapper mapper) throws DLException
+	{
+		assert annotations != null;
+		assert mapper != null;
+
+		for (AnnotationContext ctx : annotations) {
+
+			String annotationTypeName = ctx.annotationName().getText();
+
+			DLAnnotation annotation = core.getAnnotation(annotationTypeName).orElseThrow(() -> {
+				return new UndefinedAnnotation(createErrorMessage(module, "Annotation '" + annotationTypeName + "' is not defined", ctx));
+			});
+
+			Object[] parameters = fetchStaticParameters(annotation, ctx.staticParameters());
+
+			mapper.accept(annotation, parameters, ctx);
+		}
+	}
+
 	@Override
-	public void enterPragma(DLParser.PragmaContext ctx)
+	public void enterPragma(PragmaContext ctx)
 	{
 		try {
 			String pragmaIdentifier = ctx.pragmaName().getText();
 
 			Object[] parameters = fetchStaticParameters(ctx.staticParameters());
 
-			core.doPragma(pragmaIdentifier, parameters);
+			try {
+				core.doPragma(pragmaIdentifier, parameters);
+			} catch (InvalidPragma ex) {
+				throw new InvalidPragma(createErrorMessage(module, "Error in pragma execution '" + pragmaIdentifier + "' - " + ex.getMessage(), ctx), ex);
+			}
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
 
 	@Override
-	public void enterAlias(DLParser.AliasContext ctx)
+	public void enterAlias(AliasContext ctx)
 	{
 		try {
 			String aliasRedefinitionName = ctx.aliasRedefinition().getText();
 			String aliasDefinitionName = ctx.aliasDefinition().getText();
 
-			// alias for types
+			// Alias for types
 			if (core.hasType(aliasDefinitionName)) {
 
 				if (!core.isAllowDefineTypes()) {
-					throw new InvalidCore(createErrorMessage("May not define types in core", ctx));
+					throw new InvalidCore(createErrorMessage(module, "May not define types in core", ctx));
 				}
 
-				// alias redefinition type may not be defined already
+				// Alias redefinition type may not be defined already
 				if (core.hasType(aliasRedefinitionName)) {
-					throw new InvalidType(createErrorMessage("Error alias redef type '" + aliasRedefinitionName + "' is already defined", ctx));
+					throw new InvalidType(createErrorMessage(module, "Error alias redef type '" + aliasRedefinitionName + "' is already defined", ctx));
 				}
 
 				core.defineAliasForType(aliasRedefinitionName, core.getType(aliasDefinitionName).orElseThrow());
-			} // alias for annotations
+			} // Alias for annotations
 			else if (core.hasAnnotation(aliasDefinitionName)) {
 
 				if (!core.isAllowDefineAnnotations()) {
-					throw new InvalidCore(createErrorMessage("May not define annotations in core", ctx));
+					throw new InvalidCore(createErrorMessage(module, "May not define annotations in core", ctx));
 				}
 
-				// alias redefinition type may not be defined already
+				// Alias redefinition type may not be defined already
 				if (core.hasAnnotation(aliasRedefinitionName)) {
-					throw new InvalidAnnotation(createErrorMessage("Error alias redef annotation '" + aliasRedefinitionName + "' is already defined", ctx));
+					throw new InvalidAnnotation(createErrorMessage(module, "Error alias redef annotation '" + aliasRedefinitionName + "' is already defined", ctx));
 				}
 
 				core.defineAliasForAnnotation(aliasRedefinitionName, core.getAnnotation(aliasDefinitionName).orElseThrow());
-			} // alias for pragmas
+			} // Alias for pragmas
 			else if (core.hasPragma(aliasDefinitionName)) {
 
 				if (!core.isAllowDefinePragmas()) {
-					throw new InvalidCore(createErrorMessage("May not define pragmas in core", ctx));
+					throw new InvalidCore(createErrorMessage(module, "May not define pragmas in core", ctx));
 				}
 
-				// alias redefinition type may not be defined already
+				// Alias redefinition type may not be defined already
 				if (core.hasPragma(aliasRedefinitionName)) {
-					throw new InvalidPragma(createErrorMessage("Error alias redef pragma '" + aliasRedefinitionName + "' is already defined", ctx));
+					throw new InvalidPragma(createErrorMessage(module, "Error alias redef pragma '" + aliasRedefinitionName + "' is already defined", ctx));
 				}
 
 				core.defineAliasForPragma(aliasRedefinitionName, core.getPragma(aliasDefinitionName).orElseThrow());
-			} // neither type, annotation or pragma definition found
+			} // Neither type, annotation or pragma definition found
 			else {
-				throw new InvalidCore(createErrorMessage("Error alias def type, annotation or pragma '" + aliasDefinitionName + "' is not defined", ctx));
+				throw new InvalidCore(createErrorMessage(module, "Error alias def type, annotation or pragma '" + aliasDefinitionName + "' is not defined", ctx));
 			}
 
 		} catch (DLException ex) {
@@ -363,7 +368,7 @@ public class DLHrfParsing extends DLParserBaseListener
 
 	@Override
 	@SuppressWarnings("UseSpecificCatch")
-	public void enterRequire(DLParser.RequireContext ctx)
+	public void enterRequire(RequireContext ctx)
 	{
 		try {
 
@@ -373,9 +378,9 @@ public class DLHrfParsing extends DLParserBaseListener
 
 			try {
 				DLModule requiredModule = core.parse(ctx.requireModule().getText());
-				module.addRequiredModule(requiredModule);
+				module.addChild(requiredModule);
 			} catch (Throwable ex) {
-				throw new InvalidModule(createErrorMessage("Error requiring module '" + ctx.requireModule().getText() + "'", ex, ctx.requireModule()), ex);
+				throw new InvalidModule(createErrorMessage(module, "Error requiring module '" + ctx.requireModule().getText() + "'", ex, ctx.requireModule()), ex);
 			}
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);
@@ -383,25 +388,26 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	public void enterEnumDefinition(DLParser.EnumDefinitionContext ctx)
+	public void enterEnumDefinition(EnumDefinitionContext ctx)
 	{
 		try {
+			// Define an external enum from java
 			if (ctx.KEYWORD_EXTERN() != null) {
 
 				String enumName = ctx.enumName().getText();
 
 				if (core.hasEnum(enumName)) {
-					throw new InvalidType(createErrorMessage("Extern enum '" + enumName + "' is already defined", ctx));
+					throw new InvalidType(createErrorMessage(module, "Extern enum '" + enumName + "' is already defined", ctx));
 				}
 
 				try {
 
 					DLEnum enumImpl = core.createEnum((Class<Enum>) Class.forName(enumName));
 
-					// map the enum as defined
+					// Map the enum as defined
 					core.defineType(enumImpl);
 
-					// define alias for the given annotationName
+					// Define alias for the given annotationName
 					if (!enumImpl.getName().equals(enumName)) {
 						core.defineAliasForType(enumName, enumImpl);
 					}
@@ -414,30 +420,28 @@ public class DLHrfParsing extends DLParserBaseListener
 					}
 
 				} catch (ClassNotFoundException ex) {
-					throw new InvalidType(createErrorMessage("Class not found for enum '" + enumName + "' - " + ex.getMessage(), ctx), ex);
+					throw new InvalidType(createErrorMessage(module, "Class not found for enum '" + enumName + "' - " + ex.getMessage(), ctx), ex);
 				}
-			} //define a enum
+			} // Define a new enum
 			else {
 
 				currentEnum = (DefaultDLEnum) core.createEnum();
 				currentEnum.setName(ctx.enumName().getText());
 				core.defineType(currentEnum);
 
-				//map annotations
-				for (DLParser.AnnotationContext aCtx : ctx.annotation()) {
-
-					String annotationTypeName = aCtx.annotationName().getText();
-
-					if (!core.hasAnnotation(annotationTypeName)) {
-						throw new UndefinedAnnotation(createErrorMessage("Annotation '" + annotationTypeName + "' is not defined", aCtx.annotationName()));
+				// Map annotations
+				mapAnnotations(ctx.annotation(), (annotation, parameters, aCtx) -> {
+					try {
+						core.addAnnotationToType(currentEnum, annotation.getName(), parameters);
+					} catch (DLException ex) {
+						throw new InvalidAnnotation(
+							createErrorMessage(module,
+								"Error binding annotation '"
+								+ annotation.getName()
+								+ "' to enum '"
+								+ currentEnum.getName() + "'", ex, aCtx.annotationName()), ex);
 					}
-
-					Object[] parameters = fetchStaticParameters(aCtx.staticParameters());
-
-					DLAnnotation annotation = core.getAnnotation(annotationTypeName).get();
-					annotation.bindToType(core, currentEnum, parameters);
-					currentEnum.addAnnotation(annotation, parameters);
-				}
+				});
 
 				// Define aliases from enum definition
 				if (ctx.KEYWORD_ALIAS() != null) {
@@ -446,7 +450,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					}
 				}
 
-				//map values
+				// Map values
 				for (DLParser.EnumValueDefinitionContext aCtx : ctx.enumBody().enumValueDefinition()) {
 
 					if (aCtx.symbolOrString() != null) {
@@ -461,7 +465,7 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	public void enterInstanceDefinition(DLParser.InstanceDefinitionContext ctx)
+	public void enterInstanceDefinition(InstanceDefinitionContext ctx)
 	{
 		try {
 			DLType type = null;
@@ -473,7 +477,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 
 			if (type.isAbstract()) {
-				throw new InvalidInstance(createErrorMessage("Error creating instance type " + type.getCanonicalName() + " is abstract", ctx.instanceType().typeIdentifier()));
+				throw new InvalidInstance(createErrorMessage(module, "Error creating instance - type " + type.getCanonicalName() + " is abstract", ctx.instanceType().typeIdentifier()));
 			}
 
 			// https://github.com/studio42gmbh/dl/issues/23 dont allow simple types to be generated as instances -> simple types have to be assigned?
@@ -486,33 +490,21 @@ public class DLHrfParsing extends DLParserBaseListener
 				identifier = ctx.instanceName().getText();
 			}
 
-			DefaultDLInstance instance = (DefaultDLInstance) core.createInstance(type, identifier);
+			DLInstance instance = core.createInstance(type, identifier);
 
 			// Map annotations
-			for (DLParser.AnnotationContext aCtx : ctx.annotation()) {
-
-				String annotationTypeName = aCtx.annotationName().getText();
-
-				if (!core.hasAnnotation(annotationTypeName)) {
-					throw new UndefinedAnnotation(createErrorMessage("Annotation '" + annotationTypeName + "' is not defined", ctx));
-				}
-
-				DLAnnotation annotation = core.getAnnotation(annotationTypeName).get();
-
-				Object[] parameters = fetchStaticParameters(aCtx.staticParameters());
-
+			mapAnnotations(ctx.annotation(), (annotation, parameters, aCtx) -> {
 				try {
-					annotation.bindToInstance(core, module, instance, parameters);
-					instance.addAnnotation(annotation, parameters);
+					core.addAnnotationToInstance(module, instance, annotation.getName(), parameters);
 				} catch (DLException ex) {
 					throw new InvalidAnnotation(
-						createErrorMessage(
+						createErrorMessage(module,
 							"Error binding annotation '"
 							+ annotation.getName()
 							+ "' to instance '"
 							+ instance.getName() + "'", ex, aCtx.annotationName()), ex);
 				}
-			}
+			});
 
 			//core.getLog().debug("Created instance", name, "in module", module.getName());
 			try {
@@ -523,7 +515,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					currentInstance.addChild(instance);
 				}
 			} catch (DLException | RuntimeException ex) {
-				throw new InvalidInstance(createErrorMessage("Error adding child", ex, ctx), ex);
+				throw new InvalidInstance(createErrorMessage(module, "Error adding child", ex, ctx), ex);
 			}
 
 			instances.push(currentInstance);
@@ -534,7 +526,7 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	public void exitInstanceDefinition(DLParser.InstanceDefinitionContext ctx)
+	public void exitInstanceDefinition(InstanceDefinitionContext ctx)
 	{
 		try {
 			try {
@@ -545,7 +537,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					currentInstance.validate();
 				}
 			} catch (InvalidInstance ex) {
-				throw new InvalidInstance(createErrorMessage("Error validating instance", ex, ctx), ex);
+				throw new InvalidInstance(createErrorMessage(module, "Error validating instance", ex, ctx), ex);
 			}
 
 			lastInstance = currentInstance;
@@ -556,7 +548,7 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	public void enterAnnotationDefinition(DLParser.AnnotationDefinitionContext ctx)
+	public void enterAnnotationDefinition(AnnotationDefinitionContext ctx)
 	{
 		try {
 
@@ -570,7 +562,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				String annotationName = ctx.annotationDefinitionName().getText();
 
 				if (core.hasAnnotation(annotationName)) {
-					throw new InvalidAnnotation(createErrorMessage("Extern annotation '" + annotationName + "' is already defined", ctx));
+					throw new InvalidAnnotation(createErrorMessage(module, "Annotation '" + annotationName + "' is already defined", ctx));
 				}
 
 				try {
@@ -593,38 +585,86 @@ public class DLHrfParsing extends DLParserBaseListener
 					}
 
 				} catch (ClassNotFoundException ex) {
-					throw new InvalidAnnotation(createErrorMessage("Class not found for annotation '" + annotationName + "' - " + ex.getMessage(), ctx), ex);
+					throw new InvalidAnnotation(createErrorMessage(module, "Class not found for annotation '" + annotationName + "' - " + ex.getMessage(), ctx), ex);
 				}
 
 			} else {
-				throw new InvalidAnnotation(createErrorMessage("Annotations can not be defined internally", ctx));
+				throw new InvalidAnnotation(createErrorMessage(module, "Annotations can not be defined internally yet", ctx));
 			}
 
-			// @improvement define annotations internal - something like combining othres with boolean like contracts?
+			// @improvement define annotations internal - something like combining others with boolean like contracts?
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
 
 	@Override
-	public void enterTypeDefinition(DLParser.TypeDefinitionContext ctx)
+	public void enterTypeDefinition(TypeDefinitionContext ctx)
 	{
 		try {
 
 			if (!core.isAllowDefineTypes()) {
-				throw new InvalidCore(createErrorMessage("Not allowed to define types in core", ctx));
+				throw new InvalidCore(createErrorMessage(module, "Not allowed to define types in core", ctx));
 			}
 
 			String typeName = ctx.typeDefinitionName().getText();
 
-			if (ctx.KEYWORD_EXTERN() != null) {
+			// Declare a type
+			if (ctx.KEYWORD_DECLARE() != null) {
 
-				// dont allow external on types that are already present
-				if (core.hasType(typeName)) {
-					throw new InvalidType(createErrorMessage("Type '" + typeName + "' is already defined", ctx));
+				// Extension is not allowed for extern types
+				if (ctx.KEYWORD_EXTENDS() != null) {
+					throw new InvalidType(createErrorMessage(module, "Declared type '" + typeName + "' may not extend other types", ctx));
 				}
 
-				// define type from extern definition
+				// Containment is not allowed for extern types
+				if (ctx.KEYWORD_CONTAINS() != null) {
+					throw new InvalidType(createErrorMessage(module, "Declared type '" + typeName + "' may not contain other types", ctx));
+				}
+
+				// Annotations are not allowed on extern types
+				if (!ctx.annotation().isEmpty()) {
+					throw new InvalidAnnotation(createErrorMessage(module, "Declared type '" + typeName + "' may not have annotations", ctx));
+				}
+
+				// Annotations are not allowed on extern types
+				if (ctx.typeBody() != null) {
+					throw new InvalidType(createErrorMessage(module, "Declared type '" + typeName + "' may not have a body", ctx));
+				}
+
+				if (!core.hasType(typeName)) {
+
+					currentType = (DefaultDLType) core.declareType(typeName);
+				}
+			} // Define an extern type
+			else if (ctx.KEYWORD_EXTERN() != null) {
+
+				// Dont allow external on types that are already present
+				if (core.hasType(typeName)) {
+					throw new InvalidType(createErrorMessage(module, "Type '" + typeName + "' is already defined", ctx));
+				}
+
+				// Extension is not allowed for extern types
+				if (ctx.KEYWORD_EXTENDS() != null) {
+					throw new InvalidType(createErrorMessage(module, "Extern type '" + typeName + "' may not extend other types", ctx));
+				}
+
+				// Containment is not allowed for extern types
+				if (ctx.KEYWORD_CONTAINS() != null) {
+					throw new InvalidType(createErrorMessage(module, "Extern type '" + typeName + "' may not contain other types", ctx));
+				}
+
+				// Annotations are not allowed on extern types
+				if (!ctx.annotation().isEmpty()) {
+					throw new InvalidAnnotation(createErrorMessage(module, "Extern type '" + typeName + "' may not have annotations", ctx));
+				}
+
+				// Annotations are not allowed on extern types
+				if (ctx.typeBody() != null) {
+					throw new InvalidType(createErrorMessage(module, "Extern type '" + typeName + "' may not have a body", ctx));
+				}
+
+				// Define type from extern definition
 				try {
 					currentType = (DefaultDLType) core.createType(Class.forName(typeName));
 
@@ -644,106 +684,77 @@ public class DLHrfParsing extends DLParserBaseListener
 					}
 
 				} catch (ClassNotFoundException ex) {
-					throw new InvalidType(createErrorMessage("Class not found for type '" + typeName + "' - " + ex.getMessage(), ctx), ex);
+					throw new InvalidType(createErrorMessage(module, "Class not found for type '" + typeName + "' - " + ex.getMessage(), ctx), ex);
 				}
-
-				// abstract is not allowed for extern types
-				if (ctx.KEYWORD_ABSTRACT() != null) {
-					throw new InvalidType(createErrorMessage("Extern type '" + typeName + "' may not have abstract", ctx));
-				}
-
-				// extension is not allowed for extern types
-				if (ctx.KEYWORD_EXTENDS() != null) {
-					throw new InvalidType(createErrorMessage("Extern type '" + typeName + "' may not extend other types", ctx));
-				}
-
-				// containment is not allowed for extern types
-				if (ctx.KEYWORD_CONTAINS() != null) {
-					throw new InvalidType(createErrorMessage("Extern type '" + typeName + "' may not contain other types", ctx));
-				}
-
-				// annotations are not allowed on extern types
-				if (ctx.annotation().size() > 0) {
-					throw new InvalidAnnotation(createErrorMessage("Extern type '" + typeName + "' may not have annotations", ctx));
-				}
-
-				// annotations are not allowed on extern types
-				if (ctx.typeBody() != null) {
-					throw new InvalidType(createErrorMessage("Extern type '" + typeName + "' may not have a body", ctx));
-				}
-
-			} //define a type
+			} // Define a type
 			else {
 
-				if (core.hasType(typeName)) {
-					throw new InvalidType(createErrorMessage("Type '" + typeName + "' is already defined", ctx));
+				Optional<DLType> optDefinedType = core.getType(typeName);
+
+				// If type is present -> it has to be a declaration -> otherwise ex
+				if (optDefinedType.isPresent()) {
+
+					DLType definedType = optDefinedType.orElseThrow();
+
+					if (!definedType.isDeclaration()) {
+						throw new InvalidType(createErrorMessage(module, "Type '" + typeName + "' is already defined", ctx));
+					}
+
+					currentType = (DefaultDLType) definedType;
+				} // Otherwise define a new type
+				else {
+					currentType = (DefaultDLType) core.defineType(core.createType(typeName));
 				}
 
-				currentType = (DefaultDLType) core.createType(typeName);
-				core.defineType(currentType);
-
-				//make type abstract
+				// Make type abstract
 				if (ctx.KEYWORD_ABSTRACT() != null) {
 					currentType.setAbstract(true);
-				} //make type final
+				} // Make type final
 				else if (ctx.KEYWORD_FINAL() != null) {
 					currentType.setFinal(true);
 				}
 
-				//map annotations
-				for (DLParser.AnnotationContext aCtx : ctx.annotation()) {
-
-					String annotationTypeName = aCtx.annotationName().getText();
-
-					if (!core.hasAnnotation(annotationTypeName)) {
-						throw new UndefinedAnnotation(createErrorMessage("Annotation '" + annotationTypeName + "' is not defined", ctx));
-					}
-
-					DLAnnotation annotation = core.getAnnotation(annotationTypeName).get();
-
-					Object[] parameters = fetchStaticParameters(aCtx.staticParameters());
-
+				// Map annotations
+				mapAnnotations(ctx.annotation(), (annotation, parameters, aCtx) -> {
 					try {
 						annotation.bindToType(core, currentType, parameters);
 						currentType.addAnnotation(annotation, parameters);
 					} catch (DLException ex) {
-						throw new InvalidAnnotation(createErrorMessage("Error binding annotation '" + annotation.getName() + "' to type '" + currentType.getName() + "'", ex, aCtx), ex);
+						throw new InvalidAnnotation(createErrorMessage(module, "Error binding annotation '" + annotation.getName() + "' to type '" + currentType.getName() + "'", ex, aCtx), ex);
 					}
-				}
+				});
 
-				//extends - set parents
+				// Extends - set parents
 				if (ctx.parentTypeName() != null) {
 
 					for (DLParser.ParentTypeNameContext pCtx : ctx.parentTypeName()) {
 
 						String parentTypeName = pCtx.getText();
 
-						if (!core.hasType(parentTypeName)) {
-							throw new UndefinedType(createErrorMessage("Parent type '" + parentTypeName + "' is not defined", pCtx));
-						}
-
-						DLType parentType = core.getType(parentTypeName).get();
+						DLType parentType = core.getType(parentTypeName).orElseThrow(() -> {
+							return new UndefinedType(createErrorMessage(module, "Parent type '" + parentTypeName + "' is not defined", pCtx));
+						});
 
 						if (parentType.isFinal()) {
-							throw new InvalidType(createErrorMessage("Parent type " + parentType.getCanonicalName() + " is final and can not be derived from in " + currentType.getCanonicalName(), pCtx));
+							throw new InvalidType(createErrorMessage(module, "Parent type " + parentType.getCanonicalName() + " is final and can not be derived from in " + currentType.getCanonicalName(), pCtx));
 						}
 
 						currentType.addParent(parentType);
 					}
 				}
 
-				//contains - set contained types
+				// Contains - set contained types
 				if (ctx.containsTypeName() != null) {
 
 					for (DLParser.ContainsTypeNameContext pCtx : ctx.containsTypeName()) {
 
 						String containsTypeName = pCtx.getText();
 
-						if (!core.hasType(containsTypeName)) {
-							throw new UndefinedType(createErrorMessage("Contains type '" + containsTypeName + "' is not defined", pCtx));
-						}
+						DLType containsType = core.getType(containsTypeName).orElseThrow(() -> {
+							return new UndefinedType(createErrorMessage(module, "Contains type '" + containsTypeName + "' is not defined", pCtx));
+						});
 
-						currentType.addContainedType(core.getType(containsTypeName).get());
+						currentType.addContainedType(containsType);
 					}
 				}
 
@@ -760,23 +771,24 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	public void exitTypeAttributeDefinition(TypeAttributeDefinitionContext ctx)
+	public void exitTypeDefinition(TypeDefinitionContext ctx)
 	{
-		if (dlInstanceAssignAttribute != null) {
-			dlInstanceAssignAttribute.setDefaultValue(lastInstance);
-			dlInstanceAssignAttribute = null;
+		try {
+			currentType.validate();
+		} catch (InvalidType ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 
 	// @todo https://github.com/studio42gmbh/dl/issues/28 DLHrfParsing Allow multiple value and expression assignment as default values in type attribute definition
 	@Override
-	public void enterTypeAttributeDefinition(DLParser.TypeAttributeDefinitionContext ctx)
+	public void enterTypeAttributeDefinition(TypeAttributeDefinitionContext ctx)
 	{
 		try {
 			String typeName = ctx.typeAttributeDefinitionType().typeIdentifier().getText();
 
 			if (!core.hasType(typeName)) {
-				throw new UndefinedType(createErrorMessage("Attribute type '" + typeName + "' is not defined", ctx));
+				throw new UndefinedType(createErrorMessage(module, "Attribute type '" + typeName + "' is not defined", ctx));
 			}
 
 			List<DLType> genericTypes = fetchGenericParameters(ctx.typeAttributeDefinitionType().genericParameters());
@@ -786,21 +798,21 @@ public class DLHrfParsing extends DLParserBaseListener
 			try {
 				type = core.getType(typeName, genericTypes).get();
 			} catch (InvalidType ex) {
-				throw new InvalidType(createErrorMessage("Error retrieving type '" + typeName + "'", ex, ctx.typeAttributeDefinitionType().typeIdentifier()), ex);
+				throw new InvalidType(createErrorMessage(module, "Error retrieving type '" + typeName + "'", ex, ctx.typeAttributeDefinitionType().typeIdentifier()), ex);
 			}
 
 			String name = ctx.typeAttributeDefinitionName().getText();
 
 			DefaultDLAttribute attribute = (DefaultDLAttribute) core.createAttribute(name, type);
 
-			// parse default value
+			// Parse default value
 			Object defaultValue = null;
 			if (ctx.typeAttributeDefinitionDefault() != null) {
 
 				//DLInstance localCurrentInstance = currentInstance;
 				if (ctx.typeAttributeDefinitionDefault().instanceDefinition() != null) {
 					dlInstanceAssignAttribute = attribute;
-				} //resolve and validate type of reference
+				} // Resolve and validate type of reference
 				else if (ctx.typeAttributeDefinitionDefault().REF() != null) {
 
 					Object ref = resolveReference(ctx.typeAttributeDefinitionDefault().getText(), ctx.typeAttributeDefinitionDefault());
@@ -809,13 +821,13 @@ public class DLHrfParsing extends DLParserBaseListener
 						DLType refType = ((DLInstance) ref).getType();
 
 						if (type != null && refType == null) {
-							throw new InvalidType(createErrorMessage(
+							throw new InvalidType(createErrorMessage(module,
 								"Type of reference $" + ctx.typeAttributeDefinitionDefault().getText()
 								+ " is not matching it should be " + type.getName(), ctx.typeAttributeDefinitionDefault()));
 						}
 
 						if (type != null && !type.isAssignableFrom(refType)) {
-							throw new InvalidType(createErrorMessage(
+							throw new InvalidType(createErrorMessage(module,
 								"Type of reference $" + ctx.typeAttributeDefinitionDefault().getText()
 								+ " is not matching it is " + refType.getName()
 								+ " but should be " + type.getName(), ctx.typeAttributeDefinitionDefault()));
@@ -827,27 +839,22 @@ public class DLHrfParsing extends DLParserBaseListener
 					try {
 						defaultValue = type.read(ctx.typeAttributeDefinitionDefault().getText());
 					} catch (AssertionError | Exception ex) {
-						throw new InvalidValue(createErrorMessage("Error reading default value for attribute '"
+						throw new InvalidValue(createErrorMessage(module, "Error reading default value for attribute '"
 							+ name + "'", ex, ctx.typeAttributeDefinitionDefault()), ex);
 					}
 				}
 			}
 			attribute.setDefaultValue(defaultValue);
 
-			//map annotations
-			for (DLParser.AnnotationContext aCtx : ctx.annotation()) {
-
-				String annotationTypeName = aCtx.annotationName().getText();
-
-				Object[] parameters = fetchStaticParameters(aCtx.staticParameters());
-
+			// Map annotations
+			mapAnnotations(ctx.annotation(), (annotation, parameters, aCtx) -> {
 				try {
-					core.addAnnotationToAttribute(currentType, attribute, annotationTypeName, parameters);
+					core.addAnnotationToAttribute(currentType, attribute, annotation.getName(), parameters);
 				} catch (DLException ex) {
-					throw new InvalidAnnotation(createErrorMessage("Error binding annotation '"
-						+ annotationTypeName + "' to attribute '" + attribute.getName() + "'", ex, aCtx.annotationName()), ex);
+					throw new InvalidAnnotation(createErrorMessage(module, "Error binding annotation '"
+						+ annotation.getName() + "' to attribute '" + attribute.getName() + "'", ex, aCtx.annotationName()), ex);
 				}
-			}
+			});
 
 			attribute.getType().validate();
 
@@ -858,41 +865,11 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	public void exitTypeDefinition(TypeDefinitionContext ctx)
+	public void exitTypeAttributeDefinition(TypeAttributeDefinitionContext ctx)
 	{
-		try {
-			currentType.validate();
-		} catch (InvalidType ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-
-	@Override
-	public void exitAttributeAssignment(AttributeAssignmentContext ctx)
-	{
-		try {
-			DLInstance attributeInstance = currentAttributeAssignmentInstances.pop();
-
-			/*if (attributeAssignableContextQueue.size() > 0) {
-			log.debug("exitAttributeAssignment " + attributeInstance.getName() + " " + ctx.attributeSymbol().getText() + " " + attributeAssignableContextQueue.peek().attributeSymbol().getText());
-		}*/
-			if (attributeAssignableContextQueue.size() > 0 && attributeAssignableContextQueue.peek() == ctx) {
-
-				//log.debug("exitAttributeAssignment {} {} {}", lastInstance.getType(), lastInstance.getType().getName(), lastInstance);
-				attributeAssignableContextQueue.poll();
-				String attributeAssignableKey = attributeAssignableKeyQueue.poll();
-
-				//log.debug("exitAttributeAssignment assign " + attributeInstance.getName() + " " + attributeAssignableKey + " " + lastInstance.getName());
-				attributeInstance.set(attributeAssignableKey, lastInstance);
-
-				AttributeAssignableContext assignable = ctx.attributeAssignable().get(0);
-
-				if (!lastInstance.getType().isDerivedTypeOf(attributeInstance.getType().getAttribute(attributeAssignableKey).orElseThrow().getType())) {
-					throw new InvalidType(createErrorMessage("Type of instance assignment " + assignable.getText() + " is not matching it is " + lastInstance.getType().getCanonicalName() + " but should be " + currentInstance.getType().getAttribute(attributeAssignableKey).orElseThrow().getType().getCanonicalName(), ctx));
-				}
-			}
-		} catch (DLException ex) {
-			throw new RuntimeException(ex);
+		if (dlInstanceAssignAttribute != null) {
+			dlInstanceAssignAttribute.setDefaultValue(lastInstance);
+			dlInstanceAssignAttribute = null;
 		}
 	}
 
@@ -908,19 +885,19 @@ public class DLHrfParsing extends DLParserBaseListener
 
 			AttributeAssignableContext assignable = null;
 
-			if (ctx.attributeAssignable().size() > 0) {
+			if (!ctx.attributeAssignable().isEmpty()) {
 				assignable = ctx.attributeAssignable().get(0);
 			}
 
 			Object[] assignables = fetchAssignables(ctx);
 
-			//type key -> explicit type or type collision if instance defines it
+			// Type key -> explicit type or type collision if instance defines it
 			if (ctx.attributeType() != null) {
 				String typeName = ctx.attributeType().typeIdentifier().getText();
 				String key = ctx.attributeName().getText();
 
 				if (currentInstance.hasAttribute(key)) {
-					throw new InvalidAttribute(createErrorMessage("Instance " + currentInstance.getName()
+					throw new InvalidAttribute(createErrorMessage(module, "Instance " + currentInstance.getName()
 						+ " already has the attribute " + key, ctx.attributeName()));
 				}
 
@@ -929,22 +906,22 @@ public class DLHrfParsing extends DLParserBaseListener
 				Optional<DLType> optType = core.getType(typeName, genericTypes);
 
 				if (optType.isEmpty()) {
-					throw new UndefinedType(createErrorMessage("Type '" + typeName + "' is not defined", ctx.attributeType()));
+					throw new UndefinedType(createErrorMessage(module, "Type '" + typeName + "' is not defined", ctx.attributeType()));
 				}
 
 				DLType type = optType.orElseThrow();
 
-				//check if type contradicts
+				// Check if type contradicts
 				if (instanceType != null) {
 
 					if (instanceType.hasAttribute(key)) {
 						if (type != currentInstance.getType().getAttribute(key).orElseThrow().getType()) {
-							throw new InvalidType(createErrorMessage("Defined attribute type and given instance type do not match "
+							throw new InvalidType(createErrorMessage(module, "Defined attribute type and given instance type do not match "
 								+ type.getClass().getName() + " <> "
 								+ currentInstance.getType().getAttribute(key).orElseThrow().getType().getClass().getName(), ctx));
 						}
 					} else if (!instanceType.isAllowDynamicAttributes()) {
-						throw new InvalidType(createErrorMessage("Instance type " + instanceType.getClass().getName() + " does not allow dynamic attributes - " + key, ctx));
+						throw new InvalidType(createErrorMessage(module, "Instance type " + instanceType.getClass().getName() + " does not allow dynamic attributes - " + key, ctx));
 					}
 				}
 
@@ -954,7 +931,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					attributeAssignableKeyQueue.push(key);
 
 					//log.debug("enterAttributeAssignment.instanceDefinition2 {} {}", key,  ctx.attributeSymbol().getText());
-				} //resolve and validate type of reference
+				} // Resolve and validate type of reference
 				else if (assignables != null && assignables.length == 1 && assignable.REF() != null) {
 
 					Object ref = resolveReference(assignable.getText(), assignable);
@@ -965,13 +942,13 @@ public class DLHrfParsing extends DLParserBaseListener
 
 						if (instanceType.hasAttribute(key)) {
 							if (!instanceType.getAttribute(key).orElseThrow().getType().isAssignableFrom(refType)) {
-								throw new InvalidType(createErrorMessage(
+								throw new InvalidType(createErrorMessage(module,
 									"Type of reference $" + assignable.getText()
 									+ " is not matching it is " + refType.getName()
 									+ " but should be " + instanceType.getAttribute(key).orElseThrow().getType().getCanonicalName(), ctx));
 							}
 						} else if (!instanceType.isAllowDynamicAttributes()) {
-							throw new InvalidValue(createErrorMessage("Instance type " + instanceType + " does not allow dynamic attributes - " + key, ctx));
+							throw new InvalidValue(createErrorMessage(module, "Instance type " + instanceType + " does not allow dynamic attributes - " + key, ctx));
 						}
 					}
 
@@ -981,18 +958,18 @@ public class DLHrfParsing extends DLParserBaseListener
 					try {
 						currentInstance.set(key, type.read(assignables));
 					} catch (InvalidType ex2) {
-						throw new InvalidType(createErrorMessage("InvalidType", ex2, ctx), ex2);
+						throw new InvalidType(createErrorMessage(module, "InvalidType", ex2, ctx), ex2);
 					} catch (AssertionError | Exception ex) {
-						throw new InvalidValue(createErrorMessage("Error reading value", ex, ctx), ex);
+						throw new InvalidValue(createErrorMessage(module, "Error reading value", ex, ctx), ex);
 					}
 				}
-			} //just key -> infer from instance or auto type (string, float, int, boolean)
+			} // Just key -> infer from instance or auto type (string, float, int, boolean)
 			else {
 
 				String key = ctx.attributeName().getText();
 
 				if (currentInstance.hasAttribute(key)) {
-					throw new InvalidAttribute(createErrorMessage("Instance " + currentInstance.getName()
+					throw new InvalidAttribute(createErrorMessage(module, "Instance " + currentInstance.getName()
 						+ " already has the attribute " + key, ctx.attributeName()));
 				}
 
@@ -1019,7 +996,7 @@ public class DLHrfParsing extends DLParserBaseListener
 								DLType refType = ((DLInstance) ref).getType();
 
 								if (!refType.isDerivedTypeOf(currentInstance.getType().getAttribute(key).orElseThrow().getType())) {
-									throw new InvalidType(createErrorMessage("Type of reference $" + assignable.getText() + " is not matching it is " + refType.getCanonicalName() + " but should be " + currentInstance.getType().getAttribute(key).orElseThrow().getType().getCanonicalName(), ctx));
+									throw new InvalidType(createErrorMessage(module, "Type of reference $" + assignable.getText() + " is not matching it is " + refType.getCanonicalName() + " but should be " + currentInstance.getType().getAttribute(key).orElseThrow().getType().getCanonicalName(), ctx));
 								}
 							}
 
@@ -1030,19 +1007,19 @@ public class DLHrfParsing extends DLParserBaseListener
 								currentInstance.set(key, currentInstance.getType().getAttribute(key).orElseThrow().getType().read(assignables));
 
 							} catch (InvalidType ex2) {
-								throw new InvalidType(createErrorMessage("InvalidType", ex2, ctx), ex2);
+								throw new InvalidType(createErrorMessage(module, "InvalidType", ex2, ctx), ex2);
 							} catch (AssertionError | Exception ex) {
-								throw new InvalidValue(createErrorMessage("Instance value " + key + " could not be set", ex, assignable), ex);
+								throw new InvalidValue(createErrorMessage(module, "Instance value " + key + " could not be set", ex, assignable), ex);
 							}
 						}
 
 						return;
 					} else if (!instanceType.isAllowDynamicAttributes()) {
-						throw new InvalidValue(createErrorMessage("Instance type " + instanceType.getName() + " does not allow dynamic attributes - " + key, ctx));
+						throw new InvalidValue(createErrorMessage(module, "Instance type " + instanceType.getName() + " does not allow dynamic attributes - " + key, ctx));
 					}
 				}
 
-				//auto type -> also for dynamic attributes on an instance
+				// Auto type -> also for dynamic attributes on an instance
 				if (assignables != null && assignables.length == 1) {
 					currentInstance.set(key, assignables[0]);
 				} else {
@@ -1055,11 +1032,28 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	public void exitTypeIdentifier(DLParser.TypeIdentifierContext ctx)
+	public void exitAttributeAssignment(AttributeAssignmentContext ctx)
 	{
 		try {
-			if (!core.hasType(ctx.getText())) {
-				throw new InvalidType(createErrorMessage("Type " + ctx.getText() + " is not defined", ctx));
+			DLInstance attributeInstance = currentAttributeAssignmentInstances.pop();
+
+			/*if (attributeAssignableContextQueue.size() > 0) {
+				log.debug("exitAttributeAssignment " + attributeInstance.getName() + " " + ctx.attributeSymbol().getText() + " " + attributeAssignableContextQueue.peek().attributeSymbol().getText());
+			}*/
+			if (!attributeAssignableContextQueue.isEmpty() && attributeAssignableContextQueue.peek() == ctx) {
+
+				//log.debug("exitAttributeAssignment {} {} {}", lastInstance.getType(), lastInstance.getType().getName(), lastInstance);
+				attributeAssignableContextQueue.poll();
+				String attributeAssignableKey = attributeAssignableKeyQueue.poll();
+
+				//log.debug("exitAttributeAssignment assign " + attributeInstance.getName() + " " + attributeAssignableKey + " " + lastInstance.getName());
+				attributeInstance.set(attributeAssignableKey, lastInstance);
+
+				AttributeAssignableContext assignable = ctx.attributeAssignable().get(0);
+
+				if (!lastInstance.getType().isDerivedTypeOf(attributeInstance.getType().getAttribute(attributeAssignableKey).orElseThrow().getType())) {
+					throw new InvalidType(createErrorMessage(module, "Type of instance assignment " + assignable.getText() + " is not matching it is " + lastInstance.getType().getCanonicalName() + " but should be " + currentInstance.getType().getAttribute(attributeAssignableKey).orElseThrow().getType().getCanonicalName(), ctx));
+				}
 			}
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);
@@ -1068,17 +1062,17 @@ public class DLHrfParsing extends DLParserBaseListener
 
 	public static DLModule parse(DLCore core, String moduleId, String data) throws DLException
 	{
-		DefaultDLModule module = (DefaultDLModule) core.createModule(moduleId);
+		DLModule module = core.createModule(moduleId);
 
 		DLHrfParsing parsing = new DLHrfParsing(core, module);
 
-		//setup lexer
+		// Setup lexer
 		DLLexer lexer = new DLLexer(CharStreams.fromString(data));
 		lexer.removeErrorListeners();
 		lexer.addErrorListener(new DLHrfParsingErrorHandler(parsing, module));
 		TokenStream tokens = new CommonTokenStream(lexer);
 
-		//iterate tokens from lexer
+		// @test Iterate tokens from lexer
 		/*while (true) {
 			Token token = tokens.LT(1);
 			System.out.println("TOKEN: " + token);
@@ -1089,21 +1083,25 @@ public class DLHrfParsing extends DLParserBaseListener
 		}
 		tokens.seek(0);
 		 */
-		//setup parser
+		// Setup parser
 		DLParser parser = new DLParser(tokens);
 		parser.removeErrorListeners();
 		parser.addErrorListener(new DLHrfParsingErrorHandler(parsing, module));
 
-		//parse
-		DLParser.DataContext root = parser.data();
+		// Parse module
+		DataContext root = parser.data();
 		ParseTreeWalker walker = new ParseTreeWalker();
 
 		try {
 			walker.walk(parsing, root);
 		} catch (RuntimeException ex) {
+
+			// Unwrap DLException for nicer stack trace
 			if (ex.getCause() instanceof DLException) {
 				throw (DLException) ex.getCause();
 			}
+
+			// Otherwise just forward ex
 			throw ex;
 		}
 

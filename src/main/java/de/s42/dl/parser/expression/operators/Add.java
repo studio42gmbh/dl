@@ -28,7 +28,7 @@ package de.s42.dl.parser.expression.operators;
 import de.s42.dl.DLModule;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidValue;
-import de.s42.dl.parser.DLHrfParsing;
+import de.s42.dl.parser.DLHrfParsingErrorHandler;
 import de.s42.dl.parser.DLParser.ExpressionContext;
 import de.s42.dl.parser.expression.Expression;
 import de.s42.dl.parser.expression.BinaryOperator;
@@ -76,6 +76,6 @@ public class Add extends BinaryOperator
 			return (String) firstEval + (String) secondEval;
 		}
 
-		throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Types invalid in '" + context.getText() + "' both have to be either int, long, float, double or String", context));
+		throw new InvalidValue(DLHrfParsingErrorHandler.createErrorMessage(module, "Types invalid in '" + context.getText() + "' both have to be either int, long, float, double or String", context));
 	}
 }

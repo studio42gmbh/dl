@@ -23,54 +23,26 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.instances;
+package de.s42.dl.annotations;
 
-import de.s42.dl.*;
-import de.s42.dl.types.ModuleDLType;
-import java.io.File;
-import java.util.Optional;
+import de.s42.base.validation.AlwaysTrue;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.function.Function;
 
 /**
+ * Tag annotations with this to map this annotation
  *
  * @author Benjamin Schiller
  */
-public class DefaultDLModule extends DefaultDLInstance implements DLModule
+@Retention(RetentionPolicy.RUNTIME)
+@Target(value = {ElementType.METHOD})
+public @interface DLAnnotationParameter
 {
 
-	public DefaultDLModule()
-	{
-		super(new ModuleDLType());
-	}
+	int ordinal();
 
-	public DefaultDLModule(String name)
-	{
-		super(new ModuleDLType(), name);
-	}
-
-	@Override
-	public String getShortName()
-	{
-		String shortName = getName();
-
-		if (!shortName.contains(File.separator)) {
-			return shortName;
-		}
-
-		return shortName.substring(shortName.lastIndexOf(File.separator) + 1);
-	}
-
-	@Override
-	public <ObjectType> Optional<ObjectType> resolveReference(DLCore core, String path)
-	{
-		assert core != null;
-		assert path != null;
-
-		Object exportedOpt = core.resolveExportedPath(path);
-
-		if (exportedOpt != null) {
-			return Optional.of((ObjectType)exportedOpt);
-		}
-
-		return resolvePath(path);
-	}
+	Class<? extends Function<?, Boolean>> validation() default AlwaysTrue.class;
 }

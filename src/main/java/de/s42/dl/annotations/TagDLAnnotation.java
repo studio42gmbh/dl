@@ -26,6 +26,8 @@
 package de.s42.dl.annotations;
 
 import de.s42.dl.*;
+import de.s42.dl.parameters.NamedParameters;
+import java.lang.annotation.Annotation;
 
 /**
  *
@@ -34,9 +36,24 @@ import de.s42.dl.*;
 public abstract class TagDLAnnotation extends AbstractDLAnnotation
 {
 
+	protected TagDLAnnotation(Class<? extends Annotation> annotationClass)
+	{
+		super(annotationClass);
+	}
+
 	protected TagDLAnnotation(String name)
 	{
 		super(name);
+	}
+
+	protected TagDLAnnotation(String name, NamedParameters parameters)
+	{
+		super(name, parameters);
+	}
+
+	protected TagDLAnnotation(String name, Class<? extends Annotation> annotationClass)
+	{
+		super(name, annotationClass);
 	}
 
 	@Override

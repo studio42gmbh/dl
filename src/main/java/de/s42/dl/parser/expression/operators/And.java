@@ -28,7 +28,7 @@ package de.s42.dl.parser.expression.operators;
 import de.s42.dl.DLModule;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidValue;
-import de.s42.dl.parser.DLHrfParsing;
+import de.s42.dl.parser.DLHrfParsingErrorHandler;
 import de.s42.dl.parser.DLParser.ExpressionContext;
 import de.s42.dl.parser.expression.Expression;
 import de.s42.dl.parser.expression.BinaryOperator;
@@ -66,11 +66,11 @@ public class And extends BinaryOperator
 		}
 
 		// Bitwise And for Long / Int
-		if ((firstEval instanceof Long && secondEval instanceof Integer) ||
-			(firstEval instanceof Integer && secondEval instanceof Long)){
+		if ((firstEval instanceof Long && secondEval instanceof Integer)
+			|| (firstEval instanceof Integer && secondEval instanceof Long)) {
 			return ((Number) firstEval).longValue() & ((Number) secondEval).longValue();
 		}
-		
-		throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Types invalid in '" + context.getText() + "' both have to be boolean, int or long", context));
+
+		throw new InvalidValue(DLHrfParsingErrorHandler.createErrorMessage(module, "Types invalid in '" + context.getText() + "' both have to be boolean, int or long", context));
 	}
 }

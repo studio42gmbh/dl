@@ -23,54 +23,34 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.instances;
+package de.s42.dl.annotations;
 
-import de.s42.dl.*;
-import de.s42.dl.types.ModuleDLType;
-import java.io.File;
-import java.util.Optional;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DefaultDLModule extends DefaultDLInstance implements DLModule
+public class DontPersistDLAnnotation extends TagDLAnnotation
 {
 
-	public DefaultDLModule()
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = {ElementType.FIELD, ElementType.TYPE})
+	@DLAnnotationType(DontPersistDLAnnotation.class)
+	public static @interface dontPersist
 	{
-		super(new ModuleDLType());
 	}
 
-	public DefaultDLModule(String name)
+	public DontPersistDLAnnotation()
 	{
-		super(new ModuleDLType(), name);
+		super(dontPersist.class);
 	}
 
-	@Override
-	public String getShortName()
+	public DontPersistDLAnnotation(String name)
 	{
-		String shortName = getName();
-
-		if (!shortName.contains(File.separator)) {
-			return shortName;
-		}
-
-		return shortName.substring(shortName.lastIndexOf(File.separator) + 1);
-	}
-
-	@Override
-	public <ObjectType> Optional<ObjectType> resolveReference(DLCore core, String path)
-	{
-		assert core != null;
-		assert path != null;
-
-		Object exportedOpt = core.resolveExportedPath(path);
-
-		if (exportedOpt != null) {
-			return Optional.of((ObjectType)exportedOpt);
-		}
-
-		return resolvePath(path);
+		super(name, dontPersist.class);
 	}
 }

@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.parser;
+package de.s42.dl.parser2;
 
 import de.s42.base.files.FilesHelper;
 import de.s42.dl.DLModule;
@@ -36,13 +36,13 @@ import org.antlr.v4.runtime.Recognizer;
  *
  * @author Benjamin Schiller
  */
-public class DLHrfParsingErrorHandler extends BaseErrorListener
+public class DLHrfParsing2ErrorHandler extends BaseErrorListener
 {
 
 	protected final DLModule module;
-	protected final DLHrfParsing dl;
+	protected final DLHrfParsing2 dl;
 
-	public DLHrfParsingErrorHandler(DLHrfParsing dl, DLModule module)
+	public DLHrfParsing2ErrorHandler(DLHrfParsing2 dl, DLModule module)
 	{
 		this.module = module;
 		this.dl = dl;
@@ -60,7 +60,7 @@ public class DLHrfParsingErrorHandler extends BaseErrorListener
 
 		throw new RuntimeException(msg.toString());
 	}
-
+	
 	public String createErrorMessage(String reason, ParserRuleContext context) throws RuntimeException
 	{
 		return createErrorMessage(module, reason, context);
@@ -107,5 +107,5 @@ public class DLHrfParsingErrorHandler extends BaseErrorListener
 				context.start.getLine(), context.start.getCharPositionInLine() + 1, false));
 
 		return message.toString();
-	}
+	}	
 }

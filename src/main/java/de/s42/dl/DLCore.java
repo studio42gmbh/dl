@@ -96,6 +96,8 @@ public interface DLCore
 
 	public Object resolveExportedPath(String path);
 
+	public DLType declareType(String typeName) throws DLException;
+	
 	public DLType defineType(DLType type, String... aliases) throws DLException;
 
 	public boolean hasType(String name);

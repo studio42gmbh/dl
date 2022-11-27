@@ -25,9 +25,8 @@
 //</editor-fold>
 package de.s42.dl.generator;
 
-import de.s42.dl.DLAnnotation.AnnotationDL;
 import de.s42.dl.DLAttribute.AttributeDL;
-import de.s42.dl.annotations.GreaterDLAnnotation;
+import de.s42.dl.annotations.GreaterDLAnnotation.greater;
 import de.s42.dl.exceptions.InvalidType;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -36,13 +35,13 @@ import java.util.UUID;
 
 /**
  *
- * type TestData @generate(validate, serialize) @typeId("502c4735-d416-43a2-ae2d-43965838ceda") 
+ * type TestData @generate(validate, serialize) @typeId("502c4735-d416-43a2-ae2d-43965838ceda")
  * {
- *		int min @required : 0;
- *		int max @required @greater(min) : 42;
- *		int value @required @greaterEqual(min) @lesserEqual(max) : 0;
+ * int min @required : 0;
+ * int max @required @greater(min) : 42;
+ * int value @required @greaterEqual(min) @lesserEqual(max) : 0;
  * }
- * 
+ *
  * @author Benjamin Schiller
  */
 public class TestData
@@ -54,12 +53,11 @@ public class TestData
 	protected int min = 0;
 
 	@AttributeDL(required = true, defaultValue = "42")
-	@AnnotationDL(value = GreaterDLAnnotation.DEFAULT_SYMBOL, parameters = "min")
+	@greater(other = "min")
 	protected int max = 42;
 
 	@AttributeDL(required = true, defaultValue = "0")
-	@AnnotationDL(value = GreaterDLAnnotation.DEFAULT_SYMBOL, parameters = "min")
-	@AnnotationDL(value = GreaterDLAnnotation.DEFAULT_SYMBOL, parameters = "max")
+	@greater(other = "min")
 	protected int value = 0;
 
 	public TestData()
@@ -135,17 +133,17 @@ public class TestData
 	{
 		// max @greater("min")
 		if (!(max > min)) {
-			result.addInvalid(GreaterDLAnnotation.DEFAULT_SYMBOL, "max", "max has to be greater than min");
+			result.addInvalid("greater", "max", "max has to be greater than min");
 		}
 
 		// value @greaterEqual("min")
 		if (!(value >= min)) {
-			result.addInvalid(GreaterDLAnnotation.DEFAULT_SYMBOL, "value", "value has to be greater or equal than min");
+			result.addInvalid("greater", "value", "value has to be greater or equal than min");
 		}
 
 		// value @lesserEqual("max")
 		if (!(value <= max)) {
-			result.addInvalid(GreaterDLAnnotation.DEFAULT_SYMBOL, "value", "value has to be lesser or equal than max");
+			result.addInvalid("greater", "value", "value has to be lesser or equal than max");
 		}
 
 		return result;

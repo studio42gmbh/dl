@@ -52,10 +52,10 @@ public class DLPragmaTest
 		@Override
 		public void doPragma(DLCore core, Object... parameters) throws InvalidPragma
 		{
-			parameters = validateParameters(parameters, new Class[]{int.class, int.class});
+			Object[] params = validateParameters(parameters, new Class[]{int.class, int.class});
 
-			int a = (int) parameters[0];
-			int b = (int) parameters[1];
+			int a = (int)params[0];
+			int b = (int)params[1];
 
 			counter += a * b;
 		}

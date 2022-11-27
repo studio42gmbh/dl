@@ -29,6 +29,7 @@ import de.s42.base.conversion.ConversionHelper;
 import de.s42.base.zip.ZipHelper;
 import de.s42.dl.*;
 import de.s42.dl.DLAnnotated.DLMappedAnnotation;
+import de.s42.dl.annotations.DontPersistDLAnnotation;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.io.DLWriter;
 import de.s42.dl.io.binary.BinaryDLWriter;
@@ -442,7 +443,15 @@ public final class DLHelper
 		Collections.sort(attributeNames);
 
 		// Write out the attributes
+		DLType type = instance.getType();
 		for (String attributeName : attributeNames) {
+			
+			DLAttribute attribute = type.getAttribute(attributeName).orElseThrow();
+			
+			// Ignore attribute that shall not be persisted
+			if (attribute.hasAnnotation(DontPersistDLAnnotation.class)) {
+				continue;
+			}
 
 			Object value = (Object) instance.get(attributeName);
 

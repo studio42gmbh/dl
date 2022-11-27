@@ -40,7 +40,7 @@ import de.s42.dl.DLModule;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.instances.SimpleTypeDLInstance;
-import de.s42.dl.parser.DLHrfParsing;
+import de.s42.dl.parser.DLHrfParsingErrorHandler;
 import de.s42.dl.parser.DLParser.AtomContext;
 import de.s42.dl.parser.DLParser.ExpressionContext;
 import de.s42.dl.parser.expression.operators.Pow;
@@ -146,7 +146,7 @@ public final class DLHrfExpressionParser
 			return buildAtom(core, module, ctx.atom(), false);
 		}
 
-		throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Unknown expression part " + ctx.getText(), ctx));
+		throw new InvalidValue(DLHrfParsingErrorHandler.createErrorMessage(module, "Unknown expression part " + ctx.getText(), ctx));
 	}
 
 	private static Atom buildAtom(DLCore core, DLModule module, AtomContext ctx, boolean negate) throws InvalidValue
@@ -182,7 +182,7 @@ public final class DLHrfExpressionParser
 		} else if (ctx.REF() != null) {
 			value = resolveReference(core, module, ctx.REF().getText(), ctx);
 		} else {
-			throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Unknown atom part " + ctx.getText(), ctx));
+			throw new InvalidValue(DLHrfParsingErrorHandler.createErrorMessage(module, "Unknown atom part " + ctx.getText(), ctx));
 		}
 
 		if (negate) {
@@ -191,7 +191,7 @@ public final class DLHrfExpressionParser
 				return new Atom(-((Number) value).doubleValue());
 			} else {
 				throw new InvalidValue(
-					DLHrfParsing.createErrorMessage(
+					DLHrfParsingErrorHandler.createErrorMessage(
 						module,
 						"Can just negate number types, but "
 						+ ctx.getText()
@@ -210,7 +210,7 @@ public final class DLHrfExpressionParser
 		Optional ref = module.resolveReference(core, refId);
 
 		if (ref.isEmpty()) {
-			throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Reference $" + refId + " is not defined in module", ctx));
+			throw new InvalidValue(DLHrfParsingErrorHandler.createErrorMessage(module, "Reference $" + refId + " is not defined in module", ctx));
 		}
 
 		Object resolved = ref.orElseThrow();

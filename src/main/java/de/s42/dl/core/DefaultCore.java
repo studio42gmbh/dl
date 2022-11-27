@@ -28,6 +28,8 @@ package de.s42.dl.core;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLEntity;
 import de.s42.dl.annotations.*;
+import de.s42.dl.core.resolvers.FileCoreResolver;
+import de.s42.dl.core.resolvers.ResourceCoreResolver;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.pragmas.*;
 import de.s42.dl.types.*;
@@ -57,6 +59,10 @@ public class DefaultCore extends BaseDLCore
 			allowDefinePragmas = true;
 			allowRequire = true;
 
+			// Add file and resource resolver
+			addResolver(new FileCoreResolver(this));
+			addResolver(new ResourceCoreResolver(this));
+
 			// Define basic annotations
 			defineAnnotation(new ContainDLAnnotation());
 			defineAnnotation(new ContainOnlyDLAnnotation());
@@ -84,6 +90,7 @@ public class DefaultCore extends BaseDLCore
 			defineAnnotation(new WriteOnlyDLAnnotation());
 			defineAnnotation(new NoGenericsDLAnnotation());
 			defineAnnotation(new RegexDLAnnotation());
+			defineAnnotation(new DontPersistDLAnnotation());
 
 			// Define basic pragmas
 			definePragma(new BasePathPragma());
@@ -110,13 +117,13 @@ public class DefaultCore extends BaseDLCore
 			defineType(new UUIDDLType(), "java.util.UUID", "uuid");
 			defineType(new StringDLType(), "java.lang.String", "string", "str");
 			defineType(new DateDLType(), "java.util.Date", "java.sql.Timestamp");
-			
+
 			defineType(DLEntity.class, "DLEntity");
 
 			// Define log types
-			defineType(LogLevel.class, "LogLevel");
-			defineType(Logger.class, "Logger");
-			defineType(LogManager.class, "LogManager");
+			defineType(LogLevel.class);
+			defineType(Logger.class);
+			defineType(LogManager.class);
 
 			// Define List types https://github.com/studio42gmbh/dl/issues/10
 			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)

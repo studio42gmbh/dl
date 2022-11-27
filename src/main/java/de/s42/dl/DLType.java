@@ -113,4 +113,6 @@ public interface DLType extends DLEntity, DLAnnotated
 	public boolean isAbstract();
 
 	public boolean isFinal();
+	
+	public boolean isDeclaration();
 }

@@ -50,9 +50,9 @@ public interface DLAnnotated
 			this.parameters = parameters;
 		}
 
-		public DLAnnotation getAnnotation()
+		public <DLAnnotationType extends DLAnnotation> DLAnnotationType getAnnotation()
 		{
-			return annotation;
+			return (DLAnnotationType)annotation;
 		}
 
 		public Object[] getParameters()
