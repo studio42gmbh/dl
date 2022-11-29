@@ -25,16 +25,18 @@
 //</editor-fold>
 package de.s42.dl.parameters;
 
+import de.s42.base.beans.BeanHelper;
+import de.s42.base.beans.BeanInfo;
+import de.s42.base.beans.BeanProperty;
+import de.s42.base.beans.InvalidBean;
 import de.s42.base.conversion.ConversionHelper;
-import de.s42.dl.annotations.DLAnnotationHelper;
+import de.s42.dl.DLAnnotation;
 import de.s42.dl.annotations.DLAnnotationParameter;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,13 +56,69 @@ public final class NamedParameters
 	protected final NamedParameter[] parameters;
 	protected final Map<String, NamedParameter> parametersByName = new HashMap<>();
 
+	public NamedParameters(Class<? extends DLAnnotation> annotationClass)
+	{
+		try {
+			List<NamedParameter> parametersAsList = new ArrayList();
+
+			BeanInfo<?> info = BeanHelper.getBeanInfo(annotationClass);
+
+			for (BeanProperty property : info.getProperties()) {
+
+				if (property.getField() != null) {
+
+					Field field = property.getField();
+
+					// Just load paraneters with annotation @DLAnnotationParameter
+					DLAnnotationParameter annotationParameter = field.getAnnotation(DLAnnotationParameter.class);
+
+					if (annotationParameter != null) {
+
+						Class type = ConversionHelper.wrapPrimitives(field.getType());
+						NamedParameter namedParameter;
+
+						Object defaultValue = null;
+						if (!annotationParameter.defaultValue().isBlank()) {
+							defaultValue = ConversionHelper.convert(annotationParameter.defaultValue(), field.getType());
+						}
+
+						namedParameter = new NamedParameter(
+							field.getName(),
+							type,
+							defaultValue,
+							annotationParameter.required(),
+							annotationParameter.ordinal(),
+							(Function<Object, Boolean>) annotationParameter.validation().getConstructor().newInstance()
+						);
+						// Set the given ordinal
+						namedParameter.ordinal = annotationParameter.ordinal();
+						// @todo determine ordinal from special annotation to each field/method
+						parametersAsList.add(namedParameter);
+					}
+				}
+			}
+
+			// Sort all parameters by the given ordinal
+			parametersAsList.sort((o1, o2) -> {
+				return Integer.compare(o1.ordinal, o2.ordinal);
+			});
+
+			this.parameters = parametersAsList.toArray(NamedParameter[]::new);
+
+			init();
+		} catch (InvalidBean | IllegalAccessException | InstantiationException | NoSuchMethodException | RuntimeException | InvocationTargetException ex) {
+			throw new RuntimeException("Error creating named parameters from annotation class '" + annotationClass.getName() + "' - " + ex.getMessage(), ex);
+		}
+	}
+
 	/**
 	 * This allows to synthetizise the parameters from a given annotation.
 	 * THIS FEATURE IS EXPERIMEMTAL!
 	 *
-	 * @param annotationClass
+	 * @ param annotationClass
 	 *
 	 */
+	/*
 	public NamedParameters(Class<? extends Annotation> annotationClass) throws RuntimeException
 	{
 		assert annotationClass != null;
@@ -127,7 +185,6 @@ public final class NamedParameters
 				}
 			}
 		}
-
 		// Sort all parameters by the given ordinal
 		parametersAsList.sort((o1, o2) -> {
 			return Integer.compare(o1.ordinal, o2.ordinal);
@@ -137,7 +194,11 @@ public final class NamedParameters
 
 		init();
 	}
-
+	 */
+	/**
+	 *
+	 * @param parameters
+	 */
 	public NamedParameters(NamedParameter... parameters)
 	{
 		assert parameters != null;
@@ -155,6 +216,52 @@ public final class NamedParameters
 			parameter.ordinal = i;
 			parametersByName.put(parameter.name, parameter);
 		}
+	}
+
+	public void applyNamedParameters(Map<String, Object> namedParameters, Object object) throws InvalidValue, InvalidBean
+	{
+		applyFlatParameters(toFlatParameters(namedParameters), object);
+	}
+
+	/**
+	 * Applies the flat parameters using bean introspection with BeanHelper
+	 *
+	 * @param flatParameters
+	 * @param object
+	 *
+	 * @throws InvalidValue
+	 * @throws InvalidBean
+	 */
+	public void applyFlatParameters(Object[] flatParameters, Object object) throws InvalidValue, InvalidBean
+	{
+		if (!isValidFlatParameters(flatParameters)) {
+			throw new InvalidValue("Invalid flat parameters can not get applied");
+		}
+
+		BeanInfo<?> info = BeanHelper.getBeanInfo(object.getClass());
+
+		for (int i = 0; i < parameters.length; ++i) {
+
+			NamedParameter parameter = parameters[i];
+
+			Object flatParameter = null;
+
+			if (flatParameters != null && flatParameters.length > i) {
+				flatParameter = flatParameters[i];
+			}
+
+			if (flatParameter == null) {
+				flatParameter = parameter.defaultValue;
+			}
+
+			BeanProperty property = info.getProperty(parameter.name).orElseThrow();
+			property.write(object, ConversionHelper.convert(flatParameter, property.getPropertyClass()));
+		}
+	}
+
+	public boolean hasParameters()
+	{
+		return parameters.length > 0;
 	}
 
 	public boolean contains(String parameterName)
@@ -195,6 +302,29 @@ public final class NamedParameters
 		return parameter.ordinal;
 	}
 
+	public Map<String, Object> getNamedParameters(Object object) throws InvalidBean
+	{
+		Map<String, Object> result = new HashMap<>();
+
+		BeanInfo<?> info = BeanHelper.getBeanInfo(object.getClass());
+
+		for (int i = 0; i < parameters.length; ++i) {
+
+			NamedParameter parameter = parameters[i];
+
+			BeanProperty property = info.getProperty(parameter.name).orElseThrow();
+			Object val = property.read(object);
+			result.put(parameter.name, val);
+		}
+
+		return result;
+	}
+
+	public Object[] getFlatParameters(Object object) throws InvalidBean, InvalidValue
+	{
+		return toFlatParameters(getNamedParameters(object));
+	}
+
 	public Object[] toFlatParameters(Map<String, Object> namedParameters) throws InvalidValue
 	{
 		Object[] flatParameters = new Object[parameters.length];
@@ -203,6 +333,7 @@ public final class NamedParameters
 			NamedParameter parameter = parameters[i];
 			Object val = namedParameters.get(parameter.name);
 			flatParameters[i] = (val != null) ? val : parameter.defaultValue;
+
 			if (!parameter.isValid(flatParameters[i])) {
 				throw new InvalidValue("namedParameter " + parameter.name + " is invalid");
 			}
@@ -252,17 +383,24 @@ public final class NamedParameters
 
 	public boolean isValidFlatParameters(Object[] flatParameters)
 	{
-		if (flatParameters == null) {
+		// If both are null we are always good
+		if (flatParameters == null && parameters.length == 0) {
+			return true;
+		}
+
+		// The flatparameters may never be longer than the parameters
+		if (flatParameters != null && flatParameters.length > parameters.length) {
 			return false;
 		}
 
-		if (flatParameters.length != parameters.length) {
-			return false;
-		}
-
-		for (int i = 0; i < flatParameters.length; ++i) {
+		for (int i = 0; i < parameters.length; ++i) {
 			NamedParameter parameter = parameters[i];
-			Object flatParameter = flatParameters[i];
+
+			Object flatParameter = null;
+
+			if (flatParameters != null && flatParameters.length > i) {
+				flatParameter = flatParameters[i];
+			}
 
 			if (!parameter.isValid(flatParameter)) {
 				return false;
@@ -270,6 +408,11 @@ public final class NamedParameters
 		}
 
 		return true;
+	}
+
+	public boolean isValidNamedParameters(Map<String, Object> namedParameters) throws InvalidValue
+	{
+		return isValidFlatParameters(toFlatParameters(namedParameters));
 	}
 
 	public boolean isValidNamedParameter(String parameterName, Object value)
@@ -281,5 +424,10 @@ public final class NamedParameters
 		}
 
 		return optParameter.orElseThrow().isValid(value);
+	}
+
+	public NamedParameter[] getParameters()
+	{
+		return parameters;
 	}
 }

@@ -32,40 +32,24 @@ import java.util.Optional;
  *
  * @author Benjamin Schiller
  */
-public interface DLAnnotated
+public interface DLAnnotated extends DLEntity
 {
 
-	public static class DLMappedAnnotation
-	{
+	public List<DLAnnotation> getAnnotations();
 
-		protected final DLAnnotation annotation;
-		protected final Object[] parameters;
-
-		public DLMappedAnnotation(DLAnnotation annotation, Object... parameters)
-		{
-			assert annotation != null;
-			assert parameters != null;
-
-			this.annotation = annotation;
-			this.parameters = parameters;
-		}
-
-		public <DLAnnotationType extends DLAnnotation> DLAnnotationType getAnnotation()
-		{
-			return (DLAnnotationType)annotation;
-		}
-
-		public Object[] getParameters()
-		{
-			return parameters;
-		}
-	}
+	public List<DLAnnotation> getAnnotations(Class<? extends DLAnnotation> type);
+	
+	public List<DLAnnotation> getAnnotations(String name);
+	
+	public Optional<DLAnnotation> getAnnotation(Class<? extends DLAnnotation> type);
+	
+	public Optional<DLAnnotation> getAnnotation(String name);
 	
 	public boolean hasAnnotations();
-
-	public List<DLMappedAnnotation> getAnnotations();
-
-	public Optional<DLMappedAnnotation> getAnnotation(Class<? extends DLAnnotation> annotationType);
 	
-	public boolean hasAnnotation(Class<? extends DLAnnotation> annotationType);
+	public boolean hasAnnotation(Class<? extends DLAnnotation> type);
+
+	public boolean hasAnnotation(String name);
+	
+	public void addAnnotation(DLAnnotation annotation);
 }

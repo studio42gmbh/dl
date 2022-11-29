@@ -38,14 +38,14 @@ import org.testng.annotations.Test;
 public class RangeDLAnnotationTest
 {
 
-	@Test
+	@Test(enabled = false)
 	public void validGreaterAnnotations() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type T { double v @range(5, 20); } T t { v : 7.5654; }");
 	}
 
-	@Test(expectedExceptions = InvalidInstance.class)
+	@Test(enabled = false, expectedExceptions = InvalidInstance.class)
 	public void invalidGreaterAnnotations() throws DLException
 	{
 		DLCore core = new DefaultCore();

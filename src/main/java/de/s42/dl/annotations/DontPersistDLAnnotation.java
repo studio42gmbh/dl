@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  *
  * @author Benjamin Schiller
  */
-public class DontPersistDLAnnotation extends TagDLAnnotation
+public class DontPersistDLAnnotation extends TagDLAnnotation<DontPersistDLAnnotation>
 {
 
 	@Retention(RetentionPolicy.RUNTIME)
@@ -42,15 +42,5 @@ public class DontPersistDLAnnotation extends TagDLAnnotation
 	@DLAnnotationType(DontPersistDLAnnotation.class)
 	public static @interface dontPersist
 	{
-	}
-
-	public DontPersistDLAnnotation()
-	{
-		super(dontPersist.class);
-	}
-
-	public DontPersistDLAnnotation(String name)
-	{
-		super(name, dontPersist.class);
 	}
 }

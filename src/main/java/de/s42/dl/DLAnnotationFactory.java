@@ -23,39 +23,43 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl;
 
-import de.s42.dl.DLCore;
-import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidType;
-import org.testng.annotations.Test;
+import de.s42.dl.exceptions.InvalidAnnotation;
+import java.util.Map;
 
 /**
  *
  * @author Benjamin Schiller
+ * @param <DLAnnotationType>
  */
-public class NoGenericsDLAnnotationTest
+public interface DLAnnotationFactory<DLAnnotationType extends DLAnnotation>
 {
 
-	@Test(enabled = false)
-	public void validNoGenerics() throws DLException
+	public DLAnnotationType createAnnotation(String name, DLAnnotated container) throws DLException;
+
+	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException;
+
+	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Map<String, Object> namedParameters) throws DLException;
+
+	default public boolean isValidNamedParameters(Map<String, Object> namedParameters) throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T @noGenerics { int a ; boolean b; }");
+		return false;
 	}
 
-	@Test(enabled = false, expectedExceptions = InvalidType.class)
-	public void invalidNoGenerics() throws DLException
+	default public boolean isValidNamedParameter(String name, Object value) throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T @noGenerics { int a ; List<String> b; }");
+		return false;
 	}
 
-	@Test(enabled = false)
-	public void validNoGenericsInParent() throws DLException
+	default public boolean isValidFlatParameters(Object[] flatParameters) throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type P @noGenerics; type T extends P { int a ; List<String> b; }");
+		return false;
+	}
+
+	default public Object[] toFlatParameters(Map<String, Object> namedParameters) throws DLException
+	{
+		throw new InvalidAnnotation("Can not flatten parameters");
 	}
 }

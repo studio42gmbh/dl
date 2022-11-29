@@ -25,7 +25,6 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.*;
 import de.s42.dl.exceptions.InvalidInstance;
 
@@ -33,28 +32,15 @@ import de.s42.dl.exceptions.InvalidInstance;
  *
  * @author Benjamin Schiller
  */
-public class ExportDLAnnotation extends AbstractDLAnnotation
+public class ExportDLAnnotation extends AbstractDLAnnotation<ExportDLAnnotation>
 {
 
 	public final static String DEFAULT_SYMBOL = "export";
 
-	public ExportDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public ExportDLAnnotation(String name)
-	{
-		super(name);
-	}
-
 	@Override
-	public void bindToInstance(DLCore core, DLModule module, DLInstance instance, Object... parameters) throws InvalidAnnotation, InvalidInstance
+	public void bindToInstance(DLCore core, DLInstance instance) throws InvalidInstance
 	{
 		assert core != null;
-		assert instance != null;
-
-		validateParameters(parameters, null);
 
 		core.addExported(instance);
 	}

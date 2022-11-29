@@ -38,17 +38,17 @@ import org.testng.annotations.Test;
 public class LengthDLAnnotationTest
 {
 
-	@Test
-	public void validGreaterAnnotations() throws DLException
+	@Test(enabled = false)
+	public void validLengthAnnotations() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { String v @length(5, 20); } T t { v : \"LongEnough\"; }");
+		core.parse("validLengthAnnotations", "type T { String v @length(5, 20); } T t { v : \"LongEnough\"; }");
 	}
 
-	@Test(expectedExceptions = InvalidInstance.class)
-	public void invalidGreaterAnnotations() throws DLException
+	@Test(enabled = false, expectedExceptions = InvalidInstance.class)
+	public void invalidLengthAnnotations() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { String v @length(10, 20); } T t { v : \"TooShort\"; }");
+		core.parse("invalidLengthAnnotations", "type T { String v @length(10, 20); } T t { v : \"TooShort\"; }");
 	}
 }

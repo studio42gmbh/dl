@@ -59,29 +59,32 @@ public interface DLAnnotation extends DLEntity
 
 		public AnnotationDL[] value();
 	}
+	
+	public DLAnnotated getContainer();
+	
+	public boolean hasParameters();
+	
+	public Object[] getFlatParameters();
+	
+	public Map<String, Object> getNamedParameters();
 
-	default public void bindToType(DLCore core, DLType type, Object... parameters) throws DLException
+	default public void bindToType(DLCore core, DLType type) throws DLException
 	{
-		throw new InvalidAnnotation("Can not be bound to types");
+		throw new InvalidAnnotation(getClass().getName() + " Can not be bound to types");
 	}
 
-	default public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws DLException
+	default public void bindToAttribute(DLCore core, DLAttribute attribute) throws DLException
 	{
-		throw new InvalidAnnotation("Can not be bound to attributes");
+		throw new InvalidAnnotation(getClass().getName() + " Can not be bound to attributes");
 	}
 
-	default public void bindToInstance(DLCore core, DLModule module, DLInstance instance, Object... parameters) throws DLException
+	default public void bindToInstance(DLCore core, DLInstance instance) throws DLException
 	{
-		throw new InvalidAnnotation("Can not be bound to instances");
-	}
-
-	default public boolean isValidNamedParameter(String name, Object value)
-	{
-		return false;
+		throw new InvalidAnnotation(getClass().getName() + " Can not be bound to instances");
 	}
 	
-	default public Object[] toFlatParameters(Map<String, Object> namedParameters) throws DLException
+	default public void bindToPragma(DLCore core, DLPragma pragma) throws DLException
 	{
-		throw new InvalidAnnotation("Can not flatten parameters");
+		throw new InvalidAnnotation(getClass().getName() + " Can not be bound to pragmas");
 	}
 }

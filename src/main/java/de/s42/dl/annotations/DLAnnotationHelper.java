@@ -26,10 +26,11 @@
 package de.s42.dl.annotations;
 
 import de.s42.dl.DLAnnotated;
-import de.s42.dl.DLAnnotated.DLMappedAnnotation;
 import de.s42.dl.DLAnnotation;
+import de.s42.dl.DLCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidAnnotation;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -49,6 +50,7 @@ import java.util.Set;
  */
 public final class DLAnnotationHelper
 {
+	private final static Logger log = LogManager.getLogger(DLAnnotationHelper.class.getName());
 
 	public static final Set<String> SUPPRESSED_ANNOTATION_ELEMENT_NAMES = new HashSet<>(Arrays.asList(new String[]{
 		"equals",
@@ -62,18 +64,18 @@ public final class DLAnnotationHelper
 		// never instantiated
 	}
 
-	public static Optional<DLAnnotated.DLMappedAnnotation> getIfDLAnnotation(Annotation javaAnnotation) throws DLException
+	public static Optional<DLAnnotation> createIfDLAnnotation(DLCore core, Annotation javaAnnotation, DLAnnotated container) throws DLException
 	{
 		assert javaAnnotation != null;
 
 		try {
 
-			DLAnnotationType dlAnnotationType = javaAnnotation.annotationType().getAnnotation(DLAnnotationType.class);
-
 			// Check if the given java annotation is a tagged dl annotation
 			if (!javaAnnotation.annotationType().isAnnotationPresent(DLAnnotationType.class)) {
 				return Optional.empty();
 			}
+			
+			String annotationName = javaAnnotation.annotationType().getSimpleName();
 
 			Map<String, Object> namedParameters = new HashMap<>();
 
@@ -93,41 +95,32 @@ public final class DLAnnotationHelper
 				}
 			}
 
-			// Could add check if the class is derived from DLAnnotation
-			DLAnnotation dlAnnotation = (DLAnnotation) dlAnnotationType.value().getConstructor().newInstance();
+			DLAnnotation dlAnnotation = core.createAnnotation(annotationName, container, namedParameters);
 
-			for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
-				if (!dlAnnotation.isValidNamedParameter(entry.getKey(), entry.getValue())) {
-					throw new InvalidAnnotation("Named parameter " + entry.getKey() + " is not valid - value " + entry.getValue());
-				}
-			}
-
-			DLMappedAnnotation mappedAnnotation = new DLMappedAnnotation(dlAnnotation, dlAnnotation.toFlatParameters(namedParameters));
-
-			return Optional.of(mappedAnnotation);
-		} catch (DLException | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
+			return Optional.of(dlAnnotation);
+		} catch (DLException | IllegalAccessException | IllegalArgumentException | SecurityException | InvocationTargetException ex) {
 			throw new DLException("Error getting dl annotation - " + ex.getMessage(), ex);
 		}
 	}
 
-	public static List<DLAnnotated.DLMappedAnnotation> getDLAnnotations(Annotation[] javaAnnotations) throws DLException
+	public static List<DLAnnotation> createDLAnnotations(DLCore core, Annotation[] javaAnnotations, DLAnnotated container) throws DLException
 	{
-		List<DLAnnotated.DLMappedAnnotation> result = new ArrayList<>();
+		List<DLAnnotation> result = new ArrayList<>();
 
 		for (Annotation javaAnnotation : javaAnnotations) {
+			
+			Optional<DLAnnotation> optDlAnnotation = createIfDLAnnotation(core, javaAnnotation, container);
 
-			Optional<DLAnnotated.DLMappedAnnotation> optDlMappedAnnotation = getIfDLAnnotation(javaAnnotation);
-
-			if (optDlMappedAnnotation.isPresent()) {
-				result.add(optDlMappedAnnotation.orElseThrow());
+			if (optDlAnnotation.isPresent()) {
+				result.add(optDlAnnotation.orElseThrow());
 			}
 		}
 
 		return result;
 	}
 
-	public static List<DLAnnotated.DLMappedAnnotation> getDLAnnotations(Class annotatedClass) throws DLException
+	public static List<DLAnnotation> createDLAnnotations(DLCore core, Class annotatedClass, DLAnnotated container) throws DLException
 	{
-		return getDLAnnotations(annotatedClass.getAnnotations());
+		return createDLAnnotations(core, annotatedClass.getAnnotations(), container);
 	}
 }

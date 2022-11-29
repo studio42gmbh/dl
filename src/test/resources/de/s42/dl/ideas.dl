@@ -1,7 +1,103 @@
-
 // DL MISSION:
-// DL shall provide an environment dependable constraining and validation of data in a consistent and foremost easy readable and understandable language 
-// (types, generics, annotations/contracts, scope)
+// DL provides environment dependable constraining and validation of data in a consistent and foremost easy readable and understandable language to describe data and stream data
+// (types, generics, annotations/contracts, scope, streamable)
+
+
+// DL 1.0 in  a nutshell (not there yet)
+
+require libA;
+require "other.dl";
+
+extern pragma de.s42.util.Log alias Log;
+extern type de.s42.dom.Entity alias Entity;
+
+pragma Log(INFO, "Starting parsing");
+
+abstract type Shape extends Entity;
+
+type SpecialInt @range(min : -10000, max : 10000) extends int; 
+
+final type Rectangle(x, y, width, height) extends Shape
+{
+	SpecialInt x : 0;
+	SpecialInt y : 0;
+	SpecialInt width @min(1) @required;
+	SpecialInt height @min(1) @required;
+}
+
+enum State 
+{
+	DRAFT, REVIEW, PRODUCTION
+}
+
+declare type Shapes;
+
+type App contains Shapes
+{
+}
+
+type Shapes @contain(Shape, 1, 10) contains Shape
+{
+	App app @required
+	State state @required;
+}
+
+pragma disableDefineTypes;
+
+int SCALE : 3;
+
+App app @export;
+
+Rectangle rect : 10, 10, 200, 100;
+
+Rectangle rect2 {
+	width : 32;
+	height : 32;
+}
+
+Shapes rectangles in app {
+
+	app : $app;
+	state : REVIEW;
+
+	Rectangle rect3 {
+		x : $rect.x - 100;
+		y : $rect.x - (0xFF * 2);
+		width : $rect.width * $SCALE;
+		height : $rect.height * $SCALE;
+	}
+		
+	Rectangle rect4 {
+		width : 32;
+		height : 16;
+	}
+
+	Rectangle rect5 : copy $rect2;
+}
+
+
+
+
+
+
+
+
+// TYPE ASSIGNMENT DEFINITION
+// Allows to define how a type can get constructed from a simple assignment
+
+type Rectangle(x, y, width, height) extends Shape
+{
+	int x : 0;
+	int y : 0;
+	int width @min(1) : 1;
+	int height @min(1) : 1;
+}
+
+// Allows this assignment
+Rectangle rect : 10, 10, 200, 100;
+
+
+
 
 
 // TYPE GENERICS

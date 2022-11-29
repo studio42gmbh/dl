@@ -42,6 +42,7 @@ public final class NamedParameter
 	public final Class type;
 	public final Object defaultValue;
 	public final Function<Object, Boolean> validate;
+	public final boolean required;
 
 	/**
 	 * ATTENTION: parameters will be set by NamedParameters when constructing NamedParameters with this parameter
@@ -53,7 +54,7 @@ public final class NamedParameter
 	 */
 	protected int ordinal;
 
-	public NamedParameter(String name, Class type, Object defaultValue, Function<Object, Boolean> validate)
+	public NamedParameter(String name, Class type, Object defaultValue, boolean required, int ordinal, Function<Object, Boolean> validate)
 	{
 		assert name != null;
 		assert type != null;
@@ -61,8 +62,10 @@ public final class NamedParameter
 		this.name = name;
 		this.type = type;
 		this.defaultValue = defaultValue;
+		this.required = required;
 		this.validate = validate;
-
+		this.ordinal = ordinal;
+		
 		// Validate default value
 		if (this.defaultValue != null) {
 			if (!isValid(this.defaultValue)) {
@@ -73,6 +76,10 @@ public final class NamedParameter
 
 	public boolean isValid(Object value)
 	{
+		if (required && value == null) {
+			return false;
+		}
+		
 		if (validate != null) {
 			return validate.apply(value);
 		}

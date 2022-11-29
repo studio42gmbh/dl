@@ -28,7 +28,6 @@ package de.s42.dl.util;
 import de.s42.base.conversion.ConversionHelper;
 import de.s42.base.zip.ZipHelper;
 import de.s42.dl.*;
-import de.s42.dl.DLAnnotated.DLMappedAnnotation;
 import de.s42.dl.annotations.DontPersistDLAnnotation;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.io.DLWriter;
@@ -116,12 +115,12 @@ public final class DLHelper
 		builder
 			.append("\n");
 
-		for (DLMappedAnnotation mappedAnnotation : type.getAnnotations()) {
+		for (DLAnnotation annotation : type.getAnnotations()) {
 			builder
 				.append("\tAnnotation ")
-				.append(mappedAnnotation.getAnnotation().getName())
+				.append(annotation.getName())
 				.append(" ")
-				.append(Arrays.toString(mappedAnnotation.getParameters()))
+				.append(Arrays.toString(annotation.getFlatParameters()))
 				.append("\n");
 		}
 
@@ -149,12 +148,12 @@ public final class DLHelper
 			builder
 				.append("\n");
 
-			for (DLMappedAnnotation mappedAnnotation : attribute.getAnnotations()) {
+			for (DLAnnotation annotation : attribute.getAnnotations()) {
 				builder
 					.append("\t\tAnnotation ")
-					.append(mappedAnnotation.getAnnotation().getName())
+					.append(annotation.getName())
 					.append(" ")
-					.append(Arrays.toString(mappedAnnotation.getParameters()))
+					.append(Arrays.toString(annotation.getFlatParameters()))
 					.append("\n");
 			}
 		}
@@ -249,17 +248,17 @@ public final class DLHelper
 			.append(type.getCanonicalName());
 
 		// type annotations
-		for (DLMappedAnnotation annotation : type.getAnnotations()) {
+		for (DLAnnotation annotation : type.getAnnotations()) {
 			result
 				.append(" @")
-				.append(annotation.getAnnotation().getName());
+				.append(annotation.getName());
 
-			if (annotation.getParameters().length > 0) {
+			if (annotation.hasParameters()) {
 
 				result.append("(");
 
 				boolean first = true;
-				for (Object parameter : annotation.getParameters()) {
+				for (Object parameter : annotation.getFlatParameters()) {
 					if (!first) {
 						result.append(", ");
 					}
@@ -328,17 +327,17 @@ public final class DLHelper
 					.append(" ")
 					.append(attribute.getName());
 
-				for (DLMappedAnnotation annotation : attribute.getAnnotations()) {
+				for (DLAnnotation annotation : attribute.getAnnotations()) {
 					result
 						.append(" @")
-						.append(annotation.getAnnotation().getName());
+						.append(annotation.getName());
 
-					if (annotation.getParameters().length > 0) {
+					if (annotation.hasParameters()) {
 
 						result.append("(");
 
 						boolean first = true;
-						for (Object parameter : annotation.getParameters()) {
+						for (Object parameter : annotation.getFlatParameters()) {
 							if (!first) {
 								result.append(", ");
 							}
@@ -445,9 +444,9 @@ public final class DLHelper
 		// Write out the attributes
 		DLType type = instance.getType();
 		for (String attributeName : attributeNames) {
-			
+
 			DLAttribute attribute = type.getAttribute(attributeName).orElseThrow();
-			
+
 			// Ignore attribute that shall not be persisted
 			if (attribute.hasAnnotation(DontPersistDLAnnotation.class)) {
 				continue;

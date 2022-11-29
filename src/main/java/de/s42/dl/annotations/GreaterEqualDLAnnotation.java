@@ -29,20 +29,10 @@ package de.s42.dl.annotations;
  *
  * @author Benjamin Schiller
  */
-public class GreaterEqualDLAnnotation extends AbstractComparisonDLAnnotation<Object>
+public class GreaterEqualDLAnnotation extends AbstractComparisonDLAnnotation<Object, GreaterEqualDLAnnotation>
 {
 
 	public final static String DEFAULT_SYMBOL = "greaterEqual";
-
-	public GreaterEqualDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public GreaterEqualDLAnnotation(String name)
-	{
-		super(name);
-	}
 
 	@Override
 	protected String errorMessage(Object val, Object refVal)

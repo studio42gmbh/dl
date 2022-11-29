@@ -25,21 +25,17 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.*;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.types.DefaultDLType;
-import java.util.Optional;
-
 /**
  * This annotation allows to constrain contains of other Instances. The resolvment of the other type is lazy.
  *
  * @author Benjamin Schiller
  */
-public class ContainOnceDLAnnotation extends AbstractDLAnnotation
+public class ContainOnceDLAnnotation extends AbstractDLAnnotation<ContainOnceDLAnnotation>
 {
 
+	public final static String DEFAULT_SYMBOL = "containOnce";
+
+	/*
 	private static class ContainOnceDLInstanceValidator implements DLInstanceValidator
 	{
 
@@ -85,22 +81,9 @@ public class ContainOnceDLAnnotation extends AbstractDLAnnotation
 		}
 	}
 
-	public final static String DEFAULT_SYMBOL = "containOnce";
-
-	public ContainOnceDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public ContainOnceDLAnnotation(String name)
-	{
-		super(name);
-	}
-
 	@Override
-	public void bindToType(DLCore core, DLType type, Object... parameters) throws InvalidAnnotation
+	public void bindToType(DLCore core, DLType type) throws InvalidAnnotation
 	{
-		assert core != null;
 		assert type != null;
 
 		parameters = validateParameters(parameters, new Class[]{String.class});
@@ -108,5 +91,7 @@ public class ContainOnceDLAnnotation extends AbstractDLAnnotation
 		String typeName = (String) parameters[0];
 
 		((DefaultDLType) type).addInstanceValidator(new ContainOnceDLInstanceValidator(core, typeName));
+		 
 	}
+	 */
 }

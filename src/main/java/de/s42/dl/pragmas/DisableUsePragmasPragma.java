@@ -23,39 +23,41 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.pragmas;
 
 import de.s42.dl.DLCore;
-import de.s42.dl.core.DefaultCore;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidType;
-import org.testng.annotations.Test;
+import de.s42.dl.exceptions.InvalidPragma;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class NoGenericsDLAnnotationTest
+public class DisableUsePragmasPragma extends AbstractDLPragma
 {
 
-	@Test(enabled = false)
-	public void validNoGenerics() throws DLException
+	private final static Logger log = LogManager.getLogger(DisableUsePragmasPragma.class.getName());
+
+	public final static String DEFAULT_IDENTIFIER = "disableUsePragmas";
+
+	public DisableUsePragmasPragma()
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T @noGenerics { int a ; boolean b; }");
+		super(DEFAULT_IDENTIFIER);
 	}
 
-	@Test(enabled = false, expectedExceptions = InvalidType.class)
-	public void invalidNoGenerics() throws DLException
+	public DisableUsePragmasPragma(String identifier)
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T @noGenerics { int a ; List<String> b; }");
+		super(identifier);
 	}
 
-	@Test(enabled = false)
-	public void validNoGenericsInParent() throws DLException
+	@Override
+	public void doPragma(DLCore core, Object... parameters) throws InvalidPragma
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type P @noGenerics; type T extends P { int a ; List<String> b; }");
+		assert core != null;
+
+		validateParameters(parameters, null);
+
+		core.setAllowUsePragmas(false);
 	}
 }

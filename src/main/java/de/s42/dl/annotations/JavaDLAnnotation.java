@@ -32,65 +32,72 @@ import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.types.DefaultDLType;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  * @author Benjamin Schiller
+ * @todo Provide a way to change the class loader for plugins etc.
  */
 public class JavaDLAnnotation extends AbstractDLAnnotation
 {
 
 	private final static Logger log = LogManager.getLogger(JavaDLAnnotation.class.getName());
 
+	/**
+	 * ATTENTION: This annotation will be mapped under java -> for IDE and code standard guidelines we do not call it java here
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = {ElementType.FIELD, ElementType.TYPE})
+	@DLAnnotationType(JavaDLAnnotation.class)
+	public static @interface javaAnnotation
+	{
+		String javaType();
+	}
+	
 	public final static String DEFAULT_SYMBOL = "java";
 
-	public JavaDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public JavaDLAnnotation(String name)
-	{
-		super(name);
-	}
+	@DLAnnotationParameter(ordinal = 0)
+	protected Object javaType;
 
 	@Override
-	public void bindToType(DLCore core, DLType type, Object... parameters) throws InvalidAnnotation, InvalidType
+	public void bindToType(DLCore core, DLType type) throws InvalidAnnotation, InvalidType
 	{
 		assert type != null;
+		
+		ClassLoader classLoader = core.getClassLoader();
 
-		if (parameters != null && parameters.length > 0) {
-			if (parameters.length > 1) {
-				throw new InvalidAnnotation("has to have 0 or 1 parameter but has " + parameters.length);
+		if (javaType instanceof String) {
+			try {
+				((DefaultDLType) type).setJavaType(Class.forName((String) javaType, true, classLoader));
+			} catch (ClassNotFoundException ex) {
+				throw new InvalidType("Custom java class invalid - " + ex.getMessage(), ex);
 			}
-
-			if (parameters.length == 1) {
-
-				// allow to turn off java annotation with @java(false)
-				if (parameters[0] instanceof Boolean) {
-					if (!((Boolean) parameters[0])) {
-						((DefaultDLType) type).setJavaType(null);
-						return;
-					}
-				}
-
-				if (!(parameters[0] instanceof String)) {
-					throw new InvalidAnnotation("has to have first String parameter but is of type " + parameters[0].getClass().getName());
-				}
-
-				try {
-					((DefaultDLType) type).setJavaType(Class.forName((String) parameters[0]));
-				} catch (ClassNotFoundException ex) {
-					throw new InvalidType("Custom java class invalid - " + ex.getMessage(), ex);
-				}
+		} else if (javaType instanceof Boolean) {
+			if (((Boolean) javaType) == false) {
+				((DefaultDLType) type).setJavaType(null);
 			}
-		} // if no parameter given use the type canonical name as java class identifier
+		} // No javaType given -> Use the types canonical name as fqn
 		else {
 			try {
-				((DefaultDLType) type).setJavaType(Class.forName(type.getCanonicalName()));
+				javaType = type.getCanonicalName();
+				((DefaultDLType) type).setJavaType(Class.forName((String) javaType, true, classLoader));
 			} catch (ClassNotFoundException ex) {
 				throw new InvalidType("Custom java class invalid - " + ex.getMessage(), ex);
 			}
 		}
+	}
+
+	public Object getJavaType()
+	{
+		return javaType;
+	}
+
+	public void setJavaType(Object javaType)
+	{
+		this.javaType = javaType;
 	}
 }

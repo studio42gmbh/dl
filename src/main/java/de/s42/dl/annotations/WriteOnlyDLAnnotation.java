@@ -25,10 +25,15 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.*;
+import de.s42.dl.DLAttribute;
+import de.s42.dl.DLCore;
 import de.s42.dl.attributes.DefaultDLAttribute;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.InvalidAttribute;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
@@ -37,32 +42,21 @@ import de.s42.dl.exceptions.InvalidAttribute;
 public class WriteOnlyDLAnnotation extends AbstractDLAnnotation
 {
 
-	public final static String DEFAULT_SYMBOL = "writeonly";
-
-	public WriteOnlyDLAnnotation()
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = {ElementType.FIELD})
+	@DLAnnotationType(WriteOnlyDLAnnotation.class)
+	public static @interface writeonly
 	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public WriteOnlyDLAnnotation(String name)
-	{
-		super(name);
 	}
 
 	@Override
-	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws InvalidAnnotation, InvalidAttribute
+	public void bindToAttribute(DLCore core, DLAttribute attribute) throws InvalidAnnotation, InvalidAttribute
 	{
-		assert type != null;
-		assert attribute != null;
-
-		validateParameters(parameters, null);
-
 		if (attribute instanceof DefaultDLAttribute) {
 			((DefaultDLAttribute) attribute).setReadable(false);
 			((DefaultDLAttribute) attribute).setWritable(true);
 		} else {
 			throw new InvalidAttribute("Attribute has to be of type DefaultDLAttribute");
 		}
-
 	}
 }

@@ -25,13 +25,6 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.*;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.types.DefaultDLType;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  *
  * @author Benjamin Schiller
@@ -39,6 +32,9 @@ import java.util.Set;
 public class UniqueDLAnnotation extends AbstractDLAnnotation
 {
 
+	public final static String DEFAULT_SYMBOL = "unique";
+
+	/*
 	private static class UniqueDLInstanceValidator implements DLInstanceValidator
 	{
 
@@ -67,8 +63,6 @@ public class UniqueDLAnnotation extends AbstractDLAnnotation
 		}
 	}
 
-	public final static String DEFAULT_SYMBOL = "unique";
-
 	public UniqueDLAnnotation()
 	{
 		this(DEFAULT_SYMBOL);
@@ -89,4 +83,5 @@ public class UniqueDLAnnotation extends AbstractDLAnnotation
 
 		((DefaultDLType) type).addInstanceValidator(new UniqueDLInstanceValidator(attribute));
 	}
+	 */
 }

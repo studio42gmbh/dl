@@ -43,6 +43,7 @@ import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import static de.s42.dl.parser.DLHrfParsingErrorHandler.*;
 import de.s42.dl.parser.DLParser.*;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  *
@@ -71,7 +72,7 @@ public class DLHrfParsing extends DLParserBaseListener
 	protected interface AnnotationMapper
 	{
 
-		public void accept(DLAnnotation annotation, Object[] parameters, AnnotationContext ctx) throws DLException;
+		public void accept(String annotationName, Object[] parameters, AnnotationContext ctx) throws DLException;
 	}
 
 	public DLHrfParsing(DLCore core, DLModule module)
@@ -163,9 +164,17 @@ public class DLHrfParsing extends DLParserBaseListener
 		return assignables;
 	}
 
-	protected Object[] fetchStaticParameters(DLAnnotation annotation, StaticParametersContext ctx) throws InvalidValue, DLException
+	protected Object[] fetchStaticParameters(String annotationName, StaticParametersContext ctx) throws InvalidValue, DLException
 	{
+		DLAnnotationFactory annotationFactory = core.getAnnotationFactory(annotationName).orElseThrow(() -> {
+			return new InvalidAnnotation(createErrorMessage(module, "Annotation factory '" + annotationName + "' is not defined", ctx));
+		});
+
 		if (ctx == null || ctx.staticParameter() == null || ctx.staticParameter().isEmpty()) {
+
+			/*if (!annotationFactory.isValidFlatParameters(new Object[0])) {
+				throw new InvalidAnnotation(createErrorMessage(module, "Flat parameters are not a valid for annotation '" + annotationName + "'", ctx));
+			}*/
 			return new Object[0];
 		}
 
@@ -180,14 +189,14 @@ public class DLHrfParsing extends DLParserBaseListener
 
 				Pair<String, Object> namedParameter = fetchNamedStaticParameter(ctx.staticParameter().get(i));
 
-				if (!annotation.isValidNamedParameter(namedParameter.a, namedParameter.b)) {
-					throw new InvalidAnnotation(createErrorMessage(module, "Parameter " + namedParameter.a + " is not a valid named parameter - value " + namedParameter.b, ctx.staticParameter(i)));
+				if (!annotationFactory.isValidNamedParameter(namedParameter.a, namedParameter.b)) {
+					throw new InvalidAnnotation(createErrorMessage(module, "Parameter " + namedParameter.a + " is not a valid named parameter in annotation '" + annotationName + "' - value " + namedParameter.b, ctx.staticParameter(i)));
 				}
 
 				namedParameters.put(namedParameter.a, namedParameter.b);
 			}
 
-			return annotation.toFlatParameters(namedParameters);
+			return annotationFactory.toFlatParameters(namedParameters);
 		}
 
 		// Fill unnamed parameters in order
@@ -195,6 +204,10 @@ public class DLHrfParsing extends DLParserBaseListener
 
 		for (int i = 0; i < size; ++i) {
 			parameters[i] = fetchStaticParameter(ctx.staticParameter().get(i));
+		}
+
+		if (!annotationFactory.isValidFlatParameters(parameters)) {
+			throw new InvalidAnnotation(createErrorMessage(module, "Flat parameters are not a valid for annotation '" + annotationName + "'", ctx));
 		}
 
 		return parameters;
@@ -280,15 +293,15 @@ public class DLHrfParsing extends DLParserBaseListener
 
 		for (AnnotationContext ctx : annotations) {
 
-			String annotationTypeName = ctx.annotationName().getText();
+			String annotationName = ctx.annotationName().getText();
 
-			DLAnnotation annotation = core.getAnnotation(annotationTypeName).orElseThrow(() -> {
-				return new UndefinedAnnotation(createErrorMessage(module, "Annotation '" + annotationTypeName + "' is not defined", ctx));
-			});
+			if (!core.hasAnnotationFactory(annotationName)) {
+				throw new UndefinedAnnotation(createErrorMessage(module, "Annotation factory '" + annotationName + "' is not defined", ctx));
+			}
 
-			Object[] parameters = fetchStaticParameters(annotation, ctx.staticParameters());
+			Object[] parameters = fetchStaticParameters(annotationName, ctx.staticParameters());
 
-			mapper.accept(annotation, parameters, ctx);
+			mapper.accept(annotationName, parameters, ctx);
 		}
 	}
 
@@ -296,16 +309,74 @@ public class DLHrfParsing extends DLParserBaseListener
 	public void enterPragma(PragmaContext ctx)
 	{
 		try {
-			String pragmaIdentifier = ctx.pragmaName().getText();
 
-			Object[] parameters = fetchStaticParameters(ctx.staticParameters());
+			// Define a pragma
+			if (ctx.KEYWORD_EXTERN() != null) {
 
-			try {
-				core.doPragma(pragmaIdentifier, parameters);
-			} catch (InvalidPragma ex) {
-				throw new InvalidPragma(createErrorMessage(module, "Error in pragma execution '" + pragmaIdentifier + "' - " + ex.getMessage(), ctx), ex);
+				if (!core.isAllowDefinePragmas()) {
+					throw new InvalidCore(createErrorMessage(module, "May not define pragmas in core", ctx));
+				}
+
+				if (ctx.staticParameters() != null) {
+					throw new InvalidPragma(createErrorMessage(module, "May not give parameters when defining a pragma", ctx));
+				}
+
+				String pragmaIdentifier = ctx.pragmaName().getText();
+
+				// Instantiate new pragma
+				DLPragma pragma = (DLPragma) Class.forName(pragmaIdentifier, true, core.getClassLoader()).getConstructor().newInstance();
+
+				// Define new pragma
+				core.definePragma(pragma);
+
+				// Map annotations
+				mapAnnotations(ctx.annotation(), (annotationName, parameters, aCtx) -> {
+					try {
+						core.createAnnotation(annotationName, pragma, parameters);
+					} catch (DLException ex) {
+						throw new InvalidAnnotation(
+							createErrorMessage(module,
+								"Error binding annotation '"
+								+ annotationName
+								+ "' to pragma '"
+								+ currentEnum.getName() + "'", ex, aCtx.annotationName()), ex);
+					}
+				});
+
+				// Map aliases
+				if (ctx.aliases() != null) {
+					for (AliasNameContext aliasCtx : ctx.aliases().aliasName()) {
+						core.defineAliasForPragma(aliasCtx.identifier().getText(), pragma);
+					}
+				}
+
+			} // Use a pragma
+			else {
+
+				if (!core.isAllowUsePragmas()) {
+					throw new InvalidCore(createErrorMessage(module, "May not use pragmas in core", ctx));
+				}
+
+				if (ctx.aliases() != null) {
+					throw new InvalidPragma(createErrorMessage(module, "May not define alias when using a pragma", ctx));
+				}
+
+				if (!ctx.annotation().isEmpty()) {
+					throw new InvalidPragma(createErrorMessage(module, "May not bind annotations when using a pragma", ctx));
+				}
+
+				String pragmaIdentifier = ctx.pragmaName().getText();
+
+				Object[] parameters = fetchStaticParameters(ctx.staticParameters());
+
+				try {
+					core.doPragma(pragmaIdentifier, parameters);
+				} catch (InvalidPragma ex) {
+					throw new InvalidPragma(createErrorMessage(module, "Error in pragma execution '" + pragmaIdentifier + "' - " + ex.getMessage(), ctx), ex);
+				}
 			}
-		} catch (DLException ex) {
+
+		} catch (DLException | ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException | RuntimeException | InvocationTargetException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
@@ -331,18 +402,18 @@ public class DLHrfParsing extends DLParserBaseListener
 
 				core.defineAliasForType(aliasRedefinitionName, core.getType(aliasDefinitionName).orElseThrow());
 			} // Alias for annotations
-			else if (core.hasAnnotation(aliasDefinitionName)) {
+			else if (core.hasAnnotationFactory(aliasDefinitionName)) {
 
-				if (!core.isAllowDefineAnnotations()) {
+				if (!core.isAllowDefineAnnotationFactories()) {
 					throw new InvalidCore(createErrorMessage(module, "May not define annotations in core", ctx));
 				}
 
 				// Alias redefinition type may not be defined already
-				if (core.hasAnnotation(aliasRedefinitionName)) {
+				if (core.hasAnnotationFactory(aliasRedefinitionName)) {
 					throw new InvalidAnnotation(createErrorMessage(module, "Error alias redef annotation '" + aliasRedefinitionName + "' is already defined", ctx));
 				}
 
-				core.defineAliasForAnnotation(aliasRedefinitionName, core.getAnnotation(aliasDefinitionName).orElseThrow());
+				core.defineAliasForAnnotationFactory(aliasRedefinitionName, aliasDefinitionName);
 			} // Alias for pragmas
 			else if (core.hasPragma(aliasDefinitionName)) {
 
@@ -413,8 +484,8 @@ public class DLHrfParsing extends DLParserBaseListener
 					}
 
 					// Define aliases from enum definition
-					if (ctx.KEYWORD_ALIAS() != null) {
-						for (DLParser.AliasEnumNameContext aliasCtx : ctx.aliasEnumName()) {
+					if (ctx.aliases() != null) {
+						for (AliasNameContext aliasCtx : ctx.aliases().aliasName()) {
 							core.defineAliasForType(aliasCtx.identifier().getText(), enumImpl);
 						}
 					}
@@ -430,28 +501,28 @@ public class DLHrfParsing extends DLParserBaseListener
 				core.defineType(currentEnum);
 
 				// Map annotations
-				mapAnnotations(ctx.annotation(), (annotation, parameters, aCtx) -> {
+				mapAnnotations(ctx.annotation(), (annotationName, parameters, aCtx) -> {
 					try {
-						core.addAnnotationToType(currentEnum, annotation.getName(), parameters);
+						core.createAnnotation(annotationName, currentEnum, parameters);
 					} catch (DLException ex) {
 						throw new InvalidAnnotation(
 							createErrorMessage(module,
 								"Error binding annotation '"
-								+ annotation.getName()
+								+ annotationName
 								+ "' to enum '"
 								+ currentEnum.getName() + "'", ex, aCtx.annotationName()), ex);
 					}
 				});
 
 				// Define aliases from enum definition
-				if (ctx.KEYWORD_ALIAS() != null) {
-					for (DLParser.AliasEnumNameContext aliasCtx : ctx.aliasEnumName()) {
+				if (ctx.aliases() != null) {
+					for (AliasNameContext aliasCtx : ctx.aliases().aliasName()) {
 						core.defineAliasForType(aliasCtx.identifier().getText(), currentEnum);
 					}
 				}
 
 				// Map values
-				for (DLParser.EnumValueDefinitionContext aCtx : ctx.enumBody().enumValueDefinition()) {
+				for (EnumValueDefinitionContext aCtx : ctx.enumBody().enumValueDefinition()) {
 
 					if (aCtx.symbolOrString() != null) {
 
@@ -493,14 +564,14 @@ public class DLHrfParsing extends DLParserBaseListener
 			DLInstance instance = core.createInstance(type, identifier);
 
 			// Map annotations
-			mapAnnotations(ctx.annotation(), (annotation, parameters, aCtx) -> {
+			mapAnnotations(ctx.annotation(), (annotationName, parameters, aCtx) -> {
 				try {
-					core.addAnnotationToInstance(module, instance, annotation.getName(), parameters);
+					core.createAnnotation(annotationName, instance, parameters);
 				} catch (DLException ex) {
 					throw new InvalidAnnotation(
 						createErrorMessage(module,
 							"Error binding annotation '"
-							+ annotation.getName()
+							+ annotationName
 							+ "' to instance '"
 							+ instance.getName() + "'", ex, aCtx.annotationName()), ex);
 				}
@@ -552,7 +623,7 @@ public class DLHrfParsing extends DLParserBaseListener
 	{
 		try {
 
-			if (!core.isAllowDefineAnnotations()) {
+			if (!core.isAllowDefineAnnotationFactories()) {
 				throw new InvalidCore("Not allowed to define annotations in core");
 			}
 
@@ -561,30 +632,25 @@ public class DLHrfParsing extends DLParserBaseListener
 
 				String annotationName = ctx.annotationDefinitionName().getText();
 
-				if (core.hasAnnotation(annotationName)) {
+				if (core.hasAnnotationFactory(annotationName)) {
 					throw new InvalidAnnotation(createErrorMessage(module, "Annotation '" + annotationName + "' is already defined", ctx));
 				}
 
 				try {
 
-					DLAnnotation annotation = core.createAnnotation((Class<DLAnnotation>) Class.forName(annotationName));
+					DLAnnotationFactory annotationFactory = ((Class<DLAnnotationFactory>) Class.forName(annotationName)).getConstructor().newInstance();
 
 					// map the annotation as defined
-					core.defineAnnotation(annotation);
-
-					// define alias for the given annotationName
-					if (!annotation.getName().equals(annotationName)) {
-						core.defineAliasForAnnotation(annotationName, annotation);
-					}
+					core.defineAnnotationFactory(annotationFactory, annotationName);
 
 					// Define aliases from type definition
-					if (ctx.KEYWORD_ALIAS() != null) {
-						for (DLParser.AliasAnnotationDefinitionNameContext aliasCtx : ctx.aliasAnnotationDefinitionName()) {
-							core.defineAliasForAnnotation(aliasCtx.identifier().getText(), annotation);
+					if (ctx.aliases() != null) {
+						for (AliasNameContext aliasCtx : ctx.aliases().aliasName()) {
+							core.defineAliasForAnnotationFactory(aliasCtx.identifier().getText(), annotationName);
 						}
 					}
 
-				} catch (ClassNotFoundException ex) {
+				} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
 					throw new InvalidAnnotation(createErrorMessage(module, "Class not found for annotation '" + annotationName + "' - " + ex.getMessage(), ctx), ex);
 				}
 
@@ -677,8 +743,8 @@ public class DLHrfParsing extends DLParserBaseListener
 					}
 
 					// Define aliases from type definition
-					if (ctx.KEYWORD_ALIAS() != null) {
-						for (DLParser.AliasTypeNameContext aliasCtx : ctx.aliasTypeName()) {
+					if (ctx.aliases() != null) {
+						for (AliasNameContext aliasCtx : ctx.aliases().aliasName()) {
 							core.defineAliasForType(aliasCtx.identifier().getText(), currentType);
 						}
 					}
@@ -715,19 +781,18 @@ public class DLHrfParsing extends DLParserBaseListener
 				}
 
 				// Map annotations
-				mapAnnotations(ctx.annotation(), (annotation, parameters, aCtx) -> {
+				mapAnnotations(ctx.annotation(), (annotationName, parameters, aCtx) -> {
 					try {
-						annotation.bindToType(core, currentType, parameters);
-						currentType.addAnnotation(annotation, parameters);
+						core.createAnnotation(annotationName, currentType, parameters);
 					} catch (DLException ex) {
-						throw new InvalidAnnotation(createErrorMessage(module, "Error binding annotation '" + annotation.getName() + "' to type '" + currentType.getName() + "'", ex, aCtx), ex);
+						throw new InvalidAnnotation(createErrorMessage(module, "Error binding annotation '" + annotationName + "' to type '" + currentType.getName() + "'", ex, aCtx), ex);
 					}
 				});
 
 				// Extends - set parents
 				if (ctx.parentTypeName() != null) {
 
-					for (DLParser.ParentTypeNameContext pCtx : ctx.parentTypeName()) {
+					for (ParentTypeNameContext pCtx : ctx.parentTypeName()) {
 
 						String parentTypeName = pCtx.getText();
 
@@ -746,7 +811,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				// Contains - set contained types
 				if (ctx.containsTypeName() != null) {
 
-					for (DLParser.ContainsTypeNameContext pCtx : ctx.containsTypeName()) {
+					for (ContainsTypeNameContext pCtx : ctx.containsTypeName()) {
 
 						String containsTypeName = pCtx.getText();
 
@@ -759,8 +824,8 @@ public class DLHrfParsing extends DLParserBaseListener
 				}
 
 				// Define aliases from type definition
-				if (ctx.KEYWORD_ALIAS() != null) {
-					for (DLParser.AliasTypeNameContext aliasCtx : ctx.aliasTypeName()) {
+				if (ctx.aliases() != null) {
+					for (AliasNameContext aliasCtx : ctx.aliases().aliasName()) {
 						core.defineAliasForType(aliasCtx.identifier().getText(), currentType);
 					}
 				}
@@ -803,7 +868,7 @@ public class DLHrfParsing extends DLParserBaseListener
 
 			String name = ctx.typeAttributeDefinitionName().getText();
 
-			DefaultDLAttribute attribute = (DefaultDLAttribute) core.createAttribute(name, type);
+			DefaultDLAttribute attribute = (DefaultDLAttribute) core.createAttribute(name, type, currentType);
 
 			// Parse default value
 			Object defaultValue = null;
@@ -847,18 +912,17 @@ public class DLHrfParsing extends DLParserBaseListener
 			attribute.setDefaultValue(defaultValue);
 
 			// Map annotations
-			mapAnnotations(ctx.annotation(), (annotation, parameters, aCtx) -> {
+			mapAnnotations(ctx.annotation(), (annotationName, parameters, aCtx) -> {
 				try {
-					core.addAnnotationToAttribute(currentType, attribute, annotation.getName(), parameters);
+					core.createAnnotation(annotationName, attribute, parameters);
 				} catch (DLException ex) {
 					throw new InvalidAnnotation(createErrorMessage(module, "Error binding annotation '"
-						+ annotation.getName() + "' to attribute '" + attribute.getName() + "'", ex, aCtx.annotationName()), ex);
+						+ annotationName + "' to attribute '" + attribute.getName() + "'", ex, aCtx.annotationName()), ex);
 				}
 			});
 
 			attribute.getType().validate();
 
-			currentType.addAttribute(attribute);
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);
 		}
@@ -1059,7 +1123,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			throw new RuntimeException(ex);
 		}
 	}
-
+	
 	public static DLModule parse(DLCore core, String moduleId, String data) throws DLException
 	{
 		DLModule module = core.createModule(moduleId);

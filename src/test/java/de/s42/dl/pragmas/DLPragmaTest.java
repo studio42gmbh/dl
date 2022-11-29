@@ -27,6 +27,7 @@ package de.s42.dl.pragmas;
 
 import de.s42.dl.exceptions.InvalidPragma;
 import de.s42.dl.*;
+import de.s42.dl.annotations.DontPersistDLAnnotation.dontPersist;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import org.testng.annotations.Test;
@@ -39,6 +40,7 @@ import org.testng.Assert;
 public class DLPragmaTest
 {
 
+	@dontPersist
 	public static class TestPragma extends AbstractDLPragma
 	{
 
@@ -54,28 +56,42 @@ public class DLPragmaTest
 		{
 			Object[] params = validateParameters(parameters, new Class[]{int.class, int.class});
 
-			int a = (int)params[0];
-			int b = (int)params[1];
+			int a = (int) params[0];
+			int b = (int) params[1];
 
 			counter += a * b;
 		}
 	}
 
 	@Test
-	public void validPragma() throws DLException
+	public void validDefineAndUsePragma() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("validDefineAndUsePragma",
+			"extern pragma de.s42.dl.pragmas.DLPragmaTest$TestPragma @noGenerics;"
+			+ "pragma test(6, 2);"
+			+ "pragma test(\"9\", \"4\");"
+		);
+		TestPragma testPragma = (TestPragma) core.getPragma("test").orElseThrow();
+
+		Assert.assertEquals(48, testPragma.counter);
+	}
+
+	@Test
+	public void validPragmaDefinedInJava() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		TestPragma testPragma = new TestPragma();
 		core.definePragma(testPragma);
-		core.parse("Anonymous", "pragma test(6, 2); pragma test(\"9\", \"4\");");
-		Assert.assertEquals(48, testPragma.counter);
+		core.parse("validPragmaDefinedInJava", "pragma test(6, 2); pragma test(\"9\", \"4\");");
+		Assert.assertEquals(testPragma.counter, 48);
 	}
 
 	@Test(expectedExceptions = InvalidPragma.class)
 	public void invalidPragmaNotDefined() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "pragma notDefined;");
+		core.parse("invalidPragmaNotDefined", "pragma notDefined;");
 	}
 
 	@Test(expectedExceptions = InvalidPragma.class)
@@ -84,7 +100,7 @@ public class DLPragmaTest
 		DLCore core = new DefaultCore();
 		TestPragma testPragma = new TestPragma();
 		core.definePragma(testPragma);
-		core.parse("Anonymous", "pragma test;");
+		core.parse("invalidCustomPragmaNoParameters", "pragma test;");
 	}
 
 	@Test(expectedExceptions = InvalidPragma.class)
@@ -93,7 +109,7 @@ public class DLPragmaTest
 		DLCore core = new DefaultCore();
 		TestPragma testPragma = new TestPragma();
 		core.definePragma(testPragma);
-		core.parse("Anonymous", "pragma test(6);");
+		core.parse("invalidCustomPragmaParameterCount", "pragma test(6);");
 	}
 
 	@Test(expectedExceptions = InvalidPragma.class)
@@ -102,6 +118,23 @@ public class DLPragmaTest
 		DLCore core = new DefaultCore();
 		TestPragma testPragma = new TestPragma();
 		core.definePragma(testPragma);
-		core.parse("Anonymous", "pragma test(6, true);");
+		core.parse("invalidCustomPragmaParameterType", "pragma test(6, true);");
+	}
+
+	@Test(expectedExceptions = InvalidPragma.class)
+	public void invalidPragmaUseAnnotation() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		TestPragma testPragma = new TestPragma();
+		core.definePragma(testPragma);
+		core.parse("invalidPragmaUseAnnotation", "pragma test @noGenerics;");
+	}
+
+	@Test(expectedExceptions = RuntimeException.class)
+	public void invalidPragmaDefineWithParameters() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("invalidPragmaDefineWithParameters",
+			"extern pragma de.s42.dl.pragmas.DLPragmaTest$TestPragma(6) @noGenerics;");
 	}
 }

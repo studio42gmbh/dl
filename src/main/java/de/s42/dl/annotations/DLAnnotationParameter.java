@@ -38,11 +38,15 @@ import java.util.function.Function;
  * @author Benjamin Schiller
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = {ElementType.METHOD})
+@Target(value = {ElementType.FIELD})
 public @interface DLAnnotationParameter
 {
 
-	int ordinal();
+	boolean required() default false;
 
+	int ordinal();
+	
+	String defaultValue() default "";
+	
 	Class<? extends Function<?, Boolean>> validation() default AlwaysTrue.class;
 }

@@ -28,16 +28,15 @@ package de.s42.dl.pragmas;
 import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLPragma;
+import de.s42.dl.annotations.AbstractDLAnnotated;
 import de.s42.dl.exceptions.InvalidPragma;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public abstract class AbstractDLPragma implements DLPragma
+public abstract class AbstractDLPragma extends AbstractDLAnnotated implements DLPragma
 {
-
-	protected String name;
 
 	protected AbstractDLPragma(String name)
 	{
@@ -88,16 +87,5 @@ public abstract class AbstractDLPragma implements DLPragma
 		}
 
 		return parameters;
-	}
-
-	@Override
-	public String getName()
-	{
-		return name;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
 	}
 }

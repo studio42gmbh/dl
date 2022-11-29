@@ -26,8 +26,14 @@
 
 lexer grammar DLLexer ;
 
+
+// COMMENTS
+
 MULTILINE_COMMENT :		'/*' .*? '*/' -> channel(HIDDEN) ;
 SINGLELINE_COMMENT :	'//' ~[\r\n]* -> channel(HIDDEN) ;
+
+
+// KEYWORDS
 
 KEYWORD_ANNOTATION :	'annotation' ;
 KEYWORD_TYPE :			'type' ;
@@ -40,8 +46,22 @@ KEYWORD_ABSTRACT :		'abstract' ;
 KEYWORD_ALIAS :			'alias' ;
 KEYWORD_FINAL :			'final' ;
 KEYWORD_PRAGMA :		'pragma' ;
-KEYWORD_SCOPE :			'scope' ;
 KEYWORD_DECLARE :		'declare' ;
+
+
+// RESERVED KEYWORDS
+
+RESERVED_KEYWORD_NEW :		'new' ;
+RESERVED_KEYWORD_COPY :		'copy' ;
+RESERVED_KEYWORD_SCOPE :	'scope' ;
+RESERVED_KEYWORD_PACKAGE :	'package' ;
+RESERVED_KEYWORD_MODULE :	'module' ;
+RESERVED_KEYWORD_UNDEF :	'undef' ;
+RESERVED_KEYWORD_IN :		'in' ;
+RESERVED_KEYWORD_CONTAINED :'contained' ;
+
+
+// LITERALS
 
 BOOLEAN_LITERAL :		'true' | 'false' ;
 
@@ -60,6 +80,9 @@ REF :					'$' [a-zA-Z_#] [a-zA-Z0-9\-_.#$]* { setText(getText().substring(1)); }
 
 // rather restrictive - but symbols should be well readable anyways not some special sign party
 SYMBOL :				[a-zA-Z_#] [a-zA-Z0-9\-_.#$]* ;	
+
+
+// CHARS
 
 AT :					'@' ;
 COLON :					':' ;
@@ -82,4 +105,9 @@ MUL :					'*' ;
 DIV :					'/' ;
 POW :					'^' ;
 
+
+// WHITESPACE -> DISCARD
+
 WS :					[ \t\n\r]+ -> skip ;
+
+// END

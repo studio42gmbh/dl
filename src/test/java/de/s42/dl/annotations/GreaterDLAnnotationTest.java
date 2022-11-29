@@ -25,15 +25,16 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.DLAnnotated.DLMappedAnnotation;
+import de.s42.dl.DLAttribute;
 import de.s42.dl.DLCore;
-import de.s42.dl.DLInstance;
+import de.s42.dl.DLType;
 import de.s42.dl.annotations.GreaterDLAnnotation.greater;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.InvalidInstance;
-import java.util.List;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
@@ -44,56 +45,9 @@ import org.testng.Assert;
 public class GreaterDLAnnotationTest
 {
 
-	@Test
-	public void validGreaterAnnotations() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { double min; double max @greater(\"min\"); } T t { min : 1.0; max : 2.0; }");
-		core.parse("Anonymous2", "type T2 { float min; float max @greater(\"min\"); } T2 t2 { min : 1.0; max : 2.0; }");
-		core.parse("Anonymous3", "type T3 { int min; int max @greater(\"min\"); } T3 t3 { min : 1; max : 2; }");
-		core.parse("Anonymous4", "type T4 { long min; long max @greater(\"min\"); } T4 t4 { min : 1; max : 2; }");
-		core.parse("Anonymous5", "type T5 { short min; short max @greater(\"min\"); } T5 t5 { min : 1; max : 2; }");
-		core.parse("Anonymous6", "type T6 { String min; String max @greater(\"min\"); } T6 t6 { min : aa; max : bb; }");
-		core.parse("Anonymous7", "type T7 { String min; String max @greater(other : \"min\"); } T7 t7 { min : aa; max : bb; }");
-	}
+	private final static Logger log = LogManager.getLogger(GreaterDLAnnotationTest.class.getName());
 
-	@Test(expectedExceptions = InvalidAnnotation.class)
-	public void invalidGreaterAnnotationsInvalidNamedParameter() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { double min; double max @greater(wrong :\"min\"); } T t { min : 1.0; max : 2.0; }");
-	}
-
-	@Test(expectedExceptions = InvalidInstance.class)
-	public void invalidGreaterAnnotationsLesserDoubles() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { double min; double max @greater(\"min\"); } T t { min : 2.0; max : 1.0; }");
-	}
-
-	@Test(expectedExceptions = InvalidInstance.class)
-	public void invalidGreaterAnnotationsEqualDoubles() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { double min; double max @greater(\"min\"); } T t { min : 1.0; max : 1.0; }");
-	}
-
-	@Test(expectedExceptions = InvalidInstance.class)
-	public void invalidGreaterAnnotationsStrings() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { String min; String max @greater(\"min\"); } T t { min : bb; max : aa; }");
-	}
-
-	@Test(expectedExceptions = IllegalArgumentException.class)
-	public void invalidGreaterAnnotationsBooleans() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { boolean min; boolean max @greater(\"min\"); } T t { min : false; max : true; }");
-	}
-
-	// Intuitive and typed dl annotations in java! :)
-	public static class MyAnnotatedClass
+	public static class GreaterTestClass
 	{
 
 		@greater(other = "min")
@@ -103,34 +57,66 @@ public class GreaterDLAnnotationTest
 	}
 
 	@Test
-	public void validCustomAnnotationInJava() throws Exception
+	public void validContainJavaType() throws DLException
 	{
-		// Find annotations on classes
-		List<DLMappedAnnotation> mappedAnnotations = DLAnnotationHelper.getDLAnnotations(MyAnnotatedClass.class.getField("max").getAnnotations());
-
-		Assert.assertEquals(mappedAnnotations.size(), 1);
-		Assert.assertTrue(mappedAnnotations.get(0).getAnnotation() instanceof GreaterDLAnnotation);
-
-		DLMappedAnnotation mappedAnnotation = mappedAnnotations.get(0);
-		GreaterDLAnnotation annotation = mappedAnnotation.getAnnotation();
-
-		Assert.assertEquals(mappedAnnotation.getParameters()[0], "min");
-		Assert.assertEquals(annotation.getOther(mappedAnnotation), "min");
-
 		DefaultCore core = new DefaultCore();
-		core.defineType(MyAnnotatedClass.class);
+		DLType type = core.defineType(GreaterTestClass.class);
+		//log.debug("DLType:\n", DLHelper.describe(type));
 
-		MyAnnotatedClass javaInstance = new MyAnnotatedClass();
-		javaInstance.max = 1;
+		DLAttribute max = type.getAttribute("max").orElseThrow();
 
-		DLInstance instance = core.convertFromJavaObject(javaInstance);
+		Assert.assertTrue(max.hasAnnotation(GreaterDLAnnotation.class), "@greater should be mapped for type GreaterTestClass");
 
-		// Load special annotations in BaseDL when convertFromJavaObject
-		Assert.assertTrue(instance.getType().getAttribute("max").orElseThrow().getAnnotation(GreaterDLAnnotation.class).isPresent());
+		GreaterDLAnnotation annotation = (GreaterDLAnnotation) max.getAnnotation(GreaterDLAnnotation.class).orElseThrow();
 
-		DLMappedAnnotation mappedAnnotation2 = instance.getType().getAttribute("max").orElseThrow().getAnnotation(GreaterDLAnnotation.class).orElseThrow();
-		GreaterDLAnnotation annotation2 = mappedAnnotation.getAnnotation();
+		Assert.assertEquals(annotation.getOther(), "min");
+	}
 
-		Assert.assertEquals(annotation2.getOther(mappedAnnotation2), "min");
+	@Test
+	public void validGreaterAnnotations() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("validGreaterAnnotations", "type T { double min; double max @greater(\"min\"); } T t { min : 1.0; max : 2.0; }");
+		core.parse("validGreaterAnnotations2", "type T2 { float min; float max @greater(\"min\"); } T2 t2 { min : 1.0; max : 2.0; }");
+		core.parse("validGreaterAnnotations3", "type T3 { int min; int max @greater(\"min\"); } T3 t3 { min : 1; max : 2; }");
+		core.parse("validGreaterAnnotations4", "type T4 { long min; long max @greater(\"min\"); } T4 t4 { min : 1; max : 2; }");
+		core.parse("validGreaterAnnotations5", "type T5 { short min; short max @greater(\"min\"); } T5 t5 { min : 1; max : 2; }");
+		core.parse("validGreaterAnnotations6", "type T6 { String min; String max @greater(\"min\"); } T6 t6 { min : aa; max : bb; }");
+		core.parse("validGreaterAnnotations7", "type T7 { String min; String max @greater(other : \"min\"); } T7 t7 { min : aa; max : bb; }");
+	}
+
+	@Test(expectedExceptions = InvalidAnnotation.class)
+	public void invalidGreaterAnnotationsInvalidNamedParameter() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("invalidGreaterAnnotationsInvalidNamedParameter", "type T { double min; double max @greater(wrong :\"min\"); } T t { min : 1.0; max : 2.0; }");
+	}
+
+	@Test(expectedExceptions = InvalidInstance.class)
+	public void invalidGreaterAnnotationsLesserDoubles() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("invalidGreaterAnnotationsLesserDoubles", "type T { double min; double max @greater(\"min\"); } T t { min : 2.0; max : 1.0; }");
+	}
+
+	@Test(expectedExceptions = InvalidInstance.class)
+	public void invalidGreaterAnnotationsEqualDoubles() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("invalidGreaterAnnotationsEqualDoubles", "type T { double min; double max @greater(\"min\"); } T t { min : 1.0; max : 1.0; }");
+	}
+
+	@Test(expectedExceptions = InvalidInstance.class)
+	public void invalidGreaterAnnotationsStrings() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("invalidGreaterAnnotationsStrings", "type T { String min; String max @greater(\"min\"); } T t { min : bb; max : aa; }");
+	}
+
+	@Test(expectedExceptions = IllegalArgumentException.class)
+	public void invalidGreaterAnnotationsBooleans() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("invalidGreaterAnnotationsBooleans", "type T { boolean min; boolean max @greater(\"min\"); } T t { min : false; max : true; }");
 	}
 }

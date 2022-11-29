@@ -41,7 +41,7 @@ import org.testng.Assert;
 public class JsonReaderTest
 {
 
-	@Test
+	@Test(enabled = false)
 	public void validReadFromJson() throws Exception
 	{
 		DLCore core = new DefaultCore();
@@ -112,7 +112,7 @@ public class JsonReaderTest
 		Assert.assertNotNull(reader.read());
 	}
 
-	@Test(expectedExceptions = IOException.class)
+	@Test(enabled = false, expectedExceptions = IOException.class)
 	public void invalidReadFromJsonAnnotationValidation() throws Exception
 	{
 		DLCore core = new DefaultCore();

@@ -29,6 +29,7 @@ import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.core.BaseDLCore;
 import de.s42.dl.core.DefaultCore;
+import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.log.LogManager;
@@ -48,7 +49,8 @@ public class DeclareTypesTest
 	@Test
 	public void validDeclaration() throws DLException
 	{
-		DLCore core = new BaseDLCore();
+		BaseDLCore core = new BaseDLCore();
+		core.addResolver(new StringCoreResolver(core));
 		core.setAllowDefineTypes(true);
 		core.parse("validDeclaration", "declare type T;");
 	}
@@ -56,7 +58,8 @@ public class DeclareTypesTest
 	@Test
 	public void validMultipleDeclaration() throws DLException
 	{
-		DLCore core = new BaseDLCore();
+		BaseDLCore core = new BaseDLCore();
+		core.addResolver(new StringCoreResolver(core));
 		core.setAllowDefineTypes(true);
 		core.parse("validDeclaration", "declare type T; declare type T; declare type T;");
 	}
@@ -78,7 +81,7 @@ public class DeclareTypesTest
 	@Test
 	public void validDependentDeclarationAndDefinition() throws DLException
 	{
-		DLCore core = new DefaultCore();
+		DLCore core = new DefaultCore();				
 		core.parse("validDependentDeclarationAndDefinition",
 			"declare type T;"
 			+ "declare type T2;"
@@ -98,7 +101,8 @@ public class DeclareTypesTest
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidDeclarationWithBody() throws DLException
 	{
-		DLCore core = new BaseDLCore();
+		BaseDLCore core = new BaseDLCore();
+		core.addResolver(new StringCoreResolver(core));
 		core.setAllowDefineTypes(true);
 		core.parse("invalidDeclarationWithBody", "declare type T {}");
 	}

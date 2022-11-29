@@ -25,8 +25,6 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.base.validation.IsString;
-import de.s42.dl.annotations.GreaterDLAnnotation.greater;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -36,7 +34,7 @@ import java.lang.annotation.Target;
  *
  * @author Benjamin Schiller
  */
-public class GreaterDLAnnotation extends AbstractComparisonDLAnnotation<Object>
+public class GreaterDLAnnotation extends AbstractComparisonDLAnnotation<Object, GreaterDLAnnotation>
 {
 
 	@Retention(RetentionPolicy.RUNTIME)
@@ -45,18 +43,7 @@ public class GreaterDLAnnotation extends AbstractComparisonDLAnnotation<Object>
 	public static @interface greater
 	{
 
-		@DLAnnotationParameter(ordinal = 0, validation = IsString.class)
 		public String other();
-	}
-
-	public GreaterDLAnnotation()
-	{
-		this(greater.class.getSimpleName());
-	}
-
-	public GreaterDLAnnotation(String name)
-	{
-		super(name);
 	}
 
 	@Override

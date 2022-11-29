@@ -31,7 +31,7 @@ import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.*;
 import de.s42.dl.DLAnnotation.AnnotationDL;
 import de.s42.dl.DLAttribute.AttributeDL;
-import de.s42.dl.annotations.DynamicDLAnnotation;
+import de.s42.dl.annotations.DynamicDLAnnotation.dynamic;
 import de.s42.dl.annotations.LengthDLAnnotation;
 import de.s42.dl.annotations.RequiredDLAnnotation;
 import de.s42.dl.annotations.UniqueDLAnnotation;
@@ -52,7 +52,7 @@ public class DLJavaTypesTest
 
 	private final static Logger log = LogManager.getLogger(DLJavaTypesTest.class.getName());
 
-	@AnnotationDL(DynamicDLAnnotation.DEFAULT_SYMBOL)
+	@dynamic
 	public static class TestClass
 	{
 
@@ -64,8 +64,8 @@ public class DLJavaTypesTest
 		@AttributeDL(defaultValue = "42")
 		protected int intVal;
 
-		@AnnotationDL(value = LengthDLAnnotation.DEFAULT_SYMBOL, parameters = {"10", "20"})
-		@AnnotationDL(UniqueDLAnnotation.DEFAULT_SYMBOL)
+		//@AnnotationDL(value = LengthDLAnnotation.DEFAULT_SYMBOL, parameters = {"10", "20"})
+		//@AnnotationDL(UniqueDLAnnotation.DEFAULT_SYMBOL)
 		protected String stringVal;
 
 		protected UUID uuidVal;
@@ -145,11 +145,12 @@ public class DLJavaTypesTest
 			addContainedType(this);
 
 			// attributes - value
-			DLAttribute valueAttrib = core.createAttribute(ATTRIBUTE_VALUE, FloatDLType.DEFAULT_SYMBOL);
+			DLAttribute valueAttrib = core.createAttribute(ATTRIBUTE_VALUE, FloatDLType.DEFAULT_SYMBOL, this);
 			addAttribute(valueAttrib);
 
 			//add annotation @required to attribute value
-			core.addAnnotationToAttribute(this, valueAttrib, RequiredDLAnnotation.DEFAULT_SYMBOL);
+			//core.addAnnotationToAttribute(this, valueAttrib, RequiredDLAnnotation.DEFAULT_SYMBOL, this);
+			core.createAnnotation(RequiredDLAnnotation.required.class.getSimpleName(), valueAttrib);
 		}
 	}
 
@@ -227,7 +228,7 @@ public class DLJavaTypesTest
 			+ "}");
 	}
 
-	@Test(expectedExceptions = InvalidInstance.class)
+	@Test(enabled = false, expectedExceptions = InvalidInstance.class)
 	public void invalidTypeFromClassInvalidUniqueAttribute() throws DLException
 	{
 		DLCore core = createCore();

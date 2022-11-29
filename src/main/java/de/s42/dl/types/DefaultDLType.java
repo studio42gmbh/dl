@@ -33,6 +33,7 @@ import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.*;
 import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.DLInstanceValidator;
+import de.s42.dl.annotations.AbstractDLAnnotated;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidInstance;
@@ -55,18 +56,16 @@ import java.util.Set;
  *
  * @author Benjamin Schiller
  */
-public class DefaultDLType implements DLType
+public class DefaultDLType extends AbstractDLAnnotated implements DLType
 {
 
 	protected final MappedList<String, DLAttribute> attributes = new MappedList<>();
 	protected final List<DLTypeValidator> validators = new ArrayList<>();
 	protected final List<DLInstanceValidator> instanceValidators = new ArrayList<>();
-	protected final List<DLMappedAnnotation> annotations = new ArrayList<>();
 	protected final List<DLType> parents = new ArrayList<>();
 	protected final List<DLType> genericTypes = new ArrayList<>();
 	protected final List<DLType> containedTypes = new ArrayList<>();
 
-	protected String name;
 	protected boolean allowDynamicAttributes = false;
 	protected boolean allowGenericTypes = false;
 	protected boolean isAbstract = false;
@@ -480,6 +479,7 @@ public class DefaultDLType implements DLType
 		}
 	}
 
+	@Override
 	public void addAttribute(DLAttribute attribute)
 	{
 		assert attribute != null;
@@ -650,17 +650,6 @@ public class DefaultDLType implements DLType
 	}
 
 	@Override
-	public String getName()
-	{
-		return name;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	@Override
 	public boolean isAbstract()
 	{
 		return isAbstract;
@@ -705,22 +694,6 @@ public class DefaultDLType implements DLType
 		genericName.append(">");
 
 		return genericName.toString();
-	}
-
-	//@Override
-	public void addAnnotation(DLAnnotation annotation, Object... parameters)
-	{
-		assert annotation != null;
-
-		DLMappedAnnotation mapped = new DLMappedAnnotation(annotation, parameters);
-
-		annotations.add(mapped);
-	}
-
-	@Override
-	public List<DLMappedAnnotation> getAnnotations()
-	{
-		return Collections.unmodifiableList(annotations);
 	}
 
 	@Override
@@ -772,40 +745,6 @@ public class DefaultDLType implements DLType
 	public void setJavaType(Class javaType)
 	{
 		this.javaType = javaType;
-	}
-
-	@Override
-	public Optional<DLMappedAnnotation> getAnnotation(Class<? extends DLAnnotation> annotationType)
-	{
-		assert annotationType != null;
-
-		for (DLMappedAnnotation annotation : annotations) {
-			if (annotationType.isAssignableFrom(annotation.getAnnotation().getClass())) {
-				return Optional.of(annotation);
-			}
-		}
-
-		return Optional.empty();
-	}
-
-	@Override
-	public boolean hasAnnotation(Class<? extends DLAnnotation> annotationType)
-	{
-		assert annotationType != null;
-
-		for (DLMappedAnnotation annotation : annotations) {
-			if (annotationType.isAssignableFrom(annotation.getAnnotation().getClass())) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	@Override
-	public boolean hasAnnotations()
-	{
-		return !annotations.isEmpty();
 	}
 
 	@Override

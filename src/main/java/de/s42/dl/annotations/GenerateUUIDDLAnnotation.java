@@ -25,15 +25,6 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.DLAttribute;
-import de.s42.dl.DLCore;
-import de.s42.dl.DLInstance;
-import de.s42.dl.DLInstanceValidator;
-import de.s42.dl.DLType;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.types.DefaultDLType;
-import java.util.UUID;
-
 /**
  *
  * @author Benjamin Schiller
@@ -41,6 +32,9 @@ import java.util.UUID;
 public class GenerateUUIDDLAnnotation extends AbstractDLAnnotation
 {
 
+	public final static String DEFAULT_SYMBOL = "generateUUID";
+
+	/*
 	private static class GenerateUUIDDLInstanceValidator implements DLInstanceValidator
 	{
 
@@ -66,7 +60,6 @@ public class GenerateUUIDDLAnnotation extends AbstractDLAnnotation
 		}
 	}
 
-	public final static String DEFAULT_SYMBOL = "generateUUID";
 
 	public GenerateUUIDDLAnnotation()
 	{
@@ -88,4 +81,5 @@ public class GenerateUUIDDLAnnotation extends AbstractDLAnnotation
 
 		((DefaultDLType) type).addInstanceValidator(new GenerateUUIDDLInstanceValidator(attribute));
 	}
+	 */
 }

@@ -25,15 +25,12 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.base.validation.ValidationHelper;
+import de.s42.base.validation.IsSymbol;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.*;
-import de.s42.dl.DLAnnotated.DLMappedAnnotation;
 import de.s42.dl.attributes.DefaultDLAttribute;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidValue;
-import de.s42.dl.parameters.NamedParameter;
-import de.s42.dl.parameters.NamedParameters;
 import de.s42.dl.types.DefaultDLType;
 import java.util.function.BiFunction;
 
@@ -41,38 +38,28 @@ import java.util.function.BiFunction;
  *
  * @author Benjamin Schiller
  * @param <DataType>
+ * @param <DLAnnotationType>
  */
-public abstract class AbstractComparisonDLAnnotation<DataType> extends AbstractDLAnnotation
+public abstract class AbstractComparisonDLAnnotation<DataType, DLAnnotationType extends DLAnnotation> extends AbstractDLAnnotation<DLAnnotationType>
 {
 
-	/* OTHER */
-	public final static NamedParameter OTHER = new NamedParameter(
-		"other",
-		String.class,
-		null,
-		ValidationHelper::isString
-	);
-
-	/* PARAMETERS */
-	public final static NamedParameters PARAMETERS = new NamedParameters(OTHER);
+	@DLAnnotationParameter(ordinal = 0, required = true, validation = IsSymbol.class)
+	protected String other;
 
 	private class ComparisonDLInstanceValidator implements DLInstanceValidator, DLAttributeValidator
 	{
 
-		private final String nameRef;
 		private final String name;
 		private final BiFunction<DataType, DataType, Boolean> comparator;
 		private final BiFunction<DataType, DataType, String> errorMessage;
 
-		ComparisonDLInstanceValidator(String name, String nameRef, BiFunction<DataType, DataType, Boolean> comparator, BiFunction<DataType, DataType, String> errorMessage)
+		ComparisonDLInstanceValidator(String name, BiFunction<DataType, DataType, Boolean> comparator, BiFunction<DataType, DataType, String> errorMessage)
 		{
 			assert name != null;
-			assert nameRef != null;
 			assert comparator != null;
 			assert errorMessage != null;
 
 			this.name = name;
-			this.nameRef = nameRef;
 			this.comparator = comparator;
 			this.errorMessage = errorMessage;
 		}
@@ -83,7 +70,7 @@ public abstract class AbstractComparisonDLAnnotation<DataType> extends AbstractD
 			assert instance != null;
 
 			try {
-				validateValue(instance.get(name), instance.get(nameRef));
+				validateValue(instance.get(name), instance.get(other));
 			} catch (InvalidValue ex) {
 				throw new InvalidInstance(ex);
 			}
@@ -118,41 +105,33 @@ public abstract class AbstractComparisonDLAnnotation<DataType> extends AbstractD
 
 	protected abstract boolean compare(DataType val, DataType refVal);
 
-	public AbstractComparisonDLAnnotation(String name)
-	{
-		super(name, PARAMETERS);
-	}
-
-	public String getOther(DLMappedAnnotation mappedAnnotation) throws InvalidAnnotation
-	{
-		return OTHER.get(mappedAnnotation.getParameters());
-	}
-
 	@Override
-	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws InvalidAnnotation
+	public void bindToAttribute(DLCore core, DLAttribute attribute) throws InvalidAnnotation
 	{
-		assert type != null;
 		assert attribute != null;
-
-		if (!isValidFlatParameters(parameters)) {
-			throw new InvalidAnnotation("flat parameters are not valid");
-		}
-
-		String nameRef = OTHER.get(parameters);
 
 		ComparisonDLInstanceValidator validator = new ComparisonDLInstanceValidator(
 			attribute.getName(),
-			nameRef,
 			(val, refVal) -> {
 				return compare(val, refVal);
 			},
 			(val, refVal) -> {
 				return errorMessage(val, refVal);
 			});
-		((DefaultDLType) type).addInstanceValidator(validator);
+		((DefaultDLType) attribute.getContainer()).addInstanceValidator(validator);
 
 		if (attribute instanceof DefaultDLAttribute) {
 			((DefaultDLAttribute) attribute).addValidator(validator);
 		}
+	}
+
+	public String getOther()
+	{
+		return other;
+	}
+
+	public void setOther(String other)
+	{
+		this.other = other;
 	}
 }

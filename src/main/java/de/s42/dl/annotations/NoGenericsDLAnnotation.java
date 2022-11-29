@@ -25,10 +25,17 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.*;
+import de.s42.dl.DLAttribute;
+import de.s42.dl.DLCore;
+import de.s42.dl.DLType;
+import de.s42.dl.DLTypeValidator;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.types.DefaultDLType;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
@@ -36,6 +43,13 @@ import de.s42.dl.types.DefaultDLType;
  */
 public class NoGenericsDLAnnotation extends AbstractDLAnnotation
 {
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = {ElementType.FIELD})
+	@DLAnnotationType(NoGenericsDLAnnotation.class)
+	public static @interface noGenerics
+	{
+	}
 
 	private static class NoGenericsValidator implements DLTypeValidator
 	{
@@ -53,20 +67,8 @@ public class NoGenericsDLAnnotation extends AbstractDLAnnotation
 		}
 	}
 
-	public final static String DEFAULT_SYMBOL = "noGenerics";
-
-	public NoGenericsDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public NoGenericsDLAnnotation(String name)
-	{
-		super(name);
-	}
-
 	@Override
-	public void bindToType(DLCore core, DLType type, Object... parameters) throws DLException
+	public void bindToType(DLCore core, DLType type) throws DLException
 	{
 		assert type != null;
 

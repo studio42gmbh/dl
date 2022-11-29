@@ -28,6 +28,8 @@ parser grammar DLParser ;
 
 options { tokenVocab=DLLexer; }
 
+// ROOT data
+
 data : declaration* EOF ;
 
 declaration : 
@@ -41,7 +43,7 @@ declaration :
 	alias ;
 
 
-/* generic */
+// GENERIC
 
 identifier : SYMBOL ;
 typeIdentifier : identifier ;
@@ -52,9 +54,11 @@ genericParameters : GENERIC_OPEN genericParameter ( COMMA genericParameter )* CO
 genericParameter : identifier;
 symbolOrString : STRING_LITERAL | SYMBOL ;
 scopeExpression : COLON identifier ( OR identifier )* ;
+aliases : KEYWORD_ALIAS aliasName ( COMMA aliasName )* ;
+aliasName : identifier;
 
 
-/* expression https://github.com/studio42gmbh/dl/issues/20 */
+// EXPRESSION https://github.com/studio42gmbh/dl/issues/20
 
 expression : 
 	PARENTHESES_OPEN expression PARENTHESES_CLOSE
@@ -68,18 +72,19 @@ expression :
 atom : FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | STRING_LITERAL | SYMBOL | REF ;
 
 
-/* pragma */
+// PRAGMA
 
 pragma : 
+	KEYWORD_EXTERN?
 	KEYWORD_PRAGMA 
 	pragmaName
-	staticParameters? 
+	( ( annotation* aliases? ) | staticParameters? )	
 	SEMI_COLON ;
 
 pragmaName : identifier ;
 
 
-/* annotation */
+// ANNOTATION
 
 annotation : 
 	AT 
@@ -90,7 +95,7 @@ annotation :
 annotationName : identifier ;
 
 
-/* alias */
+// ALIAS
 
 alias : 
 	KEYWORD_ALIAS 
@@ -102,7 +107,7 @@ aliasRedefinition : identifier ;
 aliasDefinition : identifier ;
 
 
-/* require */
+// REQUIRE
 
 require : 
 	KEYWORD_REQUIRE 
@@ -112,19 +117,19 @@ require :
 requireModule : symbolOrString ;
 
 
-/* annotationDefinition */
+// ANNOTATIONDEFINITION
 
 annotationDefinition : 
 	KEYWORD_EXTERN 
 	KEYWORD_ANNOTATION 
 	annotationDefinitionName
-	( KEYWORD_ALIAS aliasAnnotationDefinitionName ( COMMA aliasAnnotationDefinitionName )* )?
+	aliases?
 	SEMI_COLON ;
 
 annotationDefinitionName : identifier;
-aliasAnnotationDefinitionName : identifier ;
 
-/* typeDefinition */
+
+// TYPE DEFINITION
 
 typeDefinition : 
 	( KEYWORD_DECLARE | KEYWORD_EXTERN | KEYWORD_FINAL | KEYWORD_ABSTRACT )?
@@ -133,33 +138,31 @@ typeDefinition :
 	annotation* 
 	( KEYWORD_EXTENDS parentTypeName ( COMMA parentTypeName )* )?
 	( KEYWORD_CONTAINS containsTypeName ( COMMA containsTypeName )* )?
-	( KEYWORD_ALIAS aliasTypeName ( COMMA aliasTypeName )* )?
+	aliases?
 	( typeBody | SEMI_COLON ) ;
 
 typeDefinitionName : identifier;
 parentTypeName : identifier ;
 containsTypeName : identifier ;
-aliasTypeName : identifier ;
 typeBody : SCOPE_OPEN ( typeAttributeDefinition | require )* SCOPE_CLOSE ;
 
 
-/* enumDefinition */
+// ENUM DEFINITION
 
 enumDefinition : 
 	KEYWORD_EXTERN? 
 	KEYWORD_ENUM 
 	enumName
 	annotation* 
-	( KEYWORD_ALIAS aliasEnumName ( COMMA aliasEnumName )* )?
+	aliases?
 	( enumBody | SEMI_COLON ) ;
 
 enumName : identifier;
-aliasEnumName : identifier;
 enumBody : SCOPE_OPEN enumValueDefinition ( COMMA enumValueDefinition )* COMMA? SCOPE_CLOSE ;
 enumValueDefinition : symbolOrString ;
 
 
-/* typeAttributeDefinition */
+// TYPE ATTRIBUTE DEFINITION
 
 typeAttributeDefinition : 
 	typeAttributeDefinitionType 
@@ -175,7 +178,7 @@ typeAttributeDefinitionName : identifier ;
 typeAttributeDefinitionDefault : instanceDefinition | STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | SYMBOL | REF ;
 
 
-/* instanceDefinition */
+// INSTANCE DEFINITION
 
 instanceDefinition : 
 	instanceType instanceName?
@@ -187,7 +190,7 @@ instanceName : identifier ;
 instanceBody : SCOPE_OPEN ( attributeAssignment | instanceDefinition | require )* SCOPE_CLOSE ;
 
 
-/* attributeAssignment */
+// ATTRIBUTE ASSIGNMENT
 
 attributeAssignment : 
 	( ( attributeType attributeName ) | attributeName )

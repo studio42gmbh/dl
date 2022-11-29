@@ -58,6 +58,6 @@ public class DisableDefineAnnotationsPragma extends AbstractDLPragma
 
 		validateParameters(parameters, null);
 
-		core.setAllowDefineAnnotations(false);
+		core.setAllowDefineAnnotationsFactories(false);
 	}
 }

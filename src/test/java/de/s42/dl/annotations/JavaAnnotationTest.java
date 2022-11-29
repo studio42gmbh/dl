@@ -25,25 +25,8 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.base.validation.IsBoolean;
-import de.s42.dl.DLAnnotated.DLMappedAnnotation;
-import de.s42.dl.DLCore;
-import de.s42.dl.DLInstance;
-import de.s42.dl.DLType;
-import de.s42.dl.annotations.JavaAnnotationTest.EditorAnnotation.editor;
-import de.s42.dl.core.DefaultCore;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.util.DLHelper;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.List;
-import org.testng.annotations.Test;
-import org.testng.Assert;
 
 /**
  *
@@ -57,6 +40,7 @@ public class JavaAnnotationTest
 	/**
 	 * My own annotation class allowing to tag classes in java type safe and with explicit parameters
 	 */
+	/*
 	public static class EditorAnnotation extends AbstractDLAnnotation
 	{
 
@@ -170,5 +154,5 @@ public class JavaAnnotationTest
 			"type T @editor(wrong : true) {} T t {}");
 
 	}
-
+	 */
 }
