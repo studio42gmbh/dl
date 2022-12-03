@@ -37,7 +37,6 @@ import de.s42.dl.DLAnnotation.AnnotationDLContainer;
 import de.s42.dl.DLAttribute.AttributeDL;
 import de.s42.dl.annotations.*;
 import de.s42.dl.attributes.DefaultDLAttribute;
-import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.UndefinedType;
 import de.s42.dl.exceptions.InvalidPragma;
@@ -117,7 +116,7 @@ public class BaseDLCore implements DLCore
 			core.allowDefineTypes = allowDefineTypes;
 			core.allowDefineAnnotationFactories = allowDefineAnnotationFactories;
 			core.allowDefinePragmas = allowDefinePragmas;
-			core.allowUsePragmas = allowUsePragmas;			
+			core.allowUsePragmas = allowUsePragmas;
 			core.allowRequire = allowRequire;
 
 			return (DLCoreType) core;
@@ -1551,6 +1550,7 @@ public class BaseDLCore implements DLCore
 		this.classLoader = classLoader;
 	}
 
+	@Override
 	public boolean isAllowUsePragmas()
 	{
 		return allowUsePragmas;
