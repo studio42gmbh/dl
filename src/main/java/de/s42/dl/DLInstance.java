@@ -27,6 +27,7 @@ package de.s42.dl;
 
 import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.exceptions.InvalidInstance;
+import de.s42.dl.validation.ValidationResult;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ import java.util.Set;
 public interface DLInstance extends DLEntity, DLAnnotated
 {
 
-	public void validate() throws InvalidInstance;
+	public boolean validate(ValidationResult result);
 
 	public Set<String> getAttributeNames();
 
@@ -106,7 +107,7 @@ public interface DLInstance extends DLEntity, DLAnnotated
 	public boolean hasName(String name);
 
 	public boolean hasChildren();
-	
+
 	public int getChildCount();
 
 	public <ObjectType> Optional<ObjectType> resolvePath(String path);

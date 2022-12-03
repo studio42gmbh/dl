@@ -180,11 +180,11 @@ public abstract class AbstractDLAnnotation<DLAnnotationType extends DLAnnotation
 	}
 
 	@Override
-	public boolean isValidNamedParameters(Map<String, Object> namedParameters) throws InvalidValue
+	public boolean isValidNamedParameters(Map<String, Object> namedParameters)
 	{
 		return parameters.isValidNamedParameters(namedParameters);
 	}
-	
+
 	@Override
 	public boolean isValidFlatParameters(Object[] flatParameters)
 	{

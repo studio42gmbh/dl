@@ -23,9 +23,9 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
+package de.s42.dl.validation;
 
-import de.s42.dl.exceptions.InvalidAttribute;
+import de.s42.dl.DLAttribute;
 
 /**
  *
@@ -34,8 +34,8 @@ import de.s42.dl.exceptions.InvalidAttribute;
 public interface DLAttributeValidator
 {
 
-	default public void validate(DLAttribute attribute) throws InvalidAttribute
+	default public boolean validate(DLAttribute attribute, ValidationResult result)
 	{
-		// do nothing - valid by default
+		return true;
 	}
 }

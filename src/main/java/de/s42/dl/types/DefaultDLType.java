@@ -31,8 +31,6 @@ import de.s42.base.beans.InvalidBean;
 import de.s42.base.collections.MappedList;
 import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.*;
-import de.s42.dl.exceptions.InvalidAttribute;
-import de.s42.dl.DLInstanceValidator;
 import de.s42.dl.annotations.AbstractDLAnnotated;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
@@ -40,6 +38,9 @@ import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.exceptions.UndefinedType;
 import de.s42.dl.java.DLContainer;
+import de.s42.dl.validation.DLInstanceValidator;
+import de.s42.dl.validation.DLTypeValidator;
+import de.s42.dl.validation.ValidationResult;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -129,23 +130,23 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	}
 
 	@Override
-	public void validate() throws InvalidType
+	public boolean validate(ValidationResult result)
 	{
+		boolean value = true;
+
 		for (DLAttribute attribute : getAttributes()) {
-			try {
-				attribute.validate();
-			} catch (InvalidAttribute ex) {
-				throw new InvalidType("Error validating attribute " + attribute.getName() + " - " + ex.getMessage(), ex);
-			}
+			value &= attribute.validate(result);
 		}
 
 		for (DLTypeValidator validator : validators) {
-			validator.validate(this);
+			value &= validator.validate(this, result);
 		}
 
 		for (DLType parent : parents) {
-			parent.validate();
+			value &= parent.validate(result);
 		}
+
+		return value;
 	}
 
 	@Override
@@ -284,7 +285,9 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 			}
 
-			instance.validate();
+			if (!instance.validate(new ValidationResult())) {
+				throw new InvalidInstance("Object could not get converted");
+			}
 
 			return instance;
 		} catch (InvalidInstance | UndefinedType | InvalidBean | NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
@@ -466,17 +469,21 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	}
 
 	@Override
-	public void validateInstance(DLInstance instance) throws InvalidInstance
+	public boolean validateInstance(DLInstance instance, ValidationResult result)
 	{
 		assert instance != null;
 
+		boolean valid = true;
+
 		for (DLInstanceValidator validator : instanceValidators) {
-			validator.validate(instance);
+			valid &= validator.validate(instance, result);
 		}
 
 		for (DLType parent : parents) {
-			parent.validateInstance(instance);
+			valid &= parent.validateInstance(instance, result);
 		}
+
+		return valid;
 	}
 
 	@Override

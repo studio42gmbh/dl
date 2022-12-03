@@ -32,6 +32,8 @@ import de.s42.dl.DLType;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidGenericParameters;
+import de.s42.dl.validation.ValidationResult;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -195,13 +197,16 @@ public class SetDLType extends DefaultDLType
 	}
 
 	@Override
-	public void validate() throws InvalidType
+	public boolean validate(ValidationResult result)
 	{
-		super.validate();
+		boolean valid = super.validate(result);
 
 		int count = getGenericTypes().size();
 		if (count != 0 && count != 1) {
-			throw new InvalidType("may only contain 0 or 1 generic types");
+			result.addError(InvalidGenericParameters.toString(), "May only contain 0 or 1 generic types", this);
+			valid = false;
 		}
+		
+		return valid;		
 	}
 }

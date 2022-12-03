@@ -28,10 +28,11 @@ package de.s42.dl.annotations;
 import de.s42.dl.DLAttribute;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLType;
-import de.s42.dl.DLTypeValidator;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.types.DefaultDLType;
+import de.s42.dl.validation.DLTypeValidator;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidGenericTypes;
+import de.s42.dl.validation.ValidationResult;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -55,15 +56,20 @@ public class NoGenericsDLAnnotation extends AbstractDLAnnotation
 	{
 
 		@Override
-		public void validate(DLType type) throws InvalidType
+		public boolean validate(DLType type, ValidationResult result)
 		{
 			assert type != null;
+			
+			boolean valid = true;
 
 			for (DLAttribute attribute : type.getAttributes()) {
 				if (attribute.getType().isGenericType()) {
-					throw new InvalidType("Type " + type + " may not contain generics, but " + attribute + " has");
+					result.addError(InvalidGenericTypes.toString(), "Type " + type + " may not contain generics, but " + attribute + " has", type);
+					valid = false;
 				}
 			}
+			
+			return valid;
 		}
 	}
 

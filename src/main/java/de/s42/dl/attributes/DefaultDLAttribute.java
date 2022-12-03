@@ -29,12 +29,13 @@ import de.s42.base.beans.BeanHelper;
 import de.s42.base.beans.BeanInfo;
 import de.s42.base.beans.BeanProperty;
 import de.s42.base.beans.InvalidBean;
-import de.s42.dl.DLAttributeValidator;
 import de.s42.dl.*;
 import de.s42.base.strings.StringHelper;
 import de.s42.dl.annotations.AbstractDLAnnotated;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAttribute;
+import de.s42.dl.validation.DLAttributeValidator;
+import de.s42.dl.validation.ValidationResult;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -121,11 +122,15 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 	}
 
 	@Override
-	public void validate() throws InvalidAttribute
+	public boolean validate(ValidationResult result)
 	{
+		boolean valid = true;
+
 		for (DLAttributeValidator validator : validators) {
-			validator.validate(this);
+			valid &= validator.validate(this, result);
 		}
+
+		return valid;
 	}
 
 	public void addValidator(DLAttributeValidator validator)

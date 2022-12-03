@@ -23,19 +23,83 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
+package de.s42.dl.validation;
 
-import de.s42.dl.exceptions.InvalidInstance;
+import de.s42.dl.annotations.RequiredDLAnnotation.required;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public interface DLInstanceValidator
+public class ValidationElement
 {
 
-	default public void validate(DLInstance instance) throws InvalidInstance
+	private final static Logger log = LogManager.getLogger(ValidationElement.class.getName());
+
+	@required
+	protected String code;
+	protected String description;
+	protected Object source;
+	@required
+	protected ValidationElementType type;
+
+	public ValidationElement()
 	{
-		// do nothing - valid by default
+
 	}
+
+	public ValidationElement(String code, String description, Object source, ValidationElementType type)
+	{
+		assert code != null;
+		assert type != null;
+
+		this.code = code;
+		this.description = description;
+		this.source = source;
+		this.type = type;
+	}
+
+	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
+	public String getCode()
+	{
+		return code;
+	}
+
+	public void setCode(String code)
+	{
+		this.code = code;
+	}
+
+	public String getDescription()
+	{
+		return description;
+	}
+
+	public void setDescription(String description)
+	{
+		this.description = description;
+	}
+
+	public Object getSource()
+	{
+		return source;
+	}
+
+	public void setSource(Object source)
+	{
+		this.source = source;
+	}
+
+	public ValidationElementType getType()
+	{
+		return type;
+	}
+
+	public void setType(ValidationElementType type)
+	{
+		this.type = type;
+	}
+	//</editor-fold>
 }

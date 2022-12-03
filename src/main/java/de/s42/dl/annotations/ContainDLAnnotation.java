@@ -26,11 +26,13 @@
 package de.s42.dl.annotations;
 
 import de.s42.base.validation.IsSymbol;
-import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.*;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.types.DefaultDLType;
+import de.s42.dl.validation.DLInstanceValidator;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidContain;
+import de.s42.dl.validation.ValidationResult;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -78,15 +80,18 @@ public class ContainDLAnnotation extends AbstractDLAnnotation<ContainDLAnnotatio
 		}
 
 		@Override
-		public void validate(DLInstance instance) throws InvalidInstance
+		public boolean validate(DLInstance instance, ValidationResult result)
 		{
 			assert instance != null;
 
 			int count = instance.getChildren(containedType).size();
 
 			if (count < min || count > max) {
-				throw new InvalidInstance("Instance has to contain type '" + containedType.getCanonicalName() + "' between " + min + " and " + max + " times, but is contained " + count + " times");
+				result.addError(InvalidContain.toString(), "Instance has to contain type '" + containedType.getCanonicalName() + "' between " + min + " and " + max + " times, but is contained " + count + " times", instance);
+				return false;
 			}
+			
+			return true;
 		}
 	}
 

@@ -25,7 +25,7 @@
 //</editor-fold>
 package de.s42.dl;
 
-import de.s42.dl.exceptions.InvalidAttribute;
+import de.s42.dl.validation.ValidationResult;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -46,12 +46,12 @@ public interface DLAttribute extends DLEntity, DLAnnotated
 		public String defaultValue() default "";
 
 		public boolean required() default false;
-		
+
 		public boolean ignore() default false;
 	}
 
-	public void validate() throws InvalidAttribute;
-	
+	public boolean validate(ValidationResult result);
+
 	public DLType getContainer();
 
 	public Object getDefaultValue();

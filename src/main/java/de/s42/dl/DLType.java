@@ -26,8 +26,7 @@
 package de.s42.dl;
 
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.exceptions.InvalidType;
+import de.s42.dl.validation.ValidationResult;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -40,20 +39,20 @@ import java.util.Set;
 public interface DLType extends DLEntity, DLAnnotated
 {
 
-	public void validate() throws InvalidType;
+	public boolean validate(ValidationResult result);
 
-	public void validateInstance(DLInstance instance) throws InvalidInstance;
+	public boolean validateInstance(DLInstance instance, ValidationResult result);
 
 	public Object read(Object... sources) throws DLException;
 
 	public Object write(Object data) throws DLException;
-	
+
 	public DLInstance fromJavaObject(DLCore core, Object object) throws DLException;
-	
+
 	public void setAttributeFromValue(DLCore core, DLInstance instance, String name, Object value) throws DLException;
 
 	public Class getJavaDataType();
-	
+
 	public <ObjectType> ObjectType createJavaInstance() throws DLException;
 
 	public String getCanonicalName();
@@ -75,15 +74,15 @@ public interface DLType extends DLEntity, DLAnnotated
 	public List<DLType> getOwnContainedTypes();
 
 	public List<DLType> getContainedTypes();
-	
+
 	public boolean hasOwnContainedTypes();
-	
+
 	public boolean hasContainedTypes();
 
 	public boolean mayContainSpecificType(DLType type);
 
 	public boolean mayContainType(DLType type);
-	
+
 	public void addAttribute(DLAttribute attribue);
 
 	public Set<DLAttribute> getOwnAttributes();
@@ -97,7 +96,7 @@ public interface DLType extends DLEntity, DLAnnotated
 	public Optional<DLAttribute> getAttribute(String name);
 
 	public boolean hasOwnAttributes();
-	
+
 	public boolean hasAttributes();
 
 	public boolean isAllowDynamicAttributes();
@@ -115,6 +114,6 @@ public interface DLType extends DLEntity, DLAnnotated
 	public boolean isAbstract();
 
 	public boolean isFinal();
-	
+
 	public boolean isDeclaration();
 }

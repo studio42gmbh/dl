@@ -28,10 +28,11 @@ package de.s42.dl.annotations;
 import de.s42.dl.DLAttribute;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
-import de.s42.dl.DLInstanceValidator;
 import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.types.DefaultDLType;
+import de.s42.dl.validation.DLInstanceValidator;
+import static de.s42.dl.validation.DefaultValidationCode.RequiredAttribute;
+import de.s42.dl.validation.ValidationResult;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -64,15 +65,18 @@ public class RequiredDLAnnotation extends AbstractDLAnnotation
 		}
 
 		@Override
-		public void validate(DLInstance instance) throws InvalidInstance
+		public boolean validate(DLInstance instance, ValidationResult result)
 		{
 			assert instance != null;
 
 			Object val = instance.get(attribute.getName());
 
 			if (val == null) {
-				throw new InvalidInstance("Attribute value '" + attribute.getName() + "' is required and may not be null");
+				result.addError(RequiredAttribute.toString(), "Attribute value '" + attribute.getName() + "' is required and may not be null", instance);
+				return false;
 			}
+
+			return true;
 		}
 	}
 

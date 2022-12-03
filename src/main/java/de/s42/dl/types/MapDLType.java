@@ -26,15 +26,18 @@
 package de.s42.dl.types;
 
 import de.s42.base.conversion.ConversionHelper;
-import de.s42.dl.DLAttribute;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
-import de.s42.dl.attributes.DefaultDLAttribute;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
+import static de.s42.dl.validation.DefaultValidationCode.DynamicAttributeNotAllowed;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidGenericParameters;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidGenericTypes;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
+import de.s42.dl.validation.ValidationResult;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -95,7 +98,7 @@ public class MapDLType extends DefaultDLType
 		if (!isGenericType()) {
 			return true;
 		}
-		
+
 		return super.mayContainType(type);
 	}
 
@@ -107,9 +110,8 @@ public class MapDLType extends DefaultDLType
 		}
 
 		DLInstance instance = core.createInstance(this);
-		
-		// @todo properly handle complex elements
 
+		// @todo properly handle complex elements
 		if (isGenericType()) {
 
 			Class valueType = getMapValueType();
@@ -123,7 +125,9 @@ public class MapDLType extends DefaultDLType
 			}
 		}
 
-		instance.validate();
+		if (!instance.validate(new ValidationResult())) {
+			throw new InvalidInstance("Object could not get converted");
+		}
 
 		return instance;
 	}
@@ -192,9 +196,9 @@ public class MapDLType extends DefaultDLType
 	}
 
 	@Override
-	public void validateInstance(DLInstance instance) throws InvalidInstance
+	public boolean validateInstance(DLInstance instance, ValidationResult result)
 	{
-		super.validateInstance(instance);
+		boolean valid = super.validateInstance(instance, result);
 
 		// Validate entries (dynamic atributes) for generic types of map 
 		if (isGenericType() && instance.hasAttributes()) {
@@ -203,7 +207,8 @@ public class MapDLType extends DefaultDLType
 				Class keyType = getMapKeyType();
 
 				if (!String.class.isAssignableFrom(keyType)) {
-					throw new InvalidInstance("Key type " + keyType.getName() + " is not supporting dynamic attributes");
+					result.addError(DynamicAttributeNotAllowed.toString(), "Key type " + keyType.getName() + " is not supporting dynamic attributes", this);
+					valid = false;
 				}
 
 				Class valueType = getMapValueType();
@@ -213,16 +218,19 @@ public class MapDLType extends DefaultDLType
 					Object value = entry.getValue();
 
 					if (value != null && !valueType.isAssignableFrom(value.getClass())) {
-						throw new InvalidInstance(
+						result.addError(InvalidValueType.toString(),
 							"Value " + value + " in Map is not of value type "
 							+ valueType.getName() + " but "
-							+ value.getClass().getName());
+							+ value.getClass().getName(), this);
+						valid = false;
 					}
 				}
 			} catch (InvalidType ex) {
-				throw new InvalidInstance("Error validating instance - " + ex.getMessage(), ex);
+				result.addError(InvalidGenericTypes.toString(), "Error validating instance", this);
 			}
 		}
+
+		return valid;
 	}
 
 	@Override
@@ -266,13 +274,13 @@ public class MapDLType extends DefaultDLType
 
 		return getGenericTypes().get(1).getJavaDataType();
 	}
-	
+
 	public Optional<DLType> getGenericKeyType()
 	{
 		if (!isGenericType()) {
 			return Optional.empty();
 		}
-		
+
 		return Optional.of(getGenericTypes().get(0));
 	}
 
@@ -281,10 +289,10 @@ public class MapDLType extends DefaultDLType
 		if (!isGenericType()) {
 			return Optional.empty();
 		}
-		
+
 		return Optional.of(getGenericTypes().get(1));
 	}
-	
+
 	@Override
 	public void addGenericType(DLType genericType) throws InvalidType
 	{
@@ -298,13 +306,16 @@ public class MapDLType extends DefaultDLType
 	}
 
 	@Override
-	public void validate() throws InvalidType
+	public boolean validate(ValidationResult result)
 	{
-		super.validate();
+		boolean valid = super.validate(result);
 
 		int count = getGenericTypes().size();
 		if (count != 0 && count != 2) {
-			throw new InvalidType("may only contain 0 or 2 generic types");
+			result.addError(InvalidGenericParameters.toString(), "May only contain 0 or 2 generic types", this);
+			valid = false;
 		}
+
+		return valid;
 	}
 }

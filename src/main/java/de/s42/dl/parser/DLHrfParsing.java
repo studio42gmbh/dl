@@ -43,6 +43,7 @@ import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import static de.s42.dl.parser.DLHrfParsingErrorHandler.*;
 import de.s42.dl.parser.DLParser.*;
+import de.s42.dl.validation.ValidationResult;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -600,15 +601,13 @@ public class DLHrfParsing extends DLParserBaseListener
 	public void exitInstanceDefinition(InstanceDefinitionContext ctx)
 	{
 		try {
-			try {
-				// @todo https://github.com/studio42gmbh/dl/issues/18 DLHrfParsing support multi nested instances in attribute assignment - currently just 1 stack is allowed
-				if (currentInstance.getType() != null) {
+			// @todo https://github.com/studio42gmbh/dl/issues/18 DLHrfParsing support multi nested instances in attribute assignment - currently just 1 stack is allowed
+			if (currentInstance.getType() != null) {
 
-					//log.debug("currentInstance validate " + currentInstance.getName());
-					currentInstance.validate();
+				//log.debug("currentInstance validate " + currentInstance.getName());
+				if (!currentInstance.validate(new ValidationResult())) {
+					throw new InvalidInstance(createErrorMessage(module, "Error validating instance", ctx));
 				}
-			} catch (InvalidInstance ex) {
-				throw new InvalidInstance(createErrorMessage(module, "Error validating instance", ex, ctx), ex);
 			}
 
 			lastInstance = currentInstance;
@@ -839,7 +838,10 @@ public class DLHrfParsing extends DLParserBaseListener
 	public void exitTypeDefinition(TypeDefinitionContext ctx)
 	{
 		try {
-			currentType.validate();
+			if (!currentType.validate(new ValidationResult())) {
+				throw new InvalidType(createErrorMessage(module, "Type '" + currentType.getCanonicalName() + "' is not valid", ctx));
+			}
+
 		} catch (InvalidType ex) {
 			throw new RuntimeException(ex);
 		}
@@ -921,7 +923,9 @@ public class DLHrfParsing extends DLParserBaseListener
 				}
 			});
 
-			attribute.getType().validate();
+			if (!attribute.getType().validate(new ValidationResult())) {
+				throw new InvalidType(createErrorMessage(module, "Attribute type '" + attribute.getType().getCanonicalName() + "' is not valid", ctx));
+			}
 
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);
@@ -1123,7 +1127,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			throw new RuntimeException(ex);
 		}
 	}
-	
+
 	public static DLModule parse(DLCore core, String moduleId, String data) throws DLException
 	{
 		DLModule module = core.createModule(moduleId);

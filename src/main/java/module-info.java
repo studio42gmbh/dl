@@ -52,6 +52,7 @@ module de.sft.dl
 	exports de.s42.dl.pragmas;
 	exports de.s42.dl.types;
 	exports de.s42.dl.util;
+	exports de.s42.dl.validation;
 
 	opens de.s42.dl.types;
 	opens de.s42.dl;

@@ -29,9 +29,9 @@ import de.s42.dl.DLAttribute;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
-import de.s42.dl.DLTypeValidator;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidType;
+import de.s42.dl.validation.DLTypeValidator;
+import de.s42.dl.validation.ValidationResult;
 
 /**
  *
@@ -76,15 +76,19 @@ public abstract class SimpleDLType extends DefaultDLType
 	}
 
 	@Override
-	public void validate() throws InvalidType
+	public boolean validate(ValidationResult result)
 	{
+		boolean valid = true;
+
 		for (DLTypeValidator validator : validators) {
-			validator.validate(this);
+			valid &= validator.validate(this, result);
 		}
 
 		for (DLType parent : parents) {
-			parent.validate();
+			valid &= parent.validate(result);
 		}
+
+		return valid;
 	}
 
 	@Override

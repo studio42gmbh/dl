@@ -23,43 +23,19 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
+package de.s42.dl.validation;
 
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import java.util.Map;
+import de.s42.dl.DLInstance;
 
 /**
  *
  * @author Benjamin Schiller
- * @param <DLAnnotationType>
  */
-public interface DLAnnotationFactory<DLAnnotationType extends DLAnnotation>
+public interface DLInstanceValidator
 {
 
-	public DLAnnotationType createAnnotation(String name, DLAnnotated container) throws DLException;
-
-	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException;
-
-	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Map<String, Object> namedParameters) throws DLException;
-
-	default public boolean isValidNamedParameters(Map<String, Object> namedParameters)
+	default public boolean validate(DLInstance instance, ValidationResult result)
 	{
-		return false;
-	}
-
-	default public boolean isValidNamedParameter(String name, Object value)
-	{
-		return false;
-	}
-
-	default public boolean isValidFlatParameters(Object[] flatParameters)
-	{
-		return false;
-	}
-
-	default public Object[] toFlatParameters(Map<String, Object> namedParameters) throws DLException
-	{
-		throw new InvalidAnnotation("Can not flatten parameters");
+		return true;
 	}
 }

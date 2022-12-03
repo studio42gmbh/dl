@@ -30,6 +30,7 @@ import de.s42.dl.*;
 import de.s42.dl.annotations.AbstractDLAnnotated;
 import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.exceptions.InvalidInstance;
+import de.s42.dl.validation.ValidationResult;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.util.ArrayList;
@@ -95,11 +96,13 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	}
 
 	@Override
-	public void validate() throws InvalidInstance
+	public boolean validate(ValidationResult result)
 	{
 		if (getType() != null) {
-			getType().validateInstance(this);
+			return getType().validateInstance(this, result);
 		}
+
+		return true;
 	}
 
 	@Override

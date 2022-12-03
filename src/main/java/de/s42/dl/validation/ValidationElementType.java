@@ -23,19 +23,13 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
-
-import de.s42.dl.exceptions.InvalidType;
+package de.s42.dl.validation;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public interface DLTypeValidator
+public enum ValidationElementType
 {
-
-	default public void validate(DLType type) throws InvalidType
-	{
-		// do nothing - valid by default
-	}
+	Warning, Error, Info;
 }
