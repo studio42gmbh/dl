@@ -37,7 +37,7 @@ import static org.testng.Assert.*;
  */
 public class DLHrfParsingTest
 {
-	
+
 	@Test
 	public void validEscapeNewline() throws Exception
 	{
@@ -47,7 +47,7 @@ public class DLHrfParsingTest
 		String sVal = result.getString("s");
 		assertEquals(sVal, "\n");
 	}
-	
+
 	@Test
 	public void validEscapeQuotes() throws Exception
 	{
@@ -57,7 +57,7 @@ public class DLHrfParsingTest
 		String sVal = result.getString("s");
 		assertEquals(sVal, "\"");
 	}
-	
+
 	@Test
 	public void validEscapeBackslash() throws Exception
 	{
@@ -67,7 +67,7 @@ public class DLHrfParsingTest
 		String sVal = result.getString("s");
 		assertEquals(sVal, "\\");
 	}
-	
+
 	@Test
 	public void validEscapeBackslashFollowedByNewline() throws Exception
 	{
@@ -77,7 +77,7 @@ public class DLHrfParsingTest
 		String sVal = result.getString("s");
 		assertEquals(sVal, "\\n");
 	}
-	
+
 	@Test
 	public void validCompbinedEscapes() throws Exception
 	{
@@ -86,5 +86,5 @@ public class DLHrfParsingTest
 		DLModule result = DLHrfParsing.parse(core, "validCompbinedEscapes", data);
 		String sVal = result.getString("s");
 		assertEquals(sVal, "\\n\n\\\n\\\\\n\\\\\\n\n\"");
-	}	
+	}
 }
