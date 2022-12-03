@@ -1248,7 +1248,7 @@ public class BaseDLCore implements DLCore
 
 		// If the module was already loaded -> just return from cache
 		if (requiredModules.containsKey(moduleId)) {
-			log.debug("Ignoring file module (already loaded) " + moduleId);
+			log.trace("Ignoring file module (already loaded) " + moduleId);
 			return requiredModules.get(moduleId);
 		}
 

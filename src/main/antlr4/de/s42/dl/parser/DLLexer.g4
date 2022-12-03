@@ -49,16 +49,23 @@ KEYWORD_PRAGMA :		'pragma' ;
 KEYWORD_DECLARE :		'declare' ;
 
 
-// RESERVED KEYWORDS
+// RESERVED KEYWORDS (currently quite some - but this shall ensure future extensions to be intuitive)
 
 RESERVED_KEYWORD_NEW :		'new' ;
 RESERVED_KEYWORD_COPY :		'copy' ;
 RESERVED_KEYWORD_SCOPE :	'scope' ;
 RESERVED_KEYWORD_PACKAGE :	'package' ;
 RESERVED_KEYWORD_MODULE :	'module' ;
+RESERVED_KEYWORD_NAMESPACE :'namespace' ;
+RESERVED_KEYWORD_DEFINE :	'define' ;
 RESERVED_KEYWORD_UNDEF :	'undef' ;
 RESERVED_KEYWORD_IN :		'in' ;
 RESERVED_KEYWORD_CONTAINED :'contained' ;
+RESERVED_KEYWORD_AND :		'and' ;
+RESERVED_KEYWORD_OR :		'or' ;
+RESERVED_KEYWORD_NOT :		'not' ;
+RESERVED_KEYWORD_NAND :		'nand' ;
+RESERVED_KEYWORD_XOR :		'xor' ;
 
 
 // LITERALS
@@ -68,14 +75,15 @@ BOOLEAN_LITERAL :		'true' | 'false' ;
 // string literal which strips the leading and trailing quotes 
 // and also removes escaping \ already at lexer level
 fragment ESCAPED_QUOTE :'\\"' ;
-STRING_LITERAL :		'"' ( ESCAPED_QUOTE | ~('\n'|'\r') )*? '"' { setText(getText().substring(1, getText().length() - 1).replace("\\\"", "\"").replace("\\n", "\n")); } ;
+STRING_LITERAL :		'"' ( ESCAPED_QUOTE | ~('\n'|'\r') )*? '"' 
+	{ setText(de.s42.base.strings.StringHelper.unescapeJavaString(getText().substring(1, getText().length() - 1))); } ;
 
 FLOAT_LITERAL :			[-]? [0-9]+ '.' [0-9]+ ('E' [-+]? [0-9]+)? ;
 
 // https://github.com/studio42gmbh/dl/issues/26 DLHrfParsing Allow hexadecimal numbers ad basic format in HRF DL 0x00...
 INTEGER_LITERAL :		[-]? [0-9] [xXbB]? [0-9]* ;
 
-// rather restrictive - but symbols should be well readable anyways not some special sign party
+// rather restrictive - but ref symbols should be well readable anyways not some special sign party
 REF :					'$' [a-zA-Z_#] [a-zA-Z0-9\-_.#$]* { setText(getText().substring(1)); } ;	
 
 // rather restrictive - but symbols should be well readable anyways not some special sign party

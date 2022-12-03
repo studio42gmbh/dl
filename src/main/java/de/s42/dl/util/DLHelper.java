@@ -26,6 +26,7 @@
 package de.s42.dl.util;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.base.strings.StringHelper;
 import de.s42.base.zip.ZipHelper;
 import de.s42.dl.*;
 import de.s42.dl.annotations.DontPersistDLAnnotation;
@@ -410,9 +411,9 @@ public final class DLHelper
 
 			return builder.toString();
 		} else if (!unescapedTypes.containsKey(value.getClass())) {
-			return "\"" + ConversionHelper.convert(value, String.class) + "\"";
+			return "\"" + StringHelper.escapeJavaString(ConversionHelper.convert(value, String.class)) + "\"";
 		} else if (!value.getClass().isPrimitive()) {
-			return ConversionHelper.convert(value, String.class);
+			return StringHelper.escapeJavaString(ConversionHelper.convert(value, String.class));
 		}
 
 		throw new RuntimeException("Unknown single value");
@@ -511,7 +512,7 @@ public final class DLHelper
 		result.append("}");
 
 		return result.toString();
-	}
+	}	
 
 	public static boolean isDLB(Path file)
 	{
