@@ -25,7 +25,9 @@
 //</editor-fold>
 package de.s42.dl;
 
+import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.validation.DLValidatable;
 import de.s42.dl.validation.ValidationResult;
 import java.util.List;
 import java.util.Optional;
@@ -36,10 +38,8 @@ import java.util.Set;
  * @author Benjamin Schiller
  */
 // @todo https://github.com/studio42gmbh/dl/issues/23 DLType/DefaultDLType Improve and sharpen definition of complex and simple types - does it need further distinction?
-public interface DLType extends DLEntity, DLAnnotated
+public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 {
-
-	public boolean validate(ValidationResult result);
 
 	public boolean validateInstance(DLInstance instance, ValidationResult result);
 

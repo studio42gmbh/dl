@@ -23,8 +23,10 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
+package de.s42.dl.annotations;
 
+import de.s42.dl.DLAnnotation;
+import de.s42.dl.DLEntity;
 import java.util.List;
 import java.util.Optional;
 

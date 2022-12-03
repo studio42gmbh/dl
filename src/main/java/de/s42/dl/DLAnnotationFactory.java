@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl;
 
+import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import java.util.Map;

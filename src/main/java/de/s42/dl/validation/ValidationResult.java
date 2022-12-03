@@ -26,6 +26,9 @@
 package de.s42.dl.validation;
 
 import de.s42.dl.java.DLContainer;
+import static de.s42.dl.validation.ValidationElementType.Error;
+import static de.s42.dl.validation.ValidationElementType.Info;
+import static de.s42.dl.validation.ValidationElementType.Warning;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.util.ArrayList;
@@ -40,7 +43,21 @@ public class ValidationResult implements DLContainer<ValidationElement>
 
 	private final static Logger log = LogManager.getLogger(ValidationResult.class.getName());
 
-	protected final static List<ValidationElement> elements = new ArrayList<>();
+	protected final List<ValidationElement> elements;
+
+	protected boolean errors = false;
+	protected boolean warnings = false;
+	protected boolean infos = false;
+
+	public ValidationResult()
+	{
+		elements = new ArrayList<>();
+	}
+
+	protected ValidationResult(List<ValidationElement> elements)
+	{
+		this.elements = elements;
+	}
 
 	@Override
 	public void addChild(String name, ValidationElement child)
@@ -55,6 +72,14 @@ public class ValidationResult implements DLContainer<ValidationElement>
 		assert element != null;
 
 		elements.add(element);
+
+		if (element.type.equals(Error)) {
+			errors = true;
+		} else if (element.type.equals(Warning)) {
+			warnings = true;
+		} else if (element.type.equals(Info)) {
+			infos = true;
+		}
 
 		return element;
 	}
@@ -99,5 +124,24 @@ public class ValidationResult implements DLContainer<ValidationElement>
 	}
 
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
+	public boolean isValid()
+	{
+		return !hasErrors() && !hasErrors();
+	}
+
+	public boolean hasErrors()
+	{
+		return errors;
+	}
+
+	public boolean hasWarnings()
+	{
+		return warnings;
+	}
+
+	public boolean hasInfos()
+	{
+		return infos;
+	}
 	//</editor-fold>
 }

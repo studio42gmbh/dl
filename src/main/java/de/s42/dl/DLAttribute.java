@@ -25,7 +25,8 @@
 //</editor-fold>
 package de.s42.dl;
 
-import de.s42.dl.validation.ValidationResult;
+import de.s42.dl.annotations.DLAnnotated;
+import de.s42.dl.validation.DLValidatable;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -35,7 +36,7 @@ import java.lang.annotation.Target;
  *
  * @author Benjamin Schiller
  */
-public interface DLAttribute extends DLEntity, DLAnnotated
+public interface DLAttribute extends DLEntity, DLAnnotated, DLValidatable
 {
 
 	@Retention(RetentionPolicy.RUNTIME)
@@ -49,8 +50,6 @@ public interface DLAttribute extends DLEntity, DLAnnotated
 
 		public boolean ignore() default false;
 	}
-
-	public boolean validate(ValidationResult result);
 
 	public DLType getContainer();
 

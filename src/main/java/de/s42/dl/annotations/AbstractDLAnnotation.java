@@ -26,7 +26,6 @@
 package de.s42.dl.annotations;
 
 import de.s42.base.beans.InvalidBean;
-import de.s42.dl.DLAnnotated;
 import de.s42.dl.DLAnnotation;
 import de.s42.dl.DLAnnotationFactory;
 import de.s42.dl.exceptions.DLException;

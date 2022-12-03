@@ -25,9 +25,10 @@
 //</editor-fold>
 package de.s42.dl;
 
+import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.validation.ValidationResult;
+import de.s42.dl.validation.DLValidatable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -39,10 +40,8 @@ import java.util.Set;
  * @author Benjamin Schiller
  */
 // @todo https://github.com/studio42gmbh/dl/issues/21 DLInstance rethink interface and implementation of getters - Optional? Performance, Security, Convenience
-public interface DLInstance extends DLEntity, DLAnnotated
+public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 {
-
-	public boolean validate(ValidationResult result);
 
 	public Set<String> getAttributeNames();
 

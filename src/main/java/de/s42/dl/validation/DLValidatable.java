@@ -23,17 +23,21 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
+package de.s42.dl.validation;
 
-import de.s42.dl.annotations.DLAnnotated;
-import de.s42.dl.exceptions.InvalidPragma;
+import static de.s42.dl.validation.NoopValidationResult.NOOP_RESULT;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public interface DLPragma extends DLEntity, DLAnnotated
+public interface DLValidatable
 {
 
-	public void doPragma(DLCore core, Object... parameters) throws InvalidPragma;
+	public default boolean validate()
+	{
+		return validate(NOOP_RESULT);
+	}
+
+	public boolean validate(ValidationResult result);
 }
