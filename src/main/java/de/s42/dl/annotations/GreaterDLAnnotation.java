@@ -25,23 +25,25 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  *
  * @author Benjamin Schiller
  */
-public class GreaterDLAnnotation extends AbstractComparisonDLAnnotation<Object>
+public class GreaterDLAnnotation extends AbstractComparisonDLAnnotation<Object, GreaterDLAnnotation>
 {
 
-	public final static String DEFAULT_SYMBOL = "greater";
-
-	public GreaterDLAnnotation()
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = {ElementType.FIELD})
+	@DLAnnotationType(GreaterDLAnnotation.class)
+	public static @interface greater
 	{
-		this(DEFAULT_SYMBOL);
-	}
 
-	public GreaterDLAnnotation(String name)
-	{
-		super(name);
+		public String other();
 	}
 
 	@Override

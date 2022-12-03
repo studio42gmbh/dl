@@ -28,6 +28,9 @@ package de.s42.dl.core;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLEntity;
 import de.s42.dl.annotations.*;
+import de.s42.dl.core.resolvers.FileCoreResolver;
+import de.s42.dl.core.resolvers.ResourceCoreResolver;
+import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.pragmas.*;
 import de.s42.dl.types.*;
@@ -53,42 +56,51 @@ public class DefaultCore extends BaseDLCore
 
 			// Allow definitions and require by default
 			allowDefineTypes = true;
-			allowDefineAnnotations = true;
+			allowDefineAnnotationFactories = true;
 			allowDefinePragmas = true;
+			allowUsePragmas = true;
 			allowRequire = true;
 
+			// Add file and resource resolver
+			addResolver(new FileCoreResolver(this));
+			addResolver(new ResourceCoreResolver(this));
+			addResolver(new StringCoreResolver(this));
+
 			// Define basic annotations
-			defineAnnotation(new ContainDLAnnotation());
-			defineAnnotation(new ContainOnlyDLAnnotation());
-			defineAnnotation(new ContainOnceDLAnnotation());
-			defineAnnotation(new DynamicDLAnnotation());
-			defineAnnotation(new ExportDLAnnotation());
-			defineAnnotation(new GenerateUUIDDLAnnotation());
-			defineAnnotation(new GenericDLAnnotation());
-			defineAnnotation(new IsDirectoryDLAnnotation());
-			defineAnnotation(new IsFileDLAnnotation());
-			defineAnnotation(new JavaDLAnnotation());
-			defineAnnotation(new LengthDLAnnotation());
-			defineAnnotation(new RangeDLAnnotation());
-			defineAnnotation(new GreaterDLAnnotation());
-			defineAnnotation(new GreaterEqualDLAnnotation());
-			defineAnnotation(new EqualDLAnnotation());
-			defineAnnotation(new NotEqualDLAnnotation());
-			defineAnnotation(new LesserEqualDLAnnotation());
-			defineAnnotation(new LesserDLAnnotation());
-			defineAnnotation(new PreliminaryDLAnnotation());
-			defineAnnotation(new ReadOnlyDLAnnotation());
-			defineAnnotation(new RequiredDLAnnotation());
-			defineAnnotation(new RequiredOrDLAnnotation());
-			defineAnnotation(new UniqueDLAnnotation());
-			defineAnnotation(new WriteOnlyDLAnnotation());
-			defineAnnotation(new NoGenericsDLAnnotation());
-			defineAnnotation(new RegexDLAnnotation());
+			defineAnnotationFactory(new ContainDLAnnotation(), ContainDLAnnotation.contain.class.getSimpleName());
+			defineAnnotationFactory(new DontPersistDLAnnotation(), DontPersistDLAnnotation.dontPersist.class.getSimpleName());
+			defineAnnotationFactory(new DynamicDLAnnotation(), DynamicDLAnnotation.dynamic.class.getSimpleName());
+			defineAnnotationFactory(new JavaDLAnnotation(), JavaDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new RequiredDLAnnotation(), RequiredDLAnnotation.required.class.getSimpleName());
+			defineAnnotationFactory(new NoGenericsDLAnnotation(), NoGenericsDLAnnotation.noGenerics.class.getSimpleName());
+			defineAnnotationFactory(new ReadOnlyDLAnnotation(), ReadOnlyDLAnnotation.readonly.class.getSimpleName());
+			defineAnnotationFactory(new WriteOnlyDLAnnotation(), WriteOnlyDLAnnotation.writeonly.class.getSimpleName());
+			
+			defineAnnotationFactory(new ContainOnlyDLAnnotation(), ContainOnlyDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new ContainOnceDLAnnotation(), ContainOnceDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new ExportDLAnnotation(), ExportDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new GenerateUUIDDLAnnotation(), GenerateUUIDDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new GenericDLAnnotation(), GenericDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new IsDirectoryDLAnnotation(), IsDirectoryDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new IsFileDLAnnotation(), IsFileDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new LengthDLAnnotation(), LengthDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new RangeDLAnnotation(), RangeDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new GreaterDLAnnotation(), GreaterDLAnnotation.greater.class.getSimpleName());
+			defineAnnotationFactory(new GreaterEqualDLAnnotation(), GreaterEqualDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new EqualDLAnnotation(), EqualDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new NotEqualDLAnnotation(), NotEqualDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new LesserEqualDLAnnotation(), LesserEqualDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new LesserDLAnnotation(), LesserDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new PreliminaryDLAnnotation(), PreliminaryDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new RequiredOrDLAnnotation(), RequiredOrDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new UniqueDLAnnotation(), UniqueDLAnnotation.DEFAULT_SYMBOL);
+			defineAnnotationFactory(new RegexDLAnnotation(), RegexDLAnnotation.DEFAULT_SYMBOL);
 
 			// Define basic pragmas
 			definePragma(new BasePathPragma());
 			definePragma(new DefinePragmaPragma());
 			definePragma(new DisableDefinePragmasPragma());
+			definePragma(new DisableUsePragmasPragma());
 			definePragma(new DisableDefineTypesPragma());
 			definePragma(new DisableDefineAnnotationsPragma());
 			definePragma(new DisableRequirePragma());
@@ -110,13 +122,13 @@ public class DefaultCore extends BaseDLCore
 			defineType(new UUIDDLType(), "java.util.UUID", "uuid");
 			defineType(new StringDLType(), "java.lang.String", "string", "str");
 			defineType(new DateDLType(), "java.util.Date", "java.sql.Timestamp");
-			
+
 			defineType(DLEntity.class, "DLEntity");
 
 			// Define log types
-			defineType(LogLevel.class, "LogLevel");
-			defineType(Logger.class, "Logger");
-			defineType(LogManager.class, "LogManager");
+			defineType(LogLevel.class);
+			defineType(Logger.class);
+			defineType(LogManager.class);
 
 			// Define List types https://github.com/studio42gmbh/dl/issues/10
 			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)

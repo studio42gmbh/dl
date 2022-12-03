@@ -31,13 +31,14 @@ import java.util.List;
 /**
  *
  * @author Benjamin Schiller
+ * @param <DataType>
  */
-public interface DLEnum extends DLType
+public interface DLEnum<DataType> extends DLType
 {
 
-	public List getValues();
-	
+	public List<DataType> getValues();
+
 	public boolean contains(String name);
-	
-	public Object valueOf(String name) throws InvalidValue;
+
+	public DataType valueOf(String name) throws InvalidValue;
 }

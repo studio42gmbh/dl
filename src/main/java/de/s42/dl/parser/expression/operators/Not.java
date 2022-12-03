@@ -28,7 +28,7 @@ package de.s42.dl.parser.expression.operators;
 import de.s42.dl.DLModule;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidValue;
-import de.s42.dl.parser.DLHrfParsing;
+import de.s42.dl.parser.DLHrfParsingErrorHandler;
 import de.s42.dl.parser.DLParser.ExpressionContext;
 import de.s42.dl.parser.expression.Expression;
 
@@ -63,7 +63,7 @@ public class Not implements Expression
 			return !(Boolean) firstEval;
 		}
 
-		throw new InvalidValue(DLHrfParsing.createErrorMessage(module, "Type invalid in '" + context.getText() + "' has to be boolean", context));
+		throw new InvalidValue(DLHrfParsingErrorHandler.createErrorMessage(module, "Type invalid in '" + context.getText() + "' has to be boolean", context));
 	}
 
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">

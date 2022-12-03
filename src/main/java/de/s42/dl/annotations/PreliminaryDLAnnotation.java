@@ -29,18 +29,8 @@ package de.s42.dl.annotations;
  *
  * @author Benjamin Schiller
  */
-public class PreliminaryDLAnnotation extends TagDLAnnotation
+public class PreliminaryDLAnnotation extends TagDLAnnotation<PreliminaryDLAnnotation>
 {
 
 	public final static String DEFAULT_SYMBOL = "preliminary";
-
-	public PreliminaryDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public PreliminaryDLAnnotation(String name)
-	{
-		super(name);
-	}
 }

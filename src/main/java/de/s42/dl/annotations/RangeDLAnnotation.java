@@ -25,13 +25,6 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.*;
-import de.s42.dl.attributes.DefaultDLAttribute;
-import de.s42.dl.exceptions.InvalidAttribute;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.types.DefaultDLType;
-
 /**
  *
  * @author Benjamin Schiller
@@ -39,6 +32,9 @@ import de.s42.dl.types.DefaultDLType;
 public class RangeDLAnnotation extends AbstractDLAnnotation
 {
 
+	public final static String DEFAULT_SYMBOL = "range";
+
+	/*
 	private static class RangeDLInstanceValidator implements DLInstanceValidator, DLAttributeValidator
 	{
 
@@ -104,8 +100,6 @@ public class RangeDLAnnotation extends AbstractDLAnnotation
 		}
 	}
 
-	public final static String DEFAULT_SYMBOL = "range";
-
 	public RangeDLAnnotation()
 	{
 		this(DEFAULT_SYMBOL);
@@ -134,4 +128,5 @@ public class RangeDLAnnotation extends AbstractDLAnnotation
 			((DefaultDLAttribute) attribute).addValidator(validator);
 		}
 	}
+	 */
 }

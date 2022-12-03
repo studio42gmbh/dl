@@ -29,20 +29,10 @@ package de.s42.dl.annotations;
  *
  * @author Benjamin Schiller
  */
-public class LesserDLAnnotation extends AbstractComparisonDLAnnotation<Object>
+public class LesserDLAnnotation extends AbstractComparisonDLAnnotation<Object, LesserDLAnnotation>
 {
 
 	public final static String DEFAULT_SYMBOL = "lesser";
-
-	public LesserDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public LesserDLAnnotation(String name)
-	{
-		super(name);
-	}
 
 	@Override
 	protected String errorMessage(Object val, Object refVal)

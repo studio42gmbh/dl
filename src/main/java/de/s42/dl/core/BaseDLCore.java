@@ -37,9 +37,6 @@ import de.s42.dl.DLAnnotation.AnnotationDLContainer;
 import de.s42.dl.DLAttribute.AttributeDL;
 import de.s42.dl.annotations.*;
 import de.s42.dl.attributes.DefaultDLAttribute;
-import de.s42.dl.core.resolvers.FileCoreResolver;
-import de.s42.dl.core.resolvers.ResourceCoreResolver;
-import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.UndefinedType;
 import de.s42.dl.exceptions.InvalidPragma;
@@ -48,7 +45,6 @@ import de.s42.dl.exceptions.InvalidModule;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidCore;
 import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.exceptions.UndefinedAnnotation;
 import de.s42.dl.instances.ComplexTypeDLInstance;
 import de.s42.dl.instances.DefaultDLInstance;
 import de.s42.dl.instances.DefaultDLModule;
@@ -79,43 +75,48 @@ public class BaseDLCore implements DLCore
 	protected final List<DLCoreResolver> resolvers = new ArrayList<>();
 	protected final MappedList<String, DLType> types = new MappedList<>();
 	protected final MappedList<String, DLPragma> pragmas = new MappedList<>();
-	protected final MappedList<String, DLAnnotation> annotations = new MappedList<>();
+	protected final MappedList<String, DLAnnotationFactory> annotationFactories = new MappedList<>();
 	protected final Map<String, DLModule> requiredModules = new HashMap<>();
 	protected final MappedList<String, DLInstance> exported = new MappedList<>();
 	protected Path basePath;
 	protected boolean allowDefineTypes;
-	protected boolean allowDefineAnnotations;
+	protected boolean allowDefineAnnotationFactories;
 	protected boolean allowDefinePragmas;
+	protected boolean allowUsePragmas;
 	protected boolean allowRequire;
-
-	public BaseDLCore()
-	{
-		init();
-	}
-
-	private void init()
-	{
-		addResolver(new FileCoreResolver(this));
-		addResolver(new ResourceCoreResolver(this));
-		addResolver(new StringCoreResolver(this));
-	}
+	protected ClassLoader classLoader;
 
 	public <DLCoreType extends DLCore> DLCoreType copy() throws InvalidCore
 	{
 		try {
 			BaseDLCore core = getClass().getConstructor().newInstance();
 
+			core.convertedCache.clear();
 			core.convertedCache.putAll(convertedCache);
+
+			core.resolvers.clear();
 			core.resolvers.addAll(resolvers);
+
+			core.types.clear();
 			core.types.addAll(types);
+
+			core.pragmas.clear();
 			core.pragmas.addAll(pragmas);
-			core.annotations.addAll(annotations);
+
+			core.annotationFactories.clear();
+			core.annotationFactories.addAll(annotationFactories);
+
+			core.requiredModules.clear();
 			core.requiredModules.putAll(requiredModules);
+
+			core.exported.clear();
 			core.exported.addAll(exported);
+
 			core.basePath = basePath;
 			core.allowDefineTypes = allowDefineTypes;
-			core.allowDefineAnnotations = allowDefineAnnotations;
+			core.allowDefineAnnotationFactories = allowDefineAnnotationFactories;
 			core.allowDefinePragmas = allowDefinePragmas;
+			core.allowUsePragmas = allowUsePragmas;
 			core.allowRequire = allowRequire;
 
 			return (DLCoreType) core;
@@ -173,98 +174,172 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public DLAttribute createAttribute(String attributeName, String typeName) throws DLException
+	public DLAttribute createAttribute(String attributeName, String typeName, DLType container) throws DLException
 	{
 		assert attributeName != null;
 		assert typeName != null;
+		assert container != null;
 
-		return createAttribute(attributeName, getType(typeName).get());
+		return createAttribute(attributeName, getType(typeName).get(), container);
 	}
 
 	@Override
-	public DLAttribute createAttribute(String attributeName, DLType type)
+	public DLAttribute createAttribute(String attributeName, DLType type, DLType container)
 	{
 		assert attributeName != null;
 		assert type != null;
+		assert container != null;
 
-		return new DefaultDLAttribute(attributeName, type);
+		DLAttribute attribute = new DefaultDLAttribute(attributeName, type, container);
+
+		container.addAttribute(attribute);
+
+		return attribute;
 	}
 
-	@Override
-	public DLAnnotation createAnnotation(Class<? extends DLAnnotation> annotationImpl) throws DLException
+	protected void bindAnnotation(DLAnnotation annotation, DLAnnotated container) throws DLException
 	{
-		assert annotationImpl != null;
+		assert annotation != null;
+		assert container != null;
 
-		try {
-			DLAnnotation annotation = (DLAnnotation) annotationImpl.getConstructor().newInstance();
-
-			return annotation;
-		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
-			throw new DLException("Can not create annotation " + annotationImpl.getName());
+		if (container instanceof DLAttribute) {
+			annotation.bindToAttribute(this, (DLAttribute) container);
+		} else if (container instanceof DLInstance) {
+			annotation.bindToInstance(this, (DLInstance) container);
+		} else if (container instanceof DLType) {
+			annotation.bindToType(this, (DLType) container);
 		}
 	}
 
 	@Override
-	public DLAnnotation addAnnotationToAttribute(DLType type, DLAttribute attribute, String annotationName, Object... parameters) throws DLException
+	public DLAnnotation createAnnotation(String name, DLAnnotated container) throws DLException
 	{
-		assert attribute != null;
-		assert annotationName != null;
+		assert name != null;
+		assert container != null;
 
-		Optional<DLAnnotation> optAnnotation = getAnnotation(annotationName);
+		DLAnnotationFactory annotationFactory = annotationFactories.get(name).orElseThrow(() -> {
+			return new InvalidAnnotation("Annotationfactory with name " + name + " not found");
+		});
 
-		if (optAnnotation.isEmpty()) {
-			throw new UndefinedAnnotation("Annotation '" + annotationName + "' is not defined");
-		}
+		DLAnnotation annotation = annotationFactory.createAnnotation(name, container);
 
-		DLAnnotation annotation = optAnnotation.orElseThrow();
-
-		annotation.bindToAttribute(this, type, attribute, parameters);
-		((DefaultDLAttribute) attribute).addAnnotation(annotation, parameters);
+		bindAnnotation(annotation, container);
 
 		return annotation;
 	}
 
 	@Override
-	public DLAnnotation addAnnotationToType(DLType type, String annotationName, Object... parameters) throws DLException
+	public DLAnnotation createAnnotation(String name, DLAnnotated container, Map<String, Object> namedParameters) throws DLException
 	{
-		assert type != null;
-		assert annotationName != null;
-		assert parameters != null;
+		assert name != null;
+		assert container != null;
 
-		Optional<DLAnnotation> optAnnotation = getAnnotation(annotationName);
+		DLAnnotationFactory annotationFactory = annotationFactories.get(name).orElseThrow(() -> {
+			return new InvalidAnnotation("Annotationfactory with name " + name + " not found");
+		});
 
-		if (optAnnotation.isEmpty()) {
-			throw new UndefinedAnnotation("Annotation '" + annotationName + "' is not defined");
-		}
+		DLAnnotation annotation = annotationFactory.createAnnotation(name, container, namedParameters);
 
-		DLAnnotation annotation = optAnnotation.orElseThrow();
-
-		annotation.bindToType(this, type, parameters);
-		((DefaultDLType) type).addAnnotation(annotation, parameters);
+		bindAnnotation(annotation, container);
 
 		return annotation;
 	}
 
 	@Override
-	public DLAnnotation addAnnotationToInstance(DLModule module, DLInstance instance, String annotationName, Object... parameters) throws DLException
+	public DLAnnotation createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException
 	{
-		assert module != null;
-		assert instance != null;
-		assert annotationName != null;
-		assert parameters != null;
+		assert name != null;
+		assert container != null;
 
-		Optional<DLAnnotation> optAnnotation = getAnnotation(annotationName);
+		DLAnnotationFactory annotationFactory = annotationFactories.get(name).orElseThrow(() -> {
+			return new InvalidAnnotation("Annotationfactory with name " + name + " not found");
+		});
 
-		if (optAnnotation.isEmpty()) {
-			throw new UndefinedAnnotation("Annotation '" + annotationName + "' is not defined");
-		}
+		DLAnnotation annotation = annotationFactory.createAnnotation(name, container, flatParameters);
 
-		DLAnnotation annotation = optAnnotation.orElseThrow();
-
-		annotation.bindToInstance(this, module, instance, parameters);
-		((DefaultDLInstance) instance).addAnnotation(annotation, parameters);
+		bindAnnotation(annotation, container);
 
 		return annotation;
+	}
+
+	@Override
+	public DLAnnotationFactory defineAnnotationFactory(DLAnnotationFactory factory, String name, String... aliases) throws InvalidCore, InvalidAnnotation
+	{
+		assert factory != null;
+		assert aliases != null;
+
+		if (!isAllowDefineAnnotationFactories()) {
+			throw new InvalidCore("May not define annotation factories");
+		}
+
+		if (hasAnnotationFactory(name)) {
+			throw new InvalidAnnotation("Annotation factory '" + name + "' is already defined");
+		}
+
+		annotationFactories.add(name, factory);
+
+		for (String alias : aliases) {
+			defineAliasForAnnotationFactory(alias, name);
+		}
+
+		return factory;
+	}
+
+	@Override
+	public boolean hasAnnotationFactory(String name)
+	{
+		assert name != null;
+
+		return annotationFactories.contains(name);
+	}
+
+	@Override
+	public Optional<DLAnnotationFactory> getAnnotationFactory(String name)
+	{
+		assert name != null;
+
+		return annotationFactories.get(name);
+	}
+
+	@Override
+	public List<DLAnnotationFactory> getAnnotationFactories()
+	{
+		return annotationFactories.list();
+	}
+
+	@Override
+	public DLAnnotationFactory defineAliasForAnnotationFactory(String alias, String name) throws InvalidCore, InvalidAnnotation
+	{
+		assert alias != null;
+		assert name != null;
+
+		if (!isAllowDefineAnnotationFactories()) {
+			throw new InvalidCore("May not define annotations");
+		}
+
+		DLAnnotationFactory annotationFactory = getAnnotationFactory(name).orElseThrow(() -> {
+			return new InvalidAnnotation("Annotation factory '" + name + "' is not defined");
+		});
+
+		if (hasAnnotationFactory(alias)) {
+			throw new InvalidAnnotation("Annotation factory '" + alias + "' is already defined");
+		}
+
+		annotationFactories.add(alias, annotationFactory);
+
+		return annotationFactory;
+	}
+
+	@Override
+	public boolean isAllowDefineAnnotationFactories()
+	{
+		return allowDefineAnnotationFactories;
+	}
+
+	@Override
+	public void setAllowDefineAnnotationsFactories(boolean allowDefineAnnotationFactories)
+	{
+		this.allowDefineAnnotationFactories = allowDefineAnnotationFactories;
 	}
 
 	@Override
@@ -299,25 +374,6 @@ public class BaseDLCore implements DLCore
 		types.add(alias, type);
 
 		return type;
-	}
-
-	@Override
-	public DLAnnotation defineAliasForAnnotation(String alias, DLAnnotation annotation) throws InvalidCore, InvalidAnnotation
-	{
-		assert alias != null;
-		assert annotation != null;
-
-		if (!allowDefineAnnotations) {
-			throw new InvalidCore("May not define annotations");
-		}
-
-		if (hasAnnotation(alias)) {
-			throw new InvalidAnnotation("Annotation '" + alias + "' is already defined");
-		}
-
-		annotations.add(alias, annotation);
-
-		return annotation;
 	}
 
 	@Override
@@ -429,7 +485,7 @@ public class BaseDLCore implements DLCore
 		List<DLInstance> result = new ArrayList<>();
 
 		for (DLInstance instance : exported.values()) {
-			Optional<DLAnnotated.DLMappedAnnotation> optEventAnnotation = instance.getAnnotation(annotationType);
+			Optional<DLAnnotation> optEventAnnotation = instance.getAnnotation(annotationType);
 
 			if (optEventAnnotation.isPresent()) {
 				result.add(instance);
@@ -514,7 +570,7 @@ public class BaseDLCore implements DLCore
 		List<DLType> result = new ArrayList<>();
 
 		for (DLType type : types.values()) {
-			Optional<DLAnnotated.DLMappedAnnotation> optEventAnnotation = type.getAnnotation(annotationType);
+			Optional<DLAnnotation> optEventAnnotation = type.getAnnotation(annotationType);
 
 			if (optEventAnnotation.isPresent()) {
 				result.add(type);
@@ -561,6 +617,42 @@ public class BaseDLCore implements DLCore
 				return (DLEnum) type;
 			})
 			.collect(Collectors.toUnmodifiableList());
+	}
+
+	/**
+	 * ATTENTION: You may call declareType multiple times but you will get the initially declared type multiple times.
+	 * This allows to declare types across different modules without issues
+	 *
+	 * @param typeName
+	 *
+	 * @return
+	 *
+	 * @throws DLException If a type can not be retrieved for this name
+	 * @throws InvalidType If a type is already defined (not only declared) for this typename
+	 */
+	@Override
+	public DLType declareType(String typeName) throws DLException, InvalidType
+	{
+		assert typeName != null;
+
+		Optional<DLType> optPresentType = getType(typeName);
+
+		if (optPresentType.isPresent()) {
+
+			DLType presentType = optPresentType.orElseThrow();
+
+			// Type was already declared -> Multiple declaration calls are allowed
+			if (presentType.isDeclaration()) {
+				return presentType;
+			}
+
+			// Type is defined -> always an exception
+			throw new InvalidType("Type '" + typeName + "' already defined");
+		}
+
+		DefaultDLType declaredType = new DefaultDLType(typeName);
+
+		return defineType(declaredType);
 	}
 
 	public DLType defineType(Class javaType, String... aliases) throws DLException
@@ -652,7 +744,7 @@ public class BaseDLCore implements DLCore
 		DefaultDLType classType = (DefaultDLType) createType(typeName);
 		classType.setComplexType(true);
 		classType.setJavaType(typeClass);
-		classType.addAnnotation(getAnnotation(JavaDLAnnotation.DEFAULT_SYMBOL).get());
+		createAnnotation(JavaDLAnnotation.DEFAULT_SYMBOL, classType);
 
 		try {
 
@@ -671,8 +763,8 @@ public class BaseDLCore implements DLCore
 
 			//Attach single type annotation
 			if (typeClass.isAnnotationPresent(AnnotationDL.class)) {
-				AnnotationDL annotation = (AnnotationDL) typeClass.getAnnotation(AnnotationDL.class);
-				addAnnotationToType(classType, annotation.value(), (Object[]) annotation.parameters());
+				AnnotationDL javaAnnotation = (AnnotationDL) typeClass.getAnnotation(AnnotationDL.class);
+				createAnnotation(javaAnnotation.value(), classType, javaAnnotation.parameters());
 			}
 
 			// Attach multiple annotated annotations
@@ -680,9 +772,12 @@ public class BaseDLCore implements DLCore
 				AnnotationDLContainer annotationContainer = (AnnotationDLContainer) typeClass.getAnnotation(AnnotationDLContainer.class);
 
 				for (AnnotationDL annotation : annotationContainer.value()) {
-					addAnnotationToType(classType, annotation.value(), (Object[]) annotation.parameters());
+					createAnnotation(annotation.value(), classType, annotation.parameters());
 				}
 			}
+
+			// Map special java dl annotations
+			DLAnnotationHelper.createDLAnnotations(this, typeClass, classType);
 
 			// Map properties
 			for (BeanProperty<?, ?> property : info.getProperties()) {
@@ -741,7 +836,7 @@ public class BaseDLCore implements DLCore
 					}
 				}
 
-				DefaultDLAttribute attribute = new DefaultDLAttribute(attributeName, attributeType);
+				DefaultDLAttribute attribute = new DefaultDLAttribute(attributeName, attributeType, classType);
 
 				// Check for annotation AttributeDL
 				if (attributeDL != null) {
@@ -760,14 +855,14 @@ public class BaseDLCore implements DLCore
 
 					// Add required if the annotated attribute is required
 					if (attributeDL.required()) {
-						addAnnotationToAttribute(classType, attribute, RequiredDLAnnotation.DEFAULT_SYMBOL);
+						createAnnotation(RequiredDLAnnotation.required.class.getSimpleName(), attribute);
 					}
 				}
 
 				// Add single annotated annotations
 				if (property.isAnnotationPresent(AnnotationDL.class)) {
 					AnnotationDL annotation = property.getAnnotation(AnnotationDL.class).orElseThrow();
-					addAnnotationToAttribute(classType, attribute, annotation.value(), (Object[]) annotation.parameters());
+					createAnnotation(annotation.value(), attribute, annotation.parameters());
 				}
 
 				// Add multiple annotated annotations
@@ -775,15 +870,20 @@ public class BaseDLCore implements DLCore
 					AnnotationDLContainer annotationContainer = property.getAnnotation(AnnotationDLContainer.class).orElseThrow();
 
 					for (AnnotationDL annotation : annotationContainer.value()) {
-						addAnnotationToAttribute(classType, attribute, annotation.value(), (Object[]) annotation.parameters());
+						createAnnotation(annotation.value(), attribute, annotation.parameters());
 					}
+				}
+
+				// Map special java dl annotations
+				if (property.getField() != null) {
+					DLAnnotationHelper.createDLAnnotations(this, property.getField().getAnnotations(), attribute);
 				}
 
 				// Add readonly or write only annotations
 				if (property.isWriteOnly()) {
-					addAnnotationToAttribute(classType, attribute, WriteOnlyDLAnnotation.DEFAULT_SYMBOL);
+					createAnnotation(WriteOnlyDLAnnotation.writeonly.class.getSimpleName(), attribute);
 				} else if (property.isReadOnly()) {
-					addAnnotationToAttribute(classType, attribute, ReadOnlyDLAnnotation.DEFAULT_SYMBOL);
+					createAnnotation(ReadOnlyDLAnnotation.readonly.class.getSimpleName(), attribute);
 				}
 
 				classType.addAttribute(attribute);
@@ -1091,66 +1191,6 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public DLAnnotation defineAnnotation(DLAnnotation annotation, String... aliases) throws InvalidCore, InvalidAnnotation
-	{
-		assert annotation != null;
-		assert aliases != null;
-
-		if (!allowDefineAnnotations) {
-			throw new InvalidCore("May not define annotations");
-		}
-
-		if (hasAnnotation(annotation.getName())) {
-			throw new InvalidAnnotation("Annotation '" + annotation.getName() + "' is already defined");
-		}
-
-		annotations.add(annotation.getName(), annotation);
-
-		for (String alias : aliases) {
-			defineAliasForAnnotation(alias, annotation);
-		}
-
-		return annotation;
-	}
-
-	public void redefineAnnotation(DLAnnotation annotation) throws InvalidCore, InvalidAnnotation
-	{
-		assert annotation != null;
-
-		if (!allowDefineAnnotations) {
-			throw new InvalidCore("May not define annotations");
-		}
-
-		if (!hasAnnotation(annotation.getName())) {
-			throw new InvalidAnnotation("Annotation '" + annotation.getName() + "' is not defined");
-		}
-
-		annotations.add(annotation.getName(), annotation);
-	}
-
-	@Override
-	public boolean hasAnnotation(String name)
-	{
-		assert name != null;
-
-		return annotations.contains(name);
-	}
-
-	@Override
-	public Optional<DLAnnotation> getAnnotation(String name)
-	{
-		assert name != null;
-
-		return annotations.get(name);
-	}
-
-	@Override
-	public List<DLAnnotation> getAnnotations()
-	{
-		return annotations.list();
-	}
-
-	@Override
 	public DLPragma definePragma(DLPragma pragma, String... aliases) throws InvalidPragma, InvalidCore
 	{
 		assert pragma != null;
@@ -1205,24 +1245,27 @@ public class BaseDLCore implements DLCore
 	{
 		assert moduleId != null;
 
-		// if the module was already loaded -> just return from cache
+		// If the module was already loaded -> just return from cache
 		if (requiredModules.containsKey(moduleId)) {
-			log.debug("Ignoring file module (already loaded) " + moduleId);
+			log.trace("Ignoring file module (already loaded) " + moduleId);
 			return requiredModules.get(moduleId);
 		}
 
 		DLModule module = null;
 
+		// Find first resolver that can parse the resource and let it parse it
 		if (data != null) {
 			for (DLCoreResolver resolver : resolvers) {
 				if (resolver.canParse(moduleId, data)) {
 					module = resolver.parse(moduleId, data);
+					break;
 				}
 			}
 		} else {
 			for (DLCoreResolver resolver : resolvers) {
 				if (resolver.canParse(moduleId)) {
 					module = resolver.parse(moduleId);
+					break;
 				}
 			}
 		}
@@ -1298,18 +1341,6 @@ public class BaseDLCore implements DLCore
 	public void setAllowDefineTypes(boolean allowDefineTypes)
 	{
 		this.allowDefineTypes = allowDefineTypes;
-	}
-
-	@Override
-	public boolean isAllowDefineAnnotations()
-	{
-		return allowDefineAnnotations;
-	}
-
-	@Override
-	public void setAllowDefineAnnotations(boolean allowDefineAnnotations)
-	{
-		this.allowDefineAnnotations = allowDefineAnnotations;
 	}
 
 	public List<DLCoreResolver> getResolvers()
@@ -1501,5 +1532,33 @@ public class BaseDLCore implements DLCore
 	public void setAllowRequire(boolean allowRequire)
 	{
 		this.allowRequire = allowRequire;
+	}
+
+	@Override
+	public ClassLoader getClassLoader()
+	{
+		if (classLoader != null) {
+			return classLoader;
+		}
+
+		// By default return the class loader from which this class was loaded
+		return getClass().getClassLoader();
+	}
+
+	public void setClassLoader(ClassLoader classLoader)
+	{
+		this.classLoader = classLoader;
+	}
+
+	@Override
+	public boolean isAllowUsePragmas()
+	{
+		return allowUsePragmas;
+	}
+
+	@Override
+	public void setAllowUsePragmas(boolean allowUsePragmas)
+	{
+		this.allowUsePragmas = allowUsePragmas;
 	}
 }

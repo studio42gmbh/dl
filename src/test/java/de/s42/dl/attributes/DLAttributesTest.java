@@ -25,15 +25,12 @@
 //</editor-fold>
 package de.s42.dl.attributes;
 
-import de.s42.dl.DLAttribute;
 import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.types.StringDLType;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import org.testng.annotations.Test;
-import org.testng.Assert;
 
 /**
  *
@@ -50,7 +47,7 @@ public class DLAttributesTest
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type C { String d; } type A { C e @required; C c @required; } type B { A b @required; } B test { b : A a1 { e : C c1 { d : YAY1; }; c : C c2 { d : YAY2; }; }; }");
 	}
-
+/*
 	@Test
 	public void validAttributeToString() throws DLException
 	{
@@ -62,4 +59,5 @@ public class DLAttributesTest
 		
 		Assert.assertEquals(toString, "de.s42.dl.attributes.DefaultDLAttribute testAttribute { type : String; readable : true; writable : true; defaultValue : null; }");
 	}
+*/
 }

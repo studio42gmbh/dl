@@ -25,72 +25,196 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.base.conversion.ConversionHelper;
+import de.s42.base.beans.InvalidBean;
+import de.s42.dl.DLAnnotated;
 import de.s42.dl.DLAnnotation;
+import de.s42.dl.DLAnnotationFactory;
+import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
+import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.parameters.NamedParameters;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author Benjamin Schiller
+ * @param <DLAnnotationType>
  */
-public abstract class AbstractDLAnnotation implements DLAnnotation
+public abstract class AbstractDLAnnotation<DLAnnotationType extends DLAnnotation> implements DLAnnotation, DLAnnotationFactory<DLAnnotationType>
 {
 
-	protected final String name;
+	private final static Logger log = LogManager.getLogger(AbstractDLAnnotation.class.getName());
 
-	protected AbstractDLAnnotation(String name)
+	protected String name;
+	protected DLAnnotated container;
+	protected NamedParameters parameters;
+
+	private final static Map<Class<? extends DLAnnotation>, NamedParameters> namedParametersCache = Collections.synchronizedMap(new HashMap<>());
+
+	protected NamedParameters createNamedParameters(Class<? extends DLAnnotation> annotationClass)
 	{
-		assert name != null;
-
-		this.name = name;
-	}
-
-	@SuppressWarnings("UseSpecificCatch")
-	protected static Object[] validateParameters(Object[] parameters, Class[] requiredParameterClasses) throws InvalidAnnotation
-	{
-		if (parameters == null && requiredParameterClasses == null) {
-			return new Object[0];
-		}
-
-		if (parameters == null) {
-			parameters = new Object[0];
-		}
-
-		if (requiredParameterClasses == null) {
-			requiredParameterClasses = new Class[0];
-		}
-
-		if (parameters.length == 0 && requiredParameterClasses.length == 0) {
-			return new Object[0];
-		}
-
-		if (parameters.length != requiredParameterClasses.length) {
-			throw new InvalidAnnotation("parameter count not matching has to have " + requiredParameterClasses.length + " parameter(s) but has " + parameters.length);
-		}
-
-		Object[] result = new Object[parameters.length];
-
-		for (int i = 0; i < parameters.length; ++i) {
-
-			assert requiredParameterClasses[i] != null;
-
-			if (parameters[i] == null) {
-				throw new InvalidAnnotation("parameter " + (i + 1) + " may not be null");
-			}
-
-			try {
-				result[i] = (Object) ConversionHelper.convert(parameters[i], requiredParameterClasses[i]);
-			} catch (Throwable ex) {
-				throw new InvalidAnnotation("Parameter " + (i + 1) + " could not get converted to target type " + requiredParameterClasses[i] + " - " + ex.getMessage(), ex);
-			}
-		}
+		NamedParameters result = new NamedParameters(annotationClass);
 
 		return result;
+	}
+
+	protected final synchronized NamedParameters getNamedParameters(Class<? extends DLAnnotation> annotationClass)
+	{
+		NamedParameters cachedParameters = namedParametersCache.get(annotationClass);
+
+		if (cachedParameters != null) {
+			return cachedParameters;
+		}
+
+		cachedParameters = createNamedParameters(annotationClass);
+
+		namedParametersCache.put(annotationClass, cachedParameters);
+
+		return cachedParameters;
+	}
+
+	public AbstractDLAnnotation()
+	{
+		init();
+	}
+
+	private void init()
+	{
+		parameters = getNamedParameters(getClass());
+	}
+
+	@Override
+	public DLAnnotationType createAnnotation(String name, DLAnnotated container) throws DLException
+	{
+		assert name != null;
+		assert container != null;
+
+		try {
+			AbstractDLAnnotation annotation = (AbstractDLAnnotation) getClass().getConstructor().newInstance();
+			annotation.setName(name);
+			annotation.setContainer(container);
+			container.addAnnotation(annotation);
+			return (DLAnnotationType) annotation;
+		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
+			throw new DLException("Error creating annotation - " + ex.getMessage(), ex);
+		}
+	}
+
+	@Override
+	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Map<String, Object> namedParameters) throws DLException
+	{
+		assert name != null;
+		assert container != null;
+
+		try {
+			AbstractDLAnnotation annotation = (AbstractDLAnnotation) getClass().getConstructor().newInstance();
+			annotation.setName(name);
+			annotation.setContainer(container);
+			parameters.applyNamedParameters(namedParameters, annotation);
+			container.addAnnotation(annotation);
+			return (DLAnnotationType) annotation;
+		} catch (InvalidBean | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
+			throw new DLException("Error creating annotation - " + ex.getMessage(), ex);
+		}
+	}
+
+	@Override
+	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException
+	{
+		assert name != null;
+		assert container != null;
+
+		try {
+			AbstractDLAnnotation annotation = (AbstractDLAnnotation) getClass().getConstructor().newInstance();
+			annotation.setName(name);
+			annotation.setContainer(container);
+			parameters.applyFlatParameters(flatParameters, annotation);
+			container.addAnnotation(annotation);
+			return (DLAnnotationType) annotation;
+		} catch (InvalidBean | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
+			throw new DLException("Error creating annotation - " + ex.getMessage(), ex);
+		}
+	}
+
+	@Override
+	public boolean hasParameters()
+	{
+		return parameters.hasParameters();
+	}
+
+	@Override
+	public Map<String, Object> getNamedParameters()
+	{
+		try {
+			return parameters.getNamedParameters(this);
+		} catch (InvalidBean ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	@Override
+	public Object[] getFlatParameters()
+	{
+		try {
+			return parameters.getFlatParameters(this);
+		} catch (InvalidBean | InvalidValue ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	@Override
+	public Object[] toFlatParameters(Map<String, Object> namedParameters) throws DLException
+	{
+		return parameters.toFlatParameters(namedParameters);
+	}
+
+	@Override
+	public boolean isValidNamedParameter(String parameterName, Object value)
+	{
+		return parameters.isValidNamedParameter(parameterName, value);
+	}
+
+	@Override
+	public boolean isValidNamedParameters(Map<String, Object> namedParameters) throws InvalidValue
+	{
+		return parameters.isValidNamedParameters(namedParameters);
+	}
+	
+	@Override
+	public boolean isValidFlatParameters(Object[] flatParameters)
+	{
+		return parameters.isValidFlatParameters(flatParameters);
+	}
+
+	public <ObjectType> ObjectType getNamedParameter(String parameterName, Object[] flatParameters) throws InvalidAnnotation
+	{
+		return parameters.get(parameterName, flatParameters);
 	}
 
 	@Override
 	public String getName()
 	{
 		return name;
+	}
+
+	@Override
+	public DLAnnotated getContainer()
+	{
+		return container;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public void setContainer(DLAnnotated container)
+	{
+		this.container = container;
 	}
 }

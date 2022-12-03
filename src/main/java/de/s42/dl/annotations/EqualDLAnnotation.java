@@ -29,20 +29,10 @@ package de.s42.dl.annotations;
  *
  * @author Benjamin Schiller
  */
-public class EqualDLAnnotation extends AbstractComparisonDLAnnotation<Object>
+public class EqualDLAnnotation extends AbstractComparisonDLAnnotation<Object, EqualDLAnnotation>
 {
 
 	public final static String DEFAULT_SYMBOL = "equal";
-
-	public EqualDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public EqualDLAnnotation(String name)
-	{
-		super(name);
-	}
 
 	@Override
 	protected String errorMessage(Object val, Object refVal)

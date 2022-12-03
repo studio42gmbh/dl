@@ -29,32 +29,29 @@ import de.s42.dl.DLCore;
 import de.s42.dl.DLType;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.types.DefaultDLType;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DynamicDLAnnotation extends AbstractDLAnnotation
+public class DynamicDLAnnotation extends AbstractDLAnnotation<DynamicDLAnnotation>
 {
 
-	public final static String DEFAULT_SYMBOL = "dynamic";
-
-	public DynamicDLAnnotation()
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = {ElementType.FIELD, ElementType.TYPE})
+	@DLAnnotationType(DynamicDLAnnotation.class)
+	public static @interface dynamic
 	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public DynamicDLAnnotation(String name)
-	{
-		super(name);
 	}
 
 	@Override
-	public void bindToType(DLCore core, DLType type, Object... parameters) throws InvalidAnnotation
+	public void bindToType(DLCore core, DLType type) throws InvalidAnnotation
 	{
 		assert type != null;
-
-		validateParameters(parameters, null);
 
 		//allow dynamic attributes
 		((DefaultDLType) type).setAllowDynamicAttributes(true);

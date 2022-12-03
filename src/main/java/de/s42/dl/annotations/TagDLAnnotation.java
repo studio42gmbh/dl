@@ -26,33 +26,36 @@
 package de.s42.dl.annotations;
 
 import de.s42.dl.*;
+import de.s42.dl.exceptions.DLException;
 
 /**
  *
  * @author Benjamin Schiller
+ * @param <DLAnnotationType>
  */
-public abstract class TagDLAnnotation extends AbstractDLAnnotation
+public abstract class TagDLAnnotation<DLAnnotationType extends DLAnnotation> extends AbstractDLAnnotation<DLAnnotationType>
 {
 
-	protected TagDLAnnotation(String name)
-	{
-		super(name);
-	}
-
 	@Override
-	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters)
+	public void bindToAttribute(DLCore core, DLAttribute attribute)
 	{
 		// do nothing - just a tag
 	}
 
 	@Override
-	public void bindToInstance(DLCore core, DLModule module, DLInstance instance, Object... parameters)
+	public void bindToInstance(DLCore core, DLInstance instance)
 	{
 		// do nothing - just a tag
 	}
 
 	@Override
-	public void bindToType(DLCore core, DLType type, Object... parameters)
+	public void bindToType(DLCore core, DLType type)
+	{
+		// do nothing - just a tag
+	}
+
+	@Override
+	public void bindToPragma(DLCore core, DLPragma pragma) throws DLException
 	{
 		// do nothing - just a tag
 	}

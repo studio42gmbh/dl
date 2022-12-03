@@ -38,7 +38,7 @@ import org.testng.annotations.Test;
 public class RequiredOrDLAnnotationTest
 {
 
-	@Test
+	@Test(enabled = false)
 	public void validRequiredOr() throws DLException
 	{
 		DLCore core = new DefaultCore();
@@ -48,7 +48,7 @@ public class RequiredOrDLAnnotationTest
 		core.parse("Anonymous4", "T t { a : \"Test\"; b : \"Test\"; }");
 	}
 
-	@Test(expectedExceptions = InvalidInstance.class)
+	@Test(enabled = false, expectedExceptions = InvalidInstance.class)
 	public void invalidRequiredOr() throws DLException
 	{
 		DLCore core = new DefaultCore();

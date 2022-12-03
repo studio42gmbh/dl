@@ -29,20 +29,10 @@ package de.s42.dl.annotations;
  *
  * @author Benjamin Schiller
  */
-public class NotEqualDLAnnotation extends AbstractComparisonDLAnnotation<Object>
+public class NotEqualDLAnnotation extends AbstractComparisonDLAnnotation<Object, NotEqualDLAnnotation>
 {
 
 	public final static String DEFAULT_SYMBOL = "notEqual";
-
-	public NotEqualDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public NotEqualDLAnnotation(String name)
-	{
-		super(name);
-	}
 
 	@Override
 	protected String errorMessage(Object val, Object refVal)

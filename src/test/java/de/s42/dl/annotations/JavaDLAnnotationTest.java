@@ -37,25 +37,40 @@ import org.testng.annotations.Test;
  */
 public class JavaDLAnnotationTest
 {
+	
+	public static class JavaTestClass
+	{
+
+	}
 
 	@Test
 	public void validAnnotationForJavaType() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type Java @java(\"java.lang.Object\"); Java test;");
+		core.parse("validAnnotationForJavaType", "type Java @java(\"java.lang.Object\"); Java test;");
 	}
+	
+	@Test
+	public void validAnnotationForJavaTypeAutoType() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("validAnnotationForJavaTypeAutoType", 
+			"type de.s42.dl.annotations.JavaDLAnnotationTest$JavaTestClass @java;"
+				+ "de.s42.dl.annotations.JavaDLAnnotationTest$JavaTestClass test;");
+	}
+	
 
 	@Test(expectedExceptions = {InvalidAnnotation.class})
 	public void invalidParametersTooManyAnnotationForJavaType() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type Java @java(\"java.lang.Object\", 1.0);");
+		core.parse("invalidParametersTooManyAnnotationForJavaType", "type Java @java(\"java.lang.Object\", 1.0);");
 	}
 
 	@Test(expectedExceptions = {InvalidAnnotation.class})
 	public void invalidParametersTypeAnnotationForJavaType() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type Java @java(1.0);");
+		core.parse("invalidParametersTypeAnnotationForJavaType", "type Java @java(1.0);");
 	}
 }

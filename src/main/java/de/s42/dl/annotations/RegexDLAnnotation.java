@@ -25,14 +25,6 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.*;
-import de.s42.dl.attributes.DefaultDLAttribute;
-import de.s42.dl.exceptions.InvalidAttribute;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.types.DefaultDLType;
-import java.util.regex.Pattern;
-
 /**
  *
  * @author Benjamin Schiller
@@ -40,6 +32,9 @@ import java.util.regex.Pattern;
 public class RegexDLAnnotation extends AbstractDLAnnotation
 {
 
+	public final static String DEFAULT_SYMBOL = "regex";
+
+	/*
 	private static class RegexDLInstanceValidator implements DLInstanceValidator, DLAttributeValidator
 	{
 
@@ -99,8 +94,6 @@ public class RegexDLAnnotation extends AbstractDLAnnotation
 		}
 	}
 
-	public final static String DEFAULT_SYMBOL = "regex";
-
 	public RegexDLAnnotation()
 	{
 		this(DEFAULT_SYMBOL);
@@ -128,4 +121,5 @@ public class RegexDLAnnotation extends AbstractDLAnnotation
 			((DefaultDLAttribute) attribute).addValidator(validator);
 		}
 	}
+	 */
 }

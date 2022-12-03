@@ -32,24 +32,24 @@ import de.s42.base.beans.InvalidBean;
 import de.s42.dl.DLAttributeValidator;
 import de.s42.dl.*;
 import de.s42.base.strings.StringHelper;
+import de.s42.dl.annotations.AbstractDLAnnotated;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAttribute;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DefaultDLAttribute implements DLAttribute
+public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribute
 {
 
-	protected String name;
 	protected Object defaultValue;
 	protected DLType type;
-	protected final List<DLMappedAnnotation> annotations = new ArrayList<>();
+	protected DLType container;
 	protected final List<DLAttributeValidator> validators = new ArrayList<>();
 	protected boolean readable = true;
 	protected boolean writable = true;
@@ -59,22 +59,26 @@ public class DefaultDLAttribute implements DLAttribute
 
 	}
 
-	public DefaultDLAttribute(String name, DLType type)
+	public DefaultDLAttribute(String name, DLType type, DLType container)
 	{
 		assert name != null;
 		assert type != null;
+		assert container != null;
 
 		this.name = name;
 		this.type = type;
+		this.container = container;
 	}
 
-	public DefaultDLAttribute(String name, DLType type, String defaultValue)
+	public DefaultDLAttribute(String name, DLType type, DLType container, String defaultValue)
 	{
 		assert name != null;
 		assert type != null;
+		assert container != null;
 
 		this.name = name;
 		this.type = type;
+		this.container = container;
 		try {
 			this.defaultValue = type.read(defaultValue);
 		} catch (DLException ex) {
@@ -136,55 +140,6 @@ public class DefaultDLAttribute implements DLAttribute
 		return Collections.unmodifiableList(validators);
 	}
 
-	public void addAnnotation(DLAnnotation annotation, Object... parameters)
-	{
-		assert annotation != null;
-
-		DLMappedAnnotation mapped = new DLMappedAnnotation(annotation, parameters);
-
-		annotations.add(mapped);
-	}
-
-	@Override
-	public Optional<DLMappedAnnotation> getAnnotation(Class<? extends DLAnnotation> annotationType)
-	{
-		assert annotationType != null;
-
-		for (DLMappedAnnotation annotation : annotations) {
-			if (annotationType.isAssignableFrom(annotation.getAnnotation().getClass())) {
-				return Optional.of(annotation);
-			}
-		}
-
-		return Optional.empty();
-	}
-
-	@Override
-	public boolean hasAnnotation(Class<? extends DLAnnotation> annotationType)
-	{
-		assert annotationType != null;
-
-		for (DLMappedAnnotation annotation : annotations) {
-			if (annotationType.isAssignableFrom(annotation.getAnnotation().getClass())) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	@Override
-	public boolean hasAnnotations()
-	{
-		return !annotations.isEmpty();
-	}
-
-	@Override
-	public List<DLMappedAnnotation> getAnnotations()
-	{
-		return Collections.unmodifiableList(annotations);
-	}
-
 	@Override
 	public Object getDefaultValue()
 	{
@@ -208,34 +163,6 @@ public class DefaultDLAttribute implements DLAttribute
 	}
 
 	@Override
-	public String getName()
-	{
-		return name;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	@Override
-	public String toString()
-	{
-		return StringHelper.toString(getClass(), getName(),
-			new String[]{
-				"type",
-				"readable",
-				"writable",
-				"defaultValue"},
-			new Object[]{
-				getType(),
-				isReadable(),
-				isWritable(),
-				getDefaultValue()}
-		);
-	}
-
-	@Override
 	public boolean isReadable()
 	{
 		return readable;
@@ -255,5 +182,65 @@ public class DefaultDLAttribute implements DLAttribute
 	public void setWritable(boolean writable)
 	{
 		this.writable = writable;
+	}
+
+	@Override
+	public DLType getContainer()
+	{
+		return container;
+	}
+
+	public void setContainer(DLType container)
+	{
+		this.container = container;
+	}
+
+	@Override
+	public String toString()
+	{
+		return StringHelper.toString(getClass(), getName(),
+			new String[]{
+				"type",
+				"readable",
+				"writable",
+				"defaultValue",
+				"container"
+			},
+			new Object[]{
+				getType(),
+				isReadable(),
+				isWritable(),
+				getDefaultValue(),
+				getContainer().getCanonicalName()
+			}
+		);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int hash = 7;
+		hash = 29 * hash + Objects.hashCode(this.name);
+		hash = 29 * hash + Objects.hashCode(this.container);
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final DefaultDLAttribute other = (DefaultDLAttribute) obj;
+		if (!Objects.equals(this.name, other.name)) {
+			return false;
+		}
+		return Objects.equals(this.container, other.container);
 	}
 }

@@ -66,14 +66,14 @@ public class DLTypesContainsTest
 		core.parse("Anonymous", "type A; type B; B test { A test2; }");
 	}
 
-	@Test
+	@Test(enabled = false)
 	public void validContainsOnceForType() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type A; type B @containOnce(A) contains A; B test { A test2; }");
 	}
 
-	@Test(expectedExceptions = {InvalidInstance.class})
+	@Test(enabled = false, expectedExceptions = {InvalidInstance.class})
 	public void invalidContainsOnceForType() throws DLException
 	{
 		DLCore core = new DefaultCore();
@@ -108,7 +108,7 @@ public class DLTypesContainsTest
 		core.parse("Anonymous", "type A; type B contains A; type C extends B; type D extends A; C test { D test2; }");
 	}
 
-	@Test
+	@Test(enabled = false)
 	public void validComplexGenericTypesAndDataInFile() throws Exception
 	{
 		DLCore core = new DefaultCore();

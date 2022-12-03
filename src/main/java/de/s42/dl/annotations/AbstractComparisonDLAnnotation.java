@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
+import de.s42.base.validation.IsSymbol;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.*;
 import de.s42.dl.attributes.DefaultDLAttribute;
@@ -37,27 +38,28 @@ import java.util.function.BiFunction;
  *
  * @author Benjamin Schiller
  * @param <DataType>
+ * @param <DLAnnotationType>
  */
-public abstract class AbstractComparisonDLAnnotation<DataType> extends AbstractDLAnnotation
+public abstract class AbstractComparisonDLAnnotation<DataType, DLAnnotationType extends DLAnnotation> extends AbstractDLAnnotation<DLAnnotationType>
 {
+
+	@DLAnnotationParameter(ordinal = 0, required = true, validation = IsSymbol.class)
+	protected String other;
 
 	private class ComparisonDLInstanceValidator implements DLInstanceValidator, DLAttributeValidator
 	{
 
-		private final String nameRef;
 		private final String name;
 		private final BiFunction<DataType, DataType, Boolean> comparator;
 		private final BiFunction<DataType, DataType, String> errorMessage;
 
-		ComparisonDLInstanceValidator(String name, String nameRef, BiFunction<DataType, DataType, Boolean> comparator, BiFunction<DataType, DataType, String> errorMessage)
+		ComparisonDLInstanceValidator(String name, BiFunction<DataType, DataType, Boolean> comparator, BiFunction<DataType, DataType, String> errorMessage)
 		{
 			assert name != null;
-			assert nameRef != null;
 			assert comparator != null;
 			assert errorMessage != null;
 
 			this.name = name;
-			this.nameRef = nameRef;
 			this.comparator = comparator;
 			this.errorMessage = errorMessage;
 		}
@@ -68,7 +70,7 @@ public abstract class AbstractComparisonDLAnnotation<DataType> extends AbstractD
 			assert instance != null;
 
 			try {
-				validateValue(instance.get(name), instance.get(nameRef));
+				validateValue(instance.get(name), instance.get(other));
 			} catch (InvalidValue ex) {
 				throw new InvalidInstance(ex);
 			}
@@ -103,30 +105,33 @@ public abstract class AbstractComparisonDLAnnotation<DataType> extends AbstractD
 
 	protected abstract boolean compare(DataType val, DataType refVal);
 
-	public AbstractComparisonDLAnnotation(String name)
-	{
-		super(name);
-	}
-
 	@Override
-	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws InvalidAnnotation
+	public void bindToAttribute(DLCore core, DLAttribute attribute) throws InvalidAnnotation
 	{
-		assert type != null;
 		assert attribute != null;
 
-		parameters = validateParameters(parameters, new Class[]{String.class});
-
-		String nameRef = (String) parameters[0];
-
-		ComparisonDLInstanceValidator validator = new ComparisonDLInstanceValidator(attribute.getName(), nameRef, (t, u) -> {
-			return compare(t, u);
-		}, (t, u) -> {
-			return errorMessage(t, u);
-		});
-		((DefaultDLType) type).addInstanceValidator(validator);
+		ComparisonDLInstanceValidator validator = new ComparisonDLInstanceValidator(
+			attribute.getName(),
+			(val, refVal) -> {
+				return compare(val, refVal);
+			},
+			(val, refVal) -> {
+				return errorMessage(val, refVal);
+			});
+		((DefaultDLType) attribute.getContainer()).addInstanceValidator(validator);
 
 		if (attribute instanceof DefaultDLAttribute) {
 			((DefaultDLAttribute) attribute).addValidator(validator);
 		}
+	}
+
+	public String getOther()
+	{
+		return other;
+	}
+
+	public void setOther(String other)
+	{
+		this.other = other;
 	}
 }

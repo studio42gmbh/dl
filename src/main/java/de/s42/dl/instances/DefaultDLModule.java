@@ -26,7 +26,6 @@
 package de.s42.dl.instances;
 
 import de.s42.dl.*;
-import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.types.ModuleDLType;
 import java.io.File;
 import java.util.Optional;
@@ -58,13 +57,6 @@ public class DefaultDLModule extends DefaultDLInstance implements DLModule
 		}
 
 		return shortName.substring(shortName.lastIndexOf(File.separator) + 1);
-	}
-
-	public void addRequiredModule(DLModule module) throws InvalidInstance
-	{
-		assert module != null;
-
-		addChild(module);
 	}
 
 	@Override

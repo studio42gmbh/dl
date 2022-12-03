@@ -1,7 +1,239 @@
-// DEFINE ANNOTATION IN DL
+// DL MISSION:
+// DL provides environment dependable constraining and validation of data in a consistent and foremost easy readable and understandable language to describe data and stream data
+// (types, generics, annotations/contracts, scope, streamable)
+
+
+// DL 1.0 in  a nutshell (not there yet)
+
+require libA;
+require "other.dl";
+
+extern pragma de.s42.util.Log alias Log;
+extern type de.s42.dom.Entity alias Entity;
+
+pragma Log(INFO, "Starting parsing");
+
+abstract type Shape extends Entity;
+
+type SpecialInt @range(min : -10000, max : 10000) extends int; 
+
+final type Rectangle(x, y, width, height) extends Shape
+{
+	SpecialInt x : 0;
+	SpecialInt y : 0;
+	SpecialInt width @min(1) @required;
+	SpecialInt height @min(1) @required;
+}
+
+enum State 
+{
+	DRAFT, REVIEW, PRODUCTION
+}
+
+declare type Shapes;
+
+type App contains Shapes
+{
+}
+
+type Shapes @contain(Shape, 1, 10) contains Shape
+{
+	App app @required
+	State state @required;
+}
+
+pragma disableDefineTypes;
+
+int SCALE : 3;
+
+App app @export;
+
+Rectangle rect : 10, 10, 200, 100;
+
+Rectangle rect2 {
+	width : 32;
+	height : 32;
+}
+
+Shapes rectangles in app {
+
+	app : $app;
+	state : REVIEW;
+
+	Rectangle rect3 {
+		x : $rect.x - 100;
+		y : $rect.x - (0xFF * 2);
+		width : $rect.width * $SCALE;
+		height : $rect.height * $SCALE;
+	}
+		
+	Rectangle rect4 {
+		width : 32;
+		height : 16;
+	}
+
+	Rectangle rect5 : copy $rect2;
+}
+
+
+
+
+
+
+
+
+// TYPE ASSIGNMENT DEFINITION
+// Allows to define how a type can get constructed from a simple assignment
+
+type Rectangle(x, y, width, height) extends Shape
+{
+	int x : 0;
+	int y : 0;
+	int width @min(1) : 1;
+	int height @min(1) : 1;
+}
+
+// Allows this assignment
+Rectangle rect : 10, 10, 200, 100;
+
+
+
+
+
+// TYPE GENERICS
+
+type T<U> 
+{
+	U y @required;
+	U z;
+}
+
+
+// WAY TO DEFINE SIMPLE TYPES IN DL
+// How could i define a constrained Float within DL but adding annotations?
+
+type Percentage extends float
+{
+	float value @required @range(0.0, 100.0);
+}
+
+Percentage g : 95.0;
+
+type T 
+{
+	Percentage p : 95.0;
+	float other : $g;
+}
+
+
+// WAY TO APPLY ANNOTATIONS ON ALL ATTRIBUTES IN TYPE?
+// use @@ ?
+
+@forall(int, min(0))
+@forall _ : @reqired 
+@@<int .*>(min(0))
+
+// Applies required to all ints in this type
+type T
+@@<int .*>(required)
+{
+	String s;
+	int x; // <- required
+	int y; // <- required
+}
+
+// KOMBINATORISCHES ANNOTATION/CONTRACT FRAMEWORK - mit EI besprechen
+// -> annotation auf type die auf selection attributes in type angewendet werden
+// -> combined annotations
+
+annotation combined : hasJustSimpleMembers & isComplex & !isDerived;
+annotation combined { hasJustSimpleMembers & isComplex & !isDerived }
+
+so in der art bzw.
+
+annotation combined(int min, int max) { hasJustSimpleMembers(min, max) & isComplex & !isDerived }
+annotation combined(int min, int max, type t) { hasJustSimpleMembers(min, max) & isComplex & !isDerived & hasmemberoftypewithname(t.x) & hasmemberoftypewithname(t.y)  }
+
+// @prime means the number is a integer/long/short and is a primenumber
+extern annotation prime @customType; // currently has to be pulled from implementing environment (i.e. java)
+
+annotation typeOf(var, type) : @assert(typeOf($var) == $type);
+
+annotation tlike : 
+	@typeOf(y, Number) & 
+	@typeOf(z, Number) & 
+	@assert(typeOf(y) == typeOf(z)) & 
+	@assert(y == z + 1);
+
+type T
+@export{client}
+@tlike{!client|windows}
+extends Object, MathObject
+{
+	String x @required;
+	int y @prime : 42 * 3 - 5;
+	int z @requiredIf(y > 2);
+}
+
+type T2
+@isTlike
+{
+	double y;
+	float z; // <- ERROR: type is different to y type
+}
+
+
+// ADD GENERICS IN DL
+
+type T<U,V> 
+{
+	Map<U, V> data;
+}
+
+
+// SCOPE FOR KEYWORDS
+
+type{editor} User {
+	
+}
+
+
+// SCOPES
+// scopes could be OS(windows, linux, macos), App(client, server), Runmode (release, debug, testing)
+// scopes can be used with bool operators !, |, &
+
+scope editor {
+
+...
+
+}
+
+
+// SCOPED ANNOTATIONS
+// allow to have annotations just be used in certain environments/scopes (scopes 'all' and 'none'(?) are inbuilt)
+// scopes could be OS(windows, linux, macos), App(client, server), Runmode (release, debug, testing)
+// over time DL will provide a rich set of standardized scopes
+// scopes can be used with bool operators !, |, &
+
+
+@disallowComponent(DebugComponent):server&release
+
+@{server&release}disallowComponent(DebugComponent)
+
+
+type Node 
+@requireComponent(FinalRenderComponent, 1, 1) // equivalent to @all:requireComponent(FinalRenderComponent, 1, 1)
+@disallowComponent(DebugComponent):server&release
+@disallowComponent(DebugComponent):server
+@disallowComponent(EditorComponent):!editor
+@requireComponent(EditorComponent, 1, 1):editor|batch
+{
+}
+
+// DEFINE/COMBINE ANNOTATION IN DL
 
 // allow to combine other annotations into my own like a specific contract
-annotation myKeyword (required & length(5, 10)) & !upperCase;
+annotation lowerCaseKeyword5t10 (required & length(5, 10)) & !upperCase;
 
 type User {
 	

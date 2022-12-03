@@ -25,14 +25,6 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.*;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.types.DefaultDLType;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  *
  * @author Benjamin Schiller
@@ -40,6 +32,9 @@ import java.util.stream.Collectors;
 public class RequiredOrDLAnnotation extends AbstractDLAnnotation
 {
 
+	public final static String DEFAULT_SYMBOL = "requiredOr";
+
+	/*
 	private static class RequiredOrDLInstanceValidator implements DLInstanceValidator
 	{
 
@@ -101,8 +96,6 @@ public class RequiredOrDLAnnotation extends AbstractDLAnnotation
 		}
 	}
 
-	public final static String DEFAULT_SYMBOL = "requiredOr";
-
 	public RequiredOrDLAnnotation()
 	{
 		this(DEFAULT_SYMBOL);
@@ -125,4 +118,5 @@ public class RequiredOrDLAnnotation extends AbstractDLAnnotation
 
 		((DefaultDLType) type).addInstanceValidator(new RequiredOrDLInstanceValidator(type, attribute, parameters));
 	}
+	 */
 }

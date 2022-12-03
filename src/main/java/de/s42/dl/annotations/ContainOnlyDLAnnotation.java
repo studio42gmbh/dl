@@ -25,20 +25,16 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.*;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.types.DefaultDLType;
-import java.util.Optional;
-
 /**
  *
  * @author Benjamin Schiller
  */
-public class ContainOnlyDLAnnotation extends AbstractDLAnnotation
+public class ContainOnlyDLAnnotation extends AbstractDLAnnotation<ContainOnlyDLAnnotation>
 {
 
+	public final static String DEFAULT_SYMBOL = "containOnly";
+
+	/*
 	private static class ContainOnlyDLInstanceValidator implements DLInstanceValidator
 	{
 
@@ -95,24 +91,11 @@ public class ContainOnlyDLAnnotation extends AbstractDLAnnotation
 		}
 	}
 
-	public final static String DEFAULT_SYMBOL = "containOnly";
-
-	public ContainOnlyDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public ContainOnlyDLAnnotation(String name)
-	{
-		super(name);
-	}
-
 	@Override
 	public void bindToType(DLCore core, DLType type, Object... parameters) throws InvalidAnnotation
 	{
 		assert core != null;
 		assert type != null;
-
 		parameters = validateParameters(parameters, new Class[]{String.class, Integer.class, Integer.class});
 
 		String typeName = (String) parameters[0];
@@ -128,5 +111,7 @@ public class ContainOnlyDLAnnotation extends AbstractDLAnnotation
 		}
 
 		((DefaultDLType) type).addInstanceValidator(new ContainOnlyDLInstanceValidator(core, typeName, min, max));
+
 	}
+	 */
 }

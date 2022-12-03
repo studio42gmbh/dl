@@ -27,7 +27,7 @@ package de.s42.dl.instances;
 
 import de.s42.base.collections.MappedList;
 import de.s42.dl.*;
-import de.s42.dl.DLAnnotated.DLMappedAnnotation;
+import de.s42.dl.annotations.AbstractDLAnnotated;
 import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.log.LogManager;
@@ -49,18 +49,16 @@ import java.util.function.Consumer;
  * @author Benjamin Schiller
  */
 // @todo https://github.com/studio42gmbh/dl/issues/21 DLInstance rethink interface and implementation of getters - Optional? Performance, Security, Convenience
-public class DefaultDLInstance implements DLInstance
+public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 {
 
 	private final static Logger log = LogManager.getLogger(DefaultDLInstance.class.getName());
 
 	// one DLInstance can just have one Java Object representation
 	protected Object javaObject;
-	protected String name;
 	protected DLType type;
 	protected final MappedList<String, Object> attributes = new MappedList<>();
 	protected final MappedList<String, DLInstance> children = new MappedList<>();
-	protected final List<DLMappedAnnotation> annotations = new ArrayList<>();
 
 	public DefaultDLInstance()
 	{
@@ -124,11 +122,10 @@ public class DefaultDLInstance implements DLInstance
 	public void set(String key, Object value)
 	{
 		assert key != null;
-		
+
 		if (value != null) {
 			attributes.add(key, value);
-		}
-		else {
+		} else {
 			attributes.remove(key);
 		}
 	}
@@ -492,17 +489,6 @@ public class DefaultDLInstance implements DLInstance
 	}
 
 	@Override
-	public String getName()
-	{
-		return name;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	@Override
 	public boolean hasName()
 	{
 		return (name != null) && !name.isBlank();
@@ -534,55 +520,6 @@ public class DefaultDLInstance implements DLInstance
 		}
 
 		return (ObjectType) javaObject;
-	}
-
-	public void addAnnotation(DLAnnotation annotation, Object... parameters)
-	{
-		assert annotation != null;
-
-		DLMappedAnnotation mapped = new DLMappedAnnotation(annotation, parameters);
-
-		annotations.add(mapped);
-	}
-
-	@Override
-	public List<DLMappedAnnotation> getAnnotations()
-	{
-		return Collections.unmodifiableList(annotations);
-	}
-
-	@Override
-	public Optional<DLMappedAnnotation> getAnnotation(Class<? extends DLAnnotation> annotationType)
-	{
-		assert annotationType != null;
-
-		for (DLMappedAnnotation annotation : annotations) {
-			if (annotationType.isAssignableFrom(annotation.getAnnotation().getClass())) {
-				return Optional.of(annotation);
-			}
-		}
-
-		return Optional.empty();
-	}
-
-	@Override
-	public boolean hasAnnotation(Class<? extends DLAnnotation> annotationType)
-	{
-		assert annotationType != null;
-
-		for (DLMappedAnnotation annotation : annotations) {
-			if (annotationType.isAssignableFrom(annotation.getAnnotation().getClass())) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	@Override
-	public boolean hasAnnotations()
-	{
-		return !annotations.isEmpty();
 	}
 
 	@Override

@@ -28,6 +28,7 @@ package de.s42.dl.parser;
 import de.s42.base.files.FilesHelper;
 import de.s42.dl.DLModule;
 import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 
@@ -58,5 +59,53 @@ public class DLHrfParsingErrorHandler extends BaseErrorListener
 				module.getShortName(), module.getName(), line, position + 1, false));
 
 		throw new RuntimeException(msg.toString());
+	}
+
+	public String createErrorMessage(String reason, ParserRuleContext context) throws RuntimeException
+	{
+		return createErrorMessage(module, reason, context);
+	}
+
+	public static String createErrorMessage(DLModule module, String reason, ParserRuleContext context) throws RuntimeException
+	{
+		// https://github.com/apache/netbeans/blob/c084119009d2e0f736f225d706bc1827af283501/java/maven/src/org/netbeans/modules/maven/output/GlobalOutputProcessor.java
+		//"Das sollte gehen @ GPClient, C:\\home\\f12\\development\\gods_playground\\gp-client\\data\\renderdoc.config.dl, line 5, column 6");
+
+		StringBuilder message = new StringBuilder();
+		message
+			.append(reason)
+			.append("\n")
+			.append(FilesHelper.createMavenNetbeansFileConsoleLink("\t ",
+				module.getShortName(), module.getName(),
+				context.start.getLine(), context.start.getCharPositionInLine() + 1, false));
+
+		return message.toString();
+	}
+
+	public String createErrorMessage(String reason, Throwable cause, ParserRuleContext context) throws RuntimeException
+	{
+		return createErrorMessage(module, reason, cause, context);
+	}
+
+	public static String createErrorMessage(DLModule module, String reason, Throwable cause, ParserRuleContext context) throws RuntimeException
+	{
+		StringBuilder message = new StringBuilder();
+
+		message
+			.append(reason);
+		if (cause.getMessage() != null) {
+			message
+				.append(" - ")
+				// @improvement DL why is the exception throwing if i leave " in there?
+				.append(cause.getMessage().replace("\"", ""));
+		}
+
+		message
+			.append("\n")
+			.append(FilesHelper.createMavenNetbeansFileConsoleLink("\t ",
+				module.getShortName(), module.getName(),
+				context.start.getLine(), context.start.getCharPositionInLine() + 1, false));
+
+		return message.toString();
 	}
 }

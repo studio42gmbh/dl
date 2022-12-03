@@ -38,14 +38,14 @@ import org.testng.annotations.Test;
 public class RegexDLAnnotationTest
 {
 	
-	@Test
+	@Test(enabled = false)
 	public void validRegexAnnotations() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type T { String v @regex(\"A.{2}B.*\"); } T t { v : \"ArgBer\"; }");
 	}
 
-	@Test(expectedExceptions = InvalidInstance.class)
+	@Test(enabled = false, expectedExceptions = InvalidInstance.class)
 	public void invalidRegexAnnotations() throws DLException
 	{
 		DLCore core = new DefaultCore();

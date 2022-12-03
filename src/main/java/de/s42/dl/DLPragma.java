@@ -31,7 +31,7 @@ import de.s42.dl.exceptions.InvalidPragma;
  *
  * @author Benjamin Schiller
  */
-public interface DLPragma extends DLEntity
+public interface DLPragma extends DLEntity, DLAnnotated
 {
 
 	public void doPragma(DLCore core, Object... parameters) throws InvalidPragma;

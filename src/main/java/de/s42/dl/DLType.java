@@ -83,6 +83,8 @@ public interface DLType extends DLEntity, DLAnnotated
 	public boolean mayContainSpecificType(DLType type);
 
 	public boolean mayContainType(DLType type);
+	
+	public void addAttribute(DLAttribute attribue);
 
 	public Set<DLAttribute> getOwnAttributes();
 
@@ -113,4 +115,6 @@ public interface DLType extends DLEntity, DLAnnotated
 	public boolean isAbstract();
 
 	public boolean isFinal();
+	
+	public boolean isDeclaration();
 }

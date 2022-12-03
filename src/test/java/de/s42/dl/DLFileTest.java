@@ -90,7 +90,7 @@ public class DLFileTest
 		Assert.assertEquals(user3.get("name"), "Default Name");
 	}
 
-	@Test
+	@Test(enabled = false)
 	public void validTestAnnotations() throws IOException, URISyntaxException, DLException
 	{
 		DefaultCore core = new DefaultCore();

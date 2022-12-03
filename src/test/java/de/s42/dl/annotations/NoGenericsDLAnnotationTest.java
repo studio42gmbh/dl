@@ -38,21 +38,21 @@ import org.testng.annotations.Test;
 public class NoGenericsDLAnnotationTest
 {
 
-	@Test
+	@Test(enabled = false)
 	public void validNoGenerics() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type T @noGenerics { int a ; boolean b; }");
 	}
 
-	@Test(expectedExceptions = InvalidType.class)
+	@Test(enabled = false, expectedExceptions = InvalidType.class)
 	public void invalidNoGenerics() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type T @noGenerics { int a ; List<String> b; }");
 	}
 
-	@Test
+	@Test(enabled = false)
 	public void validNoGenericsInParent() throws DLException
 	{
 		DLCore core = new DefaultCore();

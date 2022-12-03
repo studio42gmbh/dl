@@ -51,6 +51,8 @@ public interface DLAttribute extends DLEntity, DLAnnotated
 	}
 
 	public void validate() throws InvalidAttribute;
+	
+	public DLType getContainer();
 
 	public Object getDefaultValue();
 

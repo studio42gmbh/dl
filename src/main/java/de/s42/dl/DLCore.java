@@ -38,63 +38,34 @@ import java.util.*;
 public interface DLCore
 {
 
+	// MODULES
 	public DLModule parse(String moduleId) throws DLException;
 
 	public DLModule parse(String moduleId, String data) throws DLException;
-
-	public DLInstance createInstance(DLType type);
-
-	public DLInstance createInstance(DLType type, String name);
 
 	public DLModule createModule();
 
 	public DLModule createModule(String name);
 
+	// INSTANCES
+	public DLInstance createInstance(DLType type);
+
+	public DLInstance createInstance(DLType type, String name);
+
+	public DLInstance convertFromJavaObject(Object object) throws DLException;
+
+	public <ObjectType> ObjectType convertFromInstance(DLInstance instance) throws InvalidInstance;
+
+	// TYPES
 	public DLType createType();
 
 	public DLType createType(String typeName);
 
 	public DLType createType(Class<?> typeClass) throws DLException;
 
-	public DLAnnotation createAnnotation(Class<? extends DLAnnotation> annotationImpl) throws DLException;
-
-	public DLEnum createEnum();
-
-	public DLEnum createEnum(String name);
-
-	public DLEnum createEnum(String name, Class<? extends Enum> enumImpl);
-
-	public DLEnum createEnum(Class<? extends Enum> enumImpl);
-
-	public DLAttribute createAttribute(String attributeName, String typeName) throws DLException;
-
-	public DLAttribute createAttribute(String attributeName, DLType type);
-
-	public DLInstance convertFromJavaObject(Object object) throws DLException;
-
-	public <ObjectType> ObjectType convertFromInstance(DLInstance instance) throws InvalidInstance;
-
-	public DLAnnotation addAnnotationToAttribute(DLType type, DLAttribute attribute, String annotationName, Object... parameters) throws DLException;
-
-	public DLAnnotation addAnnotationToType(DLType type, String annotationName, Object... parameters) throws DLException;
-
-	public DLAnnotation addAnnotationToInstance(DLModule module, DLInstance instance, String annotationName, Object... parameters) throws DLException;
-
 	public DLType defineAliasForType(String alias, DLType type) throws DLException;
 
-	public void addExported(DLInstance instance) throws InvalidInstance;
-
-	public void addExported(Collection<DLInstance> instances) throws InvalidInstance;
-
-	public boolean hasExported(String name);
-
-	public List<DLInstance> getExported();
-
-	public Optional<DLInstance> getExported(String name);
-	
-	public List<DLInstance> getExported(Class<? extends DLAnnotation> annotationType);
-
-	public Object resolveExportedPath(String path);
+	public DLType declareType(String typeName) throws DLException;
 
 	public DLType defineType(DLType type, String... aliases) throws DLException;
 
@@ -111,25 +82,70 @@ public interface DLCore
 	public Optional<DLType> getType(String name, List<DLType> genericTypes) throws DLException;
 
 	public List<DLType> getTypes();
-	
+
 	public List<DLType> getTypes(Class<? extends DLAnnotation> annotationType);
 
 	public List<DLType> getComplexTypes();
 
 	public List<DLType> getSimpleTypes();
 
+	public boolean isAllowDefineTypes();
+
+	public void setAllowDefineTypes(boolean allowDefineTypes);
+
+	// ENUMS
+	public DLEnum createEnum();
+
+	public DLEnum createEnum(String name);
+
+	public DLEnum createEnum(String name, Class<? extends Enum> enumImpl);
+
+	public DLEnum createEnum(Class<? extends Enum> enumImpl);
+
 	public List<DLEnum> getEnums();
 
-	public DLAnnotation defineAnnotation(DLAnnotation annotation, String... aliases) throws DLException;
+	// ATTRIBUTES
+	public DLAttribute createAttribute(String attributeName, String typeName, DLType container) throws DLException;
 
-	public DLAnnotation defineAliasForAnnotation(String alias, DLAnnotation annotation) throws DLException;
+	public DLAttribute createAttribute(String attributeName, DLType type, DLType container);
 
-	public boolean hasAnnotation(String name);
+	// ANNOTATIONS
+	public DLAnnotation createAnnotation(String name, DLAnnotated container) throws DLException;
 
-	public Optional<DLAnnotation> getAnnotation(String name);
+	public DLAnnotation createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException;
 
-	public List<DLAnnotation> getAnnotations();
+	public DLAnnotation createAnnotation(String name, DLAnnotated container, Map<String, Object> namedParameters) throws DLException;
 
+	public DLAnnotationFactory defineAnnotationFactory(DLAnnotationFactory factory, String name, String... aliases) throws DLException;
+
+	public DLAnnotationFactory defineAliasForAnnotationFactory(String alias, String name) throws DLException;
+
+	public boolean hasAnnotationFactory(String name);
+
+	public Optional<DLAnnotationFactory> getAnnotationFactory(String name);
+
+	public List<DLAnnotationFactory> getAnnotationFactories();
+
+	public boolean isAllowDefineAnnotationFactories();
+
+	public void setAllowDefineAnnotationsFactories(boolean allowDefineAnnotationFactories);
+
+	// EXPORTS
+	public void addExported(DLInstance instance) throws InvalidInstance;
+
+	public void addExported(Collection<DLInstance> instances) throws InvalidInstance;
+
+	public boolean hasExported(String name);
+
+	public List<DLInstance> getExported();
+
+	public Optional<DLInstance> getExported(String name);
+
+	public List<DLInstance> getExported(Class<? extends DLAnnotation> annotationType);
+
+	public Object resolveExportedPath(String path);
+
+	// PRAGMAS
 	public DLPragma definePragma(DLPragma pragma, String... aliases) throws DLException;
 
 	public DLPragma defineAliasForPragma(String alias, DLPragma pragma) throws DLException;
@@ -142,19 +158,18 @@ public interface DLCore
 
 	public void doPragma(String pragmaName, Object... parameters) throws InvalidPragma;
 
-	public Path getBasePath();
-
-	public boolean isAllowDefineTypes();
-
-	public void setAllowDefineTypes(boolean allowDefineTypes);
-
-	public boolean isAllowDefineAnnotations();
-
-	public void setAllowDefineAnnotations(boolean allowDefineAnnotations);
-
 	public boolean isAllowDefinePragmas();
 
 	public void setAllowDefinePragmas(boolean allowDefinePragmas);
+
+	public boolean isAllowUsePragmas();
+	
+	public void setAllowUsePragmas(boolean allowUsePragmas);
+	
+	// OTHER
+	public Path getBasePath();
+
+	public ClassLoader getClassLoader();
 
 	public boolean isAllowRequire();
 

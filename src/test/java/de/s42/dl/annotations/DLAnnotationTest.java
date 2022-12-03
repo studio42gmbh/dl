@@ -25,11 +25,13 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.DLAnnotation;
+import de.s42.dl.DLAnnotationFactory;
 import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
@@ -40,31 +42,28 @@ import org.testng.Assert;
 public class DLAnnotationTest
 {
 
+	private final static Logger log = LogManager.getLogger(DLAnnotationTest.class.getName());
+
 	public static class TestAnnotation extends TagDLAnnotation
 	{
-
-		public TestAnnotation()
-		{
-			super("test");
-		}
 	}
 
 	/**
 	 * Just extern annotations are allowed
 	 *
 	 * @throws DLException
-	 * @throws RuntimeException expected -> "extraneous input 'annotation' expecting {<EOF>, 'type', 'extern',
+	 * @throws RuntimeException expected -> "extraneous input 'annotation' expecting {EOF, 'type', 'extern',
 	 * 'require', 'enum', 'abstract', 'alias', 'final', 'pragma', SYMBOL}"
 	 */
-	@Test(expectedExceptions = {RuntimeException.class})
+	@Test(expectedExceptions = RuntimeException.class)
 	public void invalidInternalAnnotationNotAllowed() throws DLException, RuntimeException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "annotation T;");
+		core.parse("invalidInternalAnnotationNotAllowed", "annotation T;");
 	}
 
 	@Test(expectedExceptions = {InvalidAnnotation.class})
-	public void invalidParametersEmptyBracketsAnnotationForJavaType() throws DLException
+	public void invalidParametersEmptyBracketsAnnotationForJavaTypeWithRequiredParameters() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type T @contain();");
@@ -81,7 +80,7 @@ public class DLAnnotationTest
 	public void validJavaDefinedAnnotation() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.defineAnnotation(new TestAnnotation());
+		core.defineAnnotationFactory(new TestAnnotation(), "test");
 		core.parse("Anonymous", "type T @test;");
 		core.parse("Anonymous2", "type T2 @test();");
 	}
@@ -90,26 +89,26 @@ public class DLAnnotationTest
 	public void validExternAnnotation() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "extern annotation de.s42.dl.annotations.DLAnnotationTest$TestAnnotation;");
-		core.parse("Anonymous2", "type T @de.s42.dl.annotations.DLAnnotationTest$TestAnnotation;");
-		core.parse("Anonymous3", "type T2 @test;");
+		core.parse("validExternAnnotation", "extern annotation de.s42.dl.annotations.DLAnnotationTest$TestAnnotation alias test;");
+		core.parse("validExternAnnotation2", "type T @de.s42.dl.annotations.DLAnnotationTest$TestAnnotation;");
+		core.parse("validExternAnnotation3", "type T2 @test;");
 	}
 
 	@Test(expectedExceptions = InvalidAnnotation.class)
 	public void invalidUndefinedExternAnnotation() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "extern annotation notDefined;");
+		core.parse("invalidUndefinedExternAnnotation", "extern annotation notDefined;");
 	}
-	
+
 	@Test
 	public void validExternAliasAnnotation() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "extern annotation de.s42.dl.annotations.DLAnnotationTest$TestAnnotation alias U, V;");
-		DLAnnotation annotationU = core.getAnnotation("U").orElseThrow();
-		Assert.assertEquals(annotationU.getName(), "test");
-		DLAnnotation annotationV = core.getAnnotation("V").orElseThrow();
-		Assert.assertEquals(annotationV.getName(), "test");
+		core.parse("validExternAliasAnnotation", "extern annotation de.s42.dl.annotations.DLAnnotationTest$TestAnnotation alias U, V;");
+		DLAnnotationFactory annotationU = core.getAnnotationFactory("U").orElseThrow();
+		Assert.assertNotNull(annotationU);
+		DLAnnotationFactory annotationV = core.getAnnotationFactory("V").orElseThrow();
+		Assert.assertNotNull(annotationV);
 	}
 }

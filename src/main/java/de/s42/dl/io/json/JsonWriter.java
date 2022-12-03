@@ -27,7 +27,7 @@ package de.s42.dl.io.json;
 
 import de.s42.base.conversion.ConversionHelper;
 import de.s42.base.files.FilesHelper;
-import de.s42.dl.DLAnnotated.DLMappedAnnotation;
+import de.s42.dl.DLAnnotation;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLPragma;
@@ -179,14 +179,14 @@ public class JsonWriter implements DLWriter
 			JSONArray annotations = new JSONArray();
 			result.put("annotations", annotations);
 
-			for (DLMappedAnnotation annotation : instance.getAnnotations()) {
+			for (DLAnnotation annotation : instance.getAnnotations()) {
 
 				JSONObject ann = new JSONObject();
 				annotations.put(ann);
 
-				ann.put("name", annotation.getAnnotation().getName());
+				ann.put("name", annotation.getName());
 
-				Object[] params = annotation.getParameters();
+				Object[] params = annotation.getFlatParameters();
 
 				if (params != null
 					&& params.length > 0) {

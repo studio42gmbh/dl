@@ -39,22 +39,10 @@ public class GenericDLAnnotation extends AbstractDLAnnotation
 
 	public final static String DEFAULT_SYMBOL = "generic";
 
-	public GenericDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public GenericDLAnnotation(String name)
-	{
-		super(name);
-	}
-
 	@Override
-	public void bindToType(DLCore core, DLType type, Object... parameters) throws InvalidAnnotation
+	public void bindToType(DLCore core, DLType type) throws InvalidAnnotation
 	{
 		assert type != null;
-
-		validateParameters(parameters, null);
 
 		//allow generic types
 		((DefaultDLType) type).setAllowGenericTypes(true);

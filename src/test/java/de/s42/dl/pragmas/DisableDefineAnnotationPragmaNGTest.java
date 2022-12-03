@@ -43,6 +43,6 @@ public class DisableDefineAnnotationPragmaNGTest
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "pragma disableDefineAnnotations;");
-		Assert.assertEquals(core.isAllowDefineAnnotations(), false);
+		Assert.assertEquals(core.isAllowDefineAnnotationFactories(), false);
 	}
 }

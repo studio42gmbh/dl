@@ -25,23 +25,16 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.*;
-import de.s42.dl.attributes.DefaultDLAttribute;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.exceptions.InvalidAttribute;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.exceptions.InvalidValue;
-import de.s42.dl.types.DefaultDLType;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 /**
  *
  * @author Benjamin Schiller
  */
 public class IsDirectoryDLAnnotation extends AbstractDLAnnotation
 {
+	public final static String DEFAULT_SYMBOL = "isDirectory";
+	
 
+/*
 	private static class IsDirectoryDLInstanceValidator implements DLInstanceValidator, DLAttributeValidator
 	{
 
@@ -94,18 +87,6 @@ public class IsDirectoryDLAnnotation extends AbstractDLAnnotation
 		}
 	}
 
-	public final static String DEFAULT_SYMBOL = "isDirectory";
-
-	public IsDirectoryDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public IsDirectoryDLAnnotation(String name)
-	{
-		super(name);
-	}
-
 	@Override
 	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws InvalidAnnotation
 	{
@@ -122,4 +103,5 @@ public class IsDirectoryDLAnnotation extends AbstractDLAnnotation
 
 		((DefaultDLType) type).addInstanceValidator(validator);
 	}
+*/
 }

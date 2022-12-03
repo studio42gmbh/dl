@@ -25,10 +25,17 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
+import de.s42.dl.DLAttribute;
+import de.s42.dl.DLCore;
+import de.s42.dl.DLInstance;
+import de.s42.dl.DLInstanceValidator;
 import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.*;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.types.DefaultDLType;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
@@ -36,6 +43,13 @@ import de.s42.dl.types.DefaultDLType;
  */
 public class RequiredDLAnnotation extends AbstractDLAnnotation
 {
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = {ElementType.FIELD})
+	@DLAnnotationType(RequiredDLAnnotation.class)
+	public static @interface required
+	{
+	}
 
 	private static class RequiredDLInstanceValidator implements DLInstanceValidator
 	{
@@ -62,26 +76,11 @@ public class RequiredDLAnnotation extends AbstractDLAnnotation
 		}
 	}
 
-	public final static String DEFAULT_SYMBOL = "required";
-
-	public RequiredDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public RequiredDLAnnotation(String name)
-	{
-		super(name);
-	}
-
 	@Override
-	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws InvalidAnnotation
+	public void bindToAttribute(DLCore core, DLAttribute attribute) throws InvalidAnnotation
 	{
-		assert type != null;
 		assert attribute != null;
 
-		validateParameters(parameters, null);
-
-		((DefaultDLType) type).addInstanceValidator(new RequiredDLInstanceValidator(attribute));
+		((DefaultDLType) attribute.getContainer()).addInstanceValidator(new RequiredDLInstanceValidator(attribute));
 	}
 }
