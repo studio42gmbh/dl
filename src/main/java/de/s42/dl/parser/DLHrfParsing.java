@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl.parser;
 
+import de.s42.base.files.FilesHelper;
 import de.s42.dl.parser.expression.DLHrfExpressionParser;
 import de.s42.dl.*;
 import de.s42.dl.exceptions.*;
@@ -1138,10 +1139,12 @@ public class DLHrfParsing extends DLParserBaseListener
 		DLLexer lexer = new DLLexer(CharStreams.fromString(data));
 		lexer.removeErrorListeners();
 		lexer.addErrorListener(new DLHrfParsingErrorHandler(parsing, module));
-		TokenStream tokens = new CommonTokenStream(lexer);
 
+		TokenStream tokens = new CommonTokenStream(lexer);
+		
+		/*
 		// @test Iterate tokens from lexer
-		/*while (true) {
+		while (true) {
 			Token token = tokens.LT(1);
 			System.out.println("TOKEN: " + token);
 			if (token.getType() == DLLexer.EOF) {
@@ -1150,18 +1153,30 @@ public class DLHrfParsing extends DLParserBaseListener
 			tokens.consume();
 		}
 		tokens.seek(0);
-		 */
+		*/
+		
 		// Setup parser
 		DLParser parser = new DLParser(tokens);
 		parser.removeErrorListeners();
 		parser.addErrorListener(new DLHrfParsingErrorHandler(parsing, module));
 
 		// Parse module
-		DataContext root = parser.data();
-		ParseTreeWalker walker = new ParseTreeWalker();
-
 		try {
+			DataContext root = parser.data();
+			ParseTreeWalker walker = new ParseTreeWalker();
+
 			walker.walk(parsing, root);
+		} catch (ReservedKeyword ex) { 
+			StringBuilder message = new StringBuilder();
+			message
+				.append("Keyword '")
+				.append(ex.getKeyword())
+				.append("' is reserved")
+				.append(FilesHelper.createMavenNetbeansFileConsoleLink("\t ",
+					module.getShortName(), module.getName(),
+					ex.getLine(), ex.getPosition() + 1, false));
+			throw new ReservedKeyword(message.toString(), ex);
+			
 		} catch (RuntimeException ex) {
 
 			// Unwrap DLException for nicer stack trace
