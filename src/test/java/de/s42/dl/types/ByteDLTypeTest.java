@@ -43,7 +43,7 @@ public class ByteDLTypeTest
 	{
 		DLCore core = new DefaultCore();
 		DLModule module = core.parse("Test", "byte b : 12;");
-		byte b = module.get("b");
+		byte b = module.getByte("b");
 		Assert.assertEquals(b, 12);		
 	}
 }

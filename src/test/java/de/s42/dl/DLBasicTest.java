@@ -104,7 +104,7 @@ public class DLBasicTest
 		core.defineType(core.createType(TestData.class));
 
 		DLModule module = core.parse("Anonymous", "de.s42.dl.DLBasicTest$TestData data1 { login: \"TestName\"; id : 14; }");
-		TestData data1 = (TestData) module.getChildAsJavaObject("data1", core).get();
+		TestData data1 = (TestData) module.getChildAsJavaObject("data1").get();
 
 		Assert.assertEquals(data1.getName(), "data1");
 		Assert.assertEquals(data1.getLogin(), "TestName");

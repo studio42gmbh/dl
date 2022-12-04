@@ -29,12 +29,9 @@ import de.s42.base.testing.AssertHelper;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.*;
-import de.s42.dl.DLAnnotation.AnnotationDL;
 import de.s42.dl.DLAttribute.AttributeDL;
 import de.s42.dl.annotations.DynamicDLAnnotation.dynamic;
-import de.s42.dl.annotations.LengthDLAnnotation;
 import de.s42.dl.annotations.RequiredDLAnnotation;
-import de.s42.dl.annotations.UniqueDLAnnotation;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.log.LogManager;
@@ -203,7 +200,7 @@ public class DLJavaTypesTest
 			+ "stringVal : \"String long enough\";"
 			+ "doubleVal : 1.2345; "
 			+ "}");
-		TestClass test1 = module.getChild(0).toJavaObject(core);
+		TestClass test1 = (TestClass) module.getChild(0).toJavaObject();
 		Assert.assertEquals(test1.getName(), "test1");
 		Assert.assertEquals(test1.getUuidVal(), UUID.fromString("16cfc033-3597-49fe-a991-24b533dbfeb6"));
 		Assert.assertEquals(test1.getIntVal(), 42); // retrieved from default value

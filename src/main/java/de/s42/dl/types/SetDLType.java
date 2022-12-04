@@ -26,7 +26,6 @@
 package de.s42.dl.types;
 
 import de.s42.base.conversion.ConversionHelper;
-import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
 import de.s42.dl.exceptions.DLException;
@@ -83,7 +82,7 @@ public class SetDLType extends DefaultDLType
 	}
 
 	@Override
-	public DLInstance fromJavaObject(DLCore core, Object value) throws DLException
+	public DLInstance fromJavaObject(Object value) throws DLException
 	{
 		if (!(value instanceof Set)) {
 			throw new InvalidValue("value has to be instanceof Set");
@@ -92,7 +91,6 @@ public class SetDLType extends DefaultDLType
 		DLInstance instance = core.createInstance(this);
 
 		// @todo properly handle generic and complex elements
-		
 		Set converted = new HashSet<>();
 
 		for (Object el : (Set) value) {
@@ -206,7 +204,7 @@ public class SetDLType extends DefaultDLType
 			result.addError(InvalidGenericParameters.toString(), "May only contain 0 or 1 generic types", this);
 			valid = false;
 		}
-		
-		return valid;		
+
+		return valid;
 	}
 }

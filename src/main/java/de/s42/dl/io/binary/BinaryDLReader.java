@@ -334,7 +334,7 @@ public class BinaryDLReader implements DLReader
 		DLInstance instance = read();
 
 		if (instance != null) {
-			return (ObjectType) instance.toJavaObject(core);
+			return (ObjectType) instance.toJavaObject();
 		}
 
 		return null;

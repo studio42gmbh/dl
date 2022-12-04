@@ -57,6 +57,8 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 
 	// ATTRIBUTES
 	public Set<String> getAttributeNames();
+	
+	public Optional<DLAttribute> getAttribute(String name);	
 
 	public Map<String, Object> getAttributes();
 
@@ -64,19 +66,25 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 
 	public boolean hasAttributes();
 
-	public boolean hasAttribute(String key);
+	public boolean hasAttribute(String name);
 
 	// DATA ACCESS
 	public void set(String key, Object value);
 
-	public <ReturnType> ReturnType get(String key);
+	public Object get(String key);
 
-	public <InstanceType extends DLInstance> InstanceType getInstance(String key);
+	public DLInstance getInstance(String key);
 
 	public String getString(String key);
 
 	public Number getNumber(String key);
 
+	public short getShort(String key);
+	
+	public char getChar(String key);
+	
+	public byte getByte(String key);
+	
 	public int getInt(String key);
 
 	public long getLong(String key);
@@ -87,7 +95,7 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 
 	public boolean getBoolean(String key);
 
-	public <ObjectType> Optional<ObjectType> resolvePath(String path);
+	public Object resolvePath(String path);
 
 	// CONTAIN
 	public DLInstance getChild(int index);
@@ -113,17 +121,17 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 	public int getChildCount();
 
 	// CONVERSION
-	public <ObjectType> ObjectType toJavaObject(DLCore core);
+	public Object toJavaObject();
 
-	public <JavaType> JavaType getInstanceAsJavaObject(String key, DLCore core) throws InvalidAttribute;
+	public Object getInstanceAsJavaObject(String key) throws InvalidAttribute;
 
-	public <JavaType> JavaType getChildAsJavaObject(int index, DLCore core);
+	public Object getChildAsJavaObject(int index);
 
-	public <JavaType> Optional<JavaType> getChildAsJavaObject(String name, DLCore core);
+	public Optional getChildAsJavaObject(String name);
 
-	public <JavaType> Optional<JavaType> getChildAsJavaObject(DLType type, DLCore core);
+	public Optional getChildAsJavaObject(DLType type);
 
-	public <JavaType> List<JavaType> getChildrenAsJavaType(Class<? extends JavaType> javaType, DLCore core);
+	public List getChildrenAsJavaType(Class<?> javaType);
 
-	public <JavaType> List<JavaType> getChildrenAsJavaType(DLCore core);
+	public List getChildrenAsJavaType();
 }

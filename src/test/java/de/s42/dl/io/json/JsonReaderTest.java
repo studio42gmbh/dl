@@ -82,7 +82,7 @@ public class JsonReaderTest
 			+ "}");
 
 		// Reads the json into a DL Map<String, Double> and then converts it into its Java data type Map<String, Double>
-		Map<String, Double> map = reader.readObject();
+		Map<String, Double> map = (Map<String, Double>)reader.readObject();
 
 		Assert.assertEquals((double) map.get("a"), 1.234);
 		Assert.assertEquals((double) map.get("b"), 2.345);

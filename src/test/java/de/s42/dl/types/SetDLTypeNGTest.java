@@ -51,7 +51,7 @@ public class SetDLTypeNGTest
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type T { Set data; } T t @export { data : 1, a, true; }");
 		DLInstance instance = core.getExported("t").orElseThrow();
-		Set data = instance.get("data");
+		Set data = (Set)instance.get("data");
 		Assert.assertEquals(data, Set.of(1L, "a", true));
 	}
 
@@ -61,7 +61,7 @@ public class SetDLTypeNGTest
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type T { Set<Integer> data; } T t @export { data : 1, 2, 3; }");
 		DLInstance instance = core.getExported("t").orElseThrow();
-		Set<Integer> data = instance.get("data");
+		Set<Integer> data = (Set<Integer>)instance.get("data");
 		Assert.assertEquals(data, Set.of(1, 2, 3));
 	}
 

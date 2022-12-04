@@ -94,7 +94,7 @@ public class DeclareTypesTest
 		DLInstance t2 = core.getExported("t2").orElseThrow();		
 		Assert.assertEquals((float)t2.get("y"), 3.1415f);
 		
-		DLInstance other = t2.get("other");		
+		DLInstance other = t2.getInstance("other");		
 		Assert.assertEquals((int)other.get("x"), 42);		
 	}
 

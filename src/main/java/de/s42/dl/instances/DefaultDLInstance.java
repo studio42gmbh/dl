@@ -128,6 +128,12 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	}
 
 	@Override
+	public Optional<DLAttribute> getAttribute(String name)
+	{
+		return getType().getAttribute(name);
+	}
+	
+	@Override
 	public Set<String> getAttributeNames()
 	{
 		if (getType() != null) {
@@ -188,40 +194,40 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	}
 
 	@Override
-	public <ReturnType> ReturnType get(String key)
+	public Object get(String key)
 	{
 		assert key != null;
 
 		Optional attribute = attributes.get(key);
 
 		if (attribute.isPresent()) {
-			return (ReturnType) attribute.orElseThrow();
+			return attribute.orElseThrow();
 		} else if (getType() != null && getType().hasAttribute(key)) {
-			return (ReturnType) getType().getAttribute(key).orElseThrow().getDefaultValue();
+			return getType().getAttribute(key).orElseThrow().getDefaultValue();
 		}
 		return null;
 	}
 
 	@Override
-	public <InstanceType extends DLInstance> InstanceType getInstance(String key)
+	public DLInstance getInstance(String key)
 	{
 		assert key != null;
 
-		return (InstanceType) get(key);
+		return (DLInstance) get(key);
 	}
 
 	@Override
-	public <JavaType> JavaType getInstanceAsJavaObject(String key, DLCore core) throws InvalidAttribute
+	public Object getInstanceAsJavaObject(String key) throws InvalidAttribute
 	{
 		assert key != null;
 
-		DefaultDLInstance instance = get(key);
+		DefaultDLInstance instance = (DefaultDLInstance) get(key);
 
 		if (instance == null) {
 			throw new InvalidAttribute("Instance attribute '" + key + "' is not mapped.");
 		}
 
-		return instance.toJavaObject(core);
+		return instance.toJavaObject();
 	}
 
 	@Override
@@ -229,7 +235,47 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	{
 		assert key != null;
 
-		return get(key);
+		try {
+			return (String) get(key);
+		} catch (ClassCastException ex) {
+			throw new RuntimeException("Error getting " + key + " as String as its class is " + key.getClass().getCanonicalName());
+		}
+	}
+
+	@Override
+	public short getShort(String key)
+	{
+		assert key != null;
+
+		try {
+			return (short) get(key);
+		} catch (ClassCastException ex) {
+			throw new RuntimeException("Error getting " + key + " as String as its class is " + key.getClass().getCanonicalName());
+		}
+	}
+
+	@Override
+	public char getChar(String key)
+	{
+		assert key != null;
+
+		try {
+			return (char) get(key);
+		} catch (ClassCastException ex) {
+			throw new RuntimeException("Error getting " + key + " as String as its class is " + key.getClass().getCanonicalName());
+		}
+	}
+
+	@Override
+	public byte getByte(String key)
+	{
+		assert key != null;
+
+		try {
+			return (byte) get(key);
+		} catch (ClassCastException ex) {
+			throw new RuntimeException("Error getting " + key + " as String as its class is " + key.getClass().getCanonicalName());
+		}
 	}
 
 	@Override
@@ -238,9 +284,9 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 		assert key != null;
 
 		try {
-			return get(key);
+			return (Number) get(key);
 		} catch (ClassCastException ex) {
-			throw new RuntimeException("Error getting " + key + " as number as its class is " + key.getClass().getCanonicalName());
+			throw new RuntimeException("Error getting " + key + " as Number as its class is " + key.getClass().getCanonicalName());
 		}
 	}
 
@@ -281,7 +327,12 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	{
 		assert key != null;
 
-		return get(key);
+		try {
+			return (boolean) get(key);
+		} catch (ClassCastException ex) {
+			throw new RuntimeException("Error getting " + key + " as Boolean as its class is " + key.getClass().getCanonicalName());
+		}
+
 	}
 
 	@Override
@@ -302,7 +353,7 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	}
 
 	@Override
-	public <JavaType> Optional<JavaType> getChildAsJavaObject(String name, DLCore core)
+	public Optional getChildAsJavaObject(String name)
 	{
 		assert name != null;
 
@@ -312,7 +363,7 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 			return Optional.empty();
 		}
 
-		return Optional.of(child.get().toJavaObject(core));
+		return Optional.of(child.get().toJavaObject());
 	}
 
 	@Override
@@ -352,7 +403,7 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	}
 
 	@Override
-	public <JavaType> Optional<JavaType> getChildAsJavaObject(DLType type, DLCore core)
+	public Optional getChildAsJavaObject(DLType type)
 	{
 		assert type != null;
 
@@ -362,7 +413,7 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 			return Optional.empty();
 		}
 
-		return Optional.of(child.get().toJavaObject(core));
+		return Optional.of(child.get().toJavaObject());
 	}
 
 	@Override
@@ -478,7 +529,7 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	}
 
 	@Override
-	public <ObjectType> Optional<ObjectType> resolvePath(String path)
+	public Optional resolvePath(String path)
 	{
 		assert path != null;
 
@@ -500,17 +551,17 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 				//throw new InvalidValue("Path " + path + " could not get resolved for " + pathSegment);
 				return Optional.empty();
 			} else {
-				return Optional.of((ObjectType) child);
+				return Optional.of(child);
 			}
 		}
 
 		// https://github.com/studio42gmbh/dl/issues/13 Unwrap simple instances
 		// @improvement this unwrapping should be done more generic if possible
 		if (current instanceof SimpleTypeDLInstance) {
-			return Optional.ofNullable((ObjectType) ((SimpleTypeDLInstance) current).getData());
+			return Optional.ofNullable(((SimpleTypeDLInstance) current).getData());
 		}
 
-		return Optional.of((ObjectType) current);
+		return Optional.of(current);
 	}
 
 	@Override
@@ -532,32 +583,31 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 
 	@SuppressWarnings("UseSpecificCatch")
 	@Override
-	public synchronized <ObjectType> ObjectType toJavaObject(DLCore core)
+	public synchronized Object toJavaObject()
 	{
-		assert core != null;
-
 		try {
 			if (javaObject == null) {
+				DLCore core = getType().getCore();
 				javaObject = core.convertFromInstance(this);
 			}
 		} catch (Throwable ex) {
 			throw new RuntimeException("Error converting instance '" + name + "' - " + ex.getMessage(), ex);
 		}
 
-		return (ObjectType) javaObject;
+		return javaObject;
 	}
 
 	@Override
-	public <JavaType> List<JavaType> getChildrenAsJavaType(Class<? extends JavaType> javaType, DLCore core)
+	public List getChildrenAsJavaType(Class<?> javaType)
 	{
-		List<JavaType> result = new ArrayList<>(children.size());
+		List result = new ArrayList<>(children.size());
 
 		for (DLInstance child : children.list()) {
 
-			Object childJavaObject = child.toJavaObject(core);
+			Object childJavaObject = child.toJavaObject();
 
 			if (javaType.isAssignableFrom(childJavaObject.getClass())) {
-				result.add((JavaType) childJavaObject);
+				result.add(childJavaObject);
 			}
 		}
 
@@ -565,22 +615,22 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	}
 
 	@Override
-	public <JavaType> List<JavaType> getChildrenAsJavaType(DLCore core)
+	public List getChildrenAsJavaType()
 	{
-		List<JavaType> result = new ArrayList<>(children.size());
+		List result = new ArrayList<>(children.size());
 
 		for (DLInstance child : children.list()) {
 
-			result.add(child.toJavaObject(core));
+			result.add(child.toJavaObject());
 		}
 
 		return result;
 	}
 
 	@Override
-	public <JavaType> JavaType getChildAsJavaObject(int index, DLCore core)
+	public Object getChildAsJavaObject(int index)
 	{
-		return getChild(index).toJavaObject(core);
+		return getChild(index).toJavaObject();
 	}
 
 	@Override

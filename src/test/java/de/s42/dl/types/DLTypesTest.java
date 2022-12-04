@@ -225,7 +225,7 @@ public class DLTypesTest
 		DLCore core = new DefaultCore();
 		DLModule module = core.parse("validSimpleTypeAssigned", "type A; A test : Hallo; A test2 : 1.34;");
 		Object value = module.get("test");
-		Double value2 = module.get("test2");
+		Double value2 = (Double)module.get("test2");
 		Assert.assertEquals(value, "Hallo");
 		AssertHelper.assertEpsilonEquals(value2, 1.34);
 	}

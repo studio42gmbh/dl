@@ -44,7 +44,7 @@ public class ShortDLTypeTest
 	{
 		DLCore core = new DefaultCore();
 		DLModule module = core.parse("Test", "short s : 1234;");
-		short s = module.get("s");
+		short s = module.getShort("s");
 		Assert.assertEquals(s, 1234);
 	}
 }

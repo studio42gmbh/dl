@@ -49,7 +49,7 @@ public class MapDLTypeTest
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type T { Map data; } T t @export { data : a, 1, b, 3; }");
 		DLInstance instance = core.getExported("t").orElseThrow();
-		Map data = instance.get("data");
+		Map data = (Map) instance.get("data");
 
 		Assert.assertEquals(data, Map.of("a", 1L, "b", 3L));
 	}
@@ -59,7 +59,7 @@ public class MapDLTypeTest
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "Map<String, Long> t @export { a : 1;  b : 3; }");
-		Map data = core.getExported("t").orElseThrow().toJavaObject(core);
+		Map data = (Map) core.getExported("t").orElseThrow().toJavaObject();
 
 		Assert.assertEquals(data, Map.of("a", 1L, "b", 3L));
 	}
@@ -84,7 +84,7 @@ public class MapDLTypeTest
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type T { Map<String, Integer> data; } T t @export { data : a, 1, b, 3; }");
 		DLInstance instance = core.getExported("t").orElseThrow();
-		Map data = instance.get("data");
+		Map data = (Map) instance.get("data");
 
 		Assert.assertEquals(data, Map.of("a", 1, "b", 3));
 	}
@@ -98,7 +98,7 @@ public class MapDLTypeTest
 			+ "type T { Map<String, Long> data; } "
 			+ "T t @export { data : $data; }");
 		DLInstance instance = core.getExported("t").orElseThrow();
-		Map data = ((DLInstance) instance.get("data")).toJavaObject(core);
+		Map data = (Map) ((DLInstance) instance.get("data")).toJavaObject();
 
 		Assert.assertEquals(data, Map.of("a", 1L, "b", 3L));
 	}
@@ -118,7 +118,7 @@ public class MapDLTypeTest
 	{
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "Map<String, Long> t @export { a : 1;  b : 3; }");
-		Map t = core.getExported("t").orElseThrow().toJavaObject(core);
+		Map t = (Map) core.getExported("t").orElseThrow().toJavaObject();
 		t.put("c", 2);
 	}
 

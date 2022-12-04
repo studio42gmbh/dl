@@ -29,7 +29,6 @@ import de.s42.base.beans.BeanHelper;
 import de.s42.base.beans.BeanInfo;
 import de.s42.base.beans.BeanProperty;
 import de.s42.base.beans.InvalidBean;
-import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
 import de.s42.dl.exceptions.InvalidType;
@@ -62,15 +61,15 @@ public class ComplexTypeDLInstance<DataType> extends DefaultDLInstance
 	}
 
 	@Override
-	public DataType toJavaObject(DLCore core)
+	public DataType toJavaObject()
 	{
 		return getData();
 	}
 
 	@Override
-	public <ReturnType> ReturnType get(String key)
+	public Object get(String key)
 	{
-		Optional<BeanProperty<DataType, ReturnType>> property = info.getProperty(key);
+		Optional<BeanProperty<DataType, Object>> property = info.getProperty(key);
 
 		if (property.isPresent()) {
 			try {

@@ -26,7 +26,6 @@
 package de.s42.dl.types;
 
 import de.s42.base.conversion.ConversionHelper;
-import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
 import de.s42.dl.exceptions.DLException;
@@ -83,7 +82,7 @@ public class ListDLType extends DefaultDLType
 	}
 
 	@Override
-	public DLInstance fromJavaObject(DLCore core, Object value) throws DLException
+	public DLInstance fromJavaObject(Object value) throws DLException
 	{
 		if (!(value instanceof List)) {
 			throw new InvalidValue("value has to be instanceof List");

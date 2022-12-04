@@ -61,7 +61,7 @@ public class DoubleDLNGTest
 		DLCore core = new DefaultCore();
 		core.defineType(core.createType(TestType.class), "TestType");
 		DLModule module = core.parse("Anonymous", "TestType { doubleValue : 103455.2346634; }");
-		TestType instance = module.getChild(0).toJavaObject(core);
+		TestType instance = (TestType)module.getChild(0).toJavaObject();
 		AssertHelper.assertEpsilonEquals(instance.getDoubleValue(), 103455.2346634, "Double is not matching");
 	}
 
@@ -71,7 +71,7 @@ public class DoubleDLNGTest
 		DLCore core = new DefaultCore();
 		core.defineType(core.createType(TestType.class), "TestType");
 		DLModule module = core.parse("Anonymous", "TestType { doubleValue : 1.43E-4; }");
-		TestType instance = module.getChild(0).toJavaObject(core);
+		TestType instance = (TestType)module.getChild(0).toJavaObject();
 		AssertHelper.assertEpsilonEquals(instance.getDoubleValue(), 1.43E-4, "Double is not matching");
 	}
 }

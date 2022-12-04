@@ -26,7 +26,6 @@
 package de.s42.dl.types;
 
 import de.s42.dl.DLAttribute;
-import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
 import de.s42.dl.exceptions.DLException;
@@ -48,7 +47,7 @@ public abstract class SimpleDLType extends DefaultDLType
 	}
 
 	@Override
-	public DLInstance fromJavaObject(DLCore core, Object object) throws DLException
+	public DLInstance fromJavaObject(Object object) throws DLException
 	{
 		DLInstance instance = core.createInstance(this);
 
@@ -114,7 +113,7 @@ public abstract class SimpleDLType extends DefaultDLType
 	}
 
 	@Override
-	public void setAttributeFromValue(DLCore core, DLInstance instance, String name, Object value) throws DLException
+	public void setAttributeFromValue(DLInstance instance, String name, Object value) throws DLException
 	{
 		throw new UnsupportedOperationException("May not setAttributeFromValue");
 	}

@@ -50,7 +50,7 @@ public class ListDLTypeNGTest
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type T { List data; } T t @export { data : 1, a, true; }");
 		DLInstance instance = core.getExported("t").orElseThrow();
-		List data = instance.get("data");
+		List data = (List)instance.get("data");
 		Assert.assertEquals(data, List.of(1L, "a", true));
 	}
 
@@ -60,7 +60,7 @@ public class ListDLTypeNGTest
 		DLCore core = new DefaultCore();
 		core.parse("Anonymous", "type T { List<Integer> data; } T t @export { data : 1, 2, 3; }");
 		DLInstance instance = core.getExported("t").orElseThrow();
-		List data = instance.get("data");
+		List data = (List)instance.get("data");
 		Assert.assertEquals(data, List.of(1, 2, 3));
 	}
 

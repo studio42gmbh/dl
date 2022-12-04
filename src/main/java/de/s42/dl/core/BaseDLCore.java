@@ -506,9 +506,9 @@ public class BaseDLCore implements DLCore
 		return result;
 	}
 
-	public <ReturnType> ReturnType getExportedAsObject(String name)
+	public Object getExportedAsJavaObject(String name)
 	{
-		return getExported(name).orElseThrow().toJavaObject(this);
+		return getExported(name).orElseThrow().toJavaObject();
 	}
 
 	protected Object resolveChildOrAttribute(DLInstance instance, String name)
@@ -687,9 +687,9 @@ public class BaseDLCore implements DLCore
 		}
 
 		if (type instanceof DefaultDLType) {
-			((DefaultDLType)type).setCore(this);
+			((DefaultDLType) type).setCore(this);
 		}
-		
+
 		types.add(type.getCanonicalName(), type);
 
 		for (String alias : aliases) {
@@ -736,9 +736,9 @@ public class BaseDLCore implements DLCore
 				if (types.contains(dlType.getName())) {
 					throw new InvalidType("Type '" + dlType.getName() + "' already defined");
 				}
-				
+
 				if (dlType instanceof DefaultDLType) {
-					((DefaultDLType)dlType).setCore(this);
+					((DefaultDLType) dlType).setCore(this);
 				}
 
 				return dlType;
@@ -1204,7 +1204,7 @@ public class BaseDLCore implements DLCore
 		specificType.addGenericTypes(genericTypes);
 
 		specificType.setCore(this);
-		
+
 		types.add(canonicalName, specificType);
 
 		//log.debug("Mapping generic type " + canonicalName);
@@ -1338,7 +1338,7 @@ public class BaseDLCore implements DLCore
 
 		DLType type = optType.orElseThrow();
 
-		return (DLInstance) type.fromJavaObject(this, object);
+		return (DLInstance) type.fromJavaObject(object);
 	}
 
 	@Override
@@ -1392,7 +1392,7 @@ public class BaseDLCore implements DLCore
 
 	@SuppressWarnings({"UseSpecificCatch", "AssertWithSideEffects"})
 	@Override
-	public synchronized <ObjectType> ObjectType convertFromInstance(DLInstance instance) throws InvalidInstance
+	public synchronized Object convertFromInstance(DLInstance instance) throws InvalidInstance
 	{
 		assert instance != null;
 		assert instance.getType() != null;
@@ -1413,7 +1413,7 @@ public class BaseDLCore implements DLCore
 
 				if (convertInstance != null) {
 
-					return (ObjectType) convertInstance;
+					return convertInstance;
 				}
 			} else {
 				convertedCache.remove(cacheKey);
@@ -1438,7 +1438,7 @@ public class BaseDLCore implements DLCore
 							Object val = ((Object[]) value)[i];
 
 							if (val instanceof DLInstance) {
-								convValue[i] = ((DLInstance) val).toJavaObject(this);
+								convValue[i] = ((DLInstance) val).toJavaObject();
 							} else {
 								convValue[i] = val;
 							}
@@ -1446,7 +1446,7 @@ public class BaseDLCore implements DLCore
 
 						value = convValue;
 					} else if (value instanceof DLInstance) {
-						value = ((DLInstance) value).toJavaObject(this);
+						value = ((DLInstance) value).toJavaObject();
 					}
 
 					((Map) convertInstance).put(attributeName, value);
@@ -1481,7 +1481,7 @@ public class BaseDLCore implements DLCore
 							Object val = ((Object[]) value)[i];
 
 							if (val instanceof DLInstance) {
-								convValue[i] = ((DLInstance) val).toJavaObject(this);
+								convValue[i] = ((DLInstance) val).toJavaObject();
 							} else {
 								convValue[i] = val;
 							}
@@ -1491,7 +1491,7 @@ public class BaseDLCore implements DLCore
 					} else if (value instanceof DLInstance) {
 
 						try {
-							value = ((DLInstance) value).toJavaObject(this);
+							value = ((DLInstance) value).toJavaObject();
 						} catch (AssertionError ex) {
 							throw new AssertionError("Error converting value '" + attributeName + "' to JavaObject in instance '" + instance.getName() + "'", ex);
 						}
@@ -1520,7 +1520,7 @@ public class BaseDLCore implements DLCore
 
 			convertedCache.put(cacheKey, new WeakReference<>(convertInstance));
 
-			return (ObjectType) convertInstance;
+			return convertInstance;
 		} catch (Throwable ex) {
 			throw new InvalidInstance("Error initializing instance " + instance.getName() + " of java type " + instance.getType().getJavaDataType() + " - " + ex.getMessage(), ex);
 		}

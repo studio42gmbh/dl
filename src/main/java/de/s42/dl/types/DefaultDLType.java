@@ -110,6 +110,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 		try {
 			DefaultDLType copy = getClass().getConstructor().newInstance();
 
+			copy.core = core; // ATTENTION: This type is not contained in core after copy
 			copy.name = name;
 			copy.allowDynamicAttributes = allowDynamicAttributes;
 			copy.allowGenericTypes = allowGenericTypes;
@@ -228,7 +229,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	}
 
 	@Override
-	public DLInstance fromJavaObject(DLCore core, Object object) throws DLException
+	public DLInstance fromJavaObject(Object object) throws DLException
 	{
 		try {
 			BeanInfo info = BeanHelper.getBeanInfo(object.getClass());
@@ -266,7 +267,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 					if (valueType.isSimpleType()) {
 						value = attribute.getType().read(rawValue);
 					} else {
-						value = valueType.fromJavaObject(core, rawValue);
+						value = valueType.fromJavaObject(rawValue);
 					}
 
 					instance.set(attribute.getName(), value);
@@ -297,9 +298,8 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	}
 
 	@Override
-	public void setAttributeFromValue(DLCore core, DLInstance instance, String name, Object value) throws DLException
+	public void setAttributeFromValue(DLInstance instance, String name, Object value) throws DLException
 	{
-		assert core != null;
 		assert instance != null;
 		assert name != null;
 
@@ -782,10 +782,10 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	}
 
 	@Override
-	public <ObjectType> ObjectType createJavaInstance() throws InvalidType
+	public Object createJavaInstance() throws InvalidType
 	{
 		try {
-			return (ObjectType) getJavaDataType().getConstructor().newInstance();
+			return getJavaDataType().getConstructor().newInstance();
 		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
 			throw new InvalidType("Type can not create a java instance - " + ex.getMessage(), ex);
 		}

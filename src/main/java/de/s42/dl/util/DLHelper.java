@@ -605,6 +605,6 @@ public final class DLHelper
 		assert core != null;
 		assert file != null;
 
-		return (EntityType) core.parse(file.toString()).getChildAsJavaObject(0, core);
+		return (EntityType) core.parse(file.toString()).getChildAsJavaObject(0);
 	}
 }

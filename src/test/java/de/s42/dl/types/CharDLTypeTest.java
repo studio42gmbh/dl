@@ -44,7 +44,7 @@ public class CharDLTypeTest
 	{
 		DLCore core = new DefaultCore();
 		DLModule module = core.parse("Test", "char c : X;");
-		char c = module.get("c");
+		char c = module.getChar("c");
 		Assert.assertEquals(c, 'X');
 	}
 }

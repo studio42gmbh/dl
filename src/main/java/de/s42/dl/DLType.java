@@ -45,6 +45,10 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 
 	public DLCore getCore();
 
+	public String getCanonicalName();
+
+	public Class getJavaDataType();
+	
 	// VALIDATION
 	public boolean validateInstance(DLInstance instance, ValidationResult result);
 
@@ -61,18 +65,14 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 
 	public Object write(Object data) throws DLException;
 
-	public void setAttributeFromValue(DLCore core, DLInstance instance, String name, Object value) throws DLException;
+	public void setAttributeFromValue(DLInstance instance, String name, Object value) throws DLException;
 
 	// CONVERSION
-	public DLInstance fromJavaObject(DLCore core, Object object) throws DLException;
+	public DLInstance fromJavaObject(Object object) throws DLException;
 
-	public <ObjectType> ObjectType createJavaInstance() throws DLException;
-
-	public String getCanonicalName();
+	public Object createJavaInstance() throws DLException;
 
 	// IDENTITY
-	public Class getJavaDataType();
-
 	public boolean isDerivedTypeOf(DLType other);
 
 	public boolean isAssignableFrom(DLType other);

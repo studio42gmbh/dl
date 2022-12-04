@@ -72,9 +72,9 @@ public class HrfDLReader implements DLReader
 	}
 
 	@Override
-	public <ObjectType> ObjectType readObject() throws IOException
+	public Object readObject() throws IOException
 	{
-		return ((DLInstance) read()).toJavaObject(core);
+		return ((DLInstance) read()).toJavaObject();
 	}
 
 	@Override

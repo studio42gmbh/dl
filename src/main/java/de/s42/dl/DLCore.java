@@ -39,6 +39,10 @@ import java.util.*;
 public interface DLCore
 {
 
+	public Path getBasePath();
+
+	public ClassLoader getClassLoader();
+
 	// MODULES
 	public DLModule parse(String moduleId) throws DLException;
 
@@ -55,7 +59,7 @@ public interface DLCore
 
 	public DLInstance convertFromJavaObject(Object object) throws DLException;
 
-	public <ObjectType> ObjectType convertFromInstance(DLInstance instance) throws InvalidInstance;
+	public Object convertFromInstance(DLInstance instance) throws InvalidInstance;
 
 	// TYPES
 	public DLType createType();
@@ -73,8 +77,6 @@ public interface DLCore
 	public boolean hasType(String name);
 
 	public boolean hasType(Class javaType);
-
-	public boolean hasEnum(String name);
 
 	public Optional<DLType> getType(Class javaType) throws DLException;
 
@@ -104,6 +106,8 @@ public interface DLCore
 	public DLEnum createEnum(Class<? extends Enum> enumImpl);
 
 	public List<DLEnum> getEnums();
+
+	public boolean hasEnum(String name);
 
 	// ATTRIBUTES
 	public DLAttribute createAttribute(String attributeName, String typeName, DLType container) throws DLException;
@@ -167,11 +171,7 @@ public interface DLCore
 
 	public void setAllowUsePragmas(boolean allowUsePragmas);
 
-	// OTHER
-	public Path getBasePath();
-
-	public ClassLoader getClassLoader();
-
+	// REQUIRE
 	public boolean isAllowRequire();
 
 	public void setAllowRequire(boolean allowRequire);

@@ -145,7 +145,7 @@ public class JsonReader implements DLReader
 			}
 
 			// Set the attribute and make sure it is converted accordingly
-			type.setAttributeFromValue(core, result, key, value);
+			type.setAttributeFromValue(result, key, value);
 		}
 
 		// Make sure the generated instance is valid
@@ -177,9 +177,9 @@ public class JsonReader implements DLReader
 	}
 
 	@Override
-	public <ObjectType> ObjectType readObject() throws IOException
+	public Object readObject() throws IOException
 	{
-		return ((DLInstance) read()).toJavaObject(core);
+		return ((DLInstance) read()).toJavaObject();
 	}
 
 	@Override
