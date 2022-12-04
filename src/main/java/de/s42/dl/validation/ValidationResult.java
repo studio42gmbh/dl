@@ -126,7 +126,7 @@ public class ValidationResult implements DLContainer<ValidationElement>
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
 	public boolean isValid()
 	{
-		return !hasErrors() && !hasErrors();
+		return !hasErrors() && !hasWarnings();
 	}
 
 	public boolean hasErrors()
