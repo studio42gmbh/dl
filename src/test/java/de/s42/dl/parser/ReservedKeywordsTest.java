@@ -451,4 +451,12 @@ public class ReservedKeywordsTest
 		String data = "int call : 42;";
 		core.parse("invalidUseCall", data);
 	}	
+	
+	@Test(expectedExceptions = ReservedKeyword.class)
+	public void invalidUseClone() throws Exception
+	{
+		DLCore core = new DefaultCore();
+		String data = "int clone : 42;";
+		core.parse("invalidUseClone", data);
+	}	
 }

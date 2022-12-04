@@ -102,6 +102,7 @@ fragment RESERVED_KEYWORD_ASSERT :	'assert' ;
 fragment RESERVED_KEYWORD_USE :		'use' ;
 fragment RESERVED_KEYWORD_UNUSE :	'unuse' ;
 fragment RESERVED_KEYWORD_CALL :	'call' ;
+fragment RESERVED_KEYWORD_CLONE :	'clone' ;
 
 
 RESERVED_KEYWORD : ( 
@@ -156,7 +157,8 @@ RESERVED_KEYWORD : (
 	RESERVED_KEYWORD_ASSERT |
 	RESERVED_KEYWORD_USE |
 	RESERVED_KEYWORD_UNUSE |
-	RESERVED_KEYWORD_CALL
+	RESERVED_KEYWORD_CALL |
+	RESERVED_KEYWORD_CLONE
 )
 // Emit a special exception to stop parsing whenever a reserved keyword occurs
 { if (true) { throw new de.s42.dl.exceptions.ReservedKeyword(getText(), getLine(), getCharPositionInLine()); } } ;
