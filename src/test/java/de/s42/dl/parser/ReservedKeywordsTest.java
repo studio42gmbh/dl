@@ -427,4 +427,28 @@ public class ReservedKeywordsTest
 		String data = "int assert : 42;";
 		core.parse("invalidUseAssert", data);
 	}	
+	
+	@Test(expectedExceptions = ReservedKeyword.class)
+	public void invalidUseUse() throws Exception
+	{
+		DLCore core = new DefaultCore();
+		String data = "int use : 42;";
+		core.parse("invalidUseUse", data);
+	}	
+	
+	@Test(expectedExceptions = ReservedKeyword.class)
+	public void invalidUseUnuse() throws Exception
+	{
+		DLCore core = new DefaultCore();
+		String data = "int unuse : 42;";
+		core.parse("invalidUseUnuse", data);
+	}	
+	
+	@Test(expectedExceptions = ReservedKeyword.class)
+	public void invalidUseCall() throws Exception
+	{
+		DLCore core = new DefaultCore();
+		String data = "int call : 42;";
+		core.parse("invalidUseCall", data);
+	}	
 }
