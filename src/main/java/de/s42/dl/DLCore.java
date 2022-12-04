@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl;
 
+import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidPragma;
 import de.s42.dl.exceptions.InvalidInstance;
@@ -163,9 +164,9 @@ public interface DLCore
 	public void setAllowDefinePragmas(boolean allowDefinePragmas);
 
 	public boolean isAllowUsePragmas();
-	
+
 	public void setAllowUsePragmas(boolean allowUsePragmas);
-	
+
 	// OTHER
 	public Path getBasePath();
 

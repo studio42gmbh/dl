@@ -32,9 +32,11 @@ import de.s42.dl.DLInstance;
 import de.s42.dl.DLModule;
 import de.s42.dl.DLType;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.instances.DefaultDLModule;
 import de.s42.dl.io.DLReader;
+import de.s42.dl.validation.ValidationResult;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -147,7 +149,9 @@ public class JsonReader implements DLReader
 		}
 
 		// Make sure the generated instance is valid
-		result.validate();
+		if (!result.validate(new ValidationResult())) {
+			throw new InvalidInstance("Error validating newly form JSON created instance " + result.getName());
+		}
 
 		return result;
 	}

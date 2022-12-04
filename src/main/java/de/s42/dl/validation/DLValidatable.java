@@ -23,33 +23,21 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
+package de.s42.dl.validation;
 
-import java.util.List;
-import java.util.Optional;
+import static de.s42.dl.validation.NoopValidationResult.NOOP_RESULT;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public interface DLAnnotated extends DLEntity
+public interface DLValidatable
 {
 
-	public List<DLAnnotation> getAnnotations();
+	public default boolean validate()
+	{
+		return validate(NOOP_RESULT);
+	}
 
-	public List<DLAnnotation> getAnnotations(Class<? extends DLAnnotation> type);
-	
-	public List<DLAnnotation> getAnnotations(String name);
-	
-	public Optional<DLAnnotation> getAnnotation(Class<? extends DLAnnotation> type);
-	
-	public Optional<DLAnnotation> getAnnotation(String name);
-	
-	public boolean hasAnnotations();
-	
-	public boolean hasAnnotation(Class<? extends DLAnnotation> type);
-
-	public boolean hasAnnotation(String name);
-	
-	public void addAnnotation(DLAnnotation annotation);
+	public boolean validate(ValidationResult result);
 }

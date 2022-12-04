@@ -25,7 +25,6 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.DLAnnotated;
 import de.s42.dl.DLAnnotation;
 import de.s42.dl.DLCore;
 import de.s42.dl.exceptions.DLException;
@@ -50,6 +49,7 @@ import java.util.Set;
  */
 public final class DLAnnotationHelper
 {
+
 	private final static Logger log = LogManager.getLogger(DLAnnotationHelper.class.getName());
 
 	public static final Set<String> SUPPRESSED_ANNOTATION_ELEMENT_NAMES = new HashSet<>(Arrays.asList(new String[]{
@@ -74,7 +74,7 @@ public final class DLAnnotationHelper
 			if (!javaAnnotation.annotationType().isAnnotationPresent(DLAnnotationType.class)) {
 				return Optional.empty();
 			}
-			
+
 			String annotationName = javaAnnotation.annotationType().getSimpleName();
 
 			Map<String, Object> namedParameters = new HashMap<>();
@@ -108,7 +108,7 @@ public final class DLAnnotationHelper
 		List<DLAnnotation> result = new ArrayList<>();
 
 		for (Annotation javaAnnotation : javaAnnotations) {
-			
+
 			Optional<DLAnnotation> optDlAnnotation = createIfDLAnnotation(core, javaAnnotation, container);
 
 			if (optDlAnnotation.isPresent()) {

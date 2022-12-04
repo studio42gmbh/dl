@@ -23,19 +23,13 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
-
-import de.s42.dl.exceptions.InvalidAttribute;
+package de.s42.dl.validation;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public interface DLAttributeValidator
+public enum ValidationElementType
 {
-
-	default public void validate(DLAttribute attribute) throws InvalidAttribute
-	{
-		// do nothing - valid by default
-	}
+	Warning, Error, Info;
 }

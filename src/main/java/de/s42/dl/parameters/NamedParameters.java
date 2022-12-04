@@ -410,9 +410,15 @@ public final class NamedParameters
 		return true;
 	}
 
-	public boolean isValidNamedParameters(Map<String, Object> namedParameters) throws InvalidValue
+	public boolean isValidNamedParameters(Map<String, Object> namedParameters)
 	{
-		return isValidFlatParameters(toFlatParameters(namedParameters));
+		try {
+			return isValidFlatParameters(toFlatParameters(namedParameters));	
+		}
+		catch (InvalidValue ex)
+		{
+			return true;
+		}
 	}
 
 	public boolean isValidNamedParameter(String parameterName, Object value)

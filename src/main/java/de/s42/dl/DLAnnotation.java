@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl;
 
+import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import java.lang.annotation.ElementType;
@@ -59,13 +60,13 @@ public interface DLAnnotation extends DLEntity
 
 		public AnnotationDL[] value();
 	}
-	
+
 	public DLAnnotated getContainer();
-	
+
 	public boolean hasParameters();
-	
+
 	public Object[] getFlatParameters();
-	
+
 	public Map<String, Object> getNamedParameters();
 
 	default public void bindToType(DLCore core, DLType type) throws DLException
@@ -82,7 +83,7 @@ public interface DLAnnotation extends DLEntity
 	{
 		throw new InvalidAnnotation(getClass().getName() + " Can not be bound to instances");
 	}
-	
+
 	default public void bindToPragma(DLCore core, DLPragma pragma) throws DLException
 	{
 		throw new InvalidAnnotation(getClass().getName() + " Can not be bound to pragmas");

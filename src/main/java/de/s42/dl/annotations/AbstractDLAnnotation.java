@@ -26,7 +26,6 @@
 package de.s42.dl.annotations;
 
 import de.s42.base.beans.InvalidBean;
-import de.s42.dl.DLAnnotated;
 import de.s42.dl.DLAnnotation;
 import de.s42.dl.DLAnnotationFactory;
 import de.s42.dl.exceptions.DLException;
@@ -180,11 +179,11 @@ public abstract class AbstractDLAnnotation<DLAnnotationType extends DLAnnotation
 	}
 
 	@Override
-	public boolean isValidNamedParameters(Map<String, Object> namedParameters) throws InvalidValue
+	public boolean isValidNamedParameters(Map<String, Object> namedParameters)
 	{
 		return parameters.isValidNamedParameters(namedParameters);
 	}
-	
+
 	@Override
 	public boolean isValidFlatParameters(Object[] flatParameters)
 	{

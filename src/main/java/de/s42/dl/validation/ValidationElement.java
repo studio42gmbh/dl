@@ -23,44 +23,83 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
+package de.s42.dl.validation;
 
-import de.s42.dl.annotations.DLAnnotated;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import java.util.Map;
+import de.s42.dl.annotations.RequiredDLAnnotation.required;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 
 /**
  *
  * @author Benjamin Schiller
- * @param <DLAnnotationType>
  */
-public interface DLAnnotationFactory<DLAnnotationType extends DLAnnotation>
+public class ValidationElement
 {
 
-	public DLAnnotationType createAnnotation(String name, DLAnnotated container) throws DLException;
+	private final static Logger log = LogManager.getLogger(ValidationElement.class.getName());
 
-	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException;
+	@required
+	protected String code;
+	protected String description;
+	protected Object source;
+	@required
+	protected ValidationElementType type;
 
-	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Map<String, Object> namedParameters) throws DLException;
-
-	default public boolean isValidNamedParameters(Map<String, Object> namedParameters)
+	public ValidationElement()
 	{
-		return false;
+
 	}
 
-	default public boolean isValidNamedParameter(String name, Object value)
+	public ValidationElement(String code, String description, Object source, ValidationElementType type)
 	{
-		return false;
+		assert code != null;
+		assert type != null;
+
+		this.code = code;
+		this.description = description;
+		this.source = source;
+		this.type = type;
 	}
 
-	default public boolean isValidFlatParameters(Object[] flatParameters)
+	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
+	public String getCode()
 	{
-		return false;
+		return code;
 	}
 
-	default public Object[] toFlatParameters(Map<String, Object> namedParameters) throws DLException
+	public void setCode(String code)
 	{
-		throw new InvalidAnnotation("Can not flatten parameters");
+		this.code = code;
 	}
+
+	public String getDescription()
+	{
+		return description;
+	}
+
+	public void setDescription(String description)
+	{
+		this.description = description;
+	}
+
+	public Object getSource()
+	{
+		return source;
+	}
+
+	public void setSource(Object source)
+	{
+		this.source = source;
+	}
+
+	public ValidationElementType getType()
+	{
+		return type;
+	}
+
+	public void setType(ValidationElementType type)
+	{
+		this.type = type;
+	}
+	//</editor-fold>
 }

@@ -54,6 +54,7 @@ import de.s42.dl.types.ArrayDLType;
 import de.s42.dl.types.DefaultDLEnum;
 import de.s42.dl.types.DefaultDLType;
 import de.s42.dl.types.ObjectDLType;
+import de.s42.dl.validation.ValidationResult;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.lang.ref.WeakReference;
@@ -411,7 +412,9 @@ public class BaseDLCore implements DLCore
 		// Map a simple type
 		if (type.isSimpleType()) {
 			SimpleTypeDLInstance<DataType> dataInstance = new SimpleTypeDLInstance<>(value, type, key);
-			dataInstance.validate();
+			if (!dataInstance.validate(new ValidationResult())) {
+				throw new InvalidInstance("Error mapping simple type");
+			}
 			addExported(dataInstance);
 			return dataInstance;
 		} // https://github.com/studio42gmbh/dl/issues/29
@@ -420,7 +423,9 @@ public class BaseDLCore implements DLCore
 
 			try {
 				ComplexTypeDLInstance<DataType> instance = new ComplexTypeDLInstance<>(value, type, key);
-				instance.validate();
+				if (!instance.validate(new ValidationResult())) {
+					throw new InvalidInstance("Error mapping complex type");
+				}
 				addExported(instance);
 				return instance;
 			} catch (InvalidBean ex) {

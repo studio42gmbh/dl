@@ -23,19 +23,69 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
-
-import de.s42.dl.exceptions.InvalidType;
+package de.s42.dl.exceptions;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public interface DLTypeValidator
+public class ReservedKeyword extends RuntimeException
 {
-
-	default public void validate(DLType type) throws InvalidType
+	protected final int line;
+	protected final int position;
+	protected final String keyword;
+	
+	public ReservedKeyword()
 	{
-		// do nothing - valid by default
+		keyword = "<unknown>";
+		line = 0;
+		position = 0;
+	}
+
+	public ReservedKeyword(String msg)
+	{
+		super(msg);
+		keyword = "<unknown>";
+		line = 0;
+		position = 0;
+	}
+
+	public ReservedKeyword(Throwable cause)
+	{
+		super(cause);
+		keyword = "<unknown>";
+		line = 0;
+		position = 0;
+	}
+
+	public ReservedKeyword(String msg, Throwable cause)
+	{
+		super(msg, cause);
+		keyword = "<unknown>";
+		line = 0;
+		position = 0;
+	}
+	
+	public ReservedKeyword(String keyword, int line, int position)
+	{
+		super("Reserved keyword '" + keyword + "'");
+		this.keyword = keyword;
+		this.line = line;
+		this.position = position;
+	}
+
+	public int getLine()
+	{
+		return line;
+	}
+
+	public int getPosition()
+	{
+		return position;
+	}
+
+	public String getKeyword()
+	{
+		return keyword;
 	}
 }

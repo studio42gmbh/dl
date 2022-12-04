@@ -29,9 +29,11 @@ import de.s42.base.validation.IsSymbol;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.*;
 import de.s42.dl.attributes.DefaultDLAttribute;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.types.DefaultDLType;
+import de.s42.dl.validation.DLAttributeValidator;
+import de.s42.dl.validation.DLInstanceValidator;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidComparison;
+import de.s42.dl.validation.ValidationResult;
 import java.util.function.BiFunction;
 
 /**
@@ -65,39 +67,39 @@ public abstract class AbstractComparisonDLAnnotation<DataType, DLAnnotationType 
 		}
 
 		@Override
-		public void validate(DLInstance instance) throws InvalidInstance
+		public boolean validate(DLInstance instance, ValidationResult result)
 		{
 			assert instance != null;
 
-			try {
-				validateValue(instance.get(name), instance.get(other));
-			} catch (InvalidValue ex) {
-				throw new InvalidInstance(ex);
-			}
+			return validateValue(instance, instance.get(name), instance.get(other), result);
 		}
 
 		@Override
-		public void validate(DLAttribute attribute)
+		public boolean validate(DLAttribute attribute, ValidationResult result)
 		{
 			assert attribute != null;
 
 			// nothing to do as it can not be validated in a per attribute base
+			return true;
 		}
 
-		protected void validateValue(Object val, Object valRef) throws InvalidValue
+		protected boolean validateValue(Object source, Object val, Object valRef, ValidationResult result)
 		{
 			// allow to have null values
 			if (val == null) {
-				return;
+				return true;
 			}
 
 			if (valRef == null) {
-				return;
+				return true;
 			}
 
 			if (!comparator.apply((DataType) val, (DataType) valRef)) {
-				throw new InvalidValue(errorMessage.apply((DataType) val, (DataType) valRef));
+				result.addError(InvalidComparison.toString(), errorMessage.apply((DataType) val, (DataType) valRef), source);
+				return false;
 			}
+			
+			return true;
 		}
 	}
 

@@ -23,17 +23,19 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
+package de.s42.dl.validation;
 
-import de.s42.dl.annotations.DLAnnotated;
-import de.s42.dl.exceptions.InvalidPragma;
+import de.s42.dl.DLType;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public interface DLPragma extends DLEntity, DLAnnotated
+public interface DLTypeValidator
 {
 
-	public void doPragma(DLCore core, Object... parameters) throws InvalidPragma;
+	default public boolean validate(DLType type, ValidationResult result)
+	{
+		return true;
+	}
 }

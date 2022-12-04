@@ -23,17 +23,19 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
-
-import de.s42.dl.annotations.DLAnnotated;
-import de.s42.dl.exceptions.InvalidPragma;
+package de.s42.dl.validation;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public interface DLPragma extends DLEntity, DLAnnotated
+public enum DefaultValidationCode
 {
-
-	public void doPragma(DLCore core, Object... parameters) throws InvalidPragma;
+	InvalidGenericParameters,
+	DynamicAttributeNotAllowed,
+	InvalidValueType,
+	InvalidGenericTypes,
+	InvalidComparison,
+	InvalidContain,
+	RequiredAttribute
 }
