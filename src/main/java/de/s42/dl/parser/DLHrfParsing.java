@@ -606,8 +606,9 @@ public class DLHrfParsing extends DLParserBaseListener
 			if (currentInstance.getType() != null) {
 
 				//log.debug("currentInstance validate " + currentInstance.getName());
-				if (!currentInstance.validate(new ValidationResult())) {
-					throw new InvalidInstance(createErrorMessage(module, "Error validating instance", ctx));
+				ValidationResult result = new ValidationResult();
+				if (!currentInstance.validate(result)) {
+					throw new InvalidInstance(createErrorMessage(module, "Error validating instance - " + result.toMessage(), ctx));
 				}
 			}
 

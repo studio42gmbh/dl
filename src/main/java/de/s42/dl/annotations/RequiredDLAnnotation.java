@@ -26,11 +26,9 @@
 package de.s42.dl.annotations;
 
 import de.s42.dl.DLAttribute;
-import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.types.DefaultDLType;
-import de.s42.dl.validation.DLInstanceValidator;
 import static de.s42.dl.validation.DefaultValidationCode.RequiredAttribute;
 import de.s42.dl.validation.ValidationResult;
 import java.lang.annotation.ElementType;
@@ -42,7 +40,7 @@ import java.lang.annotation.Target;
  *
  * @author Benjamin Schiller
  */
-public class RequiredDLAnnotation extends AbstractDLAnnotation
+public class RequiredDLAnnotation extends AbstractDLConcept<RequiredDLAnnotation>
 {
 
 	@Retention(RetentionPolicy.RUNTIME)
@@ -52,39 +50,30 @@ public class RequiredDLAnnotation extends AbstractDLAnnotation
 	{
 	}
 
-	private static class RequiredDLInstanceValidator implements DLInstanceValidator
+	private String attributeName;
+
+	@Override
+	public boolean validate(DLInstance instance, ValidationResult result)
 	{
+		assert instance != null;
 
-		private final DLAttribute attribute;
+		Object val = instance.get(attributeName);
 
-		RequiredDLInstanceValidator(DLAttribute attribute)
-		{
-			assert attribute != null;
-
-			this.attribute = attribute;
+		if (val == null) {
+			result.addError(RequiredAttribute.toString(), "Attribute value '" + attributeName + "' is required and may not be null", instance);
+			return false;
 		}
 
-		@Override
-		public boolean validate(DLInstance instance, ValidationResult result)
-		{
-			assert instance != null;
-
-			Object val = instance.get(attribute.getName());
-
-			if (val == null) {
-				result.addError(RequiredAttribute.toString(), "Attribute value '" + attribute.getName() + "' is required and may not be null", instance);
-				return false;
-			}
-
-			return true;
-		}
+		return true;
 	}
 
 	@Override
-	public void bindToAttribute(DLCore core, DLAttribute attribute) throws InvalidAnnotation
+	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation
 	{
 		assert attribute != null;
 
-		((DefaultDLType) attribute.getContainer()).addInstanceValidator(new RequiredDLInstanceValidator(attribute));
+		this.attributeName = attribute.getName();
+
+		((DefaultDLType) attribute.getContainer()).addInstanceValidator(this);
 	}
 }

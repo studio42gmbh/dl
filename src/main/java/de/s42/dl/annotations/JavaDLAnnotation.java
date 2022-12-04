@@ -64,11 +64,11 @@ public class JavaDLAnnotation extends AbstractDLAnnotation
 	protected Object javaType;
 
 	@Override
-	public void bindToType(DLCore core, DLType type) throws InvalidAnnotation, InvalidType
+	public void bindToType(DLType type) throws InvalidAnnotation, InvalidType
 	{
 		assert type != null;
 		
-		ClassLoader classLoader = core.getClassLoader();
+		ClassLoader classLoader = type.getCore().getClassLoader();
 
 		if (javaType instanceof String) {
 			try {

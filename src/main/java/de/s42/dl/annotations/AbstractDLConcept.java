@@ -25,25 +25,40 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
+import de.s42.dl.DLAttribute;
+import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.types.DefaultDLType;
+import static de.s42.dl.validation.DefaultValidationCode.CanNotValidateAttribute;
+import static de.s42.dl.validation.DefaultValidationCode.CanNotValidateInstance;
+import static de.s42.dl.validation.DefaultValidationCode.CanNotValidateType;
+import de.s42.dl.validation.ValidationResult;
 
 /**
  *
  * @author Benjamin Schiller
+ * @param <DLConceptType>
  */
-public class GenericDLAnnotation extends AbstractDLAnnotation
+public abstract class AbstractDLConcept<DLConceptType extends DLConcept> extends AbstractDLAnnotation<DLConceptType> implements DLConcept
 {
-
-	public final static String DEFAULT_SYMBOL = "generic";
+	
+	@Override
+	public boolean validate(DLAttribute attribute, ValidationResult result)
+	{
+		result.addError(CanNotValidateAttribute.toString(), "Concept " + getClass().getCanonicalName() + " can not validate an attribute");
+		return false;
+	}
 
 	@Override
-	public void bindToType(DLType type) throws InvalidAnnotation
+	public boolean validate(DLInstance instance, ValidationResult result)
 	{
-		assert type != null;
+		result.addError(CanNotValidateInstance.toString(), "Concept " + getClass().getCanonicalName() + " can not validate an instance");
+		return false;
+	}
 
-		//allow generic types
-		((DefaultDLType) type).setAllowGenericTypes(true);
+	@Override
+	public boolean validate(DLType type, ValidationResult result)
+	{
+		result.addError(CanNotValidateType.toString(), "Concept " + getClass().getCanonicalName() + " can not validate a type");
+		return false;
 	}
 }

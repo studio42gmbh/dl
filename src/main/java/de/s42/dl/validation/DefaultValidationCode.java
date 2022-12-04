@@ -37,5 +37,9 @@ public enum DefaultValidationCode
 	InvalidGenericTypes,
 	InvalidComparison,
 	InvalidContain,
-	RequiredAttribute
+	RequiredAttribute,
+	CanNotValidateAttribute,
+	CanNotValidateType,
+	CanNotValidateInstance,
+	
 }

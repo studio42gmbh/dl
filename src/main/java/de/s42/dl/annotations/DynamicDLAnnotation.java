@@ -25,7 +25,6 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.DLCore;
 import de.s42.dl.DLType;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.types.DefaultDLType;
@@ -49,7 +48,7 @@ public class DynamicDLAnnotation extends AbstractDLAnnotation<DynamicDLAnnotatio
 	}
 
 	@Override
-	public void bindToType(DLCore core, DLType type) throws InvalidAnnotation
+	public void bindToType(DLType type) throws InvalidAnnotation
 	{
 		assert type != null;
 

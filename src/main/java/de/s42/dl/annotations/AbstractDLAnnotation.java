@@ -77,7 +77,7 @@ public abstract class AbstractDLAnnotation<DLAnnotationType extends DLAnnotation
 		return cachedParameters;
 	}
 
-	public AbstractDLAnnotation()
+	protected AbstractDLAnnotation()
 	{
 		init();
 	}

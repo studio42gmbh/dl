@@ -26,7 +26,6 @@
 package de.s42.dl.annotations;
 
 import de.s42.dl.DLAttribute;
-import de.s42.dl.DLCore;
 import de.s42.dl.attributes.DefaultDLAttribute;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.InvalidAttribute;
@@ -50,7 +49,7 @@ public class ReadOnlyDLAnnotation extends AbstractDLAnnotation
 	}
 
 	@Override
-	public void bindToAttribute(DLCore core, DLAttribute attribute) throws InvalidAnnotation, InvalidAttribute
+	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation, InvalidAttribute
 	{
 		if (attribute instanceof DefaultDLAttribute) {
 			((DefaultDLAttribute) attribute).setReadable(true);

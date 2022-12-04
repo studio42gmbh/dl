@@ -27,6 +27,8 @@ package de.s42.dl;
 
 import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.validation.DLInstanceValidator;
+import de.s42.dl.validation.DLTypeValidator;
 import de.s42.dl.validation.DLValidatable;
 import de.s42.dl.validation.ValidationResult;
 import java.util.List;
@@ -41,26 +43,41 @@ import java.util.Set;
 public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 {
 
+	public DLCore getCore();
+
+	// VALIDATION
 	public boolean validateInstance(DLInstance instance, ValidationResult result);
 
+	public boolean addValidator(DLTypeValidator validator);
+
+	public boolean addInstanceValidator(DLInstanceValidator validator);
+
+	public List<DLTypeValidator> getValidators();
+
+	public List<DLInstanceValidator> getInstanceValidators();
+
+	// DATA ACCESS
 	public Object read(Object... sources) throws DLException;
 
 	public Object write(Object data) throws DLException;
 
-	public DLInstance fromJavaObject(DLCore core, Object object) throws DLException;
-
 	public void setAttributeFromValue(DLCore core, DLInstance instance, String name, Object value) throws DLException;
 
-	public Class getJavaDataType();
+	// CONVERSION
+	public DLInstance fromJavaObject(DLCore core, Object object) throws DLException;
 
 	public <ObjectType> ObjectType createJavaInstance() throws DLException;
 
 	public String getCanonicalName();
 
+	// IDENTITY
+	public Class getJavaDataType();
+
 	public boolean isDerivedTypeOf(DLType other);
 
 	public boolean isAssignableFrom(DLType other);
 
+	// PARENTS
 	public List<DLType> getOwnParents();
 
 	public List<DLType> getParents();
@@ -71,6 +88,7 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 
 	public boolean hasOwnParent(DLType parent);
 
+	// CONTAINED
 	public List<DLType> getOwnContainedTypes();
 
 	public List<DLType> getContainedTypes();
@@ -83,6 +101,7 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 
 	public boolean mayContainType(DLType type);
 
+	// ATTRIBUTES
 	public void addAttribute(DLAttribute attribue);
 
 	public Set<DLAttribute> getOwnAttributes();
@@ -101,12 +120,14 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 
 	public boolean isAllowDynamicAttributes();
 
+	// GENERIC
 	public List<DLType> getGenericTypes();
 
 	public boolean isGenericType();
 
 	public boolean isAllowGenericTypes();
 
+	// FLAGS
 	public boolean isComplexType();
 
 	public boolean isSimpleType();

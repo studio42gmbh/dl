@@ -37,25 +37,25 @@ public abstract class TagDLAnnotation<DLAnnotationType extends DLAnnotation> ext
 {
 
 	@Override
-	public void bindToAttribute(DLCore core, DLAttribute attribute)
+	public void bindToAttribute(DLAttribute attribute)
 	{
 		// do nothing - just a tag
 	}
 
 	@Override
-	public void bindToInstance(DLCore core, DLInstance instance)
+	public void bindToInstance(DLInstance instance)
 	{
 		// do nothing - just a tag
 	}
 
 	@Override
-	public void bindToType(DLCore core, DLType type)
+	public void bindToType(DLType type)
 	{
 		// do nothing - just a tag
 	}
 
 	@Override
-	public void bindToPragma(DLCore core, DLPragma pragma) throws DLException
+	public void bindToPragma(DLPragma pragma) throws DLException
 	{
 		// do nothing - just a tag
 	}

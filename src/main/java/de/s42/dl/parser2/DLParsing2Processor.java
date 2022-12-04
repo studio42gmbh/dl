@@ -23,27 +23,40 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.parser2;
 
-import de.s42.dl.DLType;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.types.DefaultDLType;
+import java.io.IOException;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class GenericDLAnnotation extends AbstractDLAnnotation
+public interface DLParsing2Processor
 {
 
-	public final static String DEFAULT_SYMBOL = "generic";
+	public void beginAnonymousInstance(int type) throws IOException;
 
-	@Override
-	public void bindToType(DLType type) throws InvalidAnnotation
-	{
-		assert type != null;
+	public void beginInstance(int type, String name) throws IOException;
 
-		//allow generic types
-		((DefaultDLType) type).setAllowGenericTypes(true);
-	}
+	public void endInstance() throws IOException;
+
+	public void setStringAttribute(int name, String value) throws IOException;
+
+	public void setByteAttribute(short name, int value) throws IOException;
+
+	public void setShortAttribute(int name, int value) throws IOException;
+
+	public void setIntAttribute(int name, int value) throws IOException;
+
+	public void setLongAttribute(int name, long value) throws IOException;
+
+	public void setFloatAttribute(int name, float value) throws IOException;
+
+	public void setDoubleAttribute(int name, double value) throws IOException;
+
+	public void setBooleanAttribute(int name, boolean value) throws IOException;
+
+	public void setBinaryAttribute(int name, byte[] data) throws IOException;
+
+	public void setBinaryAttribute(int name, byte[] data, int index, int length) throws IOException;
 }

@@ -38,10 +38,8 @@ public class ExportDLAnnotation extends AbstractDLAnnotation<ExportDLAnnotation>
 	public final static String DEFAULT_SYMBOL = "export";
 
 	@Override
-	public void bindToInstance(DLCore core, DLInstance instance) throws InvalidInstance
+	public void bindToInstance(DLInstance instance) throws InvalidInstance
 	{
-		assert core != null;
-
-		core.addExported(instance);
+		instance.getType().getCore().addExported(instance);
 	}
 }

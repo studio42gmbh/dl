@@ -59,6 +59,52 @@ public class ValidationResult implements DLContainer<ValidationElement>
 		this.elements = elements;
 	}
 
+	public String toMessage()
+	{
+		if (isValid()) {
+			return "Valid";
+		}
+
+		StringBuilder builder = new StringBuilder();
+
+		builder
+			.append(getErrorCount())
+			.append(" error(s) - ")
+			.append(getWarningCount())
+			.append(" warning(s) - ")
+			.append(getInfoCount())
+			.append(" info(s) - ");
+		
+		for (ValidationElement error : getErrors()) {
+			builder
+				.append("[Error:")
+				.append(error.getCode())
+				.append("] : ")
+				.append(error.getDescription())
+				.append(" ");
+		}
+		
+		for (ValidationElement warning : getWarnings()) {
+			builder
+				.append("[Warning:")
+				.append(warning.getCode())
+				.append("] : ")
+				.append(warning.getDescription())
+				.append(" ");
+		}
+		
+		for (ValidationElement info : getInfos()) {
+			builder
+				.append("[Info:")
+				.append(info.getCode())
+				.append("] : ")
+				.append(info.getDescription())
+				.append(" ");
+		}
+		
+		return builder.toString();
+	}
+
 	@Override
 	public void addChild(String name, ValidationElement child)
 	{
@@ -97,6 +143,20 @@ public class ValidationResult implements DLContainer<ValidationElement>
 		return addElement(new ValidationElement(code, description, source, ValidationElementType.Warning));
 	}
 
+	public int getWarningCount()
+	{
+		return (int)elements.stream().filter((element) -> {
+			return element.getType().equals(Warning);
+		}).count();
+	}
+	
+	public List<ValidationElement> getWarnings()
+	{
+		return elements.stream().filter((element) -> {
+			return element.getType().equals(Warning);
+		}).toList();
+	}	
+
 	public ValidationElement addError(String code, String description)
 	{
 		return addError(code, description, null);
@@ -110,6 +170,20 @@ public class ValidationResult implements DLContainer<ValidationElement>
 		return addElement(new ValidationElement(code, description, source, ValidationElementType.Error));
 	}
 
+	public int getErrorCount()
+	{
+		return (int)elements.stream().filter((element) -> {
+			return element.getType().equals(Error);
+		}).count();
+	}
+	
+	public List<ValidationElement> getErrors()
+	{
+		return elements.stream().filter((element) -> {
+			return element.getType().equals(Error);
+		}).toList();
+	}
+		
 	public ValidationElement addInfo(String code, String description)
 	{
 		return addError(code, description, null);
@@ -123,6 +197,20 @@ public class ValidationResult implements DLContainer<ValidationElement>
 		return addElement(new ValidationElement(code, description, source, ValidationElementType.Info));
 	}
 
+	public int getInfoCount()
+	{
+		return (int)elements.stream().filter((element) -> {
+			return element.getType().equals(Info);
+		}).count();
+	}
+	
+	public List<ValidationElement> getInfos()
+	{
+		return elements.stream().filter((element) -> {
+			return element.getType().equals(Info);
+		}).toList();
+	}
+	
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
 	public boolean isValid()
 	{

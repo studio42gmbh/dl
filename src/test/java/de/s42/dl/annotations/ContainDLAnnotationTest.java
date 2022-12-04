@@ -31,6 +31,7 @@ import de.s42.dl.annotations.ContainDLAnnotation.contain;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
+import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.java.DLContainer;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -79,13 +80,13 @@ public class ContainDLAnnotationTest
 	}
 
 	@Test
-	public void validContainNamed() throws DLException
+	public void validContainNamedParameters() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("validContainNamed", 
+		core.parse("validContainNamedParameters",
 			"type T extends Object;"
-				+ "type Container @contain(contain : T, min : 1, max : 7) contains Object;"
-				+ "Container c { T t1; }");
+			+ "type Container @contain(contain : T, min : 1, max : 7) contains Object;"
+			+ "Container c { T t1; }");
 
 		DLType Container = core.getType("Container").orElseThrow();
 		Assert.assertTrue(Container.hasAnnotation(ContainDLAnnotation.class), "@contain should be mapped for type Container");
@@ -96,13 +97,13 @@ public class ContainDLAnnotationTest
 	}
 
 	@Test
-	public void validContainNamedPartial() throws DLException
+	public void validContainNamedPartialParameters() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("validContainNamedPartial", 
+		core.parse("validContainNamedPartialParameters",
 			"type T extends Object;"
-				+ "type Container @contain(contain : T) contains Object;"
-				+ "Container c { T t1; }");
+			+ "type Container @contain(contain : T) contains Object;"
+			+ "Container c { T t1; }");
 
 		DLType Container = core.getType("Container").orElseThrow();
 		Assert.assertTrue(Container.hasAnnotation(ContainDLAnnotation.class), "@contain should be mapped for type Container");
@@ -113,13 +114,13 @@ public class ContainDLAnnotationTest
 	}
 
 	@Test
-	public void validContainUnnamed() throws DLException
+	public void validContainUnnamedParameters() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("validContainUnnamed", 
+		core.parse("validContainUnnamedParameters",
 			"type T extends Object;"
-				+ "type Container @contain(T, 1, 5) contains Object;"
-				+ "Container c { T t1; }");
+			+ "type Container @contain(T, 1, 5) contains Object;"
+			+ "Container c { T t1; }");
 
 		DLType Container = core.getType("Container").orElseThrow();
 		Assert.assertTrue(Container.hasAnnotation(ContainDLAnnotation.class), "@contain should be mapped for type Container");
@@ -127,6 +128,26 @@ public class ContainDLAnnotationTest
 		ContainDLAnnotation annotation = (ContainDLAnnotation) Container.getAnnotation(ContainDLAnnotation.class).orElseThrow();
 
 		assertAnnotation(annotation, "T", 1, 5);
+	}
+
+	@Test(expectedExceptions = InvalidInstance.class)
+	public void invalidContainTooFew() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("invalidContainTooFew",
+			"type T extends Object;"
+			+ "type Container @contain(contain : T, min : 1, max : 7) contains Object;"
+			+ "Container c { }");
+	}
+
+	@Test(expectedExceptions = InvalidInstance.class)
+	public void invalidContainTooMany() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("invalidContainTooFew",
+			"type T extends Object;"
+			+ "type Container @contain(contain : T, min : 0, max : 2) contains Object;"
+			+ "Container c { T t1; T t2; T t3; }");
 	}
 
 	@Test(expectedExceptions = InvalidAnnotation.class)
@@ -142,5 +163,11 @@ public class ContainDLAnnotationTest
 		DLCore core = new DefaultCore();
 		core.parse("invalidEmptyContain", "type T @contain;");
 	}
-
+	
+	@Test(expectedExceptions = InvalidAnnotation.class)
+	public void invalidContaToAttribute() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("invalidContaToAttribute", "type T { int x @contain(Other); }");
+	}
 }

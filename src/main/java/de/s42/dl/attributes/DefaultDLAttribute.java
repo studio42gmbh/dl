@@ -133,13 +133,15 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 		return valid;
 	}
 
-	public void addValidator(DLAttributeValidator validator)
+	@Override
+	public boolean addValidator(DLAttributeValidator validator)
 	{
 		assert validator != null;
 
-		validators.add(validator);
+		return validators.add(validator);
 	}
 
+	@Override
 	public List<DLAttributeValidator> getValidators()
 	{
 		return Collections.unmodifiableList(validators);

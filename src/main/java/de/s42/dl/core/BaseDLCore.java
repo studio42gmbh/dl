@@ -129,7 +129,8 @@ public class BaseDLCore implements DLCore
 	@Override
 	public DLType createType()
 	{
-		DLType type = new DefaultDLType();
+		DefaultDLType type = new DefaultDLType();
+		type.setCore(this);
 
 		return type;
 	}
@@ -137,7 +138,8 @@ public class BaseDLCore implements DLCore
 	@Override
 	public DLType createType(String typeName)
 	{
-		DLType type = new DefaultDLType(typeName);
+		DefaultDLType type = new DefaultDLType(typeName);
+		type.setCore(this);
 
 		return type;
 	}
@@ -145,7 +147,8 @@ public class BaseDLCore implements DLCore
 	@Override
 	public DLEnum createEnum()
 	{
-		DLEnum type = new DefaultDLEnum();
+		DefaultDLEnum type = new DefaultDLEnum();
+		type.setCore(this);
 
 		return type;
 	}
@@ -153,7 +156,8 @@ public class BaseDLCore implements DLCore
 	@Override
 	public DLEnum createEnum(String name)
 	{
-		DLEnum type = new DefaultDLEnum(name);
+		DefaultDLEnum type = new DefaultDLEnum(name);
+		type.setCore(this);
 
 		return type;
 	}
@@ -161,7 +165,8 @@ public class BaseDLCore implements DLCore
 	@Override
 	public DLEnum createEnum(String name, Class<? extends Enum> enumImpl)
 	{
-		DLEnum type = new DefaultDLEnum(name, enumImpl);
+		DefaultDLEnum type = new DefaultDLEnum(name, enumImpl);
+		type.setCore(this);
 
 		return type;
 	}
@@ -169,7 +174,8 @@ public class BaseDLCore implements DLCore
 	@Override
 	public DLEnum createEnum(Class<? extends Enum> enumImpl)
 	{
-		DLEnum type = new DefaultDLEnum(enumImpl);
+		DefaultDLEnum type = new DefaultDLEnum(enumImpl);
+		type.setCore(this);
 
 		return type;
 	}
@@ -204,11 +210,11 @@ public class BaseDLCore implements DLCore
 		assert container != null;
 
 		if (container instanceof DLAttribute) {
-			annotation.bindToAttribute(this, (DLAttribute) container);
+			annotation.bindToAttribute((DLAttribute) container);
 		} else if (container instanceof DLInstance) {
-			annotation.bindToInstance(this, (DLInstance) container);
+			annotation.bindToInstance((DLInstance) container);
 		} else if (container instanceof DLType) {
-			annotation.bindToType(this, (DLType) container);
+			annotation.bindToType((DLType) container);
 		}
 	}
 
@@ -680,6 +686,10 @@ public class BaseDLCore implements DLCore
 			throw new InvalidType("Type '" + type.getCanonicalName() + "' already defined");
 		}
 
+		if (type instanceof DefaultDLType) {
+			((DefaultDLType)type).setCore(this);
+		}
+		
 		types.add(type.getCanonicalName(), type);
 
 		for (String alias : aliases) {
@@ -725,6 +735,10 @@ public class BaseDLCore implements DLCore
 
 				if (types.contains(dlType.getName())) {
 					throw new InvalidType("Type '" + dlType.getName() + "' already defined");
+				}
+				
+				if (dlType instanceof DefaultDLType) {
+					((DefaultDLType)dlType).setCore(this);
 				}
 
 				return dlType;
@@ -1189,6 +1203,8 @@ public class BaseDLCore implements DLCore
 
 		specificType.addGenericTypes(genericTypes);
 
+		specificType.setCore(this);
+		
 		types.add(canonicalName, specificType);
 
 		//log.debug("Mapping generic type " + canonicalName);

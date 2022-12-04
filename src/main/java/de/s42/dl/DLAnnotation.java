@@ -69,23 +69,23 @@ public interface DLAnnotation extends DLEntity
 
 	public Map<String, Object> getNamedParameters();
 
-	default public void bindToType(DLCore core, DLType type) throws DLException
+	default public void bindToType(DLType type) throws DLException
 	{
-		throw new InvalidAnnotation(getClass().getName() + " Can not be bound to types");
+		throw new InvalidAnnotation(getClass().getName() + " can not be bound to types");
 	}
 
-	default public void bindToAttribute(DLCore core, DLAttribute attribute) throws DLException
+	default public void bindToAttribute(DLAttribute attribute) throws DLException
 	{
-		throw new InvalidAnnotation(getClass().getName() + " Can not be bound to attributes");
+		throw new InvalidAnnotation(getClass().getName() + " can not be bound to attributes");
 	}
 
-	default public void bindToInstance(DLCore core, DLInstance instance) throws DLException
+	default public void bindToInstance(DLInstance instance) throws DLException
 	{
-		throw new InvalidAnnotation(getClass().getName() + " Can not be bound to instances");
+		throw new InvalidAnnotation(getClass().getName() + " can not be bound to instances");
 	}
 
-	default public void bindToPragma(DLCore core, DLPragma pragma) throws DLException
+	default public void bindToPragma(DLPragma pragma) throws DLException
 	{
-		throw new InvalidAnnotation(getClass().getName() + " Can not be bound to pragmas");
+		throw new InvalidAnnotation(getClass().getName() + " can not be bound to pragmas");
 	}
 }

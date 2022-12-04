@@ -29,8 +29,6 @@ import de.s42.base.validation.IsSymbol;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.*;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.types.DefaultDLType;
-import de.s42.dl.validation.DLInstanceValidator;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidContain;
 import de.s42.dl.validation.ValidationResult;
 import java.lang.annotation.ElementType;
@@ -42,12 +40,12 @@ import java.lang.annotation.Target;
  *
  * @author Benjamin Schiller
  */
-public class ContainDLAnnotation extends AbstractDLAnnotation<ContainDLAnnotation>
+public class ContainDLAnnotation extends AbstractDLConcept<ContainDLAnnotation>
 {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = {ElementType.TYPE})
-	@DLAnnotationType(DontPersistDLAnnotation.class)
+	@DLAnnotationType(ContainDLAnnotation.class)
 	public static @interface contain
 	{
 
@@ -67,49 +65,34 @@ public class ContainDLAnnotation extends AbstractDLAnnotation<ContainDLAnnotatio
 	@DLAnnotationParameter(ordinal = 2, defaultValue = "2147483647")
 	protected int max = Integer.MAX_VALUE;
 
-	private ContainDLInstanceValidator validator;
+	protected DLType containedType;
 
-	private class ContainDLInstanceValidator implements DLInstanceValidator
+	@Override
+	public boolean validate(DLInstance instance, ValidationResult result)
 	{
+		assert instance != null;
 
-		private DLType containedType;
+		int count = instance.getChildren(containedType).size();
 
-		private ContainDLInstanceValidator(DLType containedType)
-		{
-			this.containedType = containedType;
+		if (count < min || count > max) {
+			result.addError(InvalidContain.toString(), "Instance has to contain type '" + containedType.getCanonicalName() + "' between " + min + " and " + max + " times, but is contained " + count + " times", instance);
+			return false;
 		}
 
-		@Override
-		public boolean validate(DLInstance instance, ValidationResult result)
-		{
-			assert instance != null;
-
-			int count = instance.getChildren(containedType).size();
-
-			if (count < min || count > max) {
-				result.addError(InvalidContain.toString(), "Instance has to contain type '" + containedType.getCanonicalName() + "' between " + min + " and " + max + " times, but is contained " + count + " times", instance);
-				return false;
-			}
-			
-			return true;
-		}
+		return true;
 	}
 
 	@Override
-	public synchronized void bindToType(DLCore core, DLType type) throws DLException
+	public synchronized void bindToType(DLType type) throws DLException
 	{
-		assert core != null;
 		assert type != null;
 
 		// Resolve one validator per annotation instance
-		if (validator == null) {
-			DLType containedType = core.getType(contain).orElseThrow(() -> {
-				return new InvalidAnnotation("Type '" + contain + "' not found in core");
-			});
-			validator = new ContainDLInstanceValidator(containedType);
-		}
+		containedType = type.getCore().getType(contain).orElseThrow(() -> {
+			return new InvalidAnnotation("Type '" + contain + "' not found in core");
+		});
 
-		((DefaultDLType) type).addInstanceValidator(validator);
+		type.addInstanceValidator(this);
 	}
 
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">

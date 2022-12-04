@@ -67,6 +67,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	protected final List<DLType> genericTypes = new ArrayList<>();
 	protected final List<DLType> containedTypes = new ArrayList<>();
 
+	protected DLCore core;
 	protected boolean allowDynamicAttributes = false;
 	protected boolean allowGenericTypes = false;
 	protected boolean isAbstract = false;
@@ -454,18 +455,32 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 		return false;
 	}
 
-	public void addInstanceValidator(DLInstanceValidator validator)
+	@Override
+	public boolean addInstanceValidator(DLInstanceValidator validator)
 	{
 		assert validator != null;
 
-		instanceValidators.add(validator);
+		return instanceValidators.add(validator);
 	}
 
-	public void addValidator(DLTypeValidator validator)
+	@Override
+	public boolean addValidator(DLTypeValidator validator)
 	{
 		assert validator != null;
 
-		validators.add(validator);
+		return validators.add(validator);
+	}
+
+	@Override
+	public List<DLTypeValidator> getValidators()
+	{
+		return Collections.unmodifiableList(validators);
+	}
+
+	@Override
+	public List<DLInstanceValidator> getInstanceValidators()
+	{
+		return Collections.unmodifiableList(instanceValidators);
 	}
 
 	@Override
@@ -797,5 +812,16 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 		return Objects.equals(name, other.name)
 			&& Objects.equals(genericTypes, other.genericTypes);
+	}
+
+	@Override
+	public DLCore getCore()
+	{
+		return core;
+	}
+
+	public void setCore(DLCore core)
+	{
+		this.core = core;
 	}
 }

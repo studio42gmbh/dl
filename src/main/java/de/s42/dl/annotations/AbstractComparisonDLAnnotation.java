@@ -47,7 +47,7 @@ public abstract class AbstractComparisonDLAnnotation<DataType, DLAnnotationType 
 
 	@DLAnnotationParameter(ordinal = 0, required = true, validation = IsSymbol.class)
 	protected String other;
-
+	
 	private class ComparisonDLInstanceValidator implements DLInstanceValidator, DLAttributeValidator
 	{
 
@@ -108,7 +108,7 @@ public abstract class AbstractComparisonDLAnnotation<DataType, DLAnnotationType 
 	protected abstract boolean compare(DataType val, DataType refVal);
 
 	@Override
-	public void bindToAttribute(DLCore core, DLAttribute attribute) throws InvalidAnnotation
+	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation
 	{
 		assert attribute != null;
 

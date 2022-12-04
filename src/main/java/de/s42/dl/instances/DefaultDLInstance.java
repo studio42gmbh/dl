@@ -30,6 +30,7 @@ import de.s42.dl.*;
 import de.s42.dl.annotations.AbstractDLAnnotated;
 import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.exceptions.InvalidInstance;
+import de.s42.dl.validation.DLInstanceValidator;
 import de.s42.dl.validation.ValidationResult;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -60,6 +61,7 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	protected DLType type;
 	protected final MappedList<String, Object> attributes = new MappedList<>();
 	protected final MappedList<String, DLInstance> children = new MappedList<>();
+	protected final List<DLInstanceValidator> validators = new ArrayList<>();
 
 	public DefaultDLInstance()
 	{
@@ -96,13 +98,33 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	}
 
 	@Override
+	public boolean addValidator(DLInstanceValidator validator)
+	{
+		assert validator != null;
+
+		return validators.add(validator);
+	}
+
+	@Override
+	public List<DLInstanceValidator> getValidators()
+	{
+		return Collections.unmodifiableList(validators);
+	}
+
+	@Override
 	public boolean validate(ValidationResult result)
 	{
 		if (getType() != null) {
 			return getType().validateInstance(this, result);
 		}
 
-		return true;
+		boolean valid = true;
+
+		for (DLInstanceValidator validator : validators) {
+			valid &= validator.validate(this, result);
+		}
+
+		return valid;
 	}
 
 	@Override

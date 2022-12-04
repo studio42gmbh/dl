@@ -25,25 +25,14 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.DLType;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.types.DefaultDLType;
+import de.s42.dl.DLAnnotation;
+import de.s42.dl.validation.DLValidator;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class GenericDLAnnotation extends AbstractDLAnnotation
+public interface DLConcept extends DLValidator, DLAnnotation
 {
-
-	public final static String DEFAULT_SYMBOL = "generic";
-
-	@Override
-	public void bindToType(DLType type) throws InvalidAnnotation
-	{
-		assert type != null;
-
-		//allow generic types
-		((DefaultDLType) type).setAllowGenericTypes(true);
-	}
+	
 }

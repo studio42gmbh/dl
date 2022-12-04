@@ -28,6 +28,7 @@ package de.s42.dl;
 import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.exceptions.InvalidInstance;
+import de.s42.dl.validation.DLInstanceValidator;
 import de.s42.dl.validation.DLValidatable;
 import java.util.Collection;
 import java.util.List;
@@ -43,6 +44,18 @@ import java.util.Set;
 public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 {
 
+	public boolean hasName(String name);
+
+	public boolean hasName();
+
+	public DLType getType();
+
+	// VALIDATION
+	public boolean addValidator(DLInstanceValidator validator);
+
+	public List<DLInstanceValidator> getValidators();
+
+	// ATTRIBUTES
 	public Set<String> getAttributeNames();
 
 	public Map<String, Object> getAttributes();
@@ -53,13 +66,12 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 
 	public boolean hasAttribute(String key);
 
+	// DATA ACCESS
 	public void set(String key, Object value);
 
 	public <ReturnType> ReturnType get(String key);
 
 	public <InstanceType extends DLInstance> InstanceType getInstance(String key);
-
-	public <JavaType> JavaType getInstanceAsJavaObject(String key, DLCore core) throws InvalidAttribute;
 
 	public String getString(String key);
 
@@ -75,6 +87,9 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 
 	public boolean getBoolean(String key);
 
+	public <ObjectType> Optional<ObjectType> resolvePath(String path);
+
+	// CONTAIN
 	public DLInstance getChild(int index);
 
 	public Optional<DLInstance> getChild(String name);
@@ -82,16 +97,6 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 	public Optional<DLInstance> getChild(DLType type);
 
 	public Optional<DLInstance> resolveChild(String path);
-
-	public <JavaType> JavaType getChildAsJavaObject(int index, DLCore core);
-
-	public <JavaType> Optional<JavaType> getChildAsJavaObject(String name, DLCore core);
-
-	public <JavaType> Optional<JavaType> getChildAsJavaObject(DLType type, DLCore core);
-
-	public <JavaType> List<JavaType> getChildrenAsJavaType(Class<? extends JavaType> javaType, DLCore core);
-
-	public <JavaType> List<JavaType> getChildrenAsJavaType(DLCore core);
 
 	public void addChild(DLInstance child) throws InvalidInstance;
 
@@ -103,17 +108,22 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 
 	public boolean hasChild(String name);
 
-	public boolean hasName(String name);
-
 	public boolean hasChildren();
 
 	public int getChildCount();
 
-	public <ObjectType> Optional<ObjectType> resolvePath(String path);
-
-	public boolean hasName();
-
-	public DLType getType();
-
+	// CONVERSION
 	public <ObjectType> ObjectType toJavaObject(DLCore core);
+
+	public <JavaType> JavaType getInstanceAsJavaObject(String key, DLCore core) throws InvalidAttribute;
+
+	public <JavaType> JavaType getChildAsJavaObject(int index, DLCore core);
+
+	public <JavaType> Optional<JavaType> getChildAsJavaObject(String name, DLCore core);
+
+	public <JavaType> Optional<JavaType> getChildAsJavaObject(DLType type, DLCore core);
+
+	public <JavaType> List<JavaType> getChildrenAsJavaType(Class<? extends JavaType> javaType, DLCore core);
+
+	public <JavaType> List<JavaType> getChildrenAsJavaType(DLCore core);
 }

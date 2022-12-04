@@ -26,7 +26,6 @@
 package de.s42.dl.annotations;
 
 import de.s42.dl.DLAttribute;
-import de.s42.dl.DLCore;
 import de.s42.dl.DLType;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.types.DefaultDLType;
@@ -59,7 +58,7 @@ public class NoGenericsDLAnnotation extends AbstractDLAnnotation
 		public boolean validate(DLType type, ValidationResult result)
 		{
 			assert type != null;
-			
+
 			boolean valid = true;
 
 			for (DLAttribute attribute : type.getAttributes()) {
@@ -68,13 +67,13 @@ public class NoGenericsDLAnnotation extends AbstractDLAnnotation
 					valid = false;
 				}
 			}
-			
+
 			return valid;
 		}
 	}
 
 	@Override
-	public void bindToType(DLCore core, DLType type) throws DLException
+	public void bindToType(DLType type) throws DLException
 	{
 		assert type != null;
 
