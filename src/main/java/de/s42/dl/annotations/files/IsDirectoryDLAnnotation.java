@@ -63,8 +63,7 @@ public class IsDirectoryDLAnnotation extends AbstractDLConcept<IsDirectoryDLAnno
 		Object val = instance.get(attributeName);
 
 		if (val == null) {
-			result.addError(InvalidDirectory.toString(), "Attribute value '" + attributeName + "' is not referencing a valid directory but is null", instance);
-			return false;
+			return true;
 		}
 
 		if (!(val instanceof Path)) {

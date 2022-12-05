@@ -95,8 +95,8 @@ public class IsFileDLAnnotationTest
 		core.parse("invalidIsFileAttributeInInstance", "type T { Path x @isFile; } T t { x : \"wrong/directory/42%$!\"; }");
 	}
 
-	@Test(expectedExceptions = InvalidInstance.class)
-	public void invalidIsFileAttributeNullInInstance() throws DLException
+	@Test
+	public void validIsFileAttributeNullInInstance() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("invalidIsFileAttributeNullInInstance", "type T { Path x @isFile; } T t {}");

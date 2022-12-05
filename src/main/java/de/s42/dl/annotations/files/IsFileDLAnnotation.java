@@ -63,8 +63,7 @@ public class IsFileDLAnnotation extends AbstractDLConcept<IsFileDLAnnotation>
 		Object val = instance.get(attributeName);
 
 		if (val == null) {
-			result.addError(InvalidFile.toString(), "Attribute value '" + attributeName + "' is not referencing a valid file but is null", instance);
-			return false;
+			return true;
 		}
 
 		if (!(val instanceof Path)) {
