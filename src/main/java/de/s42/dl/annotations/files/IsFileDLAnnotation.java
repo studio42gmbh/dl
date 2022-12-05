@@ -23,29 +23,33 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.files;
 
 import de.s42.dl.DLAttribute;
 import de.s42.dl.DLInstance;
+import de.s42.dl.annotations.AbstractDLConcept;
+import de.s42.dl.annotations.DLAnnotationType;
 import de.s42.dl.exceptions.InvalidAnnotation;
-import static de.s42.dl.validation.DefaultValidationCode.RequiredAttribute;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidFile;
 import de.s42.dl.validation.ValidationResult;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class RequiredDLAnnotation extends AbstractDLConcept<RequiredDLAnnotation>
+public class IsFileDLAnnotation extends AbstractDLConcept<IsFileDLAnnotation>
 {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = {ElementType.FIELD})
-	@DLAnnotationType(RequiredDLAnnotation.class)
-	public static @interface required
+	@DLAnnotationType(IsFileDLAnnotation.class)
+	public static @interface isFile
 	{
 	}
 
@@ -59,7 +63,17 @@ public class RequiredDLAnnotation extends AbstractDLConcept<RequiredDLAnnotation
 		Object val = instance.get(attributeName);
 
 		if (val == null) {
-			result.addError(RequiredAttribute.toString(), "Attribute value '" + attributeName + "' is required and may not be null", instance);
+			result.addError(InvalidFile.toString(), "Attribute value '" + attributeName + "' is not referencing a valid file but is null", instance);
+			return false;
+		}
+
+		if (!(val instanceof Path)) {
+			result.addError(InvalidFile.toString(), "Attribute value '" + attributeName + "' is not referencing a valid file but is " + val, instance);
+			return false;
+		}
+
+		if (!Files.isRegularFile((Path) val)) {
+			result.addError(InvalidFile.toString(), "Attribute value '" + attributeName + "' is not referencing a regular file but " + ((Path) val).toAbsolutePath().normalize().toString(), instance);
 			return false;
 		}
 

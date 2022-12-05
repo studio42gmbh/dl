@@ -28,6 +28,8 @@ package de.s42.dl.core;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLEntity;
 import de.s42.dl.annotations.*;
+import de.s42.dl.annotations.files.IsDirectoryDLAnnotation;
+import de.s42.dl.annotations.files.IsFileDLAnnotation;
 import de.s42.dl.core.resolvers.FileCoreResolver;
 import de.s42.dl.core.resolvers.ResourceCoreResolver;
 import de.s42.dl.core.resolvers.StringCoreResolver;
@@ -75,14 +77,14 @@ public class DefaultCore extends BaseDLCore
 			defineAnnotationFactory(new NoGenericsDLAnnotation(), NoGenericsDLAnnotation.noGenerics.class.getSimpleName());
 			defineAnnotationFactory(new ReadOnlyDLAnnotation(), ReadOnlyDLAnnotation.readonly.class.getSimpleName());
 			defineAnnotationFactory(new WriteOnlyDLAnnotation(), WriteOnlyDLAnnotation.writeonly.class.getSimpleName());
+			defineAnnotationFactory(new IsFileDLAnnotation(), IsFileDLAnnotation.isFile.class.getSimpleName());
+			defineAnnotationFactory(new IsDirectoryDLAnnotation(), IsDirectoryDLAnnotation.isDirectory.class.getSimpleName());
 			
 			defineAnnotationFactory(new ContainOnlyDLAnnotation(), ContainOnlyDLAnnotation.DEFAULT_SYMBOL);
 			defineAnnotationFactory(new ContainOnceDLAnnotation(), ContainOnceDLAnnotation.DEFAULT_SYMBOL);
 			defineAnnotationFactory(new ExportDLAnnotation(), ExportDLAnnotation.DEFAULT_SYMBOL);
 			defineAnnotationFactory(new GenerateUUIDDLAnnotation(), GenerateUUIDDLAnnotation.DEFAULT_SYMBOL);
 			defineAnnotationFactory(new GenericDLAnnotation(), GenericDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new IsDirectoryDLAnnotation(), IsDirectoryDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new IsFileDLAnnotation(), IsFileDLAnnotation.DEFAULT_SYMBOL);
 			defineAnnotationFactory(new LengthDLAnnotation(), LengthDLAnnotation.DEFAULT_SYMBOL);
 			defineAnnotationFactory(new RangeDLAnnotation(), RangeDLAnnotation.DEFAULT_SYMBOL);
 			defineAnnotationFactory(new GreaterDLAnnotation(), GreaterDLAnnotation.greater.class.getSimpleName());

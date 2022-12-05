@@ -35,6 +35,7 @@ module de.sft.dl
 
 	exports de.s42.dl;
 	exports de.s42.dl.annotations;
+	exports de.s42.dl.annotations.files;
 	exports de.s42.dl.attributes;
 	exports de.s42.dl.core;
 	exports de.s42.dl.core.resolvers;
