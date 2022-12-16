@@ -60,7 +60,7 @@ public class DefaultDLModule extends DefaultDLInstance implements DLModule
 	}
 
 	@Override
-	public <ObjectType> Optional<ObjectType> resolveReference(DLCore core, String path)
+	public Optional<?> resolveReference(DLCore core, String path)
 	{
 		assert core != null;
 		assert path != null;
@@ -68,7 +68,7 @@ public class DefaultDLModule extends DefaultDLInstance implements DLModule
 		Object exportedOpt = core.resolveExportedPath(path);
 
 		if (exportedOpt != null) {
-			return Optional.of((ObjectType)exportedOpt);
+			return Optional.of(exportedOpt);
 		}
 
 		return resolvePath(path);

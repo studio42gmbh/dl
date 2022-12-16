@@ -25,7 +25,7 @@
 //</editor-fold>
 package de.s42.dl.validation;
 
-import de.s42.dl.java.DLContainer;
+import de.s42.dl.types.DLContainer;
 import static de.s42.dl.validation.ValidationElementType.Error;
 import static de.s42.dl.validation.ValidationElementType.Info;
 import static de.s42.dl.validation.ValidationElementType.Warning;

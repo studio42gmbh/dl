@@ -37,7 +37,6 @@ import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.exceptions.UndefinedType;
-import de.s42.dl.java.DLContainer;
 import de.s42.dl.validation.DLInstanceValidator;
 import de.s42.dl.validation.DLTypeValidator;
 import de.s42.dl.validation.ValidationResult;

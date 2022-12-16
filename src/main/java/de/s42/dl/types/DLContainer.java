@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.java;
+package de.s42.dl.types;
 
 /**
  *

@@ -132,6 +132,13 @@ public final class DLHelper
 				.append("\n");
 		}
 
+		for (DLType contained : type.getContainedTypes()) {
+			builder
+				.append("\tContained ")
+				.append(contained.getCanonicalName())
+				.append("\n");
+		}
+
 		for (DLAttribute attribute : type.getAttributes()) {
 			builder
 				.append("\tAttribute ")

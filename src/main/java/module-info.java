@@ -45,7 +45,6 @@ module de.sft.dl
 	exports de.s42.dl.io.binary;
 	exports de.s42.dl.io.hrf;
 	exports de.s42.dl.io.json;
-	exports de.s42.dl.java;
 	exports de.s42.dl.parameters;
 	exports de.s42.dl.parser;
 	exports de.s42.dl.parser.expression;
