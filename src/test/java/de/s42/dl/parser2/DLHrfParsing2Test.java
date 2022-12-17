@@ -42,7 +42,7 @@ public class DLHrfParsing2Test
 	{
 		DLCore core = new DefaultCore();
 		String data = "type T { int x : 5; }";
-		DLModule result = DLHrfParsing2.parse(core, "DLHrfParsing2Test.validParse", data);
+		//DLModule result = DLHrfParsing2.parse(core, "DLHrfParsing2Test.validParse", data);
 		//assertEquals(result, expResult);
 	}
 	

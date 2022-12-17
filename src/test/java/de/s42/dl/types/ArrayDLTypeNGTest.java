@@ -155,10 +155,10 @@ public class ArrayDLTypeNGTest
 		
 		DLInstance t1Instance = core.convertFromJavaObject(t1);
 		
-		log.warn(Arrays.toString((String[])t1Instance.get("data")));
+		//log.warn(Arrays.toString((String[])t1Instance.get("data")));
 		
 		String t1Str = DLHelper.toString(t1Instance, true, 2);
 		
-		log.warn(t1Str);
+		//log.warn(t1Str);
 	}
 }

@@ -86,7 +86,7 @@ public class DLHrfParsing2 extends DLParserBaseListener
 		// @test Iterate tokens from lexer
 		while (true) {
 			Token token = tokens.LT(1);
-			System.out.println("TOKEN: " + token);
+			log.debug("TOKEN: " + token);
 			if (token.getType() == DLLexer.EOF) {
 				break;
 			}
