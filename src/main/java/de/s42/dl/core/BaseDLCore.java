@@ -694,20 +694,31 @@ public class BaseDLCore implements DLCore
 	{
 		assert type != null;
 
+		// May define new types in this core?
 		if (!allowDefineTypes) {
 			throw new InvalidCore("May not define types");
 		}
 
+		// Make sure the type is not contained yet
 		if (types.contains(type.getCanonicalName())) {
 			throw new InvalidType("Type '" + type.getCanonicalName() + "' already defined");
 		}
 
+		// Default types get this core set as core
 		if (type instanceof DefaultDLType) {
 			((DefaultDLType) type).setCore(this);
 		}
+		
+		// Make sure the type is valid
+		ValidationResult result = new ValidationResult();
+		if (!type.validate(result)) {
+			throw new InvalidType("Error validating type '" + type.getCanonicalName() + "' when defining - " + result.toMessage());
+		}
 
+		// Add type
 		types.add(type.getCanonicalName(), type);
 
+		// Map aliases
 		for (String alias : aliases) {
 			defineAliasForType(alias, type);
 		}
@@ -991,7 +1002,7 @@ public class BaseDLCore implements DLCore
 				classType.addParent(interfaceType);
 			}
 		}
-
+		
 		return classType;
 	}
 
