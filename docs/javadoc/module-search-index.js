@@ -1,1 +1,1 @@
-moduleSearchIndex = [{"l":"de.sft.dl"}]
+moduleSearchIndex = [{"l":"de.sft.dl"}];updateSearchResults();
