@@ -8,6 +8,8 @@
 
 ![DL Logo](https://github.com/studio42gmbh/dl/blob/master/resources/images/logo/dl-logo-200.png)
 
+DL provides environment dependable constraining and validation of data in a consistent and foremost easy readable and understandable language to describe and stream data.
+
 ***ATTENTION:** This is the ALPHA release. Still many changes to come!*
 
 After many years working with data driven projects i came to love and hate XML and JSON for its great possibilities, 
