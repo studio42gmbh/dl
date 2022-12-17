@@ -47,7 +47,7 @@ public class TypeNameDLAnnotationTest
 
 	private final static Logger log = LogManager.getLogger(TypeNameDLAnnotationTest.class.getName());
 
-	@typeName(pattern = "T.*N.*Class")
+	@typeName(pattern = ".*T.*N.*Class")
 	public static class TypeNameClass
 	{
 
@@ -74,7 +74,7 @@ public class TypeNameDLAnnotationTest
 		DLType T = core.getType("T").orElseThrow();
 		Assert.assertTrue(
 			T.hasAnnotation(TypeNameDLAnnotation.class),
-			"@typeName should be mapped for type TypeNameClass"
+			"@typeName should be mapped for type T"
 		);
 	}
 
