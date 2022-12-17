@@ -89,38 +89,39 @@ public class BaseDLCore implements DLCore
 
 	public <DLCoreType extends DLCore> DLCoreType copy() throws InvalidCore
 	{
+		// @todo ATTENTION: this copy is partially broken - types, resolvers etc might need to be copied as well to be consistent
 		try {
-			BaseDLCore core = getClass().getConstructor().newInstance();
+			BaseDLCore copy = getClass().getConstructor().newInstance();
 
-			core.convertedCache.clear();
-			core.convertedCache.putAll(convertedCache);
+			copy.convertedCache.clear();
+			copy.convertedCache.putAll(convertedCache);
 
-			core.resolvers.clear();
-			core.resolvers.addAll(resolvers);
+			copy.resolvers.clear();
+			copy.resolvers.addAll(resolvers);
 
-			core.types.clear();
-			core.types.addAll(types);
+			copy.types.clear();
+			copy.types.addAll(types);
 
-			core.pragmas.clear();
-			core.pragmas.addAll(pragmas);
+			copy.pragmas.clear();
+			copy.pragmas.addAll(pragmas);
 
-			core.annotationFactories.clear();
-			core.annotationFactories.addAll(annotationFactories);
+			copy.annotationFactories.clear();
+			copy.annotationFactories.addAll(annotationFactories);
 
-			core.requiredModules.clear();
-			core.requiredModules.putAll(requiredModules);
+			copy.requiredModules.clear();
+			copy.requiredModules.putAll(requiredModules);
 
-			core.exported.clear();
-			core.exported.addAll(exported);
+			copy.exported.clear();
+			copy.exported.addAll(exported);
 
-			core.basePath = basePath;
-			core.allowDefineTypes = allowDefineTypes;
-			core.allowDefineAnnotationFactories = allowDefineAnnotationFactories;
-			core.allowDefinePragmas = allowDefinePragmas;
-			core.allowUsePragmas = allowUsePragmas;
-			core.allowRequire = allowRequire;
+			copy.basePath = basePath;
+			copy.allowDefineTypes = allowDefineTypes;
+			copy.allowDefineAnnotationFactories = allowDefineAnnotationFactories;
+			copy.allowDefinePragmas = allowDefinePragmas;
+			copy.allowUsePragmas = allowUsePragmas;
+			copy.allowRequire = allowRequire;
 
-			return (DLCoreType) core;
+			return (DLCoreType) copy;
 		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
 			throw new InvalidCore("Error copying - " + ex.getMessage(), ex);
 		}
@@ -406,7 +407,7 @@ public class BaseDLCore implements DLCore
 	{
 		assert key != null;
 		assert value != null;
-
+		
 		Optional<DLType> optType = getType(value.getClass());
 
 		if (optType.isEmpty()) {
@@ -511,17 +512,31 @@ public class BaseDLCore implements DLCore
 		return getExported(name).orElseThrow().toJavaObject();
 	}
 
-	protected Object resolveChildOrAttribute(DLInstance instance, String name)
+	protected Object resolveChildOrAttribute(Object instance, String name)
 	{
 		assert instance != null;
+		
+		if (instance instanceof DLInstance) {
 
-		Optional<DLInstance> child = instance.getChild(name);
+			Optional<DLInstance> child = ((DLInstance)instance).getChild(name);
 
-		if (child.isPresent()) {
-			return child.get();
+			if (child.isPresent()) {
+				return child.get();
+			}
+
+			return ((DLInstance)instance).get(name);
 		}
+		else {
+			
+			try {
+				BeanInfo info = BeanHelper.getBeanInfo(instance.getClass());
 
-		return instance.get(name);
+				return info.read(instance, name);			
+			}
+			catch (Exception ex) {
+				throw new RuntimeException("Error resolving child " + name + " - " + ex.getMessage(), ex);
+			}
+		}
 	}
 
 	@Override
@@ -532,12 +547,12 @@ public class BaseDLCore implements DLCore
 		String[] pathSegments = path.split("\\.");
 
 		Optional<DLInstance> currentRef = getExported(pathSegments[0]);
-
+		
 		if (currentRef.isEmpty()) {
 			return null;
 		}
 
-		DLInstance current = currentRef.get();
+		Object current = currentRef.get();
 
 		for (int i = 1; i < pathSegments.length; ++i) {
 			String pathSegment = pathSegments[i];
@@ -547,15 +562,8 @@ public class BaseDLCore implements DLCore
 				//throw new InvalidValue("Path " + path + " could not get resolved for " + pathSegment);
 				return null;
 			}
-
-			if (child instanceof DLInstance) {
-				current = (DLInstance) child;
-			} else if (i < pathSegments.length - 1) {
-				//throw new InvalidValue("Path " + path + " could not get resolved for " + pathSegment);
-				return null;
-			} else {
-				return child;
-			}
+			
+			current = child;
 		}
 
 		// https://github.com/studio42gmbh/dl/issues/13 Unwrap simple instances
@@ -568,6 +576,11 @@ public class BaseDLCore implements DLCore
 		}
 
 		return current;
+	}
+	
+	public boolean removeExported(String key)
+	{
+		return exported.remove(key);
 	}
 
 	@Override
@@ -1262,6 +1275,16 @@ public class BaseDLCore implements DLCore
 	public DLModule parse(String moduleId) throws DLException
 	{
 		return parse(moduleId, null);
+	}
+	
+	public boolean removeFromRequiredModules(String moduleId)
+	{
+		return requiredModules.remove(moduleId) != null;
+	}
+
+	public void clearRequiredModules()
+	{
+		requiredModules.clear();
 	}
 
 	@Override
