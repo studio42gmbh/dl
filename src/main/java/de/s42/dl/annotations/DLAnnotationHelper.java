@@ -36,6 +36,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,7 +64,37 @@ public final class DLAnnotationHelper
 	{
 		// never instantiated
 	}
+	
+	public static List<DLAnnotation> createIfDLAnnotationContainer(DLCore core, Annotation javaAnnotation, DLAnnotated container) throws DLException
+	{
+		assert javaAnnotation != null;
+		
+		try {
 
+			// Check if the given java annotation is a tagged dl annotation
+			if (!javaAnnotation.annotationType().isAnnotationPresent(DLAnnotationContainerType.class)) {
+				return Collections.EMPTY_LIST;
+			}
+
+			List<DLAnnotation> result = new ArrayList<>();
+
+			Annotation[] annotations = (Annotation[])javaAnnotation.annotationType().getMethod("value").invoke(javaAnnotation);
+			
+			for (Annotation ann : annotations) {
+				
+				Optional<DLAnnotation> optDlAnnotation = createIfDLAnnotation(core, ann, container);
+
+				if (optDlAnnotation.isPresent()) {
+					result.add(optDlAnnotation.orElseThrow());
+				}				
+			}
+
+			return result;
+		} catch (DLException | IllegalAccessException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
+			throw new DLException("Error getting dl annotation - " + ex.getMessage(), ex);
+		}	
+	}
+	
 	public static Optional<DLAnnotation> createIfDLAnnotation(DLCore core, Annotation javaAnnotation, DLAnnotated container) throws DLException
 	{
 		assert javaAnnotation != null;
@@ -113,6 +144,12 @@ public final class DLAnnotationHelper
 
 			if (optDlAnnotation.isPresent()) {
 				result.add(optDlAnnotation.orElseThrow());
+			}
+			
+			List<DLAnnotation> annotationsFromContainer = createIfDLAnnotationContainer(core, javaAnnotation, container);
+			
+			for (DLAnnotation annotation : annotationsFromContainer) {
+				result.add(annotation);
 			}
 		}
 
