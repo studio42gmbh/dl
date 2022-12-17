@@ -76,6 +76,7 @@ public class Add extends BinaryOperator
 			return (String) firstEval + (String) secondEval;
 		}
 		
+		// Allow to add numbers to strings by converting them to string
 		if (firstEval instanceof String && secondEval instanceof Number) {
 			return ((String) firstEval) + secondEval;
 		}

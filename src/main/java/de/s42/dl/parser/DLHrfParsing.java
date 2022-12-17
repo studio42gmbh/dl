@@ -154,10 +154,24 @@ public class DLHrfParsing extends DLParserBaseListener
 					assignables[i] = false;
 				}
 			} else if (assignable.REF() != null) {
-				assignables[i] = resolveReference(assignable.getText(), ctx);
+				try {
+					assignables[i] = resolveReference(assignable.getText(), ctx);
+				} catch (Exception ex) {
+					throw new InvalidValue(createErrorMessage(
+						module,
+						"Error retrieving rdef " + ex.getMessage(),
+						ctx), ex);
+				}
 			} else if (assignable.expression() != null) {
 				//log.debug("Expression", assignable.expression().getText());
-				assignables[i] = DLHrfExpressionParser.resolveExpression(core, module, assignable.expression());
+				try {
+					assignables[i] = DLHrfExpressionParser.resolveExpression(core, module, assignable.expression());
+				} catch (Exception ex) {
+					throw new InvalidValue(createErrorMessage(
+						module,
+						"Error parsing DL expression " + ex.getMessage(),
+						assignable.expression()), ex);
+				}
 			}
 
 			i++;
@@ -1143,7 +1157,7 @@ public class DLHrfParsing extends DLParserBaseListener
 		lexer.addErrorListener(new DLHrfParsingErrorHandler(parsing, module));
 
 		TokenStream tokens = new CommonTokenStream(lexer);
-		
+
 		/*
 		// @test Iterate tokens from lexer
 		while (true) {
@@ -1155,8 +1169,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			tokens.consume();
 		}
 		tokens.seek(0);
-		*/
-		
+		 */
 		// Setup parser
 		DLParser parser = new DLParser(tokens);
 		parser.removeErrorListeners();
@@ -1168,7 +1181,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			ParseTreeWalker walker = new ParseTreeWalker();
 
 			walker.walk(parsing, root);
-		} catch (ReservedKeyword ex) { 
+		} catch (ReservedKeyword ex) {
 			StringBuilder message = new StringBuilder();
 			message
 				.append("Keyword '")
@@ -1178,7 +1191,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					module.getShortName(), module.getName(),
 					ex.getLine(), ex.getPosition() + 1, false));
 			throw new ReservedKeyword(message.toString(), ex);
-			
+
 		} catch (RuntimeException ex) {
 
 			// Unwrap DLException for nicer stack trace
