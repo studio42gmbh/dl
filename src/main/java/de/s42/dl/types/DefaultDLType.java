@@ -133,22 +133,51 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	@Override
 	public boolean validate(ValidationResult result)
 	{
+		assert result != null;
+		
 		boolean value = true;
 
-		for (DLAttribute attribute : getAttributes()) {
+		for (DLAttribute attribute : getOwnAttributes()) {
 			value &= attribute.validate(result);
 		}
 
-		for (DLTypeValidator validator : validators) {
+		for (DLTypeValidator validator : getValidators()) {
 			value &= validator.validate(this, result);
 		}
 
-		for (DLType parent : parents) {
-			value &= parent.validate(result);
+		// This will get all distinct parents (deep)
+		for (DLType parent : getParents()) {
+			value &= validateParent(parent, result);
 		}
 
 		return value;
 	}
+	
+	/**
+	 * This method is used internally to validate this type using the parent types validators
+	 * @param type
+	 * @param result
+	 * @return 
+	 */
+	protected boolean validateParent(DLType parent, ValidationResult result)
+	{
+		assert parent != null;
+		assert result != null;
+		
+		boolean value = true;
+
+		for (DLAttribute attribute : parent.getOwnAttributes()) {
+			value &= attribute.validate(result);
+		}
+
+		// Iterate type validators and validate with this type
+		for (DLTypeValidator validator : parent.getValidators()) {
+			value &= validator.validate(this, result);
+		}
+
+		return value;
+	}
+	
 
 	@Override
 	public Class getJavaDataType()

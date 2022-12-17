@@ -840,8 +840,9 @@ public class DLHrfParsing extends DLParserBaseListener
 	public void exitTypeDefinition(TypeDefinitionContext ctx)
 	{
 		try {
-			if (!currentType.validate(new ValidationResult())) {
-				throw new InvalidType(createErrorMessage(module, "Type '" + currentType.getCanonicalName() + "' is not valid", ctx));
+			ValidationResult result = new ValidationResult();
+			if (!currentType.validate(result)) {
+				throw new InvalidType(createErrorMessage(module, "Type '" + currentType.getCanonicalName() + "' is not valid - " + result.toMessage(), ctx));
 			}
 
 		} catch (InvalidType ex) {

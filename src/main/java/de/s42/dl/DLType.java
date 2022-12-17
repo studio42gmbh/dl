@@ -80,6 +80,10 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 	// PARENTS
 	public List<DLType> getOwnParents();
 
+	/**
+	 * Shall return all distinct parents (deep)
+	 * @return 
+	 */
 	public List<DLType> getParents();
 
 	public boolean hasParents();

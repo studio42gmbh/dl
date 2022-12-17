@@ -146,6 +146,10 @@ type T
 // -> annotation auf type die auf selection attributes in type angewendet werden
 // -> combined annotations
 
+
+annotation combined : hasJustSimpleMembers & isComplex & !isDerived & ( match(name, "R.*") | match(name, "G.*") );
+
+
 annotation combined : hasJustSimpleMembers & isComplex & !isDerived;
 annotation combined { hasJustSimpleMembers & isComplex & !isDerived }
 

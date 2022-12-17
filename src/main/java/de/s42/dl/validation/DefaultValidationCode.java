@@ -42,5 +42,6 @@ public enum DefaultValidationCode
 	CanNotValidateType,
 	CanNotValidateInstance,
 	InvalidFile,
-	InvalidDirectory
+	InvalidDirectory,
+	NotMatching
 }

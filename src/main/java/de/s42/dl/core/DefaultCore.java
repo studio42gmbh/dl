@@ -30,6 +30,7 @@ import de.s42.dl.DLEntity;
 import de.s42.dl.annotations.*;
 import de.s42.dl.annotations.files.IsDirectoryDLAnnotation;
 import de.s42.dl.annotations.files.IsFileDLAnnotation;
+import de.s42.dl.annotations.reflect.TypeNameDLAnnotation;
 import de.s42.dl.core.resolvers.FileCoreResolver;
 import de.s42.dl.core.resolvers.ResourceCoreResolver;
 import de.s42.dl.core.resolvers.StringCoreResolver;
@@ -77,8 +78,13 @@ public class DefaultCore extends BaseDLCore
 			defineAnnotationFactory(new NoGenericsDLAnnotation(), NoGenericsDLAnnotation.noGenerics.class.getSimpleName());
 			defineAnnotationFactory(new ReadOnlyDLAnnotation(), ReadOnlyDLAnnotation.readonly.class.getSimpleName());
 			defineAnnotationFactory(new WriteOnlyDLAnnotation(), WriteOnlyDLAnnotation.writeonly.class.getSimpleName());
+			
+			// File annotations
 			defineAnnotationFactory(new IsFileDLAnnotation(), IsFileDLAnnotation.isFile.class.getSimpleName());
 			defineAnnotationFactory(new IsDirectoryDLAnnotation(), IsDirectoryDLAnnotation.isDirectory.class.getSimpleName());
+			
+			// Reflect annotations
+			defineAnnotationFactory(new TypeNameDLAnnotation(), TypeNameDLAnnotation.typeName.class.getSimpleName());
 			
 			defineAnnotationFactory(new ContainOnlyDLAnnotation(), ContainOnlyDLAnnotation.DEFAULT_SYMBOL);
 			defineAnnotationFactory(new ContainOnceDLAnnotation(), ContainOnceDLAnnotation.DEFAULT_SYMBOL);
