@@ -72,7 +72,7 @@ public class SetDLTypeNGTest
 		core.addExported("setData", new HashSet<>(Set.of(1, 2, 3)));
 		core.parse("validSetGenericsInJava", "type T { Set data; } T t @export { data : $setData; }");
 		DLInstance instance = core.getExported("t").orElseThrow();
-		Set<Integer> data = (Set)((ComplexTypeDLInstance)instance.get("data")).getData();
+		Set<Integer> data = (Set)instance.get("data");
 		Assert.assertEquals(data, Set.of(1, 2, 3));
 	}
 

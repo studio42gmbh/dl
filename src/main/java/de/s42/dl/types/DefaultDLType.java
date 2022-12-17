@@ -134,7 +134,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	public boolean validate(ValidationResult result)
 	{
 		assert result != null;
-		
+
 		boolean value = true;
 
 		for (DLAttribute attribute : getOwnAttributes()) {
@@ -152,18 +152,20 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 		return value;
 	}
-	
+
 	/**
 	 * This method is used internally to validate this type using the parent types validators
-	 * @param type
+	 *
+	 * @param parent
 	 * @param result
-	 * @return 
+	 *
+	 * @return
 	 */
 	protected boolean validateParent(DLType parent, ValidationResult result)
 	{
 		assert parent != null;
 		assert result != null;
-		
+
 		boolean value = true;
 
 		for (DLAttribute attribute : parent.getOwnAttributes()) {
@@ -177,7 +179,6 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 		return value;
 	}
-	
 
 	@Override
 	public Class getJavaDataType()

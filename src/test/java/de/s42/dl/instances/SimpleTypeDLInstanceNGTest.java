@@ -52,7 +52,6 @@ public class SimpleTypeDLInstanceNGTest
 	/**
 	 * Even list types with generics can easily be added and assigned properly also without unboxing of
 	 * SimpleTypeDLInstance
-	 * See https://github.com/studio42gmbh/dl/issues/13
 	 *
 	 * @throws DLException not thrown
 	 */
@@ -62,6 +61,6 @@ public class SimpleTypeDLInstanceNGTest
 		DefaultCore core = new DefaultCore();
 		List<String> value = ((ComplexTypeDLInstance<List<String>>) core.addExported("value", new ArrayList<>(List.of("a", "b")))).getData();
 		DLModule module = core.parse("Anonymous", "List<String> dlValue : $value;");
-		Assert.assertEquals(((ComplexTypeDLInstance<List<String>>) module.get("dlValue")).getData(), value);
+		Assert.assertEquals((List<String>) module.get("dlValue"), value);
 	}
 }

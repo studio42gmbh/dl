@@ -74,8 +74,7 @@ public class ListDLTypeNGTest
 		core.addExported("listData", List.of(1, 2, 3));
 		core.parse("Anonymous", "type T { List data; } T t @export { data : $listData; }");
 		DLInstance instance = core.getExported("t").orElseThrow();
-		// https://github.com/studio42gmbh/dl/issues/13 avoid sketchy SimpleTypeDLInstance wrappings when getting values from instances that were added with addExported
-		List data = (List)((ComplexTypeDLInstance)instance.get("data")).getData();
+		List data = (List)instance.get("data");
 		Assert.assertEquals(data, List.of(1, 2, 3));
 	}
 

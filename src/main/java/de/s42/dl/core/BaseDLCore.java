@@ -563,6 +563,9 @@ public class BaseDLCore implements DLCore
 		if (current instanceof SimpleTypeDLInstance) {
 			return ((SimpleTypeDLInstance) current).getData();
 		}
+		else if (current instanceof ComplexTypeDLInstance) {
+			return ((ComplexTypeDLInstance) current).getData();
+		}
 
 		return current;
 	}
