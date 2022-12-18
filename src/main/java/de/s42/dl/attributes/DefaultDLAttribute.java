@@ -227,6 +227,7 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 	public int hashCode()
 	{
 		int hash = 7;
+		hash = 41 * hash + Objects.hashCode(this.name);
 		hash = 41 * hash + Objects.hashCode(this.defaultValue);
 		hash = 41 * hash + Objects.hashCode(this.type);
 		hash = 41 * hash + Objects.hashCode(this.container);
@@ -249,6 +250,9 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 			return false;
 		}
 		final DefaultDLAttribute other = (DefaultDLAttribute) obj;
+		if (!Objects.equals(this.name, other.name)) {
+			return false;
+		}
 		if (this.readable != other.readable) {
 			return false;
 		}

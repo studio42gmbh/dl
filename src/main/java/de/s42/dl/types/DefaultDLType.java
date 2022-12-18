@@ -41,6 +41,8 @@ import de.s42.dl.validation.DLInstanceValidator;
 import de.s42.dl.validation.DLTypeValidator;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidAttributeRedefinition;
 import de.s42.dl.validation.ValidationResult;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,6 +61,8 @@ import java.util.Set;
  */
 public class DefaultDLType extends AbstractDLAnnotated implements DLType
 {
+
+	private final static Logger log = LogManager.getLogger(DefaultDLType.class.getName());
 
 	protected final MappedList<String, DLAttribute> attributes = new MappedList<>();
 	protected final List<DLTypeValidator> validators = new ArrayList<>();
@@ -342,8 +346,9 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 			}
 
-			if (!instance.validate(new ValidationResult())) {
-				throw new InvalidInstance("Object could not get converted");
+			ValidationResult result = new ValidationResult();
+			if (!instance.validate(result)) {
+				throw new InvalidInstance("Object could not get converted - " + result.toMessage());
 			}
 
 			return instance;

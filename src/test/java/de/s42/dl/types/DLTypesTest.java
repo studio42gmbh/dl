@@ -38,6 +38,7 @@ import de.s42.dl.core.DefaultCore;
 import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidInstance;
+import de.s42.dl.util.DLHelper;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import org.testng.Assert;
@@ -252,6 +253,19 @@ public class DLTypesTest
 		Assert.assertEquals(typeV.getName(), "de.s42.dl.types.DLTypesTest$TestClass");
 	}
 
+	@Test
+	public void validExtendParentsWithCombinedAttributes() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("validExtendParentsAttributeMoreSpecificType",
+			"type A { int x; } "
+			+ "type B { float y; } "
+			+ "type C extends A, B { String z; float y @required; }"
+		);
+		//DLType C = core.getType("C").orElseThrow();
+		//log.warn(DLHelper.describe(C));
+	}
+	
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidTypeWith2SameNameAttributes() throws DLException
 	{
@@ -260,13 +274,13 @@ public class DLTypesTest
 			"type A { int x; float x; }"
 		);
 	}
-
+		
 	@Test
 	public void validExtendParentsAttributeMoreSpecificType() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("validExtendParentsAttributeMoreSpecificType",
-			"type V; type U extends V;"
+			"type V; type U extends V; "
 			+ "type A { V x; } "
 			+ "type B extends A { U x; }"
 		);
