@@ -34,6 +34,8 @@ import de.s42.dl.annotations.DynamicDLAnnotation.dynamic;
 import de.s42.dl.annotations.RequiredDLAnnotation;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.types.primitive.FloatDLType;
+import de.s42.dl.types.primitive.ObjectDLType;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.util.UUID;
@@ -143,7 +145,6 @@ public class DLJavaTypesTest
 
 			// attributes - value
 			DLAttribute valueAttrib = core.createAttribute(ATTRIBUTE_VALUE, FloatDLType.DEFAULT_SYMBOL, this);
-			addAttribute(valueAttrib);
 
 			//add annotation @required to attribute value
 			//core.addAnnotationToAttribute(this, valueAttrib, RequiredDLAnnotation.DEFAULT_SYMBOL, this);

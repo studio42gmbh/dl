@@ -23,43 +23,58 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.base;
 
 import de.s42.base.conversion.ConversionHelper;
-import java.nio.file.Path;
+import de.s42.dl.DLType;
+import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.types.SimpleDLType;
+import java.util.regex.Pattern;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class PathDLType extends SimpleDLType
+public class SymbolDLType extends SimpleDLType
 {
 
-	public final static String DEFAULT_SYMBOL = "Path";
+	public final static Pattern SYMBOL_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_\\$\\.-]+");
+	public final static String DEFAULT_SYMBOL = "Symbol";
 
-	public PathDLType()
+	public SymbolDLType()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public PathDLType(String name)
+	public SymbolDLType(DLType parent)
+	{
+		this(DEFAULT_SYMBOL);
+
+		addParent(parent);
+	}
+
+	public SymbolDLType(String name)
 	{
 		super(name);
 	}
 
 	@Override
-	public Object read(Object... sources)
+	public String read(Object... sources) throws InvalidValue
 	{
 		assert sources != null;
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Path.class});
+		Object[] result = ConversionHelper.convertArray(sources, new Class[]{String.class});
 
-		return (Path) result[0];
+		if (!SYMBOL_PATTERN.matcher((String) result[0]).matches()) {
+			throw new InvalidValue("Symbol has to be of form '" + SYMBOL_PATTERN.pattern() + "' but is '" + result[0] + "'");
+		}
+
+		return (String) result[0];
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return Path.class;
+		return String.class;
 	}
 }

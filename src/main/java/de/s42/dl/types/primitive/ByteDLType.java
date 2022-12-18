@@ -23,25 +23,34 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.primitive;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLType;
+import de.s42.dl.types.SimpleDLType;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class BooleanDLType extends SimpleDLType
+public class ByteDLType extends SimpleDLType
 {
 
-	public final static String DEFAULT_SYMBOL = "Boolean";
+	public final static String DEFAULT_SYMBOL = "Byte";
 
-	public BooleanDLType()
+	public ByteDLType()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public BooleanDLType(String name)
+	public ByteDLType(DLType parent)
+	{
+		this(DEFAULT_SYMBOL);
+
+		addParent(parent);
+	}
+
+	public ByteDLType(String name)
 	{
 		super(name);
 	}
@@ -51,14 +60,14 @@ public class BooleanDLType extends SimpleDLType
 	{
 		assert sources != null;
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Boolean.class});
+		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Byte.class});
 
-		return (Boolean) result[0];
+		return (Byte) result[0];
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return Boolean.class;
+		return Byte.class;
 	}
 }

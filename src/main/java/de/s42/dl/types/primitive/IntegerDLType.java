@@ -23,25 +23,34 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.primitive;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLType;
+import de.s42.dl.types.SimpleDLType;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class CharDLType extends SimpleDLType
+public class IntegerDLType extends SimpleDLType
 {
 
-	public final static String DEFAULT_SYMBOL = "Character";
+	public final static String DEFAULT_SYMBOL = "Integer";
 
-	public CharDLType()
+	public IntegerDLType()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public CharDLType(String name)
+	public IntegerDLType(DLType parent)
+	{
+		this(DEFAULT_SYMBOL);
+
+		addParent(parent);
+	}
+
+	public IntegerDLType(String name)
 	{
 		super(name);
 	}
@@ -51,14 +60,14 @@ public class CharDLType extends SimpleDLType
 	{
 		assert sources != null;
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Character.class});
+		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Integer.class});
 
-		return (Character) result[0];
+		return (Integer) result[0];
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return Character.class;
+		return Integer.class;
 	}
 }

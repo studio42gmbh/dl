@@ -23,42 +23,53 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.dl;
 
-import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLType;
+import de.s42.dl.types.DefaultDLType;
+import java.util.HashMap;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class IntegerDLType extends SimpleDLType
+public class ModuleDLType extends DefaultDLType
 {
 
-	public final static String DEFAULT_SYMBOL = "Integer";
+	public final static String DEFAULT_SYMBOL = "Module";
 
-	public IntegerDLType()
+	public ModuleDLType()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public IntegerDLType(String name)
+	public ModuleDLType(DLType parent)
 	{
-		super(name);
+		this(DEFAULT_SYMBOL);
+
+		addParent(parent);
 	}
 
-	@Override
-	public Object read(Object... sources)
+	public ModuleDLType(String name)
 	{
-		assert sources != null;
+		super(name);
+		init();
+	}
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Integer.class});
-
-		return (Integer) result[0];
+	private void init()
+	{
+		setAllowDynamicAttributes(true);
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return Integer.class;
+		return HashMap.class;
+	}
+
+	@Override
+	public boolean mayContainType(DLType type)
+	{
+		return true;
 	}
 }

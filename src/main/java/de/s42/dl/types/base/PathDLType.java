@@ -23,25 +23,35 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.base;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLType;
+import de.s42.dl.types.SimpleDLType;
+import java.nio.file.Path;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class ShortDLType extends SimpleDLType
+public class PathDLType extends SimpleDLType
 {
 
-	public final static String DEFAULT_SYMBOL = "Short";
+	public final static String DEFAULT_SYMBOL = "Path";
 
-	public ShortDLType()
+	public PathDLType()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public ShortDLType(String name)
+	public PathDLType(DLType parent)
+	{
+		this(DEFAULT_SYMBOL);
+
+		addParent(parent);
+	}
+
+	public PathDLType(String name)
 	{
 		super(name);
 	}
@@ -51,14 +61,14 @@ public class ShortDLType extends SimpleDLType
 	{
 		assert sources != null;
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Short.class});
+		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Path.class});
 
-		return (Short) result[0];
+		return (Path) result[0];
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return Short.class;
+		return Path.class;
 	}
 }

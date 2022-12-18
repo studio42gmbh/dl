@@ -23,25 +23,34 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.primitive;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLType;
+import de.s42.dl.types.SimpleDLType;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DoubleDLType extends SimpleDLType
+public class CharDLType extends SimpleDLType
 {
 
-	public final static String DEFAULT_SYMBOL = "Double";
+	public final static String DEFAULT_SYMBOL = "Character";
 
-	public DoubleDLType()
+	public CharDLType()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public DoubleDLType(String name)
+	public CharDLType(DLType parent)
+	{
+		this(DEFAULT_SYMBOL);
+
+		addParent(parent);
+	}
+
+	public CharDLType(String name)
 	{
 		super(name);
 	}
@@ -51,14 +60,14 @@ public class DoubleDLType extends SimpleDLType
 	{
 		assert sources != null;
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Double.class});
+		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Character.class});
 
-		return (Double) result[0];
+		return (Character) result[0];
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return Double.class;
+		return Character.class;
 	}
 }

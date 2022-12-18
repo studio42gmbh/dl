@@ -26,7 +26,7 @@
 package de.s42.dl.instances;
 
 import de.s42.dl.*;
-import de.s42.dl.types.ModuleDLType;
+import de.s42.dl.types.dl.ModuleDLType;
 import java.io.File;
 import java.util.Optional;
 

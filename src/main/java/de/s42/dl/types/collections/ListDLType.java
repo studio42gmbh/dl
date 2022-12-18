@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.collections;
 
 import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLInstance;
@@ -31,13 +31,15 @@ import de.s42.dl.DLType;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.types.DefaultDLType;
+import de.s42.dl.types.SimpleDLType;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidGenericParameters;
 import de.s42.dl.validation.ValidationResult;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  *
@@ -45,22 +47,31 @@ import java.util.Set;
  * @author Benjamin Schiller
  */
 // https://github.com/studio42gmbh/dl/issues/10 List support
-public class SetDLType extends DefaultDLType
+public class ListDLType extends DefaultDLType
 {
 
-	public final static String DEFAULT_SYMBOL = "Set";
+	public final static String DEFAULT_SYMBOL = "List";
 
-	public SetDLType()
+	public ListDLType()
 	{
 		this(DEFAULT_SYMBOL, null);
 	}
 
-	public SetDLType(DLType genericType)
+	public ListDLType(DLType parent)
 	{
-		this(DEFAULT_SYMBOL, genericType);
+		this(DEFAULT_SYMBOL, null);
+
+		addParent(parent);
 	}
 
-	public SetDLType(String name, DLType genericType)
+	public ListDLType(DLType parent, DLType genericType)
+	{
+		this(DEFAULT_SYMBOL, genericType);
+
+		addParent(parent);
+	}
+
+	public ListDLType(String name, DLType genericType)
 	{
 		super(name);
 
@@ -84,16 +95,16 @@ public class SetDLType extends DefaultDLType
 	@Override
 	public DLInstance fromJavaObject(Object value) throws DLException
 	{
-		if (!(value instanceof Set)) {
-			throw new InvalidValue("value has to be instanceof Set");
+		if (!(value instanceof List)) {
+			throw new InvalidValue("value has to be instanceof List");
 		}
 
 		DLInstance instance = core.createInstance(this);
 
 		// @todo properly handle generic and complex elements
-		Set converted = new HashSet<>();
+		List converted = new ArrayList<>();
 
-		for (Object el : (Set) value) {
+		for (Object el : (List) value) {
 
 			Optional<DLType> optElType = core.getType(el.getClass());
 
@@ -120,7 +131,7 @@ public class SetDLType extends DefaultDLType
 	{
 		assert sources != null;
 
-		Set result;
+		List result;
 
 		int size = getGenericTypes().size();
 		if (size > 0) {
@@ -129,23 +140,29 @@ public class SetDLType extends DefaultDLType
 				throw new InvalidType("may contain either 0 or 1 generic types");
 			}
 
-			Class type = getSetValueType();
+			Class type = getListValueType();
 
-			if (sources.length == 1 && Set.class.isAssignableFrom(sources[0].getClass())) {
+			// @todo make this conversion consistent and test it
+			if (sources.length == 1) {
 				// Ensure the list contains only allowed data
-				Set data = Collections.checkedSet(new HashSet(), type);
-				data.addAll((Set) sources[0]);
-				return data;
+				//List data = Collections.checkedList(new ArrayList(), type);
+				//data.addAll((List)sources[0]);
+
+				if (List.class.isAssignableFrom(sources[0].getClass())) {
+					return ConversionHelper.convertList((List) sources[0], type);
+				} else if (sources[0].getClass().isArray()) {
+					return ConversionHelper.convertList((Object[]) sources[0], type);
+				}
 			}
 
-			result = ConversionHelper.convertSet(sources, type);
+			result = ConversionHelper.convertList(sources, type);
 		} else {
 
-			if (sources.length == 1 && Set.class.isAssignableFrom(sources[0].getClass())) {
+			if (sources.length == 1 && List.class.isAssignableFrom(sources[0].getClass())) {
 				return sources[0];
 			}
 
-			result = new HashSet(Arrays.asList(sources));
+			result = Arrays.asList(sources);
 		}
 
 		return result;
@@ -156,24 +173,24 @@ public class SetDLType extends DefaultDLType
 	{
 		if (isGenericType()) {
 
-			Class valueType = getSetValueType();
+			Class valueType = getListValueType();
 
-			return Collections.checkedSet(
-				new HashSet<>(),
+			return Collections.checkedList(
+				new ArrayList<>(),
 				valueType
 			);
 		} else {
-			return new HashSet<>();
+			return new ArrayList<>();
 		}
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return Set.class;
+		return List.class;
 	}
 
-	public Class getSetValueType() throws InvalidType
+	public Class getListValueType() throws InvalidType
 	{
 		if (!isGenericType()) {
 			return Object.class;

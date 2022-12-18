@@ -23,49 +23,51 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.primitive;
 
 import de.s42.base.conversion.ConversionHelper;
-import de.s42.dl.exceptions.InvalidValue;
-import java.util.regex.Pattern;
+import de.s42.dl.DLType;
+import de.s42.dl.types.SimpleDLType;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class SymbolDLType extends SimpleDLType
+public class BooleanDLType extends SimpleDLType
 {
 
-	public final static Pattern SYMBOL_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_\\$\\.-]+");
-	public final static String DEFAULT_SYMBOL = "Symbol";
+	public final static String DEFAULT_SYMBOL = "Boolean";
 
-	public SymbolDLType()
+	public BooleanDLType()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public SymbolDLType(String name)
+	public BooleanDLType(DLType parent)
+	{
+		this(DEFAULT_SYMBOL);
+		
+		addParent(parent);
+	}
+	
+	public BooleanDLType(String name)
 	{
 		super(name);
 	}
 
 	@Override
-	public String read(Object... sources) throws InvalidValue
+	public Object read(Object... sources)
 	{
 		assert sources != null;
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{String.class});
+		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Boolean.class});
 
-		if (!SYMBOL_PATTERN.matcher((String) result[0]).matches()) {
-			throw new InvalidValue("Symbol has to be of form '" + SYMBOL_PATTERN.pattern() + "' but is '" + result[0] + "'");
-		}
-
-		return (String) result[0];
+		return (Boolean) result[0];
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return String.class;
+		return Boolean.class;
 	}
 }

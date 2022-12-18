@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.base;
 
 import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLCore;
@@ -31,6 +31,7 @@ import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
+import de.s42.dl.types.SimpleDLType;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidGenericParameters;
 import de.s42.dl.validation.ValidationResult;
 import java.util.List;
@@ -47,6 +48,13 @@ public class ArrayDLType extends SimpleDLType
 	public ArrayDLType()
 	{
 		this(DEFAULT_SYMBOL);
+	}
+
+	public ArrayDLType(DLType parent)
+	{
+		this(DEFAULT_SYMBOL);
+
+		addParent(parent);
 	}
 
 	public ArrayDLType(String name)
@@ -78,7 +86,7 @@ public class ArrayDLType extends SimpleDLType
 
 		// Handle if sources[0] is an array
 		if (sources.length == 1) {
-			
+
 			if (sources[0] == null) {
 				return null;
 			}
@@ -186,7 +194,7 @@ public class ArrayDLType extends SimpleDLType
 			result.addError(InvalidGenericParameters.toString(), "May only contain 0 or 1 generic types", this);
 			valid = false;
 		}
-		
+
 		return valid;
 	}
 }

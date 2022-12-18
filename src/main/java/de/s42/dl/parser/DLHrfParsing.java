@@ -30,7 +30,6 @@ import de.s42.dl.parser.expression.DLHrfExpressionParser;
 import de.s42.dl.*;
 import de.s42.dl.exceptions.*;
 import de.s42.dl.attributes.DefaultDLAttribute;
-import de.s42.dl.types.ArrayDLType;
 import de.s42.dl.types.DefaultDLEnum;
 import de.s42.dl.types.DefaultDLType;
 import de.s42.log.LogManager;
@@ -44,6 +43,7 @@ import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import static de.s42.dl.parser.DLHrfParsingErrorHandler.*;
 import de.s42.dl.parser.DLParser.*;
+import de.s42.dl.types.base.ArrayDLType;
 import de.s42.dl.validation.ValidationResult;
 import java.lang.reflect.InvocationTargetException;
 
@@ -156,7 +156,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			} else if (assignable.REF() != null) {
 				try {
 					assignables[i] = resolveReference(assignable.getText(), ctx);
-				} catch (Exception ex) {
+				} catch (RuntimeException ex) {
 					throw new InvalidValue(createErrorMessage(
 						module,
 						"Error retrieving rdef " + ex.getMessage(),
@@ -166,7 +166,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				//log.debug("Expression", assignable.expression().getText());
 				try {
 					assignables[i] = DLHrfExpressionParser.resolveExpression(core, module, assignable.expression());
-				} catch (Exception ex) {
+				} catch (RuntimeException ex) {
 					throw new InvalidValue(createErrorMessage(
 						module,
 						"Error parsing DL expression " + ex.getMessage(),
@@ -887,7 +887,12 @@ public class DLHrfParsing extends DLParserBaseListener
 
 			String name = ctx.typeAttributeDefinitionName().getText();
 
-			DefaultDLAttribute attribute = (DefaultDLAttribute) core.createAttribute(name, type, currentType);
+			DefaultDLAttribute attribute;
+			try {
+				attribute = (DefaultDLAttribute) core.createAttribute(name, type, currentType);
+			} catch (InvalidType ex) {
+				throw new InvalidType(createErrorMessage(module, "Error add attribute '" + name + "' to type '" + typeName + "'", ex, ctx.typeAttributeDefinitionType().typeIdentifier()), ex);
+			}
 
 			// Parse default value
 			Object defaultValue = null;

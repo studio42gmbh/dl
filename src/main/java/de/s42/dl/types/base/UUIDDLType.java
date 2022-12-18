@@ -23,25 +23,35 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.base;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLType;
+import de.s42.dl.types.SimpleDLType;
+import java.util.UUID;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class ByteDLType extends SimpleDLType
+public class UUIDDLType extends SimpleDLType
 {
 
-	public final static String DEFAULT_SYMBOL = "Byte";
+	public final static String DEFAULT_SYMBOL = "UUID";
 
-	public ByteDLType()
+	public UUIDDLType()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public ByteDLType(String name)
+	public UUIDDLType(DLType parent)
+	{
+		this(DEFAULT_SYMBOL);
+
+		addParent(parent);
+	}
+
+	public UUIDDLType(String name)
 	{
 		super(name);
 	}
@@ -51,14 +61,14 @@ public class ByteDLType extends SimpleDLType
 	{
 		assert sources != null;
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Byte.class});
+		Object[] result = ConversionHelper.convertArray(sources, new Class[]{UUID.class});
 
-		return (Byte) result[0];
+		return (UUID) result[0];
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return Byte.class;
+		return UUID.class;
 	}
 }

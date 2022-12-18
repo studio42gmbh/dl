@@ -49,11 +49,11 @@ import de.s42.dl.instances.ComplexTypeDLInstance;
 import de.s42.dl.instances.DefaultDLInstance;
 import de.s42.dl.instances.DefaultDLModule;
 import de.s42.dl.instances.SimpleTypeDLInstance;
-import de.s42.dl.types.ArrayDLType;
 import de.s42.dl.types.DLContainer;
 import de.s42.dl.types.DefaultDLEnum;
 import de.s42.dl.types.DefaultDLType;
-import de.s42.dl.types.ObjectDLType;
+import de.s42.dl.types.base.ArrayDLType;
+import de.s42.dl.types.primitive.ObjectDLType;
 import de.s42.dl.validation.ValidationResult;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -192,7 +192,7 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public DLAttribute createAttribute(String attributeName, DLType type, DLType container)
+	public DLAttribute createAttribute(String attributeName, DLType type, DLType container) throws DLException
 	{
 		assert attributeName != null;
 		assert type != null;
@@ -407,7 +407,7 @@ public class BaseDLCore implements DLCore
 	{
 		assert key != null;
 		assert value != null;
-		
+
 		Optional<DLType> optType = getType(value.getClass());
 
 		if (optType.isEmpty()) {
@@ -515,25 +515,23 @@ public class BaseDLCore implements DLCore
 	protected Object resolveChildOrAttribute(Object instance, String name)
 	{
 		assert instance != null;
-		
+
 		if (instance instanceof DLInstance) {
 
-			Optional<DLInstance> child = ((DLInstance)instance).getChild(name);
+			Optional<DLInstance> child = ((DLInstance) instance).getChild(name);
 
 			if (child.isPresent()) {
 				return child.get();
 			}
 
-			return ((DLInstance)instance).get(name);
-		}
-		else {
-			
+			return ((DLInstance) instance).get(name);
+		} else {
+
 			try {
 				BeanInfo info = BeanHelper.getBeanInfo(instance.getClass());
 
-				return info.read(instance, name);			
-			}
-			catch (Exception ex) {
+				return info.read(instance, name);
+			} catch (InvalidBean | RuntimeException ex) {
 				throw new RuntimeException("Error resolving child " + name + " - " + ex.getMessage(), ex);
 			}
 		}
@@ -547,7 +545,7 @@ public class BaseDLCore implements DLCore
 		String[] pathSegments = path.split("\\.");
 
 		Optional<DLInstance> currentRef = getExported(pathSegments[0]);
-		
+
 		if (currentRef.isEmpty()) {
 			return null;
 		}
@@ -562,7 +560,7 @@ public class BaseDLCore implements DLCore
 				//throw new InvalidValue("Path " + path + " could not get resolved for " + pathSegment);
 				return null;
 			}
-			
+
 			current = child;
 		}
 
@@ -570,14 +568,13 @@ public class BaseDLCore implements DLCore
 		// @improvement this unwrapping should be done more generic if possible
 		if (current instanceof SimpleTypeDLInstance) {
 			return ((SimpleTypeDLInstance) current).getData();
-		}
-		else if (current instanceof ComplexTypeDLInstance) {
+		} else if (current instanceof ComplexTypeDLInstance) {
 			return ((ComplexTypeDLInstance) current).getData();
 		}
 
 		return current;
 	}
-	
+
 	public boolean removeExported(String key)
 	{
 		return exported.remove(key);
@@ -708,7 +705,7 @@ public class BaseDLCore implements DLCore
 		if (type instanceof DefaultDLType) {
 			((DefaultDLType) type).setCore(this);
 		}
-		
+
 		// Make sure the type is valid
 		ValidationResult result = new ValidationResult();
 		if (!type.validate(result)) {
@@ -1002,7 +999,7 @@ public class BaseDLCore implements DLCore
 				classType.addParent(interfaceType);
 			}
 		}
-		
+
 		return classType;
 	}
 
@@ -1204,10 +1201,10 @@ public class BaseDLCore implements DLCore
 
 		String canonicalName = getTypeName(name, genericTypes);
 
-		Optional<DLType> type = types.get(canonicalName);
+		Optional<DLType> optType = types.get(canonicalName);
 
-		if (type.isPresent()) {
-			return type;
+		if (optType.isPresent()) {
+			return optType;
 		}
 
 		if (!types.contains(name)) {
@@ -1218,15 +1215,25 @@ public class BaseDLCore implements DLCore
 			throw new UndefinedType("Type " + name + " is not defined");
 		}
 
-		// add generic version
-		type = types.get(name);
-
 		if (!allowDefineTypes) {
 			throw new InvalidCore("May not define types");
 		}
+		
+		// add generic version
+		optType = types.get(name);
+		
+		DLType type = optType.orElseThrow();
+				
+		if (!type.isAllowGenericTypes()) {
+			throw new InvalidType("May not define a generic subtype of the type " + type.getCanonicalName());
+		}
+		
+		if (!(type instanceof DefaultDLType)) {
+			throw new InvalidType("Can not define a generic subtype of the type " + type.getCanonicalName() + " as it is not a DefaultDLType");
+		}
 
 		// generate specific typed version
-		DefaultDLType specificType = ((DefaultDLType) type.get()).copy();
+		DefaultDLType specificType = ((DefaultDLType)type).copy();
 
 		specificType.addGenericTypes(genericTypes);
 
@@ -1287,7 +1294,7 @@ public class BaseDLCore implements DLCore
 	{
 		return parse(moduleId, null);
 	}
-	
+
 	public boolean removeFromRequiredModules(String moduleId)
 	{
 		return requiredModules.remove(moduleId) != null;

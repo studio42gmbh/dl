@@ -52,6 +52,10 @@ module de.sft.dl
 	exports de.s42.dl.parser2;
 	exports de.s42.dl.pragmas;
 	exports de.s42.dl.types;
+	exports de.s42.dl.types.primitive;
+	exports de.s42.dl.types.collections;
+	exports de.s42.dl.types.base;
+	exports de.s42.dl.types.dl;
 	exports de.s42.dl.util;
 	exports de.s42.dl.validation;
 

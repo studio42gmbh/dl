@@ -34,6 +34,7 @@ import de.s42.dl.validation.DLAttributeValidator;
 import de.s42.dl.validation.DLInstanceValidator;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidComparison;
 import de.s42.dl.validation.ValidationResult;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 /**
@@ -136,4 +137,33 @@ public abstract class AbstractComparisonDLAnnotation<DataType, DLAnnotationType 
 	{
 		this.other = other;
 	}
+
+	@Override
+	public int hashCode()
+	{
+		int hash = super.hashCode();
+		hash = 67 * hash + Objects.hashCode(this.other);
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}		
+		if (!super.equals(obj)) {
+			return false;
+		}		
+		final AbstractComparisonDLAnnotation<?, ?> otherObj = (AbstractComparisonDLAnnotation<?, ?>) obj;
+		return Objects.equals(this.other, otherObj.other);
+	}
+	
+	
 }

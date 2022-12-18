@@ -27,6 +27,7 @@ package de.s42.dl.core;
 
 import de.s42.dl.DLCore;
 import de.s42.dl.DLEntity;
+import de.s42.dl.DLType;
 import de.s42.dl.annotations.*;
 import de.s42.dl.annotations.files.IsDirectoryDLAnnotation;
 import de.s42.dl.annotations.files.IsFileDLAnnotation;
@@ -38,6 +39,27 @@ import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.pragmas.*;
 import de.s42.dl.types.*;
+import de.s42.dl.types.base.ArrayDLType;
+import de.s42.dl.types.base.ClassDLType;
+import de.s42.dl.types.base.DateDLType;
+import de.s42.dl.types.base.PathDLType;
+import de.s42.dl.types.base.SymbolDLType;
+import de.s42.dl.types.base.UUIDDLType;
+import de.s42.dl.types.collections.ListDLType;
+import de.s42.dl.types.collections.MapDLType;
+import de.s42.dl.types.collections.SetDLType;
+import de.s42.dl.types.dl.CoreDLType;
+import de.s42.dl.types.primitive.BooleanDLType;
+import de.s42.dl.types.primitive.ByteDLType;
+import de.s42.dl.types.primitive.CharDLType;
+import de.s42.dl.types.primitive.DoubleDLType;
+import de.s42.dl.types.primitive.FloatDLType;
+import de.s42.dl.types.primitive.IntegerDLType;
+import de.s42.dl.types.primitive.LongDLType;
+import de.s42.dl.types.primitive.NumberDLType;
+import de.s42.dl.types.primitive.ObjectDLType;
+import de.s42.dl.types.primitive.ShortDLType;
+import de.s42.dl.types.primitive.StringDLType;
 import de.s42.log.LogLevel;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -116,22 +138,26 @@ public class DefaultCore extends BaseDLCore
 			definePragma(new DisableRequirePragma());
 
 			// Define basic simple types
-			defineType(new BooleanDLType(), "java.lang.Boolean", "boolean", "bool");
-			defineType(new ByteDLType(), "java.lang.Byte", "byte");
-			defineType(new CharDLType(), "java.lang.Character", "Char", "char");
-			defineType(new ShortDLType(), "java.lang.Short", "short");
-			defineType(new ClassDLType(), "java.lang.Class");
-			defineType(new DoubleDLType(), "java.lang.Double", "double");
-			defineType(new FloatDLType(), "java.lang.Float", "float");
-			defineType(new IntegerDLType(), "java.lang.Integer", "int");
-			defineType(new LongDLType(), "java.lang.Long", "long");
-			defineType(new NumberDLType(), "java.lang.Number");
-			defineType(new ObjectDLType(), "java.lang.Object");
-			defineType(new PathDLType(), "java.nio.file.Path", "sun.nio.fs.WindowsPath");
-			defineType(new SymbolDLType());
-			defineType(new UUIDDLType(), "java.util.UUID", "uuid");
-			defineType(new StringDLType(), "java.lang.String", "string", "str");
-			defineType(new DateDLType(), "java.util.Date", "java.sql.Timestamp");
+			DLType objectType = defineType(new ObjectDLType(), "java.lang.Object");
+
+			// Base Types
+			defineType(new PathDLType(objectType), "java.nio.file.Path", "sun.nio.fs.WindowsPath");
+			defineType(new ClassDLType(objectType), "java.lang.Class");
+			defineType(new SymbolDLType(objectType));
+			defineType(new UUIDDLType(objectType), "java.util.UUID", "uuid");
+			defineType(new DateDLType(objectType), "java.util.Date", "java.sql.Timestamp");
+			defineType(new StringDLType(objectType), "java.lang.String", "string", "str");
+			defineType(new CharDLType(objectType), "java.lang.Character", "Char", "char");
+
+			// Number types
+			DefaultDLType numberType = (DefaultDLType) defineType(new NumberDLType(objectType), "java.lang.Number");
+			defineType(new DoubleDLType(numberType), "java.lang.Double", "double");
+			defineType(new FloatDLType(numberType), "java.lang.Float", "float");
+			defineType(new IntegerDLType(numberType), "java.lang.Integer", "int");
+			defineType(new BooleanDLType(numberType), "java.lang.Boolean", "boolean", "bool");
+			defineType(new LongDLType(numberType), "java.lang.Long", "long");
+			defineType(new ByteDLType(numberType), "java.lang.Byte", "byte");
+			defineType(new ShortDLType(numberType), "java.lang.Short", "short");
 
 			defineType(DLEntity.class, "DLEntity");
 

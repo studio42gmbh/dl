@@ -23,47 +23,51 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.primitive;
 
 import de.s42.base.conversion.ConversionHelper;
-import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.DLType;
+import de.s42.dl.types.SimpleDLType;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class ClassDLType extends SimpleDLType
+public class StringDLType extends SimpleDLType
 {
 
-	public final static String DEFAULT_SYMBOL = "Class";
+	public final static String DEFAULT_SYMBOL = "String";
 
-	public ClassDLType()
+	public StringDLType()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public ClassDLType(String name)
+	public StringDLType(DLType parent)
+	{
+		this(DEFAULT_SYMBOL);
+
+		addParent(parent);
+	}
+
+	public StringDLType(String name)
 	{
 		super(name);
 	}
 
 	@Override
-	public Object read(Object... sources) throws InvalidValue
+	public String read(Object... sources)
 	{
 		assert sources != null;
 
 		Object[] result = ConversionHelper.convertArray(sources, new Class[]{String.class});
 
-		try {
-			return Class.forName((String) result[0]);
-		} catch (ClassNotFoundException ex) {
-			throw new InvalidValue("Class " + (String) result[0] + " could not be found");
-		}
+		return (String) result[0];
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return Class.class;
+		return String.class;
 	}
 }

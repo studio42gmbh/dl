@@ -29,15 +29,19 @@ import de.s42.base.beans.BeanHelper;
 import de.s42.base.beans.BeanInfo;
 import de.s42.base.beans.BeanProperty;
 import de.s42.base.beans.InvalidBean;
+import de.s42.base.collections.CollectionsHelper;
 import de.s42.dl.*;
-import de.s42.base.strings.StringHelper;
 import de.s42.dl.annotations.AbstractDLAnnotated;
+import de.s42.dl.annotations.ReadOnlyDLAnnotation;
+import de.s42.dl.annotations.WriteOnlyDLAnnotation;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.validation.DLAttributeValidator;
 import de.s42.dl.validation.ValidationResult;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -205,30 +209,30 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 	@Override
 	public String toString()
 	{
-		return StringHelper.toString(getClass(), getName(),
-			new String[]{
-				"type",
-				"readable",
-				"writable",
-				"defaultValue",
-				"container"
-			},
-			new Object[]{
-				getType(),
-				isReadable(),
-				isWritable(),
-				getDefaultValue(),
-				getContainer().getCanonicalName()
-			}
-		);
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append(type.getCanonicalName());
+		builder.append(" ");
+		builder.append(name);
+		
+		for (DLAnnotation annotation : annotations) {
+			builder.append(" ");
+			builder.append(annotation.toString());
+		}
+		
+		return builder.toString();
 	}
 
 	@Override
 	public int hashCode()
 	{
 		int hash = 7;
-		hash = 29 * hash + Objects.hashCode(this.name);
-		hash = 29 * hash + Objects.hashCode(this.container);
+		hash = 41 * hash + Objects.hashCode(this.defaultValue);
+		hash = 41 * hash + Objects.hashCode(this.type);
+		hash = 41 * hash + Objects.hashCode(this.container);
+		hash = 41 * hash + Objects.hashCode(this.validators);
+		hash = 41 * hash + (this.readable ? 1 : 0);
+		hash = 41 * hash + (this.writable ? 1 : 0);
 		return hash;
 	}
 
@@ -245,9 +249,101 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 			return false;
 		}
 		final DefaultDLAttribute other = (DefaultDLAttribute) obj;
-		if (!Objects.equals(this.name, other.name)) {
+		if (this.readable != other.readable) {
 			return false;
 		}
-		return Objects.equals(this.container, other.container);
+		if (this.writable != other.writable) {
+			return false;
+		}
+		if (!Objects.equals(this.defaultValue, other.defaultValue)) {
+			return false;
+		}
+		if (!Objects.equals(this.type, other.type)) {
+			return false;
+		}
+		if (!Objects.equals(this.container, other.container)) {
+			return false;
+		}
+		return Objects.equals(this.validators, other.validators);
 	}
+
+	@Override
+	public boolean equalDataType(DLAttribute other)
+	{
+		if (this == other) {
+			return true;
+		}
+		if (other == null) {
+			return false;
+		}
+		if (this.readable != other.isReadable()) {
+			return false;
+		}
+		if (this.writable != other.isWritable()) {
+			return false;
+		}
+		if (!Objects.equals(this.defaultValue, other.getDefaultValue())) {
+			return false;
+		}
+		if (!Objects.equals(this.type, other.getType())) {
+			return false;
+		}
+		return CollectionsHelper.listEqualsIgnoreOrder(this.annotations, other.getAnnotations());
+	}
+	
+	@Override
+	public boolean equalOrMoreSpecificDataType(DLAttribute other)
+	{
+		if (this == other) {
+			return true;
+		}
+		if (other == null) {
+			return false;
+		}
+		
+		// May not be not readable if it was before
+		if (!this.readable && other.isReadable()) {
+			return false;
+		}
+		
+		// May not be not writable if it was before
+		if (!this.writable && other.isWritable()) {
+			return false;
+		}
+		
+		if (!this.type.isDerivedTypeOf(other.getType())) {
+			return false;
+		}
+		return annotationsEqualOrMoreSpecific(this.annotations, other.getAnnotations());
+	}
+	
+	/**
+	 * This method allows to compare annotations of own are more specific than other
+	 * This is a very specific method but that should to the trick for now
+	 * @param own
+	 * @param other
+	 * @return 
+	 */
+	protected boolean annotationsEqualOrMoreSpecific(List<DLAnnotation> own, List<DLAnnotation> other) {
+		
+		HashSet<DLAnnotation> setOther = new HashSet<>(other);
+		
+		// Remove all annotations of this 
+		setOther.removeAll(own);
+		
+		Iterator<DLAnnotation> setOtherIt = setOther.iterator();
+		while (setOtherIt.hasNext()) {
+			DLAnnotation ann = setOtherIt.next();
+			if (ann instanceof ReadOnlyDLAnnotation || ann instanceof WriteOnlyDLAnnotation) {
+				setOtherIt.remove();
+			}
+		}
+
+		// Now the other set has to be empty
+		if (!setOther.isEmpty()) {
+			return false;
+		}
+		
+		return true;
+	}		
 }

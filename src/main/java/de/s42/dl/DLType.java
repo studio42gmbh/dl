@@ -27,6 +27,7 @@ package de.s42.dl;
 
 import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.validation.DLInstanceValidator;
 import de.s42.dl.validation.DLTypeValidator;
 import de.s42.dl.validation.DLValidatable;
@@ -106,7 +107,7 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 	public boolean mayContainType(DLType type);
 
 	// ATTRIBUTES
-	public void addAttribute(DLAttribute attribue);
+	public void addAttribute(DLAttribute attribue) throws InvalidType;
 
 	public Set<DLAttribute> getOwnAttributes();
 

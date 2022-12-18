@@ -25,12 +25,15 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
+import de.s42.base.beans.BeanHelper;
+import de.s42.base.beans.BeanInfo;
 import de.s42.base.beans.InvalidBean;
 import de.s42.dl.DLAnnotation;
 import de.s42.dl.DLAnnotationFactory;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.parameters.NamedParameter;
 import de.s42.dl.parameters.NamedParameters;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -38,6 +41,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -215,5 +219,66 @@ public abstract class AbstractDLAnnotation<DLAnnotationType extends DLAnnotation
 	public void setContainer(DLAnnotated container)
 	{
 		this.container = container;
+	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append("@");
+		builder.append(name);
+		
+		if (parameters.hasParameters()) {
+			
+			try {
+				BeanInfo info = BeanHelper.getBeanInfo(getClass());
+				
+				builder.append("(");
+				NamedParameter[] params = parameters.getParameters();
+				for (int i = 0; i < params.length; ++i) {
+					if (i > 0) {	
+						builder.append(", ");
+					}
+					NamedParameter param = params[i];
+					builder.append(param.name);
+					builder.append(" : ");
+					builder.append(info.read(this, param.name));
+				}
+				builder.append(")");
+			} catch (InvalidBean ex) {			
+				throw new RuntimeException("Error toString this annotation - " + ex.getMessage(), ex);
+			}
+		}
+				
+		return builder.toString();
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		int hash = 7;
+		hash = 43 * hash + Objects.hashCode(this.name);
+		hash = 43 * hash + Objects.hashCode(this.parameters);
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final AbstractDLAnnotation<?> other = (AbstractDLAnnotation<?>) obj;
+		if (!Objects.equals(this.name, other.name)) {
+			return false;
+		}
+		return Objects.equals(this.parameters, other.parameters);
 	}
 }

@@ -23,25 +23,34 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.primitive;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLType;
+import de.s42.dl.types.SimpleDLType;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class FloatDLType extends SimpleDLType
+public class DoubleDLType extends SimpleDLType
 {
 
-	public final static String DEFAULT_SYMBOL = "Float";
+	public final static String DEFAULT_SYMBOL = "Double";
 
-	public FloatDLType()
+	public DoubleDLType()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public FloatDLType(String name)
+	public DoubleDLType(DLType parent)
+	{
+		this(DEFAULT_SYMBOL);
+
+		addParent(parent);
+	}
+
+	public DoubleDLType(String name)
 	{
 		super(name);
 	}
@@ -51,14 +60,14 @@ public class FloatDLType extends SimpleDLType
 	{
 		assert sources != null;
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Float.class});
+		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Double.class});
 
-		return (Float) result[0];
+		return (Double) result[0];
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return Float.class;
+		return Double.class;
 	}
 }

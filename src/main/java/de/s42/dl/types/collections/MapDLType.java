@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.collections;
 
 import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLInstance;
@@ -32,6 +32,7 @@ import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.types.DefaultDLType;
 import static de.s42.dl.validation.DefaultValidationCode.DynamicAttributeNotAllowed;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidGenericParameters;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidGenericTypes;
@@ -57,6 +58,13 @@ public class MapDLType extends DefaultDLType
 	public MapDLType()
 	{
 		this(DEFAULT_SYMBOL);
+	}
+
+	public MapDLType(DLType parent)
+	{
+		this(DEFAULT_SYMBOL, null, null);
+
+		addParent(parent);
 	}
 
 	public MapDLType(String name)

@@ -23,26 +23,34 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.primitive;
 
 import de.s42.base.conversion.ConversionHelper;
-import java.util.UUID;
+import de.s42.dl.DLType;
+import de.s42.dl.types.SimpleDLType;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class UUIDDLType extends SimpleDLType
+public class ShortDLType extends SimpleDLType
 {
 
-	public final static String DEFAULT_SYMBOL = "UUID";
+	public final static String DEFAULT_SYMBOL = "Short";
 
-	public UUIDDLType()
+	public ShortDLType()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public UUIDDLType(String name)
+	public ShortDLType(DLType parent)
+	{
+		this(DEFAULT_SYMBOL);
+
+		addParent(parent);
+	}
+
+	public ShortDLType(String name)
 	{
 		super(name);
 	}
@@ -52,14 +60,14 @@ public class UUIDDLType extends SimpleDLType
 	{
 		assert sources != null;
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{UUID.class});
+		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Short.class});
 
-		return (UUID) result[0];
+		return (Short) result[0];
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return UUID.class;
+		return Short.class;
 	}
 }

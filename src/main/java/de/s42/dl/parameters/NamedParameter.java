@@ -26,6 +26,7 @@
 package de.s42.dl.parameters;
 
 import de.s42.base.strings.StringHelper;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -106,5 +107,45 @@ public final class NamedParameter
 	public String toString()
 	{
 		return StringHelper.toString(this, IGNORED_TO_STRING_PROPERTIES);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int hash = 5;
+		hash = 59 * hash + Objects.hashCode(this.name);
+		hash = 59 * hash + Objects.hashCode(this.type);
+		hash = 59 * hash + Objects.hashCode(this.defaultValue);
+		hash = 59 * hash + (this.required ? 1 : 0);
+		hash = 59 * hash + this.ordinal;
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final NamedParameter other = (NamedParameter) obj;
+		if (this.required != other.required) {
+			return false;
+		}
+		if (this.ordinal != other.ordinal) {
+			return false;
+		}
+		if (!Objects.equals(this.name, other.name)) {
+			return false;
+		}
+		if (!Objects.equals(this.type, other.type)) {
+			return false;
+		}
+		return Objects.equals(this.defaultValue, other.defaultValue);
 	}
 }

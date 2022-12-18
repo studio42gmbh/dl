@@ -23,45 +23,41 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.dl;
 
+import de.s42.dl.DLCore;
 import de.s42.dl.DLType;
-import java.util.HashMap;
+import de.s42.dl.types.SimpleDLType;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class ModuleDLType extends DefaultDLType
+public class CoreDLType extends SimpleDLType
 {
 
-	public final static String DEFAULT_SYMBOL = "Module";
+	public final static String DEFAULT_SYMBOL = "DLCore";
 
-	public ModuleDLType()
+	public CoreDLType()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public ModuleDLType(String name)
+	public CoreDLType(DLType parent)
 	{
-		super(name);
-		init();
+		this(DEFAULT_SYMBOL);
+		
+		addParent(parent);
 	}
 
-	private void init()
+	public CoreDLType(String name)
 	{
-		setAllowDynamicAttributes(true);
+		super(name);
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return HashMap.class;
-	}
-
-	@Override
-	public boolean mayContainType(DLType type)
-	{
-		return true;
+		return DLCore.class;
 	}
 }

@@ -112,7 +112,7 @@ public interface DLCore
 	// ATTRIBUTES
 	public DLAttribute createAttribute(String attributeName, String typeName, DLType container) throws DLException;
 
-	public DLAttribute createAttribute(String attributeName, DLType type, DLType container);
+	public DLAttribute createAttribute(String attributeName, DLType type, DLType container) throws DLException;
 
 	// ANNOTATIONS
 	public DLAnnotation createAnnotation(String name, DLAnnotated container) throws DLException;

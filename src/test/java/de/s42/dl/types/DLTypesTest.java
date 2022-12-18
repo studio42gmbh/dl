@@ -79,8 +79,8 @@ public class DLTypesTest
 		BaseDLCore core = new BaseDLCore();
 		core.addResolver(new StringCoreResolver(core));
 		core.setAllowDefineTypes(true);
-		core.parse("validExternDLTypeDefinition", "extern type de.s42.dl.types.StringDLType;");
-		core.parse("validExternDLTypeDefinition2", "type T { de.s42.dl.types.StringDLType val; }");
+		core.parse("validExternDLTypeDefinition", "extern type de.s42.dl.types.primitive.StringDLType;");
+		core.parse("validExternDLTypeDefinition2", "type T { de.s42.dl.types.primitive.StringDLType val; }");
 		core.parse("validExternDLTypeDefinition3", "type T2 { String val; }");
 	}
 
@@ -225,7 +225,7 @@ public class DLTypesTest
 		DLCore core = new DefaultCore();
 		DLModule module = core.parse("validSimpleTypeAssigned", "type A; A test : Hallo; A test2 : 1.34;");
 		Object value = module.get("test");
-		Double value2 = (Double)module.get("test2");
+		Double value2 = (Double) module.get("test2");
 		Assert.assertEquals(value, "Hallo");
 		AssertHelper.assertEpsilonEquals(value2, 1.34);
 	}
@@ -250,5 +250,89 @@ public class DLTypesTest
 		Assert.assertEquals(typeU.getName(), "de.s42.dl.types.DLTypesTest$TestClass");
 		DLType typeV = core.getType("V").orElseThrow();
 		Assert.assertEquals(typeV.getName(), "de.s42.dl.types.DLTypesTest$TestClass");
+	}
+
+	@Test(expectedExceptions = InvalidType.class)
+	public void invalidTypeWith2SameNameAttributes() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("invalidTypeWith2SameNameAttributes",
+			"type A { int x; float x; }"
+		);
+	}
+
+	@Test
+	public void validExtendParentsAttributeMoreSpecificType() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("validExtendParentsAttributeMoreSpecificType",
+			"type V; type U extends V;"
+			+ "type A { V x; } "
+			+ "type B extends A { U x; }"
+		);
+	}
+
+	@Test(expectedExceptions = InvalidType.class)
+	public void invalidExtendParentsAttributeLessSpecificType() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("invalidExtendParentsAttributeLessSpecificType",
+			"type V; type U extends V;"
+			+ "type A { U x; } "
+			+ "type B extends A { V x; }"
+		);
+	}
+
+	@Test
+	public void validExtendParentsAttributeFromReadOnly() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("validExtendParentsAttributeFromReadOnly",
+			"type A { int x @readonly; } "
+			+ "type B extends A { int x; }"
+		);
+	}
+
+	@Test(expectedExceptions = InvalidType.class)
+	public void invalidExtendParentsAttributeToReadOnly() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("invalidExtendParentsAttributeToReadOnly",
+			"type A { int x; } "
+			+ "type B extends A { int x @readonly; }"
+		);
+	}
+
+	@Test
+	public void validCompatibleParentTypeAttributesWithSameName() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("validCompatibleParentTypeAttributesWithSameName",
+			"type A { int x @required @greater(y); } "
+			+ "type B { int x @greater(y) @required; } "
+			+ "type C extends A, B;"
+		);
+	}
+
+	@Test(expectedExceptions = InvalidType.class)
+	public void invalidIncompatibleParentTypeAttributesWithSameNameDifferentAnnotations() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("invalidIncompatibleParentTypeAttributesWithSameNameDifferentAnnotations",
+			"type A { int x @required @greater(y); } "
+			+ "type B { int x @greater(z) @required; } "
+			+ "type C extends A, B;"
+		);
+	}
+
+	@Test(expectedExceptions = InvalidType.class)
+	public void invalidIncompatibleParentTypeAttributesWithSameNameDifferentTypes() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.parse("invalidIncompatibleParentTypeAttributesWithSameNameDifferentTypes",
+			"type A { int x; } "
+			+ "type B { String x; } "
+			+ "type C extends A, B;"
+		);
 	}
 }

@@ -23,42 +23,52 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.base;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLType;
+import de.s42.dl.types.SimpleDLType;
+import java.util.Date;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class StringDLType extends SimpleDLType
+public class DateDLType extends SimpleDLType
 {
 
-	public final static String DEFAULT_SYMBOL = "String";
+	public final static String DEFAULT_SYMBOL = "Date";
 
-	public StringDLType()
+	public DateDLType()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public StringDLType(String name)
+	public DateDLType(DLType parent)
+	{
+		this(DEFAULT_SYMBOL);
+
+		addParent(parent);
+	}
+
+	public DateDLType(String name)
 	{
 		super(name);
 	}
 
 	@Override
-	public String read(Object... sources)
+	public Object read(Object... sources)
 	{
 		assert sources != null;
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{String.class});
+		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Date.class});
 
-		return (String) result[0];
+		return (Date) result[0];
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return String.class;
+		return Date.class;
 	}
 }

@@ -68,4 +68,14 @@ public interface DLAttribute extends DLEntity, DLAnnotated, DLValidatable
 	public boolean isReadable();
 
 	public boolean isWritable();
+
+	/**
+	 * This method shall return true if the data represented by this attribute is equal (same type, same annnotations, ... but not same container)
+	 * @param other
+	 * @return 
+	 */
+	public boolean equalDataType(DLAttribute other);
+	
+	public boolean equalOrMoreSpecificDataType(DLAttribute other);
+	
 }

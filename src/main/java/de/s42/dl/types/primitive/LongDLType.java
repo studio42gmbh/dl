@@ -23,25 +23,34 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.primitive;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.DLType;
+import de.s42.dl.types.SimpleDLType;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class NumberDLType extends SimpleDLType
+public class LongDLType extends SimpleDLType
 {
 
-	public final static String DEFAULT_SYMBOL = "Number";
+	public final static String DEFAULT_SYMBOL = "Long";
 
-	public NumberDLType()
+	public LongDLType()
 	{
 		this(DEFAULT_SYMBOL);
 	}
 
-	public NumberDLType(String name)
+	public LongDLType(DLType parent)
+	{
+		this(DEFAULT_SYMBOL);
+
+		addParent(parent);
+	}
+
+	public LongDLType(String name)
 	{
 		super(name);
 	}
@@ -51,14 +60,14 @@ public class NumberDLType extends SimpleDLType
 	{
 		assert sources != null;
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Number.class});
+		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Long.class});
 
-		return (Number) result[0];
+		return (Long) result[0];
 	}
 
 	@Override
 	public Class getJavaDataType()
 	{
-		return Number.class;
+		return Long.class;
 	}
 }

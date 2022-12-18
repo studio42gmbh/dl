@@ -38,6 +38,7 @@ import de.s42.log.Logger;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -413,10 +414,8 @@ public final class NamedParameters
 	public boolean isValidNamedParameters(Map<String, Object> namedParameters)
 	{
 		try {
-			return isValidFlatParameters(toFlatParameters(namedParameters));	
-		}
-		catch (InvalidValue ex)
-		{
+			return isValidFlatParameters(toFlatParameters(namedParameters));
+		} catch (InvalidValue ex) {
 			return true;
 		}
 	}
@@ -435,5 +434,29 @@ public final class NamedParameters
 	public NamedParameter[] getParameters()
 	{
 		return parameters;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int hash = 3;
+		hash = 17 * hash + Arrays.deepHashCode(this.parameters);
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final NamedParameters other = (NamedParameters) obj;
+		return Arrays.deepEquals(this.parameters, other.parameters);
 	}
 }

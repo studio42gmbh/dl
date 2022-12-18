@@ -32,6 +32,7 @@ import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.types.collections.MapDLType;
 import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.Test;

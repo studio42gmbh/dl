@@ -39,6 +39,7 @@ import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.exceptions.UndefinedType;
 import de.s42.dl.validation.DLInstanceValidator;
 import de.s42.dl.validation.DLTypeValidator;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidAttributeRedefinition;
 import de.s42.dl.validation.ValidationResult;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -137,16 +138,40 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 		boolean value = true;
 
+		List<DLType> allParents = getParents();
+
+		// Validate all attributes of this and its parent types are consistent
+		Map<String, DLAttribute> attribs = new HashMap<>(attributes.map());
+		for (DLType par : allParents) {
+
+			// Compare each attribute of a parent to the collected attributes
+			for (DLAttribute parAttrib : par.getOwnAttributes()) {
+
+				DLAttribute alreadyContained = attribs.get(parAttrib.getName());
+
+				// If it is redefined it has to have the absolute equal data type
+				if (alreadyContained != null && !alreadyContained.equalOrMoreSpecificDataType(parAttrib)) {
+					result.addError(InvalidAttributeRedefinition.toString(), "Attribute '" + alreadyContained + "' has a different data type than '" + parAttrib + "'");
+					value = false;
+				} // Add this attribute to the list of scanned attributes
+				else {
+					attribs.put(parAttrib.getName(), parAttrib);
+				}
+			}
+		}
+
+		// Validate own attributes
 		for (DLAttribute attribute : getOwnAttributes()) {
 			value &= attribute.validate(result);
 		}
 
+		// Validate type with local validators
 		for (DLTypeValidator validator : getValidators()) {
 			value &= validator.validate(this, result);
 		}
 
 		// This will get all distinct parents (deep)
-		for (DLType parent : getParents()) {
+		for (DLType parent : allParents) {
 			value &= validateParent(parent, result);
 		}
 
@@ -168,6 +193,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 		boolean value = true;
 
+		// Validate attributes of parent
 		for (DLAttribute attribute : parent.getOwnAttributes()) {
 			value &= attribute.validate(result);
 		}
@@ -531,9 +557,13 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	}
 
 	@Override
-	public void addAttribute(DLAttribute attribute)
+	public void addAttribute(DLAttribute attribute) throws InvalidType
 	{
 		assert attribute != null;
+
+		if (attributes.contains(attribute.getName())) {
+			throw new InvalidType("Attribute with name '" + attribute.getName() + "' is already contained in type " + getCanonicalName());
+		}
 
 		attributes.add(attribute.getName(), attribute);
 	}
