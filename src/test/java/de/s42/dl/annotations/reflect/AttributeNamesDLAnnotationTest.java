@@ -55,13 +55,18 @@ public class AttributeNamesDLAnnotationTest
 		public Path m_x;
 		public String s_str;
 	}
-
+	
+	public static class DerivedAttributeNamesClass extends AttributeNamesClass
+	{
+		public Path m_path; // is validated because of parent class annotations
+	}
+	
 	@Test
 	public void validJavaAttributeNames() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
 		DLType type = core.defineType(AttributeNamesClass.class);
-		//log.info("DLType:\n", DLHelper.describe(type));
+		DLType derivedType = core.defineType(DerivedAttributeNamesClass.class);
 		Assert.assertTrue(
 			type.hasAnnotation(AttributeNamesDLAnnotation.class),
 			"@attributeNames should be mapped for type AttributeNamesClass"
@@ -87,8 +92,8 @@ public class AttributeNamesDLAnnotationTest
 		DLCore core = new DefaultCore();
 		core.parse("validAttributeNamesMultiplePartial",
 			"type T "
-			+ "@attributeNames(pattern : \"^m_.+\", typePattern : \"^Integer$\") "
-			+ "@attributeNames(pattern : \"^s_.+\", typePattern : \"^String$\") "
+			+ "@attributeNames(\"^m_.+\", \"^Integer$\") "
+			+ "@attributeNames(typePattern : \"^String$\", pattern : \"^s_.+\") "
 			+ "@attributeNames(pattern : \"^[a-z_]+$\") "
 			+ "{ int m_x; String s_display; int m_y; String s_description; }");
 	}

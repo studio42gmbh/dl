@@ -38,7 +38,6 @@ import de.s42.dl.core.DefaultCore;
 import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.util.DLHelper;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import org.testng.Assert;

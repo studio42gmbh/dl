@@ -99,7 +99,7 @@ public class AttributeNamesDLAnnotation extends AbstractDLConcept<AttributeNames
 
 			// If the attribute name does not match pattern -> validation Error
 			if (!patternPattern.matcher(attribute.getName()).matches()) {
-				result.addError(NotMatching.toString(), "Attribute name '" + attribute.getName() + "' in type '" + type.getCanonicalName() + "' does not match pattern '" + pattern + "'");
+				result.addError(NotMatching.toString(), "Attribute name '" + attribute.getName() + "' in type '" + type + "' does not match pattern '" + pattern + "'");
 				valid = false;
 			}
 		}

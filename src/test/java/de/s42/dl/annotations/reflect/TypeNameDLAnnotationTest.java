@@ -47,22 +47,28 @@ public class TypeNameDLAnnotationTest
 
 	private final static Logger log = LogManager.getLogger(TypeNameDLAnnotationTest.class.getName());
 
-	@typeName(pattern = ".*T.*N.*Class")
-	public static class TypeNameClass
+	@typeName(pattern = ".*Action")
+	public static class TypeNameAction
 	{
 
 		public Path x;
+	}
+	
+	public static class DerivedTypeNameAction extends TypeNameAction
+	{
+		
 	}
 
 	@Test
 	public void validJavaTypeName() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		DLType type = core.defineType(TypeNameClass.class);
+		DLType type = core.defineType(TypeNameAction.class);
+		DLType derivedType = core.defineType(DerivedTypeNameAction.class);
 		//log.debug("DLType:\n", DLHelper.describe(type));
 		Assert.assertTrue(
 			type.hasAnnotation(TypeNameDLAnnotation.class),
-			"@typeName should be mapped for type TypeNameClass"
+			"@typeName should be mapped for type TypeNameAction"
 		);
 	}
 	
