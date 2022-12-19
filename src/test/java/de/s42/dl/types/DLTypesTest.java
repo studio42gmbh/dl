@@ -296,12 +296,16 @@ public class DLTypesTest
 		);
 	}
 
+	/**
+	 * This extension mainly supports interface implementation approaches where the interface just defines a getter and the impl then has a full property
+	 * @throws DLException 
+	 */
 	@Test
 	public void validExtendParentsAttributeFromReadOnly() throws DLException
 	{
 		DLCore core = new DefaultCore();
 		core.parse("validExtendParentsAttributeFromReadOnly",
-			"type A { int x @readonly; } "
+			"abstract type A { int x @readonly; } "
 			+ "type B extends A { int x; }"
 		);
 	}
@@ -321,8 +325,8 @@ public class DLTypesTest
 	{
 		DLCore core = new DefaultCore();
 		core.parse("validCompatibleParentTypeAttributesWithSameName",
-			"type A { int x @required @greater(y); } "
-			+ "type B { int x @greater(y) @required; } "
+			"type A { int x @required @greater(y); int y;} "
+			+ "type B { int x @greater(y) @required; int y; int z; } "
 			+ "type C extends A, B;"
 		);
 	}

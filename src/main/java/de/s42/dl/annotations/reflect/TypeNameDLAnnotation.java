@@ -35,6 +35,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -59,6 +60,8 @@ public class TypeNameDLAnnotation extends AbstractDLConcept<TypeNameDLAnnotation
 	@DLAnnotationParameter(ordinal = 1, required = false, defaultValue = "false")
 	protected boolean ignoreAbstract = false;
 	
+	private Pattern patternPattern;
+	
 	@Override
 	public boolean validate(DLType type, ValidationResult result)
 	{
@@ -69,7 +72,7 @@ public class TypeNameDLAnnotation extends AbstractDLConcept<TypeNameDLAnnotation
 			return true;			
 		}
 		
-		if (!type.getName().matches(pattern)) {
+		if (!patternPattern.matcher(type.getName()).matches()) {
 			result.addError(NotMatching.toString(), "Type name '" + type.getName() + "' does not match pattern '" + pattern + "'");
 			return false;
 		}
@@ -83,6 +86,9 @@ public class TypeNameDLAnnotation extends AbstractDLConcept<TypeNameDLAnnotation
 		assert type != null;
 		
 		type.addValidator(this);
+		
+		// Precompile pattern - after binding the pattern and typepattern may not get changed anymore for consistency
+		patternPattern = Pattern.compile(pattern);
 	}
 
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
@@ -93,6 +99,8 @@ public class TypeNameDLAnnotation extends AbstractDLConcept<TypeNameDLAnnotation
 
 	public void setPattern(String pattern)
 	{
+		assert patternPattern == null;
+		
 		this.pattern = pattern;
 	}
 

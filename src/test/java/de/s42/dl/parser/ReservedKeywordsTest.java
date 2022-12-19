@@ -459,4 +459,36 @@ public class ReservedKeywordsTest
 		String data = "int clone : 42;";
 		core.parse("invalidUseClone", data);
 	}	
+	
+	@Test(expectedExceptions = ReservedKeyword.class)
+	public void invalidUseSelect() throws Exception
+	{
+		DLCore core = new DefaultCore();
+		String data = "int select : 42;";
+		core.parse("invalidUseSelect", data);
+	}	
+	
+	@Test(expectedExceptions = ReservedKeyword.class)
+	public void invalidUseWhen() throws Exception
+	{
+		DLCore core = new DefaultCore();
+		String data = "int when : 42;";
+		core.parse("invalidUseWhen", data);
+	}	
+	
+	@Test(expectedExceptions = ReservedKeyword.class)
+	public void invalidUseSwitch() throws Exception
+	{
+		DLCore core = new DefaultCore();
+		String data = "int switch : 42;";
+		core.parse("invalidUseSwitch", data);
+	}	
+	
+	@Test(expectedExceptions = ReservedKeyword.class)
+	public void invalidUseDistinct() throws Exception
+	{
+		DLCore core = new DefaultCore();
+		String data = "int distinct : 42;";
+		core.parse("invalidUseDistinct", data);
+	}	
 }
