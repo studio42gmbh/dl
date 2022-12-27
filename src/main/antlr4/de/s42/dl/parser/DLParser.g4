@@ -26,13 +26,15 @@
 
 parser grammar DLParser ;
 
-options { tokenVocab=DLLexer; }
+options { tokenVocab = DLLexer ; }
+
 
 // ROOT data
 
 data : declaration* EOF ;
 
 declaration : 
+	assert |
 	instanceDefinition |
 	typeDefinition |
 	enumDefinition |
@@ -49,13 +51,22 @@ identifier : SYMBOL ;
 typeIdentifier : identifier ;
 staticParameters : PARENTHESES_OPEN ( staticParameter ( COMMA staticParameter )* )? PARENTHESES_CLOSE ;
 staticParameterName : identifier ;
-staticParameter : ( staticParameterName COLON )? ( STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | SYMBOL );
+staticParameter : ( staticParameterName COLON )? ( STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | SYMBOL ) ;
 genericParameters : GENERIC_OPEN genericParameter ( COMMA genericParameter )* COMMA? GENERIC_CLOSE ;
-genericParameter : identifier;
+genericParameter : identifier ;
 symbolOrString : STRING_LITERAL | SYMBOL ;
 scopeExpression : COLON identifier ( OR identifier )* ;
 aliases : KEYWORD_ALIAS aliasName ( COMMA aliasName )* ;
 aliasName : identifier;
+
+
+// ASSERT
+
+assert : 
+	KEYWORD_ASSERT assertTest ( COLON assertMessage )? SEMI_COLON ;
+
+assertTest : expression ;
+assertMessage : expression ;
 
 
 // EXPRESSION https://github.com/studio42gmbh/dl/issues/20
@@ -126,7 +137,7 @@ annotationDefinition :
 	aliases?
 	SEMI_COLON ;
 
-annotationDefinitionName : identifier;
+annotationDefinitionName : identifier ;
 
 
 // TYPE DEFINITION

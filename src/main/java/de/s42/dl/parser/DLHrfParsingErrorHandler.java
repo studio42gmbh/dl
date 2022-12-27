@@ -27,10 +27,13 @@ package de.s42.dl.parser;
 
 import de.s42.base.files.FilesHelper;
 import de.s42.dl.DLModule;
+import de.s42.dl.exceptions.ParserException;
+import de.s42.dl.exceptions.ReservedKeyword;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.Token;
 
 /**
  *
@@ -49,16 +52,23 @@ public class DLHrfParsingErrorHandler extends BaseErrorListener
 	}
 
 	@Override
-	public void syntaxError(Recognizer<?, ?> rcgnzr, Object o, int line, int position, String message, RecognitionException re)
-	{
-		StringBuilder msg = new StringBuilder();
-		msg
-			.append(message)
-			.append("\n")
-			.append(FilesHelper.createMavenNetbeansFileConsoleLink("\t ",
-				module.getShortName(), module.getName(), line, position + 1, false));
+	public void syntaxError(Recognizer<?, ?> rcgnzr, Object offendingElement, int line, int position, String message, RecognitionException re)
+	{		
+		if (offendingElement instanceof Token) {
+			
+			Token token = (Token)offendingElement;
+	
+			// Special case for invalid usage of reserved keywords
+			if (token.getType() == DLLexer.RESERVED_KEYWORD) {
+				
+				throw new ReservedKeyword(
+					createErrorMessage(module, "Reserved keyword '" + token.getText() + "' was used", line, position),
+					token.getText(), line, position);
+			}
+		}
 		
-		throw new RuntimeException(msg.toString());
+		throw new ParserException(
+			createErrorMessage(module, message, line, position), line, position);
 	}
 
 	public String createErrorMessage(String reason, ParserRuleContext context) throws RuntimeException
@@ -67,6 +77,11 @@ public class DLHrfParsingErrorHandler extends BaseErrorListener
 	}
 
 	public static String createErrorMessage(DLModule module, String reason, ParserRuleContext context) throws RuntimeException
+	{
+		return createErrorMessage(module, reason, context.start.getLine(), context.start.getCharPositionInLine() + 1);
+	}
+
+	public static String createErrorMessage(DLModule module, String reason, int line, int position) throws RuntimeException
 	{
 		// https://github.com/apache/netbeans/blob/c084119009d2e0f736f225d706bc1827af283501/java/maven/src/org/netbeans/modules/maven/output/GlobalOutputProcessor.java
 		//"Das sollte gehen @ GPClient, C:\\home\\f12\\development\\gods_playground\\gp-client\\data\\renderdoc.config.dl, line 5, column 6");
@@ -77,7 +92,7 @@ public class DLHrfParsingErrorHandler extends BaseErrorListener
 			.append("\n")
 			.append(FilesHelper.createMavenNetbeansFileConsoleLink("\t ",
 				module.getShortName(), module.getName(),
-				context.start.getLine(), context.start.getCharPositionInLine() + 1, false));
+				line, position, false));
 
 		return message.toString();
 	}

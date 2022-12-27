@@ -26,7 +26,6 @@
 package de.s42.dl.parser.expression.operators;
 
 import de.s42.dl.DLModule;
-import de.s42.dl.exceptions.DLException;
 import de.s42.dl.parser.DLParser.ExpressionContext;
 import de.s42.dl.parser.expression.Expression;
 import de.s42.dl.parser.expression.BinaryOperator;
@@ -45,7 +44,7 @@ public class Equals extends BinaryOperator
 	}
 
 	@Override
-	public Boolean evaluate() throws DLException
+	public Boolean evaluate()
 	{
 		return Objects.equals(first.evaluate(), second.evaluate());
 	}

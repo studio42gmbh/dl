@@ -37,10 +37,9 @@ import de.s42.dl.parser.expression.operators.And;
 import de.s42.dl.parser.expression.operators.Add;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLModule;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.exceptions.ParserException;
 import de.s42.dl.instances.SimpleTypeDLInstance;
-import de.s42.dl.parser.DLHrfParsingErrorHandler;
+import de.s42.dl.parser.DLHrfParsingException;
 import de.s42.dl.parser.DLParser.AtomContext;
 import de.s42.dl.parser.DLParser.ExpressionContext;
 import de.s42.dl.parser.expression.operators.Pow;
@@ -66,7 +65,7 @@ public final class DLHrfExpressionParser
 		// never instantiated
 	}
 
-	public static Object resolveExpression(DLCore core, DLModule module, ExpressionContext ctx) throws DLException
+	public static Object resolveExpression(DLCore core, DLModule module, ExpressionContext ctx) throws ParserException
 	{
 		Expression expr = buildExpression(core, module, ctx);
 
@@ -76,7 +75,7 @@ public final class DLHrfExpressionParser
 		return value;
 	}
 
-	public static Expression buildExpression(DLCore core, DLModule module, ExpressionContext ctx) throws InvalidValue
+	public static Expression buildExpression(DLCore core, DLModule module, ExpressionContext ctx) throws ParserException
 	{
 		if (ctx.PLUS() != null) {
 			return new Add(
@@ -146,10 +145,14 @@ public final class DLHrfExpressionParser
 			return buildAtom(core, module, ctx.atom(), false);
 		}
 
-		throw new InvalidValue(DLHrfParsingErrorHandler.createErrorMessage(module, "Unknown expression part " + ctx.getText(), ctx));
+		throw new DLHrfParsingException(
+			"Unknown expression part " + ctx.getText(),
+			module,
+			ctx
+		);
 	}
 
-	private static Atom buildAtom(DLCore core, DLModule module, AtomContext ctx, boolean negate) throws InvalidValue
+	private static Atom buildAtom(DLCore core, DLModule module, AtomContext ctx, boolean negate) throws ParserException
 	{
 		Object value;
 
@@ -162,17 +165,17 @@ public final class DLHrfExpressionParser
 			String t = ctx.INTEGER_LITERAL().getText();
 			if (t.startsWith("0") && t.length() > 1) {
 				if (t.startsWith("0x")) {
-					value = Long.parseLong(t.substring(2), 16);
+					value = Long.valueOf(t.substring(2), 16);
 				} else if (t.startsWith("0b")) {
-					value = Long.parseLong(t.substring(2), 2);
+					value = Long.valueOf(t.substring(2), 2);
 				} else {
-					value = Long.parseLong(t.substring(1), 8);
+					value = Long.valueOf(t.substring(1), 8);
 				}
 			} else {
-				value = Long.parseLong(t);
+				value = Long.valueOf(t);
 			}
 		} else if (ctx.FLOAT_LITERAL() != null) {
-			value = Double.parseDouble(ctx.FLOAT_LITERAL().getText());
+			value = Double.valueOf(ctx.FLOAT_LITERAL().getText());
 		} else if (ctx.BOOLEAN_LITERAL() != null) {
 			if ("true".equals(ctx.BOOLEAN_LITERAL().getText())) {
 				value = true;
@@ -182,7 +185,11 @@ public final class DLHrfExpressionParser
 		} else if (ctx.REF() != null) {
 			value = resolveReference(core, module, ctx.REF().getText(), ctx);
 		} else {
-			throw new InvalidValue(DLHrfParsingErrorHandler.createErrorMessage(module, "Unknown atom part " + ctx.getText(), ctx));
+			throw new DLHrfParsingException(
+				"Unknown atom part " + ctx.getText(),
+				module,
+				ctx
+			);
 		}
 
 		if (negate) {
@@ -190,27 +197,32 @@ public final class DLHrfExpressionParser
 			if (value instanceof Number) {
 				return new Atom(-((Number) value).doubleValue());
 			} else {
-				throw new InvalidValue(
-					DLHrfParsingErrorHandler.createErrorMessage(
-						module,
-						"Can just negate number types, but "
-						+ ctx.getText()
-						+ " is "
-						+ value
-						+ " of type "
-						+ ((value != null) ? value.getClass().getCanonicalName() : ""), ctx));
+				throw new DLHrfParsingException(
+					"Can just negate number types, but "
+					+ ctx.getText()
+					+ " is "
+					+ value
+					+ " of type "
+					+ ((value != null) ? value.getClass().getCanonicalName() : ""),
+					module,
+					ctx
+				);
 			}
 		} else {
 			return new Atom(value);
 		}
 	}
 
-	protected static Object resolveReference(DLCore core, DLModule module, String refId, ParserRuleContext ctx) throws InvalidValue
+	public static Object resolveReference(DLCore core, DLModule module, String refId, ParserRuleContext ctx) throws ParserException
 	{
-		Optional ref = module.resolveReference(core, refId);
+		Optional ref = module.resolveReference(core, refId.substring(1));
 
 		if (ref.isEmpty()) {
-			throw new InvalidValue(DLHrfParsingErrorHandler.createErrorMessage(module, "Reference $" + refId + " is not defined in module", ctx));
+			throw new DLHrfParsingException(
+				"Reference " + refId + " is not defined in module",
+				module,
+				ctx
+			);
 		}
 
 		Object resolved = ref.orElseThrow();

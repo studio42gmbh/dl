@@ -1,3 +1,69 @@
+// BYTE STRUCTURE ANNOTATION
+
+Type Data			@binary(id : 1, size : 1, endianess : big)
+{
+	Int count		@binary(ordinal : 0, size : 4);
+	String display	@binary(ordinal : 1, size : 4);
+}
+
+//Will lead to:
+// ||
+
+
+
+
+
+// MAKE SEMICOLON OPTIONAL?
+// Do i like that?
+
+
+// DATA TEMPLATES WITH "OPEN" REFS
+// How can i preparse a DL file and then create context afterwards? I.E. A ref that will determine the target of a component
+
+Window w {
+	title : "Display" + #element.display;
+}
+
+// How to handle that in Java? in toJavaObject(Context context) ?
+
+
+// ARRAY TYPES?
+// Do i want that?
+
+type T 
+{
+	int[] i;
+}
+
+
+// TYPECASTS
+// Doesn't this work already?
+
+type Point 
+{
+	int x;
+	int y;
+}
+
+type Dimension 
+{
+	int width;
+	int height;
+}
+
+type Rectangle extends Dimension, Point;
+
+Rectangle r;
+
+Point p : $r;
+
+
+// OPTIONAL ? PATH FOR $ REFS
+// Allows to return empty if the given path element was not found and traverse further otherwise
+
+int x : $other?.sub?.x?
+
+
 // DL MISSION:
 // DL provides environment dependable constraining and validation of data in a consistent and foremost easy readable and understandable language to describe data and stream data
 // (types, generics, annotations/contracts, scope, streamable)
@@ -379,7 +445,7 @@ A test { test : "aha"; }
 
 unuse mqrc;
 
-or:
+//or:
 
 namespace mqrc {
 
@@ -668,7 +734,7 @@ type Global @mutate @seal {
 }
 
 //define attribute id and seal -> Type UUID is implicity from Global mutation
-id @seal: 5a1edc27-4225-4503-a9f8-96bd1772977b;
+id @seal: "5a1edc27-4225-4503-a9f8-96bd1772977b";
 
 extern annotation minLength {
 	int length @default;
@@ -721,7 +787,7 @@ Person petra @partial {
 
 //define instance of entity Person and map as benjamin and Survius -> the mapped names have to be unique!
 Person benjamin|Survius {
-	id: 5a1edc27-4225-4503-a9f8-96bd1772977b;
+	id: "5a1edc27-4225-4503-a9f8-96bd1772977b";
 	firstName: Benjamin;
 	lastName: $petra.lastName;
 	country: CZ;

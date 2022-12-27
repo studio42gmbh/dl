@@ -87,13 +87,7 @@ public class DLHrfParsing extends DLParserBaseListener
 
 	protected Object resolveReference(String refId, ParserRuleContext context) throws InvalidValue
 	{
-		Optional ref = module.resolveReference(core, refId);
-
-		if (ref.isEmpty()) {
-			throw new InvalidValue(createErrorMessage(module, "Reference $" + refId + " is not defined in module", context));
-		}
-
-		return ref.orElseThrow();
+		return DLHrfExpressionParser.resolveReference(core, module, refId, context);
 	}
 
 	protected DLType fetchTypeIdentifier(InstanceTypeContext ctx) throws DLException
@@ -322,6 +316,30 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
+	public void enterAssert(AssertContext ctx)
+	{
+		assert ctx != null;
+
+		// Resolve the given test expression
+		Object result = DLHrfExpressionParser.resolveExpression(core, module, ctx.assertTest().expression());
+
+		// If it did not returned a boolean true -> Throw an exception
+		if (!(result instanceof Boolean)
+			|| !((Boolean) result)) {
+
+			String message;
+
+			if (ctx.assertMessage() != null) {
+				message = "" + DLHrfExpressionParser.resolveExpression(core, module, ctx.assertMessage().expression());
+			} else {
+				message = "Assert '" + ctx.assertTest().getText() + "' is not true";
+			}
+
+			throw new DLHrfParsingException(message, module, ctx);
+		}
+	}
+
+	@Override
 	public void enterPragma(PragmaContext ctx)
 	{
 		try {
@@ -393,7 +411,11 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 
 		} catch (DLException | ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException | RuntimeException | InvocationTargetException ex) {
-			throw new RuntimeException(ex);
+			throw new DLHrfParsingException(
+				"Error defining pragma - " + ex.getMessage(),
+				ex,
+				ctx
+			);
 		}
 	}
 
@@ -858,7 +880,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			if (!currentType.validate(result)) {
 				throw new InvalidType(createErrorMessage(module, "Type '" + currentType.getCanonicalName() + "' is not valid - " + result.toMessage(), ctx));
 			}
-			
+
 			module.addDefinedType(currentType);
 
 		} catch (InvalidType ex) {

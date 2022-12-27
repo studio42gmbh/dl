@@ -24,7 +24,11 @@
  */
 //</editor-fold>
 
+/**
+ * See https://www.antlr.org/api/Java/org/antlr/v4/runtime/package-summary.html
+ */
 lexer grammar DLLexer ;
+
 
 // COMMENTS
 
@@ -46,6 +50,7 @@ KEYWORD_ALIAS :			'alias' ;
 KEYWORD_FINAL :			'final' ;
 KEYWORD_PRAGMA :		'pragma' ;
 KEYWORD_DECLARE :		'declare' ;
+KEYWORD_ASSERT :		'assert' ;
 
 
 // RESERVED KEYWORDS (currently quite some - but this shall ensure future extensions to be intuitive and get pruned as DL evolves)
@@ -98,7 +103,6 @@ fragment RESERVED_KEYWORD_WHILE :	'while' ;
 fragment RESERVED_KEYWORD_FOR :		'for' ;
 fragment RESERVED_KEYWORD_DEFAULT :	'default' ;
 fragment RESERVED_KEYWORD_INSTANCEOF:'instanceof' ;
-fragment RESERVED_KEYWORD_ASSERT :	'assert' ;
 fragment RESERVED_KEYWORD_USE :		'use' ;
 fragment RESERVED_KEYWORD_UNUSE :	'unuse' ;
 fragment RESERVED_KEYWORD_CALL :	'call' ;
@@ -107,7 +111,6 @@ fragment RESERVED_KEYWORD_SELECT :	'select' ;
 fragment RESERVED_KEYWORD_WHEN :	'when' ;
 fragment RESERVED_KEYWORD_SWITCH :	'switch' ;
 fragment RESERVED_KEYWORD_DISTINCT :'distinct' ;
-
 
 RESERVED_KEYWORD : ( 
 	RESERVED_KEYWORD_NEW | 
@@ -158,7 +161,6 @@ RESERVED_KEYWORD : (
 	RESERVED_KEYWORD_FOR |
 	RESERVED_KEYWORD_DEFAULT |
 	RESERVED_KEYWORD_INSTANCEOF |
-	RESERVED_KEYWORD_ASSERT |
 	RESERVED_KEYWORD_USE |
 	RESERVED_KEYWORD_UNUSE |
 	RESERVED_KEYWORD_CALL |
@@ -167,9 +169,7 @@ RESERVED_KEYWORD : (
 	RESERVED_KEYWORD_WHEN |
 	RESERVED_KEYWORD_SWITCH |
 	RESERVED_KEYWORD_DISTINCT 
-)
-// Emit a special exception to stop parsing whenever a reserved keyword occurs
-{ if (true) { throw new de.s42.dl.exceptions.ReservedKeyword(getText(), getLine(), getCharPositionInLine()); } } ;
+) ;
 
 
 // LITERALS
@@ -188,8 +188,8 @@ FLOAT_LITERAL :			'-'? [0-9]+ '.' [0-9]+ ('E' [-+]? [0-9]+)? ;
 INTEGER_LITERAL :		'-'? [0-9] [xXbB]? [0-9]* ;
 
 // rather restrictive - but ref symbols should be well readable anyways not some special sign party
-fragment REF_PART :		[a-zA-Z_#] [a-zA-Z0-9\-_#$]* '?'?;
-REF :					'$' REF_PART ( '.' REF_PART )* { setText(getText().substring(1)); } ;	
+fragment REF_PART :		[a-zA-Z_#] [a-zA-Z0-9\-_#$]* '?'? ;
+REF :					'$' REF_PART ( '.' REF_PART )* ;	
 
 // rather restrictive - but symbols should be well readable anyways not some special sign party
 SYMBOL :				[a-zA-Z_#] [a-zA-Z0-9\-_.#$]* ;	
@@ -222,5 +222,6 @@ POW :					'^' ;
 // WHITESPACE -> DISCARD
 
 WS :					[ \t\n\r]+ -> skip ;
+
 
 // END

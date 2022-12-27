@@ -25,7 +25,7 @@
 //</editor-fold>
 package de.s42.dl.parser.expression;
 
-import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.ParserException;
 
 /**
  *
@@ -34,5 +34,5 @@ import de.s42.dl.exceptions.DLException;
 public interface Expression
 {
 
-	public <ObjectType> ObjectType evaluate() throws DLException;
+	public <ObjectType> ObjectType evaluate() throws ParserException;
 }

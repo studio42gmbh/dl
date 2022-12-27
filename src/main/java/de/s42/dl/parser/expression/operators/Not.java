@@ -26,9 +26,7 @@
 package de.s42.dl.parser.expression.operators;
 
 import de.s42.dl.DLModule;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidValue;
-import de.s42.dl.parser.DLHrfParsingErrorHandler;
+import de.s42.dl.parser.DLHrfParsingException;
 import de.s42.dl.parser.DLParser.ExpressionContext;
 import de.s42.dl.parser.expression.Expression;
 
@@ -55,7 +53,7 @@ public class Not implements Expression
 	}
 
 	@Override
-	public Boolean evaluate() throws DLException
+	public Boolean evaluate() throws DLHrfParsingException
 	{
 		Object firstEval = first.evaluate();
 
@@ -63,7 +61,11 @@ public class Not implements Expression
 			return !(Boolean) firstEval;
 		}
 
-		throw new InvalidValue(DLHrfParsingErrorHandler.createErrorMessage(module, "Type invalid in '" + context.getText() + "' has to be boolean", context));
+		throw new DLHrfParsingException(
+			"Type invalid in '" + context.getText() + "' has to be boolean",
+			module,
+			context
+		);
 	}
 
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">

@@ -23,49 +23,65 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.exceptions;
+package de.s42.dl.parser;
+
+import de.s42.dl.DLModule;
+import de.s42.dl.exceptions.ParserException;
+import org.antlr.v4.runtime.ParserRuleContext;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class ReservedKeyword extends ParserException
+public class DLHrfParsingException extends ParserException
 {
 
-	protected final String keyword;
-
-	public ReservedKeyword()
+	public DLHrfParsingException()
 	{
-		super();
-		keyword = "<unknown>";
 	}
 
-	public ReservedKeyword(String msg)
+	public DLHrfParsingException(String msg)
 	{
 		super(msg);
-		keyword = "<unknown>";
 	}
 
-	public ReservedKeyword(Throwable cause)
+	public DLHrfParsingException(Throwable cause)
 	{
 		super(cause);
-		keyword = "<unknown>";
 	}
 
-	public ReservedKeyword(String msg, Throwable cause)
+	public DLHrfParsingException(String msg, Throwable cause)
 	{
 		super(msg, cause);
-		keyword = "<unknown>";
 	}
 
-	public ReservedKeyword(String msg, String keyword, int line, int position)
+	public DLHrfParsingException(String msg, int line, int position)
 	{
 		super(msg, line, position);
-		this.keyword = keyword;
 	}
 
-	public String getKeyword()
+	public DLHrfParsingException(String msg, int line, int position, Exception cause)
 	{
-		return keyword;
+		super(msg, line, position, cause);
+	}
+
+	public DLHrfParsingException(String msg, ParserRuleContext context)
+	{
+		super(msg, context.getStart().getLine(), context.getStart().getCharPositionInLine() + 1);
+	}
+
+	public DLHrfParsingException(String msg, Exception ex, ParserRuleContext context)
+	{
+		super(msg, context.getStart().getLine(), context.getStart().getCharPositionInLine() + 1, ex);
+	}
+
+	public DLHrfParsingException(String msg, DLModule module, ParserRuleContext context)
+	{
+		this(DLHrfParsingErrorHandler.createErrorMessage(module, msg, context), context);
+	}
+	
+	public DLHrfParsingException(String msg, DLModule module, ParserRuleContext context, Exception ex)		
+	{
+		this(DLHrfParsingErrorHandler.createErrorMessage(module, msg, ex, context), ex, context);
 	}
 }

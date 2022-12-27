@@ -23,49 +23,61 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.exceptions;
+package de.s42.dl.references;
+
+import de.s42.dl.*;
+import de.s42.dl.core.DefaultCore;
+import de.s42.dl.exceptions.DLException;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
+ * This shows some of the potential of expressions in DL
+ * See https://github.com/studio42gmbh/dl/issues/20
  *
  * @author Benjamin Schiller
  */
-public class ReservedKeyword extends ParserException
+public class ReferencesTest
 {
-
-	protected final String keyword;
-
-	public ReservedKeyword()
-	{
-		super();
-		keyword = "<unknown>";
+	public static class Data {
+		public int x;
+		public String y;
+		public Object z;
 	}
+	
 
-	public ReservedKeyword(String msg)
+	@Test
+	public void validSimpleReference() throws DLException
 	{
-		super(msg);
-		keyword = "<unknown>";
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("validSimpleReference",
+			"type T { Integer val; }"
+			+ "T t { val : 42; }"
+			+ "T tr : $t;");
+		Assert.assertEquals(module.getInstance("tr").getType().getName(), "T");
 	}
-
-	public ReservedKeyword(Throwable cause)
+	
+	@Test
+	public void validSimpleReferencePath() throws DLException
 	{
-		super(cause);
-		keyword = "<unknown>";
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("validSimpleReferencePath",
+			"type T { Integer val; }"
+			+ "T t { val : 42; }"
+			+ "Integer p : $t.val;");
+		Assert.assertEquals(module.getInt("p"), 42);
 	}
+	
+	
 
-	public ReservedKeyword(String msg, Throwable cause)
+	@Test(enabled = false)
+	public void validReferencePath() throws DLException
 	{
-		super(msg, cause);
-		keyword = "<unknown>";
-	}
-
-	public ReservedKeyword(String msg, String keyword, int line, int position)
-	{
-		super(msg, line, position);
-		this.keyword = keyword;
-	}
-
-	public String getKeyword()
-	{
-		return keyword;
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("validReferencePath",
+			"type T { Integer val; }"
+			+ "T t { val : 42; }"
+			+ "Integer p : $t.val?.test.t;");
+		Assert.assertEquals(module.getInt("p"), 42);
 	}
 }

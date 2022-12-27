@@ -29,43 +29,59 @@ package de.s42.dl.exceptions;
  *
  * @author Benjamin Schiller
  */
-public class ReservedKeyword extends ParserException
+public class ParserException extends RuntimeException
 {
-
-	protected final String keyword;
-
-	public ReservedKeyword()
+	protected final int line;
+	protected final int position;
+	
+	public ParserException()
 	{
-		super();
-		keyword = "<unknown>";
+		line = 0;
+		position = 0;
 	}
 
-	public ReservedKeyword(String msg)
+	public ParserException(String msg)
 	{
 		super(msg);
-		keyword = "<unknown>";
+		line = 0;
+		position = 0;
 	}
 
-	public ReservedKeyword(Throwable cause)
+	public ParserException(Throwable cause)
 	{
 		super(cause);
-		keyword = "<unknown>";
+		line = 0;
+		position = 0;
 	}
 
-	public ReservedKeyword(String msg, Throwable cause)
+	public ParserException(String msg, Throwable cause)
 	{
 		super(msg, cause);
-		keyword = "<unknown>";
+		line = 0;
+		position = 0;
+	}
+	
+	public ParserException(String msg, int line, int position)
+	{
+		super(msg);
+		this.line = line;
+		this.position = position;
 	}
 
-	public ReservedKeyword(String msg, String keyword, int line, int position)
+	public ParserException(String msg, int line, int position, Exception cause)
 	{
-		super(msg, line, position);
-		this.keyword = keyword;
+		super(msg, cause);
+		this.line = line;
+		this.position = position;
+	}
+	
+	public int getLine()
+	{
+		return line;
 	}
 
-	public String getKeyword()
+	public int getPosition()
 	{
-		return keyword;
+		return position;
 	}
 }

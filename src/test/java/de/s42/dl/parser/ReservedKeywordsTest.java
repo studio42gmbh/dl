@@ -421,14 +421,6 @@ public class ReservedKeywordsTest
 	}	
 	
 	@Test(expectedExceptions = ReservedKeyword.class)
-	public void invalidUseAssert() throws Exception
-	{
-		DLCore core = new DefaultCore();
-		String data = "int assert : 42;";
-		core.parse("invalidUseAssert", data);
-	}	
-	
-	@Test(expectedExceptions = ReservedKeyword.class)
 	public void invalidUseUse() throws Exception
 	{
 		DLCore core = new DefaultCore();

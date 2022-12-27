@@ -26,9 +26,7 @@
 package de.s42.dl.parser.expression.operators;
 
 import de.s42.dl.DLModule;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidValue;
-import de.s42.dl.parser.DLHrfParsingErrorHandler;
+import de.s42.dl.parser.DLHrfParsingException;
 import de.s42.dl.parser.DLParser.ExpressionContext;
 import de.s42.dl.parser.expression.Expression;
 import de.s42.dl.parser.expression.BinaryOperator;
@@ -46,7 +44,7 @@ public class Subtract extends BinaryOperator
 	}
 
 	@Override
-	public Object evaluate() throws DLException
+	public Object evaluate() throws DLHrfParsingException
 	{
 		Object firstEval = first.evaluate();
 		Object secondEval = second.evaluate();
@@ -72,6 +70,10 @@ public class Subtract extends BinaryOperator
 			return ((Number) firstEval).doubleValue() - ((Number) secondEval).doubleValue();
 		}
 
-		throw new InvalidValue(DLHrfParsingErrorHandler.createErrorMessage(module, "Types invalid in '" + context.getText() + "' both have to be either int, long, float or double", context));
+		throw new DLHrfParsingException(
+			"Types invalid in '" + context.getText() + "' both have to be either int, long, float or double",
+			module,
+			context
+		);
 	}
 }
