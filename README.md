@@ -8,7 +8,7 @@
 
 ![DL Logo](https://github.com/studio42gmbh/dl/blob/master/resources/images/logo/dl-logo-200.png)
 
-DL provides an environment dependable constraining and validation of data in a consistent and foremost easy readable and understandable language with great error reporting to describe and stream data more easy, safe and performant.
+DL provides an environment dependable definition, constraining and validation of data in a consistent and foremost easy readable and understandable language with great error reporting to describe and stream data more easy, safe and performant.
 
 ***ATTENTION:** This is the ALPHA release. Still many changes to come!*
 
