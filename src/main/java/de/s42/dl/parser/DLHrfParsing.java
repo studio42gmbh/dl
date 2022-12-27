@@ -136,17 +136,17 @@ public class DLHrfParsing extends DLParserBaseListener
 				String t = assignable.INTEGER_LITERAL().getText();
 				if (t.startsWith("0") && t.length() > 1) {
 					if (t.startsWith("0x")) {
-						assignables[i] = Long.parseLong(t.substring(2), 16);
+						assignables[i] = Long.valueOf(t.substring(2), 16);
 					} else if (t.startsWith("0b")) {
-						assignables[i] = Long.parseLong(t.substring(2), 2);
+						assignables[i] = Long.valueOf(t.substring(2), 2);
 					} else {
-						assignables[i] = Long.parseLong(t.substring(1), 8);
+						assignables[i] = Long.valueOf(t.substring(1), 8);
 					}
 				} else {
-					assignables[i] = Long.parseLong(t);
+					assignables[i] = Long.valueOf(t);
 				}
 			} else if (assignable.FLOAT_LITERAL() != null) {
-				assignables[i] = Double.parseDouble(assignable.FLOAT_LITERAL().getText());
+				assignables[i] = Double.valueOf(assignable.FLOAT_LITERAL().getText());
 			} else if (assignable.BOOLEAN_LITERAL() != null) {
 				if ("true".equals(assignable.BOOLEAN_LITERAL().getText())) {
 					assignables[i] = true;
@@ -266,9 +266,9 @@ public class DLHrfParsing extends DLParserBaseListener
 		} else if (ctx.SYMBOL() != null) {
 			return ctx.SYMBOL().getText();
 		} else if (ctx.INTEGER_LITERAL() != null) {
-			return Long.parseLong(ctx.INTEGER_LITERAL().getText());
+			return Long.valueOf(ctx.INTEGER_LITERAL().getText());
 		} else if (ctx.FLOAT_LITERAL() != null) {
-			return Double.parseDouble(ctx.FLOAT_LITERAL().getText());
+			return Double.valueOf(ctx.FLOAT_LITERAL().getText());
 		} else if (ctx.BOOLEAN_LITERAL() != null) {
 			if ("true".equals(ctx.BOOLEAN_LITERAL().getText())) {
 				return true;
@@ -858,6 +858,8 @@ public class DLHrfParsing extends DLParserBaseListener
 			if (!currentType.validate(result)) {
 				throw new InvalidType(createErrorMessage(module, "Type '" + currentType.getCanonicalName() + "' is not valid - " + result.toMessage(), ctx));
 			}
+			
+			module.addDefinedType(currentType);
 
 		} catch (InvalidType ex) {
 			throw new RuntimeException(ex);

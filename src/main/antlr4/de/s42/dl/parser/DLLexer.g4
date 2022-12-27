@@ -182,13 +182,14 @@ fragment ESCAPED_QUOTE :'\\"' ;
 STRING_LITERAL :		'"' ( ESCAPED_QUOTE | ~('\n'|'\r') )*? '"' 
 	{ setText(de.s42.base.strings.StringHelper.unescapeJavaString(getText().substring(1, getText().length() - 1))); } ;
 
-FLOAT_LITERAL :			[-]? [0-9]+ '.' [0-9]+ ('E' [-+]? [0-9]+)? ;
+FLOAT_LITERAL :			'-'? [0-9]+ '.' [0-9]+ ('E' [-+]? [0-9]+)? ;
 
 // https://github.com/studio42gmbh/dl/issues/26 DLHrfParsing Allow hexadecimal numbers ad basic format in HRF DL 0x00...
-INTEGER_LITERAL :		[-]? [0-9] [xXbB]? [0-9]* ;
+INTEGER_LITERAL :		'-'? [0-9] [xXbB]? [0-9]* ;
 
 // rather restrictive - but ref symbols should be well readable anyways not some special sign party
-REF :					'$' [a-zA-Z_#] [a-zA-Z0-9\-_.#$]* { setText(getText().substring(1)); } ;	
+fragment REF_PART :		[a-zA-Z_#] [a-zA-Z0-9\-_#$]* '?'?;
+REF :					'$' REF_PART ( '.' REF_PART )* { setText(getText().substring(1)); } ;	
 
 // rather restrictive - but symbols should be well readable anyways not some special sign party
 SYMBOL :				[a-zA-Z_#] [a-zA-Z0-9\-_.#$]* ;	

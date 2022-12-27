@@ -57,7 +57,7 @@ public class DLHrfParsingErrorHandler extends BaseErrorListener
 			.append("\n")
 			.append(FilesHelper.createMavenNetbeansFileConsoleLink("\t ",
 				module.getShortName(), module.getName(), line, position + 1, false));
-
+		
 		throw new RuntimeException(msg.toString());
 	}
 

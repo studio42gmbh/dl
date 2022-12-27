@@ -23,73 +23,51 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.instances;
-
-import de.s42.dl.*;
-import de.s42.dl.types.dl.ModuleDLType;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+package de.s42.dl.language;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DefaultDLModule extends DefaultDLInstance implements DLModule
+public enum DLKeyword
 {
+	Abstract("abstract"),
+	Alias("alias"),
+	Annotation("annotation"),
+	Contains("contains"),
+	Declare("declare"),
+	Enum("enum"),
+	Extends("extends"),
+	Extern("extern"),
+	Final("final"),
+	Pragma("pragma"),
+	Require("require"),
+	Type("type");
 
-	protected final List<DLType> definedTypes = new ArrayList<>();
+	public final String keyword;
 
-	public DefaultDLModule()
-	{
-		super(new ModuleDLType());
-	}
+	public final static String[] KEYWORDS;
 
-	public DefaultDLModule(String name)
-	{
-		super(new ModuleDLType(), name);
-	}
+	static {
+		KEYWORDS = new String[DLKeyword.values().length];
 
-	@Override
-	public String getShortName()
-	{
-		String shortName = getName();
-
-		if (!shortName.contains(File.separator)) {
-			return shortName;
+		for (int i = 0; i < DLKeyword.values().length; ++i) {
+			KEYWORDS[i] = DLKeyword.values()[i].keyword;
 		}
-
-		return shortName.substring(shortName.lastIndexOf(File.separator) + 1);
 	}
 
-	@Override
-	public Optional<?> resolveReference(DLCore core, String path)
+	private DLKeyword(String keyword)
 	{
-		assert core != null;
-		assert path != null;
-
-		Object exportedOpt = core.resolveExportedPath(path);
-
-		if (exportedOpt != null) {
-			return Optional.of(exportedOpt);
-		}
-
-		return resolvePath(path);
+		this.keyword = keyword;
+	}
+	
+	public static String[] getKeywords()
+	{
+		return KEYWORDS;
 	}
 
-	@Override
-	public List<DLType> getDefinedTypes()
+	public boolean equals(String other)
 	{
-		return Collections.unmodifiableList(definedTypes);
-	}
-
-	@Override
-	public boolean addDefinedType(DLType type)
-	{
-		assert type != null;
-
-		return definedTypes.add(type);
+		return keyword.equalsIgnoreCase(other);
 	}
 }

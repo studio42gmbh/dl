@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -37,4 +38,8 @@ public interface DLModule extends DLInstance
 	public String getShortName();
 
 	public Optional<?> resolveReference(DLCore core, String path);
+
+	public List<DLType> getDefinedTypes();
+
+	public boolean addDefinedType(DLType type);
 }

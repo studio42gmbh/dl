@@ -23,73 +23,28 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.instances;
-
-import de.s42.dl.*;
-import de.s42.dl.types.dl.ModuleDLType;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+package de.s42.dl.language;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DefaultDLModule extends DefaultDLInstance implements DLModule
+public final class DLConstants
 {
 
-	protected final List<DLType> definedTypes = new ArrayList<>();
+	public final static String MIME_TYPE = "text/dl";
 
-	public DefaultDLModule()
+	public final static String FILE_ENDING = "dl";
+
+	public final static String LANGUAGE_NAME = "Data Language";
+	
+	public final static String LANGUAGE_SHORT_NAME = "DL";
+	
+	private DLConstants()
 	{
-		super(new ModuleDLType());
+		// never instantiated
 	}
 
-	public DefaultDLModule(String name)
-	{
-		super(new ModuleDLType(), name);
-	}
-
-	@Override
-	public String getShortName()
-	{
-		String shortName = getName();
-
-		if (!shortName.contains(File.separator)) {
-			return shortName;
-		}
-
-		return shortName.substring(shortName.lastIndexOf(File.separator) + 1);
-	}
-
-	@Override
-	public Optional<?> resolveReference(DLCore core, String path)
-	{
-		assert core != null;
-		assert path != null;
-
-		Object exportedOpt = core.resolveExportedPath(path);
-
-		if (exportedOpt != null) {
-			return Optional.of(exportedOpt);
-		}
-
-		return resolvePath(path);
-	}
-
-	@Override
-	public List<DLType> getDefinedTypes()
-	{
-		return Collections.unmodifiableList(definedTypes);
-	}
-
-	@Override
-	public boolean addDefinedType(DLType type)
-	{
-		assert type != null;
-
-		return definedTypes.add(type);
-	}
+	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
+	//</editor-fold>
 }
