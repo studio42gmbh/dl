@@ -8,15 +8,15 @@
 
 ![DL Logo](https://github.com/studio42gmbh/dl/blob/master/resources/images/logo/dl-logo-200.png)
 
-DL provides environment dependable constraining and validation of data in a consistent and foremost easy readable and understandable language to describe and stream data.
+DL provides an environment dependable definition, constraining and validation of data in a consistent and foremost easy readable and understandable language with great error reporting to describe and stream data more easy, safe and performant.
 
 ***ATTENTION:** This is the ALPHA release. Still many changes to come!*
 
-After many years working with data driven projects i came to love and hate XML and JSON for its great possibilities, 
-but for the lack of good ways to make sure the data is valid and consistent.
-Oh and comments are part of the language!
+## Motivation
 
-With Data Language (DL) i want to close that gap.
+After many years working with data driven projects i came to love and hate XML and JSON for its great possibilities, 
+but for the lack of good ways to make sure the data is valid and consistent before my application crashes somewhere somehow.
+Oh and comments are part of the language! ;)
 
 Have a great day!
 
@@ -58,7 +58,7 @@ In its simple uage DL resembles JS like data structures.
 Configuration config @export {
 
 	login	: "Arthur Smith"; 
-	id		: 1456745655;
+	id	: 1456745655;
 	depth	: 1.5629345793985692;
 	active	: true;
 	uuid	: "ad232384-4a04-4119-9e95-4753f31e3b09";
