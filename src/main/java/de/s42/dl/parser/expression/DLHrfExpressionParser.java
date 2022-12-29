@@ -41,6 +41,7 @@ import de.s42.dl.exceptions.ParserException;
 import de.s42.dl.parser.DLHrfParsingException;
 import de.s42.dl.parser.DLParser.AtomContext;
 import de.s42.dl.parser.DLParser.ExpressionContext;
+import de.s42.dl.parser.expression.operators.Like;
 import de.s42.dl.parser.expression.operators.Pow;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -136,8 +137,17 @@ public final class DLHrfExpressionParser
 				buildExpression(core, module, ctx.expression(1)),
 				ctx, module
 			);
-		} else if (ctx.NOT() != null) {
-			return new Not(buildExpression(core, module, ctx.expression(0)), ctx, module);
+		} else if (ctx.LIKE() != null) {
+			return new Like(
+				buildExpression(core, module, ctx.expression(0)),
+				buildExpression(core, module, ctx.expression(1)),
+				ctx, module
+			);
+		}else if (ctx.NOT() != null) {
+			return new Not(
+				buildExpression(core, module, ctx.expression(0)), 
+				ctx, module
+			);
 		} else if (ctx.PARENTHESES_OPEN() != null) {
 			return buildExpression(core, module, ctx.expression(0));
 		} else if (ctx.atom() != null) {
@@ -214,8 +224,10 @@ public final class DLHrfExpressionParser
 
 	public static Object resolveReference(DLCore core, DLModule module, String refId, ParserRuleContext ctx) throws ParserException
 	{
+		// Resolve the reference ignoring the first char which is the $ sign
 		Optional ref = module.resolveReference(core, refId.substring(1));
 
+		// Empty references are treated as errors
 		if (ref.isEmpty()) {
 			throw new DLHrfParsingException(
 				"Reference " + refId + " is not defined in module",
@@ -224,13 +236,6 @@ public final class DLHrfExpressionParser
 			);
 		}
 
-		Object resolved = ref.orElseThrow();
-
-		// Unwrap simple instances
-		// @improvement this unwrapping should be done more generic if possible
-		/*if (resolved instanceof SimpleTypeDLInstance) {
-			return ((SimpleTypeDLInstance) resolved).getData();
-		}*/
-		return resolved;
+		return ref.orElseThrow();
 	}
 }

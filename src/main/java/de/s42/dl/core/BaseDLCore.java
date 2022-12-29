@@ -84,10 +84,26 @@ public class BaseDLCore implements DLCore
 	protected boolean allowDefineAnnotationFactories;
 	protected boolean allowDefinePragmas;
 	protected boolean allowUsePragmas;
+	protected boolean allowUseAsserts;
 	protected boolean allowRequire;
 	protected ClassLoader classLoader;
+	
+	public BaseDLCore()
+	{
+		this(false);
+	}
 
-	public <DLCoreType extends DLCore> DLCoreType copy() throws InvalidCore
+	public BaseDLCore(boolean allowAll)
+	{
+		allowDefineTypes = allowAll;
+		allowDefineAnnotationFactories = allowAll;
+		allowDefinePragmas = allowAll;
+		allowUsePragmas = allowAll;
+		allowRequire = allowAll;
+		allowUseAsserts = allowAll;
+	}
+
+	public BaseDLCore copy() throws InvalidCore
 	{
 		// @todo ATTENTION: this copy is partially broken - types, resolvers etc might need to be copied as well to be consistent
 		try {
@@ -120,8 +136,9 @@ public class BaseDLCore implements DLCore
 			copy.allowDefinePragmas = allowDefinePragmas;
 			copy.allowUsePragmas = allowUsePragmas;
 			copy.allowRequire = allowRequire;
+			copy.allowUseAsserts = allowUseAsserts;
 
-			return (DLCoreType) copy;
+			return copy;
 		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
 			throw new InvalidCore("Error copying - " + ex.getMessage(), ex);
 		}
@@ -777,10 +794,6 @@ public class BaseDLCore implements DLCore
 
 				if (types.contains(dlType.getName())) {
 					throw new InvalidType("Type '" + dlType.getName() + "' already defined");
-				}
-
-				if (dlType instanceof DefaultDLType) {
-					((DefaultDLType) dlType).setCore(this);
 				}
 
 				return dlType;
@@ -1657,5 +1670,17 @@ public class BaseDLCore implements DLCore
 	public void setAllowUsePragmas(boolean allowUsePragmas)
 	{
 		this.allowUsePragmas = allowUsePragmas;
+	}
+
+	@Override
+	public boolean isAllowUseAsserts()
+	{
+		return allowUseAsserts;
+	}
+
+	@Override
+	public void setAllowUseAsserts(boolean allowUseAsserts)
+	{
+		this.allowUseAsserts = allowUseAsserts;
 	}
 }

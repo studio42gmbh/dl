@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl.core;
 
+import de.s42.base.system.SystemHelper;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLEntity;
 import de.s42.dl.DLType;
@@ -34,6 +35,7 @@ import de.s42.dl.annotations.files.IsFileDLAnnotation;
 import de.s42.dl.annotations.reflect.AttributeNamesDLAnnotation;
 import de.s42.dl.annotations.reflect.TypeNameDLAnnotation;
 import de.s42.dl.core.resolvers.FileCoreResolver;
+import de.s42.dl.core.resolvers.LibraryCoreResolver;
 import de.s42.dl.core.resolvers.ResourceCoreResolver;
 import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.DLException;
@@ -73,6 +75,8 @@ public class DefaultCore extends BaseDLCore
 
 	public DefaultCore()
 	{
+		// Allow definitions and require by default
+		super(true);
 		init();
 	}
 
@@ -80,14 +84,8 @@ public class DefaultCore extends BaseDLCore
 	{
 		try {
 
-			// Allow definitions and require by default
-			allowDefineTypes = true;
-			allowDefineAnnotationFactories = true;
-			allowDefinePragmas = true;
-			allowUsePragmas = true;
-			allowRequire = true;
-
 			// Add file and resource resolver
+			addResolver(new LibraryCoreResolver(this));
 			addResolver(new FileCoreResolver(this));
 			addResolver(new ResourceCoreResolver(this));
 			addResolver(new StringCoreResolver(this));
@@ -136,29 +134,93 @@ public class DefaultCore extends BaseDLCore
 			definePragma(new DisableDefineTypesPragma());
 			definePragma(new DisableDefineAnnotationsPragma());
 			definePragma(new DisableRequirePragma());
+			definePragma(new DisableUseAssertsPragma());
 
 			// Define basic simple types
-			DLType objectType = defineType(new ObjectDLType(), "java.lang.Object");
+			DLType objectType = defineType(new ObjectDLType(),
+				"java.lang.Object",
+				ObjectDLType.class.getName()
+			);
 
 			// Base Types
-			defineType(new PathDLType(objectType), "java.nio.file.Path", "sun.nio.fs.WindowsPath");
-			defineType(new ClassDLType(objectType), "java.lang.Class");
-			defineType(new SymbolDLType(objectType));
-			defineType(new UUIDDLType(objectType), "java.util.UUID", "uuid");
-			defineType(new DateDLType(objectType), "java.util.Date", "java.sql.Timestamp");
-			defineType(new StringDLType(objectType), "java.lang.String", "string", "str");
-			defineType(new CharDLType(objectType), "java.lang.Character", "Char", "char");
+			defineType(new PathDLType(objectType),
+				"java.nio.file.Path",
+				"sun.nio.fs.WindowsPath",
+				PathDLType.class.getName()
+			);
+
+			defineType(new ClassDLType(objectType),
+				"java.lang.Class",
+				ClassDLType.class.getName()
+			);
+
+			defineType(new SymbolDLType(objectType),
+				SymbolDLType.class.getName());
+
+			defineType(new UUIDDLType(objectType),
+				"java.util.UUID",
+				"uuid",
+				UUIDDLType.class.getName());
+
+			defineType(new DateDLType(objectType),
+				"java.util.Date",
+				"java.sql.Timestamp",
+				DateDLType.class.getName());
+
+			defineType(new StringDLType(objectType),
+				"java.lang.String",
+				"string",
+				"str",
+				StringDLType.class.getName());
+
+			defineType(new CharDLType(objectType),
+				"java.lang.Character",
+				"Char",
+				"char",
+				CharDLType.class.getName());
 
 			// Number types
-			DefaultDLType numberType = (DefaultDLType) defineType(new NumberDLType(objectType), "java.lang.Number");
-			defineType(new DoubleDLType(numberType), "java.lang.Double", "double");
-			defineType(new FloatDLType(numberType), "java.lang.Float", "float");
-			defineType(new IntegerDLType(numberType), "java.lang.Integer", "int");
-			defineType(new BooleanDLType(numberType), "java.lang.Boolean", "boolean", "bool");
-			defineType(new LongDLType(numberType), "java.lang.Long", "long");
-			defineType(new ByteDLType(numberType), "java.lang.Byte", "byte");
-			defineType(new ShortDLType(numberType), "java.lang.Short", "short");
+			DefaultDLType numberType = (DefaultDLType) defineType(new NumberDLType(objectType),
+				"java.lang.Number",
+				NumberDLType.class.getName());
 
+			defineType(new DoubleDLType(numberType),
+				"java.lang.Double",
+				"double",
+				DoubleDLType.class.getName());
+
+			defineType(new FloatDLType(numberType),
+				"java.lang.Float",
+				"float",
+				FloatDLType.class.getName());
+
+			defineType(new IntegerDLType(numberType),
+				"java.lang.Integer",
+				"int",
+				IntegerDLType.class.getName());
+
+			defineType(new BooleanDLType(numberType),
+				"java.lang.Boolean",
+				"boolean",
+				"bool",
+				BooleanDLType.class.getName());
+
+			defineType(new LongDLType(numberType),
+				"java.lang.Long",
+				"long",
+				LongDLType.class.getName());
+
+			defineType(new ByteDLType(numberType),
+				"java.lang.Byte",
+				"byte",
+				ByteDLType.class.getName());
+
+			defineType(new ShortDLType(numberType),
+				"java.lang.Short",
+				"short",
+				ShortDLType.class.getName());
+
+			// Base classes to types
 			defineType(DLEntity.class, "DLEntity");
 
 			// Define log types
@@ -172,13 +234,15 @@ public class DefaultCore extends BaseDLCore
 				"java.util.List",
 				"java.util.ArrayList",
 				"java.util.LinkedList",
-				"java.util.Collections$UnmodifiableList"
+				"java.util.Collections$UnmodifiableList",
+				ListDLType.class.getName()
 			);
 
 			// Define Array types
 			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
-			defineType(new ArrayDLType(objectType), 
-				"java.lang.Array"
+			defineType(new ArrayDLType(objectType),
+				"java.lang.Array",
+				ArrayDLType.class.getName()
 			);
 
 			// Define Map types https://github.com/studio42gmbh/dl/issues/11
@@ -188,7 +252,8 @@ public class DefaultCore extends BaseDLCore
 				"java.util.HashMap",
 				"java.util.Collections$UnmodifiableMap",
 				"de.s42.base.collections.MapHelper$MapN",
-				"java.util.Collections$CheckedMap"
+				"java.util.Collections$CheckedMap",
+				MapDLType.class.getName()
 			);
 
 			// Define Set types https://github.com/studio42gmbh/dl/issues/24
@@ -197,15 +262,20 @@ public class DefaultCore extends BaseDLCore
 				"java.util.Set",
 				"java.util.HashSet",
 				"java.util.Collections$UnmodifiableSet",
-				"java.util.ImmutableCollections$SetN");
+				"java.util.ImmutableCollections$SetN",
+				SetDLType.class.getName());
 
 			// Define type Core and map $core with this
 			CoreDLType coreType = (CoreDLType) defineType(new CoreDLType(),
 				"Core",
 				DLCore.class.getName(),
-				DefaultCore.class.getName()
+				DefaultCore.class.getName(),
+				CoreDLType.class.getName()
 			);
 			addExported(new CoreDLInstance(this, coreType));
+			
+			// Define basic exports
+			addExported("OS", SystemHelper.getOSName());
 
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);

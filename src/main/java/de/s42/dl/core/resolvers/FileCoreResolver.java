@@ -63,6 +63,10 @@ public class FileCoreResolver implements DLCoreResolver
 	@Override
 	public boolean canParse(String moduleId)
 	{
+		if (moduleId == null) {
+			return false;
+		}
+		
 		return Files.isRegularFile(Path.of(moduleId));
 	}
 
@@ -75,8 +79,9 @@ public class FileCoreResolver implements DLCoreResolver
 	@Override
 	public DLModule parse(String moduleId) throws DLException
 	{
+		assert moduleId != null;
+		
 		try {
-			assert moduleId != null;
 
 			Path filePath = Path.of(moduleId);
 			Path basePath = core.getBasePath();

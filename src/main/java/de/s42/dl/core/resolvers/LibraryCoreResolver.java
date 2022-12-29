@@ -41,14 +41,18 @@ import java.util.Optional;
  *
  * @author Benjamin Schiller
  */
-public class ResourceCoreResolver implements DLCoreResolver
+public class LibraryCoreResolver implements DLCoreResolver
 {
+	
+	public final static String LIB_PREFIX = "dl:";
+	public final static String LIB_BASE_PATH = "de/s42/dl/lib/";
+	
 
-	private final static Logger log = LogManager.getLogger(ResourceCoreResolver.class.getName());
+	private final static Logger log = LogManager.getLogger(LibraryCoreResolver.class.getName());
 
 	protected final DLCore core;
 
-	public ResourceCoreResolver(DLCore core)
+	public LibraryCoreResolver(DLCore core)
 	{
 		assert core != null;
 
@@ -58,17 +62,29 @@ public class ResourceCoreResolver implements DLCoreResolver
 	@Override
 	public boolean canParse(String moduleId)
 	{
-		if (moduleId == null) {
+		assert moduleId != null;
+		
+		// Just parse if prefix is given
+		if (!moduleId.startsWith(LIB_PREFIX)) {
 			return false;
 		}
-				
-		return ResourceHelper.hasResource(moduleId);
+		
+		String libraryModuleId = resolveLibraryModule(moduleId);
+		
+		return ResourceHelper.hasResource(libraryModuleId);
 	}
 
 	@Override
 	public boolean canParse(String moduleId, String data)
 	{
 		return false;
+	}
+	
+	protected String resolveLibraryModule(String moduleId)
+	{
+		assert moduleId != null;
+		
+		return moduleId.replace(LIB_PREFIX, LIB_BASE_PATH);
 	}
 
 	@Override
@@ -77,13 +93,15 @@ public class ResourceCoreResolver implements DLCoreResolver
 		assert moduleId != null;
 		
 		try {
+			
+			String libraryModuleId = resolveLibraryModule(moduleId);
 
-			log.debug("Parsing resource " + moduleId);
+			log.debug("Parsing library resource " + libraryModuleId);
 
-			Optional<String> res = ResourceHelper.getResourceAsString(moduleId);
+			Optional<String> res = ResourceHelper.getResourceAsString(libraryModuleId);
 
 			if (res.isEmpty()) {
-				throw new InvalidModule("Resource " + moduleId + " could not be loaded");
+				throw new InvalidModule("Resource " + libraryModuleId + " could not be loaded");
 			}
 
 			return DLHrfParsing.parse(core, moduleId, res.get());
@@ -95,7 +113,7 @@ public class ResourceCoreResolver implements DLCoreResolver
 	@Override
 	public DLModule parse(String moduleId, String data) throws InvalidModule
 	{
-		throw new InvalidModule("Error can just load module from resource");
+		throw new InvalidModule("Error can just load module from lib resource");
 	}
 
 	public DLCore getCore()

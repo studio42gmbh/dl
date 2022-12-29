@@ -59,7 +59,6 @@ genericParameters : GENERIC_OPEN genericParameter ( COMMA genericParameter )* CO
 genericParameter : identifier ;
 
 symbolOrString : STRING_LITERAL | SYMBOL ;
-scopeExpression : COLON identifier ( OR identifier )* ;
 aliases : KEYWORD_ALIAS aliasName ( COMMA aliasName )* ;
 aliasName : identifier;
 
@@ -80,7 +79,7 @@ expression :
 	| expression POW expression
 	| expression ( MUL | DIV ) expression
 	| expression ( PLUS | MINUS ) expression
-	| expression ( AND | OR | XOR | EQUALS ) expression
+	| expression ( AND | OR | XOR | EQUALS | LIKE ) expression
 	| NOT expression
 	| MINUS? atom ;
 
@@ -104,8 +103,7 @@ pragmaName : identifier ;
 annotation : 
 	AT 
 	annotationName
-	staticParameters? 
-	/*scopeExpression?*/ ;
+	staticParameters? ;
 
 annotationName : identifier ;
 

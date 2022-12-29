@@ -69,9 +69,6 @@ public class DLHrfParsing extends DLParserBaseListener
 	private DefaultDLType currentType;
 	private DefaultDLEnum currentEnum;
 
-	// @todo https://github.com/studio42gmbh/dl/issues/18 this is a preliminary prototypal implementation of dlinstance attribute assignments!
-	private final Deque<AttributeAssignmentContext> attributeAssignableContextQueue = new ArrayDeque<>();
-	private final Deque<String> attributeAssignableKeyQueue = new ArrayDeque<>();
 	private final Deque<DLInstance> currentAttributeAssignmentInstances = new ArrayDeque<>();
 	protected DefaultDLAttribute dlInstanceAssignAttribute;
 	private final Deque<List> currentAttributeAssignmentList = new ArrayDeque<>();
@@ -246,22 +243,35 @@ public class DLHrfParsing extends DLParserBaseListener
 	{
 		assert ctx != null;
 
-		// Resolve the given test expression
-		Object result = DLHrfExpressionParser.resolveExpression(core, module, ctx.assertTest().expression());
-
-		// If it did not returned a boolean true -> Throw an exception
-		if (!(result instanceof Boolean)
-			|| !((Boolean) result)) {
-
-			String message;
-
-			if (ctx.assertMessage() != null) {
-				message = "" + DLHrfExpressionParser.resolveExpression(core, module, ctx.assertMessage().expression());
-			} else {
-				message = "Assert '" + ctx.assertTest().getText() + "' is not true";
+		try {
+			if (!core.isAllowUseAsserts()) {
+				throw new InvalidCore(createErrorMessage(module, "May not assert in core", ctx));
 			}
 
-			throw new DLHrfParsingException(message, module, ctx);
+			// Resolve the given test expression
+			Object result = DLHrfExpressionParser.resolveExpression(core, module, ctx.assertTest().expression());
+
+			// If it did not returned a boolean true -> Throw an exception
+			if (!(result instanceof Boolean)
+				|| !((Boolean) result)) {
+
+				String message;
+
+				if (ctx.assertMessage() != null) {
+					message = "" + DLHrfExpressionParser.resolveExpression(core, module, ctx.assertMessage().expression());
+				} else {
+					message = "Assert '" + ctx.assertTest().getText() + "' is not true";
+				}
+
+				throw new DLHrfParsingException(message, module, ctx);
+			}
+		} catch (RuntimeException | DLException ex) {
+			throw new DLHrfParsingException(
+				"Error asserting - " + ex.getMessage(),
+				module,
+				ctx,
+				ex
+			);
 		}
 	}
 
@@ -701,7 +711,7 @@ public class DLHrfParsing extends DLParserBaseListener
 						// map the new type
 						core.defineType(currentType);
 
-						// define alias for the given typeName
+						// define alias for the given typeName to also map its java class name
 						if (!currentType.getName().equals(typeName)) {
 							core.defineAliasForType(typeName, currentType);
 						}
@@ -1032,16 +1042,16 @@ public class DLHrfParsing extends DLParserBaseListener
 					return attribute.getType();
 				})
 				.orElse(null);
-			
+
 			// Ensure check if instance allows dynamic attributes
-			if (!currentInstance.getType().isAllowDynamicAttributes() &&
-				attributeType == null) {
+			if (!currentInstance.getType().isAllowDynamicAttributes()
+				&& attributeType == null) {
 				throw new InvalidAttribute(
-						createErrorMessage(
-							module,
-							"Instance '" + currentInstance + "' does not contain attribute '" + attributeName + "' and does not allow dynamic attributes",
-							ctx
-						));
+					createErrorMessage(
+						module,
+						"Instance '" + currentInstance + "' does not contain attribute '" + attributeName + "' and does not allow dynamic attributes",
+						ctx
+					));
 			}
 
 			// With explicitly given type

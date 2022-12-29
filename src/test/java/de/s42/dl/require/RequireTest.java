@@ -23,44 +23,42 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
+package de.s42.dl.require;
 
-module de.sft.dl
+import de.s42.dl.core.BaseDLCore;
+import de.s42.dl.core.DefaultCore;
+import de.s42.dl.core.resolvers.LibraryCoreResolver;
+import de.s42.dl.core.resolvers.StringCoreResolver;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
+import org.testng.annotations.Test;
+
+/**
+ *
+ * @author Benjamin Schiller
+ */
+public class RequireTest
 {
-	requires org.antlr.antlr4.runtime;
-	requires de.sft.log;
-	requires de.sft.base;
-	requires java.desktop;
-	requires java.compiler;
-	requires org.json;
 
-	exports de.s42.dl;
-	exports de.s42.dl.annotations;
-	exports de.s42.dl.annotations.files;
-	exports de.s42.dl.annotations.reflect;
-	exports de.s42.dl.attributes;
-	exports de.s42.dl.core;
-	exports de.s42.dl.core.resolvers;
-	exports de.s42.dl.exceptions;
-	exports de.s42.dl.instances;
-	exports de.s42.dl.io;
-	exports de.s42.dl.io.binary;
-	exports de.s42.dl.io.hrf;
-	exports de.s42.dl.io.json;
-	exports de.s42.dl.language;
-	exports de.s42.dl.parameters;
-	exports de.s42.dl.parser;
-	exports de.s42.dl.parser.expression;
-	exports de.s42.dl.parser2;
-	exports de.s42.dl.pragmas;
-	exports de.s42.dl.types;
-	exports de.s42.dl.types.primitive;
-	exports de.s42.dl.types.collections;
-	exports de.s42.dl.types.base;
-	exports de.s42.dl.types.dl;
-	exports de.s42.dl.util;
-	exports de.s42.dl.validation;
+	private final static Logger log = LogManager.getLogger(RequireTest.class.getName());
 
-	opens de.s42.dl.types;
-	opens de.s42.dl.lib.standard;
-	opens de.s42.dl;
+	@Test
+	public void requireBaseLibraryInDefaultDLCore() throws Exception
+	{
+		DefaultCore core = new DefaultCore();
+		core.parse("requireBaseLibraryInDefaultDLCore",
+			"require \"dl:standard/base.dl\";"
+		);
+	}
+
+	@Test
+	public void requireBaseLibraryInBaseDLCore() throws Exception
+	{
+		BaseDLCore core = new BaseDLCore(true);
+		core.addResolver(new StringCoreResolver(core));
+		core.addResolver(new LibraryCoreResolver(core));
+		core.parse("requireBaseLibraryInBaseDLCore",
+			"require \"dl:standard/base.dl\";"
+		);
+	}
 }

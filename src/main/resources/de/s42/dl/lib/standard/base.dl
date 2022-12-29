@@ -1,0 +1,7 @@
+/**
+ * Basic types 
+ */
+
+extern type de.s42.dl.types.primitive.ObjectDLType alias java.lang.Object;
+extern type de.s42.dl.types.primitive.IntegerDLType alias java.lang.Integer, int;
+extern type de.s42.dl.types.primitive.LongDLType alias java.lang.Long, long;

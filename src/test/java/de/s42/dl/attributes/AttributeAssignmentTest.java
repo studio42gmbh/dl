@@ -213,11 +213,11 @@ public class AttributeAssignmentTest
 		DLModule module = core.parse("simpleModuleAttributeInstanceArrayAssignment",
 			"type T { Integer x; } Array x : T t1 {}, T t2 {}, T t3 {};"
 		);
-		
+
 		DLType type = module.getDefinedType("T").orElseThrow();
-		DLInstance t1 = (DLInstance)((Object[]) module.get("x"))[0];
-		DLInstance t2 = (DLInstance)((Object[]) module.get("x"))[1];
-		DLInstance t3 = (DLInstance)((Object[]) module.get("x"))[2];
+		DLInstance t1 = (DLInstance) ((Object[]) module.get("x"))[0];
+		DLInstance t2 = (DLInstance) ((Object[]) module.get("x"))[1];
+		DLInstance t3 = (DLInstance) ((Object[]) module.get("x"))[2];
 
 		assertEquals(t1.getType(), type);
 		assertEquals(t1.getName(), "t1");
@@ -231,6 +231,7 @@ public class AttributeAssignmentTest
 	{
 
 		public String name;
+		public int val;
 		public TestT[] data;
 
 		// <editor-fold desc="hashCode, equals, toString" defaultstate="collapsed">
@@ -239,6 +240,7 @@ public class AttributeAssignmentTest
 		{
 			int hash = 5;
 			hash = 41 * hash + Objects.hashCode(this.name);
+			hash = 41 * hash + Objects.hashCode(this.val);
 			hash = 41 * hash + Arrays.deepHashCode(this.data);
 			return hash;
 		}
@@ -256,6 +258,9 @@ public class AttributeAssignmentTest
 				return false;
 			}
 			final TestT other = (TestT) obj;
+			if (this.val != other.val) {
+				return false;
+			}
 			if (!Objects.equals(this.name, other.name)) {
 				return false;
 			}
@@ -266,9 +271,9 @@ public class AttributeAssignmentTest
 		public String toString()
 		{
 			if (data != null) {
-				return name + Arrays.toString(data);
+				return name + ":" + val + ":" + Arrays.toString(data);
 			} else {
-				return name + "[]";
+				return name + ":" + val + ":[]";
 			}
 		}
 		//</editor-fold>
@@ -281,7 +286,7 @@ public class AttributeAssignmentTest
 		DLType type = core.defineType(TestT.class, "T");
 		//log.warn(DLHelper.describe(type));
 		DLModule module = core.parse("simpleModuleAttributeInstanceArrayAssignmentToJava",
-			"T t { data : T t1 { data : T t11 {} ; }, T t2 {}, T t3 {}; }"
+			"T t { data : T t1 { data : T t11 {} ; val : 42 ; }, T t2 {}, T t3 {} ; }"
 		);
 
 		TestT t = (TestT) module.getChild("t").orElseThrow().toJavaObject();
@@ -290,6 +295,7 @@ public class AttributeAssignmentTest
 		javaT11.name = "t11";
 		TestT javaT1 = new TestT();
 		javaT1.name = "t1";
+		javaT1.val = 42;
 		javaT1.data = new TestT[]{javaT11};
 		TestT javaT2 = new TestT();
 		javaT2.name = "t2";
@@ -303,17 +309,43 @@ public class AttributeAssignmentTest
 	}
 
 	@Test
+	public void nestedModuleAttributeInstanceArrayAssignment() throws Exception
+	{
+		DefaultCore core = new DefaultCore();
+		core.defineType(TestT.class, "T");
+		DLModule module = core.parse("nestedModuleAttributeInstanceArrayAssignment",
+			"T t { data : T t1 { data : T t11 { data : T t111 {} ; } ; }; }"
+		);
+
+		TestT t = (TestT) module.getChild("t").orElseThrow().toJavaObject();
+
+		TestT javaT111 = new TestT();
+		javaT111.name = "t111";
+		TestT javaT11 = new TestT();
+		javaT11.name = "t11";
+		javaT11.data = new TestT[]{javaT111};
+		TestT javaT1 = new TestT();
+		javaT1.name = "t1";
+		javaT1.data = new TestT[]{javaT11};
+		TestT javaT = new TestT();
+		javaT.name = "t";
+		javaT.data = new TestT[]{javaT1};
+
+		assertEquals(t, javaT);
+	}
+
+	@Test
 	public void simpleModuleAttributeInstanceListAssignment() throws Exception
 	{
 		DefaultCore core = new DefaultCore();
 		DLModule module = core.parse("simpleModuleAttributeAssignment",
 			"type T { Integer x; } List<T> x : T t1 {}, T t2 {}, T t3 {};"
 		);
-		
+
 		DLType type = module.getDefinedType("T").orElseThrow();
-		DLInstance t1 = (DLInstance)((List) module.get("x")).get(0);
-		DLInstance t2 = (DLInstance)((List) module.get("x")).get(1);
-		DLInstance t3 = (DLInstance)((List) module.get("x")).get(2);
+		DLInstance t1 = (DLInstance) ((List) module.get("x")).get(0);
+		DLInstance t2 = (DLInstance) ((List) module.get("x")).get(1);
+		DLInstance t3 = (DLInstance) ((List) module.get("x")).get(2);
 
 		assertEquals(t1.getType(), type);
 		assertEquals(t1.getName(), "t1");
@@ -330,15 +362,15 @@ public class AttributeAssignmentTest
 		DLModule module = core.parse("simpleModuleAttributeInstanceSetAssignment",
 			"type T { Integer x; } Set<T> x : T t1 {}, T t2 {}, T t3 {};"
 		);
-		
+
 		DLType type = module.getDefinedType("T").orElseThrow();
-		DLInstance t1 = (DLInstance)((Set<DLInstance>) module.get("x")).stream().filter((t) -> {
+		DLInstance t1 = (DLInstance) ((Set<DLInstance>) module.get("x")).stream().filter((t) -> {
 			return t.getName().equals("t1");
 		}).findFirst().orElseThrow();
-		DLInstance t2 = (DLInstance)((Set<DLInstance>) module.get("x")).stream().filter((t) -> {
+		DLInstance t2 = (DLInstance) ((Set<DLInstance>) module.get("x")).stream().filter((t) -> {
 			return t.getName().equals("t2");
 		}).findFirst().orElseThrow();
-		DLInstance t3 = (DLInstance)((Set<DLInstance>) module.get("x")).stream().filter((t) -> {
+		DLInstance t3 = (DLInstance) ((Set<DLInstance>) module.get("x")).stream().filter((t) -> {
 			return t.getName().equals("t3");
 		}).findFirst().orElseThrow();
 
@@ -358,11 +390,11 @@ public class AttributeAssignmentTest
 			"type T { Integer x; } "
 			+ "Map<String, T> x : \"t1\", T t1 {}, \"t2\", T t2 {}, \"t3\", T t3 {};"
 		);
-		
+
 		DLType type = module.getDefinedType("T").orElseThrow();
-		DLInstance t1 = (DLInstance)((Map<String, DLInstance>) module.get("x")).get("t1");
-		DLInstance t2 = (DLInstance)((Map<String, DLInstance>) module.get("x")).get("t2");
-		DLInstance t3 = (DLInstance)((Map<String, DLInstance>) module.get("x")).get("t3");
+		DLInstance t1 = (DLInstance) ((Map<String, DLInstance>) module.get("x")).get("t1");
+		DLInstance t2 = (DLInstance) ((Map<String, DLInstance>) module.get("x")).get("t2");
+		DLInstance t3 = (DLInstance) ((Map<String, DLInstance>) module.get("x")).get("t3");
 
 		assertEquals(t1.getType(), type);
 		assertEquals(t1.getName(), "t1");

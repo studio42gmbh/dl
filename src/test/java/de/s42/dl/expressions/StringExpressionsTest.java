@@ -30,6 +30,7 @@ import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.instances.SimpleTypeDLInstance;
+import de.s42.dl.parser.DLHrfParsingException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -43,11 +44,11 @@ public class StringExpressionsTest
 {
 
 	@Test
-	public void validExpressionAddStrings() throws DLException
+	public void expressionAddStrings() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
 		String fromJava = ((SimpleTypeDLInstance<String>) core.addExported("fromJava", "orange")).getData();
-		DLModule module = core.parse("validExpressionAddStrings",
+		DLModule module = core.parse("expressionAddStrings",
 			"String t : apple; "
 			+ "String t3 : $t + \" \" + $fromJava ;");
 		Assert.assertEquals(module.getString("t3"), "apple" + " " + fromJava);
@@ -60,5 +61,32 @@ public class StringExpressionsTest
 		core.parse("invalidExpressionNegateString",
 			"String t : apple; Object t2 : -$t;"
 		);
+	}
+
+	@Test
+	public void expressionLike() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		core.parse("expressionLike",
+			"String t : apple; "
+			+ "assert $t ~= \"^.*ap.*e$\";");
+	}
+
+	@Test(expectedExceptions = DLHrfParsingException.class)
+	public void invalidExpressionLike() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidExpressionLike",
+			"String t : orange; "
+			+ "assert $t ~= \"^.*ap.*e$\";");
+	}
+
+	@Test(expectedExceptions = DLHrfParsingException.class)
+	public void invalidExpressionLikePattern() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidExpressionLikePattern",
+			"String t : orange; "
+			+ "assert $t ~= \"[.\";");
 	}
 }

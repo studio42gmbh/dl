@@ -57,7 +57,7 @@ public class StringCoreResolver implements DLCoreResolver
 	@Override
 	public boolean canParse(String moduleId, String data)
 	{
-		return true;
+		return (moduleId != null) && (data != null);
 	}
 
 	@Override

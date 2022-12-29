@@ -171,6 +171,10 @@ public interface DLCore
 
 	public void setAllowUsePragmas(boolean allowUsePragmas);
 
+	public boolean isAllowUseAsserts();
+
+	public void setAllowUseAsserts(boolean allowUseAsserts);
+	
 	// REQUIRE
 	public boolean isAllowRequire();
 

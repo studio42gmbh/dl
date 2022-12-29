@@ -38,17 +38,17 @@ public class DLAssertionTest
 {
 
 	@Test
-	public void validSimpleAssert() throws DLException
+	public void simpleAssert() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		core.parse("validSimpleAssert", "assert true;");
+		core.parse("simpleAssert", "assert true;");
 	}
 
 	@Test
-	public void validSimpleAssertWithMessage() throws DLException
+	public void simpleAssertWithMessage() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		core.parse("validSimpleAssert", "assert true : \"true\";");
+		core.parse("simpleAssertWithMessage", "assert true : \"true\";");
 	}
 
 	@Test(expectedExceptions = DLHrfParsingException.class)
@@ -62,32 +62,32 @@ public class DLAssertionTest
 	public void invalidSimpleAssertWithMessage() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		core.parse("invalidSimpleAssert", "assert false : \"false\";");
+		core.parse("invalidSimpleAssertWithMessage", "assert false : \"false\";");
 	}
 
 	@Test
-	public void validInjectedAssert() throws DLException
+	public void injectedAssert() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		core.addExported("OS", "Windows");
-		core.parse("validInjectedAssert", "assert $OS == Windows : $OS + \" != Windows\";");
+		core.addExported("injectedAssert", "Windows");
+		core.parse("injectedAssert", "assert $injectedAssert == Windows : $injectedAssert + \" != Windows\";");
 	}
 
 	@Test(expectedExceptions = DLHrfParsingException.class)
 	public void invalidInjectedAssert() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		core.addExported("OS", "Linux");
-		core.parse("validInjectedAssert", "assert $OS == Windows : $OS + \" != Windows\";");
+		core.addExported("invalidInjectedAssert", "Linux");
+		core.parse("invalidInjectedAssert", "assert $invalidInjectedAssert == Windows : $invalidInjectedAssert + \" != Windows\";");
 	}
 
 	@Test
-	public void validDLAssert() throws DLException
+	public void dLAssert() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		core.parse("validDLAssert",
-			"String OS : Windows;"
-			+ "assert $OS == Windows : $OS + \" != Windows\";"
+		core.parse("dLAssert",
+			"String dLAssert : Windows;"
+			+ "assert $dLAssert == Windows : $dLAssert + \" != Windows\";"
 		);
 	}
 
@@ -96,8 +96,8 @@ public class DLAssertionTest
 	{
 		DefaultCore core = new DefaultCore();
 		core.parse("invalidDLAssert",
-			"String OS : Linux;"
-			+ "assert $OS == Windows : $OS + \" != Windows\";"
+			"String invalidDLAssert : Linux;"
+			+ "assert $invalidDLAssert == Windows : $invalidDLAssert + \" != Windows\";"
 		);
 	}
 }

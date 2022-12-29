@@ -23,44 +23,52 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
+package de.s42.dl.parser.expression.operators;
 
-module de.sft.dl
+import de.s42.dl.DLModule;
+import de.s42.dl.parser.DLHrfParsingException;
+import de.s42.dl.parser.DLParser.ExpressionContext;
+import de.s42.dl.parser.expression.Expression;
+import de.s42.dl.parser.expression.BinaryOperator;
+import java.util.regex.PatternSyntaxException;
+
+/**
+ *
+ * @author Benjamin Schiller
+ */
+public class Like extends BinaryOperator
 {
-	requires org.antlr.antlr4.runtime;
-	requires de.sft.log;
-	requires de.sft.base;
-	requires java.desktop;
-	requires java.compiler;
-	requires org.json;
 
-	exports de.s42.dl;
-	exports de.s42.dl.annotations;
-	exports de.s42.dl.annotations.files;
-	exports de.s42.dl.annotations.reflect;
-	exports de.s42.dl.attributes;
-	exports de.s42.dl.core;
-	exports de.s42.dl.core.resolvers;
-	exports de.s42.dl.exceptions;
-	exports de.s42.dl.instances;
-	exports de.s42.dl.io;
-	exports de.s42.dl.io.binary;
-	exports de.s42.dl.io.hrf;
-	exports de.s42.dl.io.json;
-	exports de.s42.dl.language;
-	exports de.s42.dl.parameters;
-	exports de.s42.dl.parser;
-	exports de.s42.dl.parser.expression;
-	exports de.s42.dl.parser2;
-	exports de.s42.dl.pragmas;
-	exports de.s42.dl.types;
-	exports de.s42.dl.types.primitive;
-	exports de.s42.dl.types.collections;
-	exports de.s42.dl.types.base;
-	exports de.s42.dl.types.dl;
-	exports de.s42.dl.util;
-	exports de.s42.dl.validation;
+	public Like(Expression first, Expression second, ExpressionContext context, DLModule module)
+	{
+		super(first, second, context, module);
+	}
 
-	opens de.s42.dl.types;
-	opens de.s42.dl.lib.standard;
-	opens de.s42.dl;
+	@Override
+	public Boolean evaluate()
+	{
+		Object firstEval = first.evaluate();
+		Object secondEval = second.evaluate();
+
+		// Make sure both operands are strings
+		if (firstEval instanceof String && secondEval instanceof String) {
+			try {
+				return ((String) firstEval).matches((String) secondEval);
+			}
+			catch (PatternSyntaxException ex) {
+				throw new DLHrfParsingException(
+					"Second operand in '" + context.getText() + "' has to have a valid regex pattern",
+					module,
+					context,
+					ex
+				);
+			}
+		}
+
+		throw new DLHrfParsingException(
+			"Types invalid in '" + context.getText() + "' both have to be String",
+			module,
+			context
+		);
+	}
 }

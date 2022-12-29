@@ -210,6 +210,7 @@ GENERIC_CLOSE :			'>' ;
 COMMA :					',' ;
 EQUALS :				'==' ;
 XOR :					'!=' ;
+LIKE :					'~=' ;
 NOT :					'!' ;
 AND :					'&' ;
 OR :					'|' ;
