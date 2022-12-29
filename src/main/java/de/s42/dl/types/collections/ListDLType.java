@@ -47,7 +47,7 @@ import java.util.Optional;
  * @author Benjamin Schiller
  */
 // https://github.com/studio42gmbh/dl/issues/10 List support
-public class ListDLType extends DefaultDLType
+public class ListDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "List";
@@ -81,7 +81,7 @@ public class ListDLType extends DefaultDLType
 	private void init(DLType genericType)
 	{
 		setAllowGenericTypes(true);
-		setComplexType(true);
+		//setComplexType(true);
 
 		if (genericType != null) {
 			try {

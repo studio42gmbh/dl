@@ -49,11 +49,15 @@ declaration :
 
 identifier : SYMBOL ;
 typeIdentifier : identifier ;
+
+// @todo refactor naming of staticParameter
 staticParameters : PARENTHESES_OPEN ( staticParameter ( COMMA staticParameter )* )? PARENTHESES_CLOSE ;
+staticParameter : ( staticParameterName COLON )? ( expression ) ;
 staticParameterName : identifier ;
-staticParameter : ( staticParameterName COLON )? ( STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | SYMBOL ) ;
+
 genericParameters : GENERIC_OPEN genericParameter ( COMMA genericParameter )* COMMA? GENERIC_CLOSE ;
 genericParameter : identifier ;
+
 symbolOrString : STRING_LITERAL | SYMBOL ;
 scopeExpression : COLON identifier ( OR identifier )* ;
 aliases : KEYWORD_ALIAS aliasName ( COMMA aliasName )* ;
@@ -155,7 +159,7 @@ typeDefinition :
 typeDefinitionName : identifier;
 parentTypeName : identifier ;
 containsTypeName : identifier ;
-typeBody : SCOPE_OPEN ( typeAttributeDefinition | require )* SCOPE_CLOSE ;
+typeBody : SCOPE_OPEN ( typeAttributeDefinition )* SCOPE_CLOSE ;
 
 
 // ENUM DEFINITION
@@ -186,7 +190,7 @@ typeAttributeDefinition :
 
 typeAttributeDefinitionType : typeIdentifier genericParameters? ;
 typeAttributeDefinitionName : identifier ;
-typeAttributeDefinitionDefault : instanceDefinition | STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | SYMBOL | REF ;
+typeAttributeDefinitionDefault : instanceDefinition | expression ;
 
 
 // INSTANCE DEFINITION
@@ -198,7 +202,7 @@ instanceDefinition :
 
 instanceType : typeIdentifier genericParameters? ;
 instanceName : identifier ;
-instanceBody : SCOPE_OPEN ( attributeAssignment | instanceDefinition | require )* SCOPE_CLOSE ;
+instanceBody : SCOPE_OPEN ( attributeAssignment | instanceDefinition )* SCOPE_CLOSE ;
 
 
 // ATTRIBUTE ASSIGNMENT
@@ -210,4 +214,4 @@ attributeAssignment :
 
 attributeType : typeIdentifier genericParameters? ;
 attributeName : identifier ;
-attributeAssignable : instanceDefinition | STRING_LITERAL | FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | SYMBOL | REF | expression ;
+attributeAssignable : instanceDefinition | expression ;

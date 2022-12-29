@@ -38,7 +38,6 @@ import de.s42.dl.parser.expression.operators.Add;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLModule;
 import de.s42.dl.exceptions.ParserException;
-import de.s42.dl.instances.SimpleTypeDLInstance;
 import de.s42.dl.parser.DLHrfParsingException;
 import de.s42.dl.parser.DLParser.AtomContext;
 import de.s42.dl.parser.DLParser.ExpressionContext;
@@ -229,10 +228,9 @@ public final class DLHrfExpressionParser
 
 		// Unwrap simple instances
 		// @improvement this unwrapping should be done more generic if possible
-		if (resolved instanceof SimpleTypeDLInstance) {
+		/*if (resolved instanceof SimpleTypeDLInstance) {
 			return ((SimpleTypeDLInstance) resolved).getData();
-		}
-
+		}*/
 		return resolved;
 	}
 }

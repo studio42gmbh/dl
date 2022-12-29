@@ -47,7 +47,7 @@ import java.util.Set;
  * @author Benjamin Schiller
  */
 // https://github.com/studio42gmbh/dl/issues/10 List support
-public class SetDLType extends DefaultDLType
+public class SetDLType extends SimpleDLType
 {
 
 	public final static String DEFAULT_SYMBOL = "Set";
@@ -81,7 +81,7 @@ public class SetDLType extends DefaultDLType
 	private void init(DLType genericType)
 	{
 		setAllowGenericTypes(true);
-		setComplexType(true);
+		//setComplexType(true);
 
 		if (genericType != null) {
 			try {

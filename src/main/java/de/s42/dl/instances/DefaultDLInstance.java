@@ -132,7 +132,7 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	{
 		return getType().getAttribute(name);
 	}
-	
+
 	@Override
 	public Set<String> getAttributeNames()
 	{

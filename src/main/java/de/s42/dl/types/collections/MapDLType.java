@@ -100,6 +100,12 @@ public class MapDLType extends DefaultDLType
 	}
 
 	@Override
+	public boolean canRead()
+	{
+		return true;
+	}
+
+	@Override
 	public boolean mayContainType(DLType type)
 	{
 		if (!isGenericType()) {

@@ -67,7 +67,9 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 	public Object write(Object data) throws DLException;
 
 	public void setAttributeFromValue(DLInstance instance, String name, Object value) throws DLException;
-
+	
+	public boolean canRead();
+	
 	// CONVERSION
 	public DLInstance fromJavaObject(Object object) throws DLException;
 

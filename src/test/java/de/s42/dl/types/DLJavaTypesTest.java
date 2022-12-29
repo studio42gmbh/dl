@@ -165,28 +165,36 @@ public class DLJavaTypesTest
 	public void validJavaTypeDefined() throws DLException
 	{
 		DLCore core = createCore();
-		core.parse("Anonymous", "Test { value : 1.0; Test { value : 2.0; } }");
+		core.parse("validJavaTypeDefined",
+			"Test { value : 1.0; Test { value : 2.0; } }"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidValue.class)
 	public void invalidJavaTypeDefinedAttributeData() throws DLException
 	{
 		DLCore core = createCore();
-		core.parse("Anonymous", "Test { value : \"Test\"; }");
+		core.parse("invalidJavaTypeDefinedAttributeData", 
+			"Test { value : \"Test\"; }"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidInstance.class)
 	public void invalidJavaTypeContained() throws DLException
 	{
 		DLCore core = createCore();
-		core.parse("Anonymous", "type B; Test { value : 1.0; B; }");
+		core.parse("invalidJavaTypeContained", 
+			"type B; Test { value : 1.0; B; }"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidInstance.class)
 	public void invalidJavaTypeDefinedAttributeMissing() throws DLException
 	{
 		DLCore core = createCore();
-		core.parse("Anonymous", "Test;");
+		core.parse("invalidJavaTypeDefinedAttributeMissing", 
+			"Test;"
+		);
 	}
 
 	@Test
@@ -195,7 +203,7 @@ public class DLJavaTypesTest
 		DLCore core = createCore();
 
 		//log.debug("\n", DLHelper.describe(core.getType("TestC")));
-		DLModule module = core.parse("Anonymous",
+		DLModule module = core.parse("validTypeFromClass",
 			"TestC test1 { "
 			+ "uuidVal : \"16cfc033-3597-49fe-a991-24b533dbfeb6\"; "
 			+ "stringVal : \"String long enough\";"
@@ -212,14 +220,16 @@ public class DLJavaTypesTest
 	public void invalidTypeFromClassMissingRequiredAttribute() throws DLException
 	{
 		DLCore core = createCore();
-		core.parse("Anonymous", "TestC test1 {}");
+		core.parse("invalidTypeFromClassMissingRequiredAttribute", 
+			"TestC test1 {}"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidInstance.class)
 	public void invalidTypeFromClassInvalidLengthAttribute() throws DLException
 	{
 		DLCore core = createCore();
-		core.parse("Anonymous",
+		core.parse("invalidTypeFromClassInvalidLengthAttribute",
 			"TestC test1 { "
 			+ "uuidVal : \"16cfc033-3597-49fe-a991-24b533dbfeb6\"; "
 			+ "stringVal : \"String long enough\";"
@@ -230,12 +240,12 @@ public class DLJavaTypesTest
 	public void invalidTypeFromClassInvalidUniqueAttribute() throws DLException
 	{
 		DLCore core = createCore();
-		core.parse("Anonymous",
+		core.parse("invalidTypeFromClassInvalidUniqueAttribute",
 			"TestC test1 { "
 			+ "stringVal : \"ShouldBeUnique\";"
 			+ "doubleVal : 1.2345; "
 			+ "}");
-		core.parse("Anonymous2",
+		core.parse("invalidTypeFromClassInvalidUniqueAttribute2",
 			"TestC test2 { "
 			+ "stringVal : \"ShouldBeUnique\";" // is not unique
 			+ "doubleVal : 1.2345; "

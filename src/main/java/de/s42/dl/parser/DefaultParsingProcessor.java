@@ -29,7 +29,6 @@ import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLModule;
 import de.s42.dl.DLType;
-import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -119,12 +118,9 @@ public class DefaultParsingProcessor implements DLParsingProcessor
 			throw new IOException("Type " + typeName + " is not contained in core");
 		}
 
-		DLType type;
-		try {
-			type = core.getType(typeName).get();
-		} catch (DLException ex) {
-			throw new IOException("Error getting type - " + ex.getMessage(), ex);
-		}
+		DLType type = core.getType(typeName).orElseThrow(() -> {
+			return new IOException("Error getting type '" + typeName + "'");
+		});
 
 		currentInstance = core.createInstance(type);
 	}
@@ -143,12 +139,9 @@ public class DefaultParsingProcessor implements DLParsingProcessor
 			throw new IOException("Type " + typeName + " is not contained in core");
 		}
 
-		DLType type;
-		try {
-			type = core.getType(typeName).get();
-		} catch (DLException ex) {
-			throw new IOException("Error getting type - " + ex.getMessage(), ex);
-		}
+		DLType type = core.getType(typeName).orElseThrow(() -> {
+			return new IOException("Error getting type '" + typeName + "'");
+		});
 
 		currentInstance = core.createInstance(type, name);
 	}

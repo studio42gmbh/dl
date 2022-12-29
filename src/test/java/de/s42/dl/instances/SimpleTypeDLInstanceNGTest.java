@@ -59,7 +59,7 @@ public class SimpleTypeDLInstanceNGTest
 	public void validListType() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		List<String> value = ((ComplexTypeDLInstance<List<String>>) core.addExported("value", new ArrayList<>(List.of("a", "b")))).getData();
+		List<String> value = ((SimpleTypeDLInstance<List<String>>) core.addExported("value", new ArrayList<>(List.of("a", "b")))).getData();
 		DLModule module = core.parse("Anonymous", "List<String> dlValue : $value;");
 		Assert.assertEquals((List<String>) module.get("dlValue"), value);
 	}

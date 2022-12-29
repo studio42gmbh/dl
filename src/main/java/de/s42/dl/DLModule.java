@@ -41,5 +41,8 @@ public interface DLModule extends DLInstance
 
 	public List<DLType> getDefinedTypes();
 
+	// TYPES
 	public boolean addDefinedType(DLType type);
+	
+	public Optional<DLType> getDefinedType(String tpyeName);
 }

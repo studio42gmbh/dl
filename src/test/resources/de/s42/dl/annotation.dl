@@ -26,8 +26,8 @@
 
 type User @dynamic {
 	
-	String name @length(4, 120) : "Default";
-	UUID id @generateUUID @required @unique;
+	String name /*@length(4, 120)*/ : "Default";
+	UUID id /*@generateUUID*/ @required /*@unique*/;
 }
 
 User test1 @export {
@@ -53,4 +53,5 @@ User {
 
 User {
 	name: "John \"Rambo\" Doe 5";
+	id: "ad232384-4a04-4119-9e95-4753f31e3b07";
 }

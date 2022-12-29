@@ -92,4 +92,15 @@ public class DefaultDLModule extends DefaultDLInstance implements DLModule
 
 		return definedTypes.add(type);
 	}
+
+	@Override
+	public Optional<DLType> getDefinedType(String typeName)
+	{
+		return definedTypes
+			.stream()
+			.filter((filterType) -> {
+				return filterType.getName().equals(typeName);
+			})
+			.findFirst();
+	}
 }

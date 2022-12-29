@@ -25,15 +25,14 @@
 //</editor-fold>
 package de.s42.dl.types;
 
-import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
+import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.util.DLHelper;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
-import java.util.Arrays;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -43,7 +42,7 @@ import org.testng.annotations.Test;
  */
 public class ArrayDLTypeNGTest
 {
-	
+
 	private final static Logger log = LogManager.getLogger(ArrayDLTypeNGTest.class.getName());
 
 	public static enum State
@@ -54,29 +53,37 @@ public class ArrayDLTypeNGTest
 	@Test
 	public void validArrayOneElements() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type A { Array<A> data; } A test1; A test2 { data : $test1; }");
+		DefaultCore core = new DefaultCore();
+		core.parse("validArrayOneElements",
+			"type A { Array<A> data; } A test1; A test2 { data : $test1; }"
+		);
 	}
 
 	@Test
 	public void validArrayMultipleElements() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type A { Array<A> data; } A test1; A test2; A test3 { data : $test1, $test2; }");
+		DefaultCore core = new DefaultCore();
+		core.parse("validArrayMultipleElements",
+			"type A { Array<A> data; } A test1; A test2; A test3 { data : $test1, $test2; }"
+		);
 	}
 
-	@Test(expectedExceptions = InvalidType.class)
+	@Test(expectedExceptions = InvalidValue.class)
 	public void invalidArrayWrongElementType() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type A { Array<A> data; } type B; A test1; B test2; A test3 { data : $test1, $test2; }");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidArrayWrongElementType",
+			"type A { Array<A> data; } type B; A test1; B test2; A test3 { data : $test1, $test2; }"
+		);
 	}
 
 	@Test
 	public void validArrayWithGenericTypeString() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type A { Array<String> data; } A test @export { data : a, b, c; }");
+		DefaultCore core = new DefaultCore();
+		core.parse("validArrayWithGenericTypeString",
+			"type A { Array<String> data; } A test @export { data : a, b, c; }"
+		);
 		DLInstance instance = core.getExported("test").orElseThrow();
 		Assert.assertEquals(instance.get("data"), new String[]{"a", "b", "c"});
 	}
@@ -84,8 +91,10 @@ public class ArrayDLTypeNGTest
 	@Test
 	public void validArrayWithGenericTypeLong() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type A { Array<Long> data; } A test @export { data : 1, 2, 3; }");
+		DefaultCore core = new DefaultCore();
+		core.parse("validArrayWithGenericTypeLong",
+			"type A { Array<Long> data; } A test @export { data : 1, 2, 3; }"
+		);
 		DLInstance instance = core.getExported("test").orElseThrow();
 		Assert.assertEquals(instance.get("data"), new Long[]{1L, 2L, 3L});
 	}
@@ -94,8 +103,10 @@ public class ArrayDLTypeNGTest
 	@Test
 	public void validArrayWithGenericTypeInteger() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type A { Array<Integer> data; } A test @export { data : 1, 2, 3; }");
+		DefaultCore core = new DefaultCore();
+		core.parse("validArrayWithGenericTypeInteger",
+			"type A { Array<Integer> data; } A test @export { data : 1, 2, 3; }"
+		);
 		DLInstance instance = core.getExported("test").orElseThrow();
 		Assert.assertEquals(instance.get("data"), new Integer[]{1, 2, 3});
 	}
@@ -106,7 +117,9 @@ public class ArrayDLTypeNGTest
 		DefaultCore core = new DefaultCore();
 		core.defineType(core.createEnum(State.class), "State");
 		core.defineArrayType(State.class);
-		core.parse("Anonymous", "type A { Array<State> data; } A test @export { data : NEW, PROGRESS, NEW; }");
+		core.parse("validArrayWithGenericTypeEnum",
+			"type A { Array<State> data; } A test @export { data : NEW, PROGRESS, NEW; }"
+		);
 		DLInstance instance = core.getExported("test").orElseThrow();
 		Assert.assertEquals(instance.get("data"), new State[]{State.NEW, State.PROGRESS, State.NEW});
 	}
@@ -114,11 +127,15 @@ public class ArrayDLTypeNGTest
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidArrayWrongNumberOfGenericTypes() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { Array<Integer, Integer> data; }");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidArrayWrongNumberOfGenericTypes",
+			"type T { Array<Integer, Integer> data; }"
+		);
 	}
-	
-	public static class TestData {
+
+	public static class TestData
+	{
+
 		protected String name;
 		protected String[] data;
 
@@ -130,7 +147,7 @@ public class ArrayDLTypeNGTest
 		public void setData(String[] data)
 		{
 			this.data = data;
-		}		
+		}
 
 		public String getName()
 		{
@@ -142,23 +159,22 @@ public class ArrayDLTypeNGTest
 			this.name = name;
 		}
 	}
-		
+
 	@Test
 	public void serializeAndDeserializeArrayData() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
 		core.defineType(TestData.class);
-		
+
 		TestData t1 = new TestData();
-		t1.setData(new String[] {"A", "B", "C"});
+		t1.setData(new String[]{"A", "B", "C"});
 		t1.setName("t1");
-		
+
 		DLInstance t1Instance = core.convertFromJavaObject(t1);
-		
+
 		//log.warn(Arrays.toString((String[])t1Instance.get("data")));
-		
 		String t1Str = DLHelper.toString(t1Instance, true, 2);
-		
+
 		//log.warn(t1Str);
 	}
 }

@@ -740,7 +740,25 @@ public class BaseDLCore implements DLCore
 			this),
 			genericType.getJavaDataType().arrayType().getName());
 	}
+	
+	protected void attachAnnotations(Class typeClass, DLType type) throws DLException
+	{
+		//Attach single type annotation
+		if (typeClass.isAnnotationPresent(AnnotationDL.class)) {
+			AnnotationDL javaAnnotation = (AnnotationDL) typeClass.getAnnotation(AnnotationDL.class);
+			createAnnotation(javaAnnotation.value(), type, javaAnnotation.parameters());
+		}
 
+		// Attach multiple annotated annotations
+		if (typeClass.isAnnotationPresent(AnnotationDLContainer.class)) {
+			AnnotationDLContainer annotationContainer = (AnnotationDLContainer) typeClass.getAnnotation(AnnotationDLContainer.class);
+
+			for (AnnotationDL annotation : annotationContainer.value()) {
+				createAnnotation(annotation.value(), type, annotation.parameters());
+			}
+		}		
+	}
+	
 	@SuppressWarnings({"UseSpecificCatch", "null"})
 	@Override
 	public DLType createType(Class<?> typeClass) throws DLException
@@ -803,21 +821,9 @@ public class BaseDLCore implements DLCore
 			if (info.isFinal()) {
 				classType.setFinal(true);
 			}
-
-			//Attach single type annotation
-			if (typeClass.isAnnotationPresent(AnnotationDL.class)) {
-				AnnotationDL javaAnnotation = (AnnotationDL) typeClass.getAnnotation(AnnotationDL.class);
-				createAnnotation(javaAnnotation.value(), classType, javaAnnotation.parameters());
-			}
-
-			// Attach multiple annotated annotations
-			if (typeClass.isAnnotationPresent(AnnotationDLContainer.class)) {
-				AnnotationDLContainer annotationContainer = (AnnotationDLContainer) typeClass.getAnnotation(AnnotationDLContainer.class);
-
-				for (AnnotationDL annotation : annotationContainer.value()) {
-					createAnnotation(annotation.value(), classType, annotation.parameters());
-				}
-			}
+			
+			// Attach annotations
+			attachAnnotations(typeClass, classType);
 
 			// Map special java dl annotations
 			DLAnnotationHelper.createDLAnnotations(this, typeClass, classType);
@@ -856,8 +862,16 @@ public class BaseDLCore implements DLCore
 				else {
 					// Create specialized array type
 					if (attributeJavaType.isArray()) {
-
-						Optional<DLType> optType = getArrayType(attributeJavaType.getComponentType());
+						
+						// Special handling for arrays of type being just defined
+						Optional<DLType> optType;
+						if (attributeJavaType.getComponentType().equals(typeClass)) {
+							optType = getArrayType(classType);							
+						}
+						// Support other array types -> the component type has to be already defined
+						else {
+							optType = getArrayType(attributeJavaType.getComponentType());
+						}
 
 						if (optType.isEmpty()) {
 							log.info("Ignoring attribute", attributeName, "as array type", attributeJavaType, "is unknown for type " + classType.getCanonicalName());
@@ -1049,14 +1063,28 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public Optional<DLType> getType(Class javaClass) throws DLException
+	public Optional<DLType> getType(Class javaClass)
 	{
 		assert javaClass != null;
+		
+		// Special handling for arrays -> Transform Java naming into Array<?> in DL
+		if (javaClass.isArray()) {
+			
+			Class componentType = javaClass.componentType();
+			
+			// Return ungeneric array for Object[]
+			if (componentType.equals(Object.class)) {
+				return getType(ArrayDLType.DEFAULT_SYMBOL);
+			}			
+			else {
+				return getArrayType(componentType);
+			}
+		}
 
 		return getType(javaClass.getName());
 	}
 
-	public Optional<DLType> getType(Class javaClass, List<Class> genericTypes) throws DLException
+	public Optional<DLType> getType(Class javaClass, List<Class> genericTypes)
 	{
 		assert javaClass != null;
 
@@ -1080,7 +1108,7 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public Optional<DLType> getType(String name) throws DLException
+	public Optional<DLType> getType(String name)
 	{
 		assert name != null;
 
@@ -1120,7 +1148,7 @@ public class BaseDLCore implements DLCore
 	}
 
 	// @todo Add support for nested generic types
-	protected List<DLType> getGenericsFromTypeName(String name) throws DLException
+	protected List<DLType> getGenericsFromTypeName(String name)
 	{
 		List<DLType> result = new ArrayList<>();
 
@@ -1132,7 +1160,7 @@ public class BaseDLCore implements DLCore
 		}
 
 		if (index2 <= index) {
-			throw new InvalidType("Type name " + name + " is invalid");
+			throw new RuntimeException("Type name " + name + " is invalid");
 		}
 
 		String[] genericTypeNames = name.substring(index + 1, index2).split("\\s*,\\s*");
@@ -1142,7 +1170,7 @@ public class BaseDLCore implements DLCore
 			Optional<DLType> optType = getType(genericTypeName);
 
 			if (optType.isEmpty()) {
-				throw new UndefinedType("Type " + genericTypeName + " is not defined");
+				throw new RuntimeException("Type " + genericTypeName + " is not defined");
 			}
 
 			result.add(optType.orElseThrow());
@@ -1173,7 +1201,7 @@ public class BaseDLCore implements DLCore
 		return genericName;
 	}
 
-	public Optional<DLType> getArrayType(Class genericJavaType) throws DLException
+	public Optional<DLType> getArrayType(Class genericJavaType)
 	{
 		assert genericJavaType != null;
 
@@ -1186,7 +1214,7 @@ public class BaseDLCore implements DLCore
 		return getArrayType(genericType.orElseThrow());
 	}
 
-	public Optional<DLType> getArrayType(DLType genericType) throws InvalidCore, InvalidType, UndefinedType
+	public Optional<DLType> getArrayType(DLType genericType)
 	{
 		assert genericType != null;
 
@@ -1194,7 +1222,7 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public Optional<DLType> getType(String name, List<DLType> genericTypes) throws InvalidCore, InvalidType, UndefinedType
+	public Optional<DLType> getType(String name, List<DLType> genericTypes)
 	{
 		assert name != null;
 		assert genericTypes != null;
@@ -1212,11 +1240,11 @@ public class BaseDLCore implements DLCore
 		}
 
 		if (genericTypes.isEmpty()) {
-			throw new UndefinedType("Type " + name + " is not defined");
+			return Optional.empty();
 		}
 
 		if (!allowDefineTypes) {
-			throw new InvalidCore("May not define types");
+			return Optional.empty();
 		}
 		
 		// add generic version
@@ -1225,17 +1253,21 @@ public class BaseDLCore implements DLCore
 		DLType type = optType.orElseThrow();
 				
 		if (!type.isAllowGenericTypes()) {
-			throw new InvalidType("May not define a generic subtype of the type " + type.getCanonicalName());
+			return Optional.empty();
 		}
 		
 		if (!(type instanceof DefaultDLType)) {
-			throw new InvalidType("Can not define a generic subtype of the type " + type.getCanonicalName() + " as it is not a DefaultDLType");
+			return Optional.empty();
 		}
 
 		// generate specific typed version
 		DefaultDLType specificType = ((DefaultDLType)type).copy();
 
-		specificType.addGenericTypes(genericTypes);
+		try {
+			specificType.addGenericTypes(genericTypes);
+		} catch (InvalidType ex) {
+			return Optional.empty();
+		}
 
 		specificType.setCore(this);
 

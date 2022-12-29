@@ -25,8 +25,8 @@
 //</editor-fold>
 package de.s42.dl.types;
 
-import de.s42.base.testing.AssertHelper;
-import de.s42.dl.DLCore;
+import de.s42.dl.DLAttribute.AttributeDL;
+import de.s42.dl.DLInstance;
 import de.s42.dl.DLModule;
 import de.s42.dl.DLType;
 import de.s42.dl.core.BaseDLCore;
@@ -37,11 +37,14 @@ import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.exceptions.InvalidInstance;
+import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.util.DLHelper;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
-import org.testng.Assert;
 import org.testng.annotations.Test;
+import static org.testng.Assert.*;
 
 /**
  *
@@ -74,28 +77,39 @@ public class DLTypesTest
 	 * @throws de.s42.dl.exceptions.DLException never thrown here
 	 */
 	@Test
-	public void validExternDLTypeDefinition() throws DLException
+	public void externDLTypeDefinition() throws DLException
 	{
 		BaseDLCore core = new BaseDLCore();
 		core.addResolver(new StringCoreResolver(core));
 		core.setAllowDefineTypes(true);
-		core.parse("validExternDLTypeDefinition", "extern type de.s42.dl.types.primitive.StringDLType;");
-		core.parse("validExternDLTypeDefinition2", "type T { de.s42.dl.types.primitive.StringDLType val; }");
-		core.parse("validExternDLTypeDefinition3", "type T2 { String val; }");
-	}
-
-	@Test(expectedExceptions = InvalidType.class)
-	public void invalidExternTypeDefined() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidExternTypeDefined", "extern type String;");
+		core.parse("externDLTypeDefinition",
+			"extern type de.s42.dl.types.primitive.StringDLType;"
+		);
+		core.parse("externDLTypeDefinition2",
+			"type T { de.s42.dl.types.primitive.StringDLType val; }"
+		);
+		core.parse("externDLTypeDefinition3",
+			"type T2 { String val; }"
+		);
 	}
 
 	@Test
-	public void validExternTypeDefinition() throws DLException
+	public void externTypeRedefined() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("validExternTypeDefinition", "extern type de.s42.dl.types.DLTypesTest$TestClass; de.s42.dl.types.DLTypesTest$TestClass t;");
+		DefaultCore core = new DefaultCore();
+		core.parse("externTypeRedefined",
+			"extern type String;"
+		);
+	}
+
+	@Test
+	public void externTypeDefinition() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		core.parse("externTypeDefinition",
+			"extern type de.s42.dl.types.DLTypesTest$TestClass; "
+			+ "de.s42.dl.types.DLTypesTest$TestClass t;"
+		);
 	}
 
 	/**
@@ -107,78 +121,100 @@ public class DLTypesTest
 	@Test(expectedExceptions = RuntimeException.class)
 	public void invalidExternTypeNoAbstractAllowed() throws DLException, RuntimeException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidExternTypeNoAbstractAllowed", "extern abstract type de.s42.dl.types.DLTypesTest$TestClass;");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidExternTypeNoAbstractAllowed",
+			"extern abstract type de.s42.dl.types.DLTypesTest$TestClass;"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidExternTypeNoBodyAllowed() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidExternTypeNoBodyAllowed", "extern type de.s42.dl.types.DLTypesTest$TestClass {}");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidExternTypeNoBodyAllowed",
+			"extern type de.s42.dl.types.DLTypesTest$TestClass {}"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidExternTypeNoExtendsAllowed() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidExternTypeNoExtendsAllowed", "extern type de.s42.dl.types.DLTypesTest$TestClass extends Object;");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidExternTypeNoExtendsAllowed",
+			"extern type de.s42.dl.types.DLTypesTest$TestClass extends Object;"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidExternTypeNoContainsAllowed() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidExternTypeNoContainsAllowed", "extern type de.s42.dl.types.DLTypesTest$TestClass contains Object;");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidExternTypeNoContainsAllowed",
+			"extern type de.s42.dl.types.DLTypesTest$TestClass contains Object;"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidAnnotation.class)
 	public void invalidExternTypeNoAnnotationAllowed() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidExternTypeNoAnnotationAllowed", "extern type de.s42.dl.types.DLTypesTest$TestClass @dynamic;");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidExternTypeNoAnnotationAllowed",
+			"extern type de.s42.dl.types.DLTypesTest$TestClass @dynamic;"
+		);
 	}
 
 	@Test(expectedExceptions = UndefinedType.class)
 	public void invalidTypeParentNotDefined() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidTypeParentNotDefined", "type T extends ParentType;");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidTypeParentNotDefined",
+			"type T extends ParentType;"
+		);
 	}
 
 	@Test
-	public void validFinalType() throws DLException
+	public void finalTypeDefined() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("validFinalType", "final type T;");
+		DefaultCore core = new DefaultCore();
+		core.parse("finalTypeDefined",
+			"final type T;"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidDeriveFinalType() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidDeriveFinalType", "final type T; type U extends T;");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidDeriveFinalType",
+			"final type T; type U extends T;"
+		);
 	}
 
 	@Test
-	public void validAbstractType() throws DLException
+	public void abstractTypeDefined() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("validAbstractType", "abstract type T;");
+		DefaultCore core = new DefaultCore();
+		core.parse("abstractTypeDefined",
+			"abstract type T;"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidInstance.class)
 	public void invalidInstantiateAbstractType() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidInstantiateAbstractType", "abstract type T; T test;");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidInstantiateAbstractType",
+			"abstract type T; T test;"
+		);
 	}
 
 	@Test
-	public void validTypeAnnotationDefined() throws DLException
+	public void typeWithAnnotationDefined() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("validTypeAnnotationDefined", "type T @dynamic;");
+		DefaultCore core = new DefaultCore();
+		core.parse("typeWithAnnotationDefined",
+			"type T @dynamic;"
+		);
 	}
 
 	@Test(expectedExceptions = UndefinedAnnotation.class)
@@ -187,76 +223,88 @@ public class DLTypesTest
 		BaseDLCore core = new BaseDLCore();
 		core.addResolver(new StringCoreResolver(core));
 		core.setAllowDefineTypes(true);
-		core.parse("invalidTypeAnnotationNotDefined", "type T @dynamic;");
+		core.parse("invalidTypeAnnotationNotDefined",
+			"type T @dynamic;"
+		);
 	}
 
 	@Test
-	public void validTypeAttributeTypeDefined() throws DLException
+	public void typeAttributeTypeDefined() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("validTypeAttributeTypeDefined", "type T { UUID id; }");
+		DefaultCore core = new DefaultCore();
+		core.parse("typeAttributeTypeDefined",
+			"type T { UUID id; }"
+		);
 	}
 
 	@Test(expectedExceptions = UndefinedType.class)
 	public void invalidTypeAttributeTypeNotDefined() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidTypeAttributeTypeNotDefined", "type T { A id; }");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidTypeAttributeTypeNotDefined",
+			"type T { A id; }"
+		);
 	}
 
 	// @todo https://github.com/studio42gmbh/dl/issues/12 raise exception when trying to assign into a complex type
-	@Test(expectedExceptions = InvalidType.class/*, enabled = false*/)
-	public void invalidComplexTypeAssigned() throws DLException
+	@Test(expectedExceptions = InvalidType.class)
+	public void invalidComplexTypeAssignedInModule() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidComplexTypeAssigned", "type A; type B { A value; } B test : Hallo;");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidComplexTypeAssignedInModule",
+			"type A; type B { A value; } B test : Hallo;"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidType.class)
-	public void invalidAbstractTypeAssigned() throws DLException
+	public void invalidAbstractTypeAssignedInModule() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidAbstractTypeAssigned", "abstract type A; A test : Hallo;");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidAbstractTypeAssignedInModule",
+			"abstract type A; A test : Hallo;"
+		);
+	}
+
+	@Test(expectedExceptions = InvalidValue.class)
+	public void invalidSimpleTypeAssigned() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidSimpleTypeAssigned",
+			"type A; A test2 : 1.34;"
+		);
 	}
 
 	@Test
-	public void validSimpleTypeAssigned() throws DLException
+	public void aliasType() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		DLModule module = core.parse("validSimpleTypeAssigned", "type A; A test : Hallo; A test2 : 1.34;");
-		Object value = module.get("test");
-		Double value2 = (Double) module.get("test2");
-		Assert.assertEquals(value, "Hallo");
-		AssertHelper.assertEpsilonEquals(value2, 1.34);
-	}
-
-	@Test
-	public void validAliasType() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("validAliasType", "type T alias U, V;");
+		DefaultCore core = new DefaultCore();
+		core.parse("aliasType",
+			"type T alias U, V;"
+		);
 		DLType typeU = core.getType("U").orElseThrow();
-		Assert.assertEquals(typeU.getName(), "T");
+		assertEquals(typeU.getName(), "T");
 		DLType typeV = core.getType("V").orElseThrow();
-		Assert.assertEquals(typeV.getName(), "T");
+		assertEquals(typeV.getName(), "T");
 	}
 
 	@Test
-	public void validExternAliasType() throws DLException
+	public void externAliasType() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("validExternAliasType", "extern type de.s42.dl.types.DLTypesTest$TestClass alias U, V;");
+		DefaultCore core = new DefaultCore();
+		core.parse("externAliasType",
+			"extern type de.s42.dl.types.DLTypesTest$TestClass alias U, V;"
+		);
 		DLType typeU = core.getType("U").orElseThrow();
-		Assert.assertEquals(typeU.getName(), "de.s42.dl.types.DLTypesTest$TestClass");
+		assertEquals(typeU.getName(), "de.s42.dl.types.DLTypesTest$TestClass");
 		DLType typeV = core.getType("V").orElseThrow();
-		Assert.assertEquals(typeV.getName(), "de.s42.dl.types.DLTypesTest$TestClass");
+		assertEquals(typeV.getName(), "de.s42.dl.types.DLTypesTest$TestClass");
 	}
 
 	@Test
-	public void validExtendParentsWithCombinedAttributes() throws DLException
+	public void extendParentsWithCombinedAttributes() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("validExtendParentsAttributeMoreSpecificType",
+		DefaultCore core = new DefaultCore();
+		core.parse("extendParentsWithCombinedAttributes",
 			"type A { int x; } "
 			+ "type B { float y; } "
 			+ "type C extends A, B { String z; float y @required; }"
@@ -264,21 +312,21 @@ public class DLTypesTest
 		//DLType C = core.getType("C").orElseThrow();
 		//log.warn(DLHelper.describe(C));
 	}
-	
+
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidTypeWith2SameNameAttributes() throws DLException
 	{
-		DLCore core = new DefaultCore();
+		DefaultCore core = new DefaultCore();
 		core.parse("invalidTypeWith2SameNameAttributes",
 			"type A { int x; float x; }"
 		);
 	}
-		
+
 	@Test
-	public void validExtendParentsAttributeMoreSpecificType() throws DLException
+	public void extendParentsAttributeMoreSpecificType() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("validExtendParentsAttributeMoreSpecificType",
+		DefaultCore core = new DefaultCore();
+		core.parse("extendParentsAttributeMoreSpecificType",
 			"type V; type U extends V; "
 			+ "type A { V x; } "
 			+ "type B extends A { U x; }"
@@ -288,7 +336,7 @@ public class DLTypesTest
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidExtendParentsAttributeLessSpecificType() throws DLException
 	{
-		DLCore core = new DefaultCore();
+		DefaultCore core = new DefaultCore();
 		core.parse("invalidExtendParentsAttributeLessSpecificType",
 			"type V; type U extends V;"
 			+ "type A { U x; } "
@@ -297,14 +345,16 @@ public class DLTypesTest
 	}
 
 	/**
-	 * This extension mainly supports interface implementation approaches where the interface just defines a getter and the impl then has a full property
-	 * @throws DLException 
+	 * This extension mainly supports interface implementation approaches where the interface just defines a getter and
+	 * the impl then has a full property
+	 *
+	 * @throws DLException
 	 */
 	@Test
-	public void validExtendParentsAttributeFromReadOnly() throws DLException
+	public void extendParentsAttributeFromReadOnly() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("validExtendParentsAttributeFromReadOnly",
+		DefaultCore core = new DefaultCore();
+		core.parse("extendParentsAttributeFromReadOnly",
 			"abstract type A { int x @readonly; } "
 			+ "type B extends A { int x; }"
 		);
@@ -313,7 +363,7 @@ public class DLTypesTest
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidExtendParentsAttributeToReadOnly() throws DLException
 	{
-		DLCore core = new DefaultCore();
+		DefaultCore core = new DefaultCore();
 		core.parse("invalidExtendParentsAttributeToReadOnly",
 			"type A { int x; } "
 			+ "type B extends A { int x @readonly; }"
@@ -321,10 +371,10 @@ public class DLTypesTest
 	}
 
 	@Test
-	public void validCompatibleParentTypeAttributesWithSameName() throws DLException
+	public void compatibleParentTypeAttributesWithSameName() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("validCompatibleParentTypeAttributesWithSameName",
+		DefaultCore core = new DefaultCore();
+		core.parse("compatibleParentTypeAttributesWithSameName",
 			"type A { int x @required @greater(y); int y;} "
 			+ "type B { int x @greater(y) @required; int y; int z; } "
 			+ "type C extends A, B;"
@@ -334,7 +384,7 @@ public class DLTypesTest
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidIncompatibleParentTypeAttributesWithSameNameDifferentAnnotations() throws DLException
 	{
-		DLCore core = new DefaultCore();
+		DefaultCore core = new DefaultCore();
 		core.parse("invalidIncompatibleParentTypeAttributesWithSameNameDifferentAnnotations",
 			"type A { int x @required @greater(y); } "
 			+ "type B { int x @greater(z) @required; } "
@@ -345,11 +395,68 @@ public class DLTypesTest
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidIncompatibleParentTypeAttributesWithSameNameDifferentTypes() throws DLException
 	{
-		DLCore core = new DefaultCore();
+		DefaultCore core = new DefaultCore();
 		core.parse("invalidIncompatibleParentTypeAttributesWithSameNameDifferentTypes",
 			"type A { int x; } "
 			+ "type B { String x; } "
 			+ "type C extends A, B;"
 		);
 	}
+	
+	public static class TestDefine
+	{
+		public Object[] objArrayVal;		
+		public String strVal;
+		public int intVal;
+		public long longVal;
+		public float floatVal;
+		public double doubleVal;
+		public boolean booleanVal;
+		public TestDefine refVal;
+		@AttributeDL(ignore = true)
+		public boolean ignoredVal;
+	}
+	
+	@Test
+	public void javaDefineAssignArray() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		DLType type = core.defineType(TestDefine.class, "TestDefine");
+		//log.warn(DLHelper.describe(type));
+		DLModule module = core.parse("testJavaDefineAssignArray",
+			"TestDefine tRef;"
+				+ "TestDefine t { "
+				+ "objArrayVal : 42, 1.23, true, \"Test\"; "
+				+ "strVal : \"Test\";"
+				+ "intVal : 42;"
+				+ "longVal : 420;"
+				+ "floatVal : 4.31;"
+				+ "doubleVal : 1.34;"
+				+ "booleanVal : true;"
+				+ "refVal : $tRef;"				
+				+ "}"
+		);
+		
+		DLInstance tRef = module.getChild("tRef").orElseThrow();
+		DLInstance t = module.getChild("t").orElseThrow();
+		
+		assertEquals((Object[])t.get("objArrayVal"), new Object[]{42L, 1.23, true, "Test"});
+		assertEquals(t.get("strVal"), "Test");
+		assertEquals(t.get("intVal"), 42);
+		assertEquals(t.get("longVal"), 420L);
+		assertEquals(t.get("floatVal"), 4.31f);
+		assertEquals(t.get("doubleVal"), 1.34);
+		assertEquals(t.get("booleanVal"), true);
+		assertEquals(t.get("refVal"), tRef);		
+	}
+	
+	@Test(expectedExceptions = InvalidAttribute.class)
+	public void invalidUseOfIgnoredValue() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		core.defineType(TestDefine.class, "TestDefine");
+		core.parse("testJavaDefineAssignArray",
+				"TestDefine t { ignoredVal : true; bla : true; }"
+		);
+	}	
 }

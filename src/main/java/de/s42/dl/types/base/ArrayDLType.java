@@ -34,7 +34,9 @@ import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.types.SimpleDLType;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidGenericParameters;
 import de.s42.dl.validation.ValidationResult;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -102,6 +104,8 @@ public class ArrayDLType extends SimpleDLType
 			} else if (List.class.isAssignableFrom(sources[0].getClass())) {
 
 				sources = ((List) sources[0]).toArray();
+			} else {
+				sources = Arrays.asList(sources[0]).toArray();
 			}
 		}
 
@@ -144,7 +148,11 @@ public class ArrayDLType extends SimpleDLType
 				// https://github.com/studio42gmbh/dl/issues/9 validate/convert types of contents if it has 1 generic type					
 				if (genericTypes.size() == 1) {
 
-					result[i] = ConversionHelper.convert(source, getArrayValueType());
+					try {
+						result[i] = ConversionHelper.convert(source, getArrayValueType());
+					} catch (RuntimeException ex) {
+						throw new InvalidType("Error converting source - " + ex.getMessage(), ex);
+					}
 				} // @improvement with multiple generic types can not be dealt with atm
 				else if (source != null && getJavaDataType().isAssignableFrom(source.getClass())) {
 					throw new InvalidType("Source '" + source + "' is not contained in genericTypes");
@@ -153,6 +161,25 @@ public class ArrayDLType extends SimpleDLType
 		}
 
 		return result;
+	}
+
+	public boolean isComponenTypeAssignableOf(DLType other)
+	{
+		// A non generic array can take any type of component
+		if (!isGenericType()) {
+			return true;
+		}
+		
+		return getComponentType().orElseThrow().isAssignableFrom(other);		
+	}
+	
+	public Optional<DLType> getComponentType() 
+	{
+		if (!isGenericType())  {
+			return Optional.empty();
+		}
+		
+		return Optional.of(getGenericTypes().get(0));
 	}
 
 	public Class getArrayValueType() throws InvalidType

@@ -257,6 +257,12 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	}
 
 	@Override
+	public boolean canRead()
+	{
+		return isSimpleType() && !isAbstract();
+	}
+
+	@Override
 	public Object read(Object... sources) throws InvalidValue, InvalidType
 	{
 		// abstract types cannot be read from
@@ -281,7 +287,10 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 				return source;
 			}
 
-			return sources[0].toString();
+			throw new InvalidValue(
+				"Type '" + getCanonicalName() + "' java type is '"
+				+ getJavaDataType().getName() + "' but the source is of java type '"
+				+ source.getClass().getName() + "'");
 		}
 
 		return sources;
@@ -812,10 +821,12 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 	public Class getJavaType()
 	{
+		// Return the given type
 		if (javaType != null) {
 			return javaType;
 		}
 
+		// If not try to get the parents given type - in order of inheritance
 		for (DLType parent : parents) {
 
 			Class parentJavaType = ((DefaultDLType) parent).getJavaType();
@@ -825,7 +836,9 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 			}
 		}
 
-		return Object.class;
+		// Default to DLInstance which means it can only accept instances
+		return DLInstance.class;
+		//return Object.class;
 	}
 
 	public void setJavaType(Class javaType)

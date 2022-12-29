@@ -78,11 +78,11 @@ public interface DLCore
 
 	public boolean hasType(Class javaType);
 
-	public Optional<DLType> getType(Class javaType) throws DLException;
+	public Optional<DLType> getType(Class javaType);
 
-	public Optional<DLType> getType(String name) throws DLException;
+	public Optional<DLType> getType(String name);
 
-	public Optional<DLType> getType(String name, List<DLType> genericTypes) throws DLException;
+	public Optional<DLType> getType(String name, List<DLType> genericTypes);
 
 	public List<DLType> getTypes();
 

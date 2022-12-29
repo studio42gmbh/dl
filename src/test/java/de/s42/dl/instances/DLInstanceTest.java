@@ -25,11 +25,13 @@
 //</editor-fold>
 package de.s42.dl.instances;
 
-import de.s42.dl.DLCore;
+import de.s42.dl.DLModule;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAttribute;
+import de.s42.dl.exceptions.InvalidValue;
 import org.testng.annotations.Test;
+import static org.testng.Assert.*;
 
 /**
  *
@@ -38,17 +40,33 @@ import org.testng.annotations.Test;
 public class DLInstanceTest
 {
 
-	@Test
-	public void validInstance() throws DLException
+	@Test(expectedExceptions = InvalidValue.class)
+	public void invalidAssignemntToSimpleInstance() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type A; A test : TEST;");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidAssignemntToSimpleInstance",
+			"type A; A test : TEST;"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidAttribute.class)
 	public void invalidDoubleAttributeAssignment() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type A; type B { A test; } B test2 { test: A{}; test : A{}; }");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidDoubleAttributeAssignment",
+			"type A; type B { A test; } B test2 { test: A{}; test : A{}; }"
+		);
+	}
+
+	@Test
+	public void simpleInstanceWithJavaBuildInstanceEquality() throws Exception
+	{
+		DefaultCore core = new DefaultCore();
+		DLModule module = core.parse("simpleInstanceWithJavaBuildInstanceEquality",
+			"type T { Integer x; } T t1 {}"
+		);
+
+		assertNotNull(module.getChild("t1").orElseThrow());
+		assertEquals(module.getChild("t1").orElseThrow().getName(), "t1");
 	}
 }

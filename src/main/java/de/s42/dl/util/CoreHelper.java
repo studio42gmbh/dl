@@ -127,11 +127,13 @@ public final class CoreHelper
 											+ " has no read method in java object " + typeInstanceClass.getName());
 									}
 
+									/*
 									if (!property.getPropertyClass().isPrimitive() && !attributeType.isAssignableFrom(property.getPropertyClass())) {
 										throw new RuntimeException("Attribute " + attributeName
 											+ " has an invalid read type in java object - is " + property.getPropertyClass().getName()
 											+ " but should be " + attributeType.getName());
 									}
+									*/
 								}
 
 								if (attribute.isWritable()) {
@@ -141,11 +143,13 @@ public final class CoreHelper
 											+ " has no write method in java object " + typeInstanceClass.getName());
 									}
 
+									/*
 									if (!property.getPropertyClass().isPrimitive() && !attributeType.isAssignableFrom(property.getPropertyClass())) {
 										throw new InvalidAttribute("Attribute " + attributeName
 											+ " has an invalid write type in java object - is " + property.getPropertyClass().getName()
 											+ " but should be " + attributeType.getName());
 									}
+									*/
 								}
 
 								validatedAttributes++;

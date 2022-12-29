@@ -33,6 +33,7 @@ import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.parser.DLHrfParsingException;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
@@ -96,7 +97,7 @@ public class DLEnumTest
 		core.parse("validUseEnumValueAsDefaultInType", "type UseEnum { Status status : New; }");
 	}
 
-	@Test(expectedExceptions = InvalidValue.class)
+	@Test(expectedExceptions = DLHrfParsingException.class)
 	public void invalidUseIncorrectEnumValueAsDefaultInType() throws DLException
 	{
 		DLCore core = new DefaultCore();

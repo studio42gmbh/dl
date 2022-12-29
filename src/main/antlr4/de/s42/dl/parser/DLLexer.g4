@@ -51,6 +51,7 @@ KEYWORD_FINAL :			'final' ;
 KEYWORD_PRAGMA :		'pragma' ;
 KEYWORD_DECLARE :		'declare' ;
 KEYWORD_ASSERT :		'assert' ;
+//KEYWORD_EXPORT :		'export' ;
 
 
 // RESERVED KEYWORDS (currently quite some - but this shall ensure future extensions to be intuitive and get pruned as DL evolves)

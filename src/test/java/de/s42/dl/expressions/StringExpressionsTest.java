@@ -47,7 +47,7 @@ public class StringExpressionsTest
 	{
 		DefaultCore core = new DefaultCore();
 		String fromJava = ((SimpleTypeDLInstance<String>) core.addExported("fromJava", "orange")).getData();
-		DLModule module = core.parse("Anonymous",
+		DLModule module = core.parse("validExpressionAddStrings",
 			"String t : apple; "
 			+ "String t3 : $t + \" \" + $fromJava ;");
 		Assert.assertEquals(module.getString("t3"), "apple" + " " + fromJava);
@@ -57,6 +57,8 @@ public class StringExpressionsTest
 	public void invalidExpressionNegateString() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "String t : apple; Object t2 : -$t;");
+		core.parse("invalidExpressionNegateString",
+			"String t : apple; Object t2 : -$t;"
+		);
 	}
 }

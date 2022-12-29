@@ -67,21 +67,21 @@ public class DeclareTypesTest
 	@Test
 	public void validDeclarationAfterDefinition() throws DLException
 	{
-		DLCore core = new DefaultCore();
+		DefaultCore core = new DefaultCore();
 		core.parse("validDeclaration", "type T { int x; } declare type T;");
 	}
 	
 	@Test
 	public void validDeclarationAndDefinition() throws DLException
 	{
-		DLCore core = new DefaultCore();
+		DefaultCore core = new DefaultCore();
 		core.parse("validDeclarationAndDefinition", "declare type T; type T { int x; } T t { x : 42; }");
 	}
 
 	@Test
 	public void validDependentDeclarationAndDefinition() throws DLException
 	{
-		DLCore core = new DefaultCore();				
+		DefaultCore core = new DefaultCore();				
 		core.parse("validDependentDeclarationAndDefinition",
 			"declare type T;"
 			+ "declare type T2;"
