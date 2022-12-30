@@ -91,14 +91,15 @@ public class DefaultCore extends BaseDLCore
 			addResolver(new StringCoreResolver(this));
 
 			// Define basic annotations
-			defineAnnotationFactory(new ContainDLAnnotation(), ContainDLAnnotation.contain.class.getSimpleName());
-			defineAnnotationFactory(new DontPersistDLAnnotation(), DontPersistDLAnnotation.dontPersist.class.getSimpleName());
-			defineAnnotationFactory(new DynamicDLAnnotation(), DynamicDLAnnotation.dynamic.class.getSimpleName());
 			defineAnnotationFactory(new JavaDLAnnotation(), JavaDLAnnotation.DEFAULT_SYMBOL);
 			defineAnnotationFactory(new RequiredDLAnnotation(), RequiredDLAnnotation.required.class.getSimpleName());
-			defineAnnotationFactory(new NoGenericsDLAnnotation(), NoGenericsDLAnnotation.noGenerics.class.getSimpleName());
 			defineAnnotationFactory(new ReadOnlyDLAnnotation(), ReadOnlyDLAnnotation.readonly.class.getSimpleName());
 			defineAnnotationFactory(new WriteOnlyDLAnnotation(), WriteOnlyDLAnnotation.writeonly.class.getSimpleName());
+			
+			defineAnnotationFactory(new DontPersistDLAnnotation(), DontPersistDLAnnotation.dontPersist.class.getSimpleName());
+			defineAnnotationFactory(new DynamicDLAnnotation(), DynamicDLAnnotation.dynamic.class.getSimpleName());
+			defineAnnotationFactory(new NoGenericsDLAnnotation(), NoGenericsDLAnnotation.noGenerics.class.getSimpleName());
+			defineAnnotationFactory(new ContainDLAnnotation(), ContainDLAnnotation.contain.class.getSimpleName());
 
 			// File annotations
 			defineAnnotationFactory(new IsFileDLAnnotation(), IsFileDLAnnotation.isFile.class.getSimpleName());
@@ -142,43 +143,6 @@ public class DefaultCore extends BaseDLCore
 				ObjectDLType.class.getName()
 			);
 
-			// Base Types
-			defineType(new PathDLType(objectType),
-				"java.nio.file.Path",
-				"sun.nio.fs.WindowsPath",
-				PathDLType.class.getName()
-			);
-
-			defineType(new ClassDLType(objectType),
-				"java.lang.Class",
-				ClassDLType.class.getName()
-			);
-
-			defineType(new SymbolDLType(objectType),
-				SymbolDLType.class.getName());
-
-			defineType(new UUIDDLType(objectType),
-				"java.util.UUID",
-				"uuid",
-				UUIDDLType.class.getName());
-
-			defineType(new DateDLType(objectType),
-				"java.util.Date",
-				"java.sql.Timestamp",
-				DateDLType.class.getName());
-
-			defineType(new StringDLType(objectType),
-				"java.lang.String",
-				"string",
-				"str",
-				StringDLType.class.getName());
-
-			defineType(new CharDLType(objectType),
-				"java.lang.Character",
-				"Char",
-				"char",
-				CharDLType.class.getName());
-
 			// Number types
 			DefaultDLType numberType = (DefaultDLType) defineType(new NumberDLType(objectType),
 				"java.lang.Number",
@@ -220,6 +184,49 @@ public class DefaultCore extends BaseDLCore
 				"short",
 				ShortDLType.class.getName());
 
+			defineType(new CharDLType(objectType),
+				"java.lang.Character",
+				"Char",
+				"char",
+				CharDLType.class.getName());
+
+			defineType(new StringDLType(objectType),
+				"java.lang.String",
+				"string",
+				"str",
+				StringDLType.class.getName());
+			
+			// Base Types
+			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
+			defineType(new ArrayDLType(objectType),
+				"java.lang.Array",
+				ArrayDLType.class.getName()
+			);
+			
+			defineType(new PathDLType(objectType),
+				"java.nio.file.Path",
+				"sun.nio.fs.WindowsPath",
+				PathDLType.class.getName()
+			);
+
+			defineType(new ClassDLType(objectType),
+				"java.lang.Class",
+				ClassDLType.class.getName()
+			);
+
+			defineType(new SymbolDLType(objectType),
+				SymbolDLType.class.getName());
+
+			defineType(new UUIDDLType(objectType),
+				"java.util.UUID",
+				"uuid",
+				UUIDDLType.class.getName());
+
+			defineType(new DateDLType(objectType),
+				"java.util.Date",
+				"java.sql.Timestamp",
+				DateDLType.class.getName());
+						
 			// Base classes to types
 			defineType(DLEntity.class, "DLEntity");
 
@@ -236,13 +243,6 @@ public class DefaultCore extends BaseDLCore
 				"java.util.LinkedList",
 				"java.util.Collections$UnmodifiableList",
 				ListDLType.class.getName()
-			);
-
-			// Define Array types
-			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
-			defineType(new ArrayDLType(objectType),
-				"java.lang.Array",
-				ArrayDLType.class.getName()
 			);
 
 			// Define Map types https://github.com/studio42gmbh/dl/issues/11

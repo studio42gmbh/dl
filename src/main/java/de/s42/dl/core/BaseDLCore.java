@@ -302,6 +302,11 @@ public class BaseDLCore implements DLCore
 		}
 
 		annotationFactories.add(name, factory);
+		
+		// Always define its java class name as alias
+		if (!name.equals(factory.getClass().getName())) {
+			defineAliasForAnnotationFactory(factory.getClass().getName(), name);
+		}
 
 		for (String alias : aliases) {
 			defineAliasForAnnotationFactory(alias, name);

@@ -1,7 +1,32 @@
 /**
- * Basic types 
+ * This module defined the basic annotations, types, enums
  */
 
+// Basic Annotations
+extern annotation de.s42.dl.annotations.JavaDLAnnotation alias java;
+extern annotation de.s42.dl.annotations.RequiredDLAnnotation alias required;
+extern annotation de.s42.dl.annotations.ReadOnlyDLAnnotation alias readonly;
+extern annotation de.s42.dl.annotations.WriteOnlyDLAnnotation alias writeonly;
+
+// Primitive types
 extern type de.s42.dl.types.primitive.ObjectDLType alias java.lang.Object;
+extern type de.s42.dl.types.primitive.NumberDLType alias java.lang.Number;
 extern type de.s42.dl.types.primitive.IntegerDLType alias java.lang.Integer, int;
 extern type de.s42.dl.types.primitive.LongDLType alias java.lang.Long, long;
+extern type de.s42.dl.types.primitive.FloatDLType alias java.lang.Float, float;
+extern type de.s42.dl.types.primitive.DoubleDLType alias java.lang.Double, double;
+extern type de.s42.dl.types.primitive.BooleanDLType alias java.lang.Boolean, boolean, bool;
+extern type de.s42.dl.types.primitive.ShortDLType alias java.lang.Short, short;
+extern type de.s42.dl.types.primitive.ByteDLType alias java.lang.Byte, byte;
+extern type de.s42.dl.types.primitive.CharDLType alias java.lang.Character, Char, char;
+extern type de.s42.dl.types.primitive.StringDLType alias java.lang.String, string, str;
+
+// Base types
+extern type de.s42.dl.types.base.ArrayDLType;
+extern type de.s42.dl.types.base.PathDLType alias java.nio.file.Path, sun.nio.fs.WindowsPath;
+extern type de.s42.dl.types.base.ClassDLType alias java.lang.Class;
+extern type de.s42.dl.types.base.SymbolDLType;
+extern type de.s42.dl.types.base.UUIDDLType alias java.util.UUID, uuid;
+extern type de.s42.dl.types.base.DateDLType alias java.util.Date, java.sql.Timestamp;
+
+extern type de.s42.dl.DLEntity alias DLEntity;

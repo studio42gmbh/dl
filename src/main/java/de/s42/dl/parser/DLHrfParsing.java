@@ -601,35 +601,45 @@ public class DLHrfParsing extends DLParserBaseListener
 				throw new InvalidCore("Not allowed to define annotations in core");
 			}
 
-			//keyword extern found
+			// Keyword extern found optionally defined the external annotation
 			if (ctx.KEYWORD_EXTERN() != null) {
 
 				String annotationName = ctx.annotationDefinitionName().getText();
 
-				if (core.hasAnnotationFactory(annotationName)) {
-					throw new InvalidAnnotation(createErrorMessage(module, "Annotation '" + annotationName + "' is already defined", ctx));
-				}
-
 				try {
 
-					DLAnnotationFactory annotationFactory = ((Class<DLAnnotationFactory>) Class.forName(annotationName)).getConstructor().newInstance();
+					// Allow multiple extren declarations
+					if (!core.hasAnnotationFactory(annotationName)) {
 
-					// map the annotation as defined
-					core.defineAnnotationFactory(annotationFactory, annotationName);
+						// Assume the annotation factory is the given name
+						DLAnnotationFactory annotationFactory = ((Class<DLAnnotationFactory>) Class.forName(annotationName)).getConstructor().newInstance();
 
-					// Define aliases from type definition
-					if (ctx.aliases() != null) {
-						for (AliasNameContext aliasCtx : ctx.aliases().aliasName()) {
-							core.defineAliasForAnnotationFactory(aliasCtx.identifier().getText(), annotationName);
+						// map the annotation as defined
+						core.defineAnnotationFactory(annotationFactory, annotationName);
+
+						// Define aliases from type definition
+						if (ctx.aliases() != null) {
+							for (AliasNameContext aliasCtx : ctx.aliases().aliasName()) {
+								core.defineAliasForAnnotationFactory(aliasCtx.identifier().getText(), annotationName);
+							}
 						}
 					}
 
 				} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
-					throw new InvalidAnnotation(createErrorMessage(module, "Class not found for annotation '" + annotationName + "' - " + ex.getMessage(), ctx), ex);
+					throw new InvalidAnnotation(
+						createErrorMessage(
+							module,
+							"Class not found for annotation '" + annotationName + "' - " + ex.getMessage(),
+							ctx),
+						ex);
 				}
 
 			} else {
-				throw new InvalidAnnotation(createErrorMessage(module, "Annotations can not be defined internally yet", ctx));
+				throw new InvalidAnnotation(
+					createErrorMessage(
+						module,
+						"Annotations can not be defined internally yet",
+						ctx));
 			}
 
 			// @improvement define annotations internal - something like combining others with boolean like contracts?
