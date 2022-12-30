@@ -96,7 +96,7 @@ public class LibraryCoreResolver implements DLCoreResolver
 			
 			String libraryModuleId = resolveLibraryModule(moduleId);
 
-			log.debug("Parsing library resource " + libraryModuleId);
+			//log.debug("Parsing library resource " + libraryModuleId);
 
 			Optional<String> res = ResourceHelper.getResourceAsString(libraryModuleId);
 

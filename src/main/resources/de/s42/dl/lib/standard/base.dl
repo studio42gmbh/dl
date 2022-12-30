@@ -1,5 +1,5 @@
 /**
- * This module defined the basic annotations, types, enums
+ * This module defines the basic annotations, types, enums
  */
 
 // Basic Annotations
@@ -30,3 +30,7 @@ extern type de.s42.dl.types.base.UUIDDLType alias java.util.UUID, uuid;
 extern type de.s42.dl.types.base.DateDLType alias java.util.Date, java.sql.Timestamp;
 
 extern type de.s42.dl.DLEntity alias DLEntity;
+
+// Module information
+String description: "This module defines the basic annotations, types, enums";
+String version : "base-0.1.0-2022-12-30";

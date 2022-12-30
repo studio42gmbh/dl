@@ -794,7 +794,16 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	@Override
 	public String toString()
 	{
-		return getCanonicalName();
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append(getCanonicalName());
+		
+		/*for (DLAnnotation annotation : annotations) {
+			builder.append(" ");
+			builder.append(annotation.toString());
+		}*/
+		
+		return builder.toString();
 	}
 
 	@Override

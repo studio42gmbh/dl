@@ -642,10 +642,22 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	@Override
 	public String toString()
 	{
-		if (getType() != null) {
-			return getType().getCanonicalName() + " " + getName();
-		} else {
-			return "Instance " + getName();
+		StringBuilder builder = new StringBuilder();
+		
+		if (type != null) {
+			builder.append(type.getCanonicalName());
 		}
+		
+		if (name != null) {
+			builder.append(" ");
+			builder.append(name);
+		}
+		
+		/*for (DLAnnotation annotation : annotations) {
+			builder.append(" ");
+			builder.append(annotation.toString());
+		}*/
+		
+		return builder.toString();		
 	}
 }

@@ -212,13 +212,16 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 		StringBuilder builder = new StringBuilder();
 		
 		builder.append(type.getCanonicalName());
-		builder.append(" ");
-		builder.append(name);
 		
-		for (DLAnnotation annotation : annotations) {
+		if (name != null) {
+			builder.append(" ");
+			builder.append(name);
+		}
+		
+		/*for (DLAnnotation annotation : annotations) {
 			builder.append(" ");
 			builder.append(annotation.toString());
-		}
+		}*/
 		
 		return builder.toString();
 	}
