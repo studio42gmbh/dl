@@ -24,44 +24,35 @@
  */
 //</editor-fold>
 
-module de.sft.dl
+package de.s42.dl.instances.base;
+
+import de.s42.base.system.SystemHelper;
+import de.s42.dl.DL;
+
+/**
+ *
+ * @author Benjamin Schiller
+ */
+public class Environment 
 {
-	requires org.antlr.antlr4.runtime;
-	requires de.sft.log;
-	requires de.sft.base;
-	requires java.desktop;
-	requires java.compiler;
-	requires org.json;
-
-	exports de.s42.dl;
-	exports de.s42.dl.annotations;
-	exports de.s42.dl.annotations.files;
-	exports de.s42.dl.annotations.reflect;
-	exports de.s42.dl.attributes;
-	exports de.s42.dl.core;
-	exports de.s42.dl.core.resolvers;
-	exports de.s42.dl.exceptions;
-	exports de.s42.dl.instances;
-	exports de.s42.dl.instances.base;
-	exports de.s42.dl.io;
-	exports de.s42.dl.io.binary;
-	exports de.s42.dl.io.hrf;
-	exports de.s42.dl.io.json;
-	exports de.s42.dl.language;
-	exports de.s42.dl.parameters;
-	exports de.s42.dl.parser;
-	exports de.s42.dl.parser.expression;
-	exports de.s42.dl.parser2;
-	exports de.s42.dl.pragmas;
-	exports de.s42.dl.types;
-	exports de.s42.dl.types.primitive;
-	exports de.s42.dl.types.collections;
-	exports de.s42.dl.types.base;
-	exports de.s42.dl.types.dl;
-	exports de.s42.dl.util;
-	exports de.s42.dl.validation;
-
-	opens de.s42.dl.types;
-	opens de.s42.dl.lib.standard;
-	opens de.s42.dl;
+	
+	public Environment()
+	{
+		
+	}
+	
+	public String getDlVersion()
+	{
+		return DL.getVersion();
+	}
+	
+	public String getOs()
+	{
+		return SystemHelper.getOSName();
+	}
+	
+	public String getOsVersion()
+	{
+		return SystemHelper.getOSVersion();
+	}
 }

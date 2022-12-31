@@ -657,23 +657,25 @@ public class DLHrfParsing extends DLParserBaseListener
 				throw new InvalidCore(createErrorMessage(module, "Not allowed to define types in core", ctx));
 			}
 
-			String typeName = ctx.typeDefinitionName().getText();
+			TypeHeaderContext typeHeader = ctx.typeHeader();
+
+			String typeName = typeHeader.typeDefinitionName().getText();
 
 			// Declare a type
-			if (ctx.KEYWORD_DECLARE() != null) {
+			if (typeHeader.KEYWORD_DECLARE() != null) {
 
 				// Extension is not allowed for extern types
-				if (ctx.KEYWORD_EXTENDS() != null) {
+				if (typeHeader.KEYWORD_EXTENDS() != null) {
 					throw new InvalidType(createErrorMessage(module, "Declared type '" + typeName + "' may not extend other types", ctx));
 				}
 
 				// Containment is not allowed for extern types
-				if (ctx.KEYWORD_CONTAINS() != null) {
+				if (typeHeader.KEYWORD_CONTAINS() != null) {
 					throw new InvalidType(createErrorMessage(module, "Declared type '" + typeName + "' may not contain other types", ctx));
 				}
 
 				// Annotations are not allowed on extern types
-				if (!ctx.annotation().isEmpty()) {
+				if (!typeHeader.annotation().isEmpty()) {
 					throw new InvalidAnnotation(createErrorMessage(module, "Declared type '" + typeName + "' may not have annotations", ctx));
 				}
 
@@ -689,20 +691,20 @@ public class DLHrfParsing extends DLParserBaseListener
 					currentType = null;
 				}
 			} // Define an extern type
-			else if (ctx.KEYWORD_EXTERN() != null) {
+			else if (typeHeader.KEYWORD_EXTERN() != null) {
 
 				// Extension is not allowed for extern types
-				if (ctx.KEYWORD_EXTENDS() != null) {
+				if (typeHeader.KEYWORD_EXTENDS() != null) {
 					throw new InvalidType(createErrorMessage(module, "Extern type '" + typeName + "' may not extend other types", ctx));
 				}
 
 				// Containment is not allowed for extern types
-				if (ctx.KEYWORD_CONTAINS() != null) {
+				if (typeHeader.KEYWORD_CONTAINS() != null) {
 					throw new InvalidType(createErrorMessage(module, "Extern type '" + typeName + "' may not contain other types", ctx));
 				}
 
 				// Annotations are not allowed on extern types
-				if (!ctx.annotation().isEmpty()) {
+				if (!typeHeader.annotation().isEmpty()) {
 					throw new InvalidAnnotation(createErrorMessage(module, "Extern type '" + typeName + "' may not have annotations", ctx));
 				}
 
@@ -726,10 +728,26 @@ public class DLHrfParsing extends DLParserBaseListener
 							core.defineAliasForType(typeName, currentType);
 						}
 
-						// Define aliases from type definition
-						if (ctx.aliases() != null) {
-							for (AliasNameContext aliasCtx : ctx.aliases().aliasName()) {
-								core.defineAliasForType(aliasCtx.identifier().getText(), currentType);
+						// Optionally define aliases from type definition
+						Set<String> localAliases = new HashSet<>();
+						localAliases.add(typeName);
+						if (typeHeader.aliases() != null) {
+							for (AliasNameContext aliasCtx : typeHeader.aliases().aliasName()) {
+								String aliasTypeName = aliasCtx.identifier().getText();
+
+								// Prevent duplicate aliases in this definition
+								if (!localAliases.add(aliasTypeName)) {
+									throw new InvalidType(
+										createErrorMessage(
+											module,
+											"Alias name '" + aliasTypeName + "' is not unique", ctx));
+								}
+
+								// Optionally define the given aliases - allows to declare them multiple times
+								// @todo Might optionally check if the retrieved type is equal to this type for consistency edgecases
+								if (!core.hasType(aliasTypeName)) {
+									core.defineAliasForType(aliasTypeName, currentType);
+								}
 							}
 						}
 
@@ -760,15 +778,15 @@ public class DLHrfParsing extends DLParserBaseListener
 				}
 
 				// Make type abstract
-				if (ctx.KEYWORD_ABSTRACT() != null) {
+				if (typeHeader.KEYWORD_ABSTRACT() != null) {
 					currentType.setAbstract(true);
 				} // Make type final
-				else if (ctx.KEYWORD_FINAL() != null) {
+				else if (typeHeader.KEYWORD_FINAL() != null) {
 					currentType.setFinal(true);
 				}
 
 				// Map annotations
-				mapAnnotations(ctx.annotation(), (annotationName, parameters, aCtx) -> {
+				mapAnnotations(typeHeader.annotation(), (annotationName, parameters, aCtx) -> {
 					try {
 						core.createAnnotation(annotationName, currentType, parameters);
 					} catch (DLException ex) {
@@ -783,9 +801,9 @@ public class DLHrfParsing extends DLParserBaseListener
 				});
 
 				// Extends - set parents
-				if (ctx.parentTypeName() != null) {
+				if (typeHeader.parentTypeName() != null) {
 
-					for (ParentTypeNameContext pCtx : ctx.parentTypeName()) {
+					for (ParentTypeNameContext pCtx : typeHeader.parentTypeName()) {
 
 						String parentTypeName = pCtx.getText();
 
@@ -812,9 +830,9 @@ public class DLHrfParsing extends DLParserBaseListener
 				}
 
 				// Contains - set contained types
-				if (ctx.containsTypeName() != null) {
+				if (typeHeader.containsTypeName() != null) {
 
-					for (ContainsTypeNameContext pCtx : ctx.containsTypeName()) {
+					for (ContainsTypeNameContext pCtx : typeHeader.containsTypeName()) {
 
 						String containsTypeName = pCtx.getText();
 
@@ -832,8 +850,8 @@ public class DLHrfParsing extends DLParserBaseListener
 				}
 
 				// Define aliases from type definition
-				if (ctx.aliases() != null) {
-					for (AliasNameContext aliasCtx : ctx.aliases().aliasName()) {
+				if (typeHeader.aliases() != null) {
+					for (AliasNameContext aliasCtx : typeHeader.aliases().aliasName()) {
 						core.defineAliasForType(aliasCtx.identifier().getText(), currentType);
 					}
 				}
@@ -844,7 +862,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	public void exitTypeDefinition(TypeDefinitionContext ctx)
+	public void exitTypeDefinition(TypeDefinitionContext ctx
+	)
 	{
 		if (currentType != null) {
 			try {
@@ -868,7 +887,8 @@ public class DLHrfParsing extends DLParserBaseListener
 
 	// @todo https://github.com/studio42gmbh/dl/issues/28 DLHrfParsing Allow multiple value and expression assignment as default values in type attribute definition
 	@Override
-	public void enterTypeAttributeDefinition(TypeAttributeDefinitionContext ctx)
+	public void enterTypeAttributeDefinition(TypeAttributeDefinitionContext ctx
+	)
 	{
 		try {
 			String typeName = ctx.typeAttributeDefinitionType().typeIdentifier().getText();
@@ -963,7 +983,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	public void exitTypeAttributeDefinition(TypeAttributeDefinitionContext ctx)
+	public void exitTypeAttributeDefinition(TypeAttributeDefinitionContext ctx
+	)
 	{
 		if (dlInstanceAssignAttribute != null) {
 			dlInstanceAssignAttribute.setDefaultValue(lastInstance);
@@ -973,14 +994,16 @@ public class DLHrfParsing extends DLParserBaseListener
 
 	// @todo https://github.com/studio42gmbh/dl/issues/17 DLHrfParsing improve, refactor and cleanup enterAttributeAssignment
 	@Override
-	public void enterAttributeAssignment(AttributeAssignmentContext ctx)
+	public void enterAttributeAssignment(AttributeAssignmentContext ctx
+	)
 	{
 		currentAttributeAssignmentInstances.push(currentInstance);
 		currentAttributeAssignmentList.push(new ArrayList<>(Math.max(MIN_ASSIGNABLE_CAPACITY, ctx.attributeAssignable().size())));
 	}
 
 	@Override
-	public void exitAttributeAssignable(AttributeAssignableContext ctx)
+	public void exitAttributeAssignable(AttributeAssignableContext ctx
+	)
 	{
 		List assignables = currentAttributeAssignmentList.peek();
 
@@ -1022,7 +1045,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	public void exitAttributeAssignment(AttributeAssignmentContext ctx)
+	public void exitAttributeAssignment(AttributeAssignmentContext ctx
+	)
 	{
 		// Used for tracking nested attribute instance assignments in instance definition
 		currentAttributeAssignmentInstances.pop();
@@ -1177,7 +1201,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	/**
-	 * This method will parse the given data string as DL HRF return a freshly created module with the given moduleId as
+	 * This method will parse the given data string as DL HRF return a freshly created module with the given
+	 * moduleId as
 	 * name
 	 *
 	 * @param core

@@ -43,10 +43,9 @@ import java.util.Optional;
  */
 public class LibraryCoreResolver implements DLCoreResolver
 {
-	
+
 	public final static String LIB_PREFIX = "dl:";
 	public final static String LIB_BASE_PATH = "de/s42/dl/lib/";
-	
 
 	private final static Logger log = LogManager.getLogger(LibraryCoreResolver.class.getName());
 
@@ -59,19 +58,39 @@ public class LibraryCoreResolver implements DLCoreResolver
 		this.core = core;
 	}
 
+	public String getContent(String moduleId) throws InvalidModule, IOException
+	{
+		String libraryModule = resolveModule(moduleId);
+
+		Optional<String> res = ResourceHelper.getResourceAsString(libraryModule);
+
+		if (res.isEmpty()) {
+			throw new InvalidModule("Resource " + libraryModule + " could not be loaded");
+		}
+
+		return res.orElseThrow();
+	}
+
+	public String resolveModule(String moduleId)
+	{
+		assert moduleId != null;
+
+		return moduleId.replace(LIB_PREFIX, LIB_BASE_PATH);
+	}
+
 	@Override
 	public boolean canParse(String moduleId)
 	{
 		assert moduleId != null;
-		
+
 		// Just parse if prefix is given
 		if (!moduleId.startsWith(LIB_PREFIX)) {
 			return false;
 		}
-		
-		String libraryModuleId = resolveLibraryModule(moduleId);
-		
-		return ResourceHelper.hasResource(libraryModuleId);
+
+		String libraryModule = resolveModule(moduleId);
+
+		return ResourceHelper.hasResource(libraryModule);
 	}
 
 	@Override
@@ -79,32 +98,17 @@ public class LibraryCoreResolver implements DLCoreResolver
 	{
 		return false;
 	}
-	
-	protected String resolveLibraryModule(String moduleId)
-	{
-		assert moduleId != null;
-		
-		return moduleId.replace(LIB_PREFIX, LIB_BASE_PATH);
-	}
 
 	@Override
 	public DLModule parse(String moduleId) throws DLException
 	{
 		assert moduleId != null;
-		
+
 		try {
-			
-			String libraryModuleId = resolveLibraryModule(moduleId);
 
-			//log.debug("Parsing library resource " + libraryModuleId);
+			String content = getContent(moduleId);
 
-			Optional<String> res = ResourceHelper.getResourceAsString(libraryModuleId);
-
-			if (res.isEmpty()) {
-				throw new InvalidModule("Resource " + libraryModuleId + " could not be loaded");
-			}
-
-			return DLHrfParsing.parse(core, moduleId, res.get());
+			return DLHrfParsing.parse(core, moduleId, content);
 		} catch (IOException ex) {
 			throw new InvalidModule("Error loading module from resource - " + ex.getMessage(), ex);
 		}

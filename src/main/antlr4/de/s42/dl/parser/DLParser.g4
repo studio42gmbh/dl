@@ -145,15 +145,17 @@ annotationDefinitionName : identifier ;
 // TYPE DEFINITION
 
 typeDefinition : 
-	( KEYWORD_DECLARE | KEYWORD_EXTERN | KEYWORD_FINAL | KEYWORD_ABSTRACT )?
+	typeHeader
+	( typeBody | SEMI_COLON ) ;
+
+typeHeader : 	
+    ( KEYWORD_DECLARE | KEYWORD_EXTERN | KEYWORD_FINAL | KEYWORD_ABSTRACT )?
 	KEYWORD_TYPE 
 	typeDefinitionName 
 	annotation* 
 	( KEYWORD_EXTENDS parentTypeName ( COMMA parentTypeName )* )?
 	( KEYWORD_CONTAINS containsTypeName ( COMMA containsTypeName )* )?
-	aliases?
-	( typeBody | SEMI_COLON ) ;
-
+	aliases? ;
 typeDefinitionName : identifier;
 parentTypeName : identifier ;
 containsTypeName : identifier ;

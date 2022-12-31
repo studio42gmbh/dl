@@ -59,6 +59,29 @@ public class FileCoreResolver implements DLCoreResolver
 
 		this.core = core;
 	}
+	
+	protected Path resolveModule(String moduleId)
+	{
+		assert moduleId != null;
+		
+		Path filePath = Path.of(moduleId);
+		Path basePath = core.getBasePath();
+		Path modulePath;
+
+		if (basePath != null) {
+			modulePath = basePath.resolve(filePath).normalize().toAbsolutePath();
+		} else {
+			modulePath = filePath.normalize().toAbsolutePath();
+		}
+		
+		return modulePath;
+	}
+
+	public String getContent(String moduleId) throws InvalidModule, IOException
+	{
+
+		return FilesHelper.getFileAsString(resolveModule(moduleId));
+	}
 
 	@Override
 	public boolean canParse(String moduleId)
@@ -66,8 +89,8 @@ public class FileCoreResolver implements DLCoreResolver
 		if (moduleId == null) {
 			return false;
 		}
-		
-		return Files.isRegularFile(Path.of(moduleId));
+
+		return Files.isRegularFile(resolveModule(moduleId));
 	}
 
 	@Override
@@ -80,18 +103,10 @@ public class FileCoreResolver implements DLCoreResolver
 	public DLModule parse(String moduleId) throws DLException
 	{
 		assert moduleId != null;
-		
+
 		try {
 
-			Path filePath = Path.of(moduleId);
-			Path basePath = core.getBasePath();
-			Path modulePath;
-
-			if (basePath != null) {
-				modulePath = basePath.resolve(filePath).normalize().toAbsolutePath();
-			} else {
-				modulePath = filePath.normalize().toAbsolutePath();
-			}
+			Path modulePath = resolveModule(moduleId);
 
 			DLFileType fileType = recognizeFileType(modulePath);
 

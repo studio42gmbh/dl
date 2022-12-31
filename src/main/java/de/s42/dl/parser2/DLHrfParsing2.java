@@ -60,7 +60,7 @@ public class DLHrfParsing2 extends DLParserBaseListener
 	@Override
 	public void enterTypeDefinition(DLParser.TypeDefinitionContext ctx)
 	{
-		log.debug("enterTypeDefinition", ctx.typeDefinitionName().getText());
+		log.debug("enterTypeDefinition", ctx.typeHeader().typeDefinitionName().getText());
 	}
 	
 	
@@ -68,7 +68,7 @@ public class DLHrfParsing2 extends DLParserBaseListener
 	@Override
 	public void exitTypeDefinition(DLParser.TypeDefinitionContext ctx)
 	{
-		log.debug("exitTypeDefinition", ctx.typeDefinitionName().getText());
+		log.debug("exitTypeDefinition", ctx.typeHeader().typeDefinitionName().getText());
 	}
 	
 	public static DLModule parse(DLCore core, String moduleId, String data) throws DLException

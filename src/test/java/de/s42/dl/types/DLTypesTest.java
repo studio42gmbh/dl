@@ -40,7 +40,6 @@ import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidValue;
-import de.s42.dl.util.DLHelper;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import org.testng.annotations.Test;
@@ -402,10 +401,11 @@ public class DLTypesTest
 			+ "type C extends A, B;"
 		);
 	}
-	
+
 	public static class TestDefine
 	{
-		public Object[] objArrayVal;		
+
+		public Object[] objArrayVal;
 		public String strVal;
 		public int intVal;
 		public long longVal;
@@ -416,7 +416,7 @@ public class DLTypesTest
 		@AttributeDL(ignore = true)
 		public boolean ignoredVal;
 	}
-	
+
 	@Test
 	public void javaDefineAssignArray() throws DLException
 	{
@@ -425,38 +425,56 @@ public class DLTypesTest
 		//log.warn(DLHelper.describe(type));
 		DLModule module = core.parse("testJavaDefineAssignArray",
 			"TestDefine tRef;"
-				+ "TestDefine t { "
-				+ "objArrayVal : 42, 1.23, true, \"Test\"; "
-				+ "strVal : \"Test\";"
-				+ "intVal : 42;"
-				+ "longVal : 420;"
-				+ "floatVal : 4.31;"
-				+ "doubleVal : 1.34;"
-				+ "booleanVal : true;"
-				+ "refVal : $tRef;"				
-				+ "}"
+			+ "TestDefine t { "
+			+ "objArrayVal : 42, 1.23, true, \"Test\"; "
+			+ "strVal : \"Test\";"
+			+ "intVal : 42;"
+			+ "longVal : 420;"
+			+ "floatVal : 4.31;"
+			+ "doubleVal : 1.34;"
+			+ "booleanVal : true;"
+			+ "refVal : $tRef;"
+			+ "}"
 		);
-		
+
 		DLInstance tRef = module.getChild("tRef").orElseThrow();
 		DLInstance t = module.getChild("t").orElseThrow();
-		
-		assertEquals((Object[])t.get("objArrayVal"), new Object[]{42L, 1.23, true, "Test"});
+
+		assertEquals((Object[]) t.get("objArrayVal"), new Object[]{42L, 1.23, true, "Test"});
 		assertEquals(t.get("strVal"), "Test");
 		assertEquals(t.get("intVal"), 42);
 		assertEquals(t.get("longVal"), 420L);
 		assertEquals(t.get("floatVal"), 4.31f);
 		assertEquals(t.get("doubleVal"), 1.34);
 		assertEquals(t.get("booleanVal"), true);
-		assertEquals(t.get("refVal"), tRef);		
+		assertEquals(t.get("refVal"), tRef);
 	}
-	
+
 	@Test(expectedExceptions = InvalidAttribute.class)
 	public void invalidUseOfIgnoredValue() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
 		core.defineType(TestDefine.class, "TestDefine");
 		core.parse("testJavaDefineAssignArray",
-				"TestDefine t { ignoredVal : true; bla : true; }"
+			"TestDefine t { ignoredVal : true; bla : true; }"
 		);
-	}	
+	}
+	
+	@Test
+	public void aliasRedefineExternTypeAndAliases() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		core.parse("aliasRedefineTypeAndAliases",
+			"extern type de.s42.dl.types.primitive.StringDLType alias java.lang.String, String, string, str;"
+		);
+	}
+	
+	@Test
+	public void invalidAliasRedefineExternTypeAndAliasesLocalDuplicate() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		core.parse("aliasRedefineTypeAndAliases",
+			"extern type de.s42.dl.types.primitive.StringDLType alias java.lang.String, String, String, string, str;"
+		);
+	}
 }

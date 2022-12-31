@@ -25,7 +25,6 @@
 //</editor-fold>
 package de.s42.dl.core;
 
-import de.s42.base.system.SystemHelper;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLEntity;
 import de.s42.dl.DLType;
@@ -39,6 +38,7 @@ import de.s42.dl.core.resolvers.LibraryCoreResolver;
 import de.s42.dl.core.resolvers.ResourceCoreResolver;
 import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.instances.base.Environment;
 import de.s42.dl.pragmas.*;
 import de.s42.dl.types.*;
 import de.s42.dl.types.base.ArrayDLType;
@@ -84,201 +84,237 @@ public class DefaultCore extends BaseDLCore
 	{
 		try {
 
-			// Add file and resource resolver
-			addResolver(new LibraryCoreResolver(this));
-			addResolver(new FileCoreResolver(this));
-			addResolver(new ResourceCoreResolver(this));
-			addResolver(new StringCoreResolver(this));
+			loadResolvers(this);
 
-			// Define basic annotations
-			defineAnnotationFactory(new JavaDLAnnotation(), JavaDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new RequiredDLAnnotation(), RequiredDLAnnotation.required.class.getSimpleName());
-			defineAnnotationFactory(new ReadOnlyDLAnnotation(), ReadOnlyDLAnnotation.readonly.class.getSimpleName());
-			defineAnnotationFactory(new WriteOnlyDLAnnotation(), WriteOnlyDLAnnotation.writeonly.class.getSimpleName());
-			
-			defineAnnotationFactory(new DontPersistDLAnnotation(), DontPersistDLAnnotation.dontPersist.class.getSimpleName());
-			defineAnnotationFactory(new DynamicDLAnnotation(), DynamicDLAnnotation.dynamic.class.getSimpleName());
-			defineAnnotationFactory(new NoGenericsDLAnnotation(), NoGenericsDLAnnotation.noGenerics.class.getSimpleName());
-			defineAnnotationFactory(new ContainDLAnnotation(), ContainDLAnnotation.contain.class.getSimpleName());
+			loadAnnotations(this);
 
-			// File annotations
-			defineAnnotationFactory(new IsFileDLAnnotation(), IsFileDLAnnotation.isFile.class.getSimpleName());
-			defineAnnotationFactory(new IsDirectoryDLAnnotation(), IsDirectoryDLAnnotation.isDirectory.class.getSimpleName());
+			loadPragmas(this);
 
-			// Reflect annotations
-			defineAnnotationFactory(new TypeNameDLAnnotation(), TypeNameDLAnnotation.typeName.class.getSimpleName());
-			defineAnnotationFactory(new AttributeNamesDLAnnotation(), AttributeNamesDLAnnotation.attributeNames.class.getSimpleName());
+			loadTypes(this);
 
-			defineAnnotationFactory(new ContainOnlyDLAnnotation(), ContainOnlyDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new ContainOnceDLAnnotation(), ContainOnceDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new ExportDLAnnotation(), ExportDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new GenerateUUIDDLAnnotation(), GenerateUUIDDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new GenericDLAnnotation(), GenericDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new LengthDLAnnotation(), LengthDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new RangeDLAnnotation(), RangeDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new GreaterDLAnnotation(), GreaterDLAnnotation.greater.class.getSimpleName());
-			defineAnnotationFactory(new GreaterEqualDLAnnotation(), GreaterEqualDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new EqualDLAnnotation(), EqualDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new NotEqualDLAnnotation(), NotEqualDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new LesserEqualDLAnnotation(), LesserEqualDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new LesserDLAnnotation(), LesserDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new PreliminaryDLAnnotation(), PreliminaryDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new RequiredOrDLAnnotation(), RequiredOrDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new UniqueDLAnnotation(), UniqueDLAnnotation.DEFAULT_SYMBOL);
-			defineAnnotationFactory(new RegexDLAnnotation(), RegexDLAnnotation.DEFAULT_SYMBOL);
-
-			// Define basic pragmas
-			definePragma(new BasePathPragma());
-			definePragma(new DefinePragmaPragma());
-			definePragma(new DisableDefinePragmasPragma());
-			definePragma(new DisableUsePragmasPragma());
-			definePragma(new DisableDefineTypesPragma());
-			definePragma(new DisableDefineAnnotationsPragma());
-			definePragma(new DisableRequirePragma());
-			definePragma(new DisableUseAssertsPragma());
-
-			// Define basic simple types
-			DLType objectType = defineType(new ObjectDLType(),
-				"java.lang.Object",
-				ObjectDLType.class.getName()
-			);
-
-			// Number types
-			DefaultDLType numberType = (DefaultDLType) defineType(new NumberDLType(objectType),
-				"java.lang.Number",
-				NumberDLType.class.getName());
-
-			defineType(new DoubleDLType(numberType),
-				"java.lang.Double",
-				"double",
-				DoubleDLType.class.getName());
-
-			defineType(new FloatDLType(numberType),
-				"java.lang.Float",
-				"float",
-				FloatDLType.class.getName());
-
-			defineType(new IntegerDLType(numberType),
-				"java.lang.Integer",
-				"int",
-				IntegerDLType.class.getName());
-
-			defineType(new BooleanDLType(numberType),
-				"java.lang.Boolean",
-				"boolean",
-				"bool",
-				BooleanDLType.class.getName());
-
-			defineType(new LongDLType(numberType),
-				"java.lang.Long",
-				"long",
-				LongDLType.class.getName());
-
-			defineType(new ByteDLType(numberType),
-				"java.lang.Byte",
-				"byte",
-				ByteDLType.class.getName());
-
-			defineType(new ShortDLType(numberType),
-				"java.lang.Short",
-				"short",
-				ShortDLType.class.getName());
-
-			defineType(new CharDLType(objectType),
-				"java.lang.Character",
-				"Char",
-				"char",
-				CharDLType.class.getName());
-
-			defineType(new StringDLType(objectType),
-				"java.lang.String",
-				"string",
-				"str",
-				StringDLType.class.getName());
-			
-			// Base Types
-			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
-			defineType(new ArrayDLType(objectType),
-				"java.lang.Array",
-				ArrayDLType.class.getName()
-			);
-			
-			defineType(new PathDLType(objectType),
-				"java.nio.file.Path",
-				"sun.nio.fs.WindowsPath",
-				PathDLType.class.getName()
-			);
-
-			defineType(new ClassDLType(objectType),
-				"java.lang.Class",
-				ClassDLType.class.getName()
-			);
-
-			defineType(new SymbolDLType(objectType),
-				SymbolDLType.class.getName());
-
-			defineType(new UUIDDLType(objectType),
-				"java.util.UUID",
-				"uuid",
-				UUIDDLType.class.getName());
-
-			defineType(new DateDLType(objectType),
-				"java.util.Date",
-				"java.sql.Timestamp",
-				DateDLType.class.getName());
-						
-			// Base classes to types
-			defineType(DLEntity.class, "DLEntity");
-
-			// Define log types
-			defineType(LogLevel.class);
-			defineType(Logger.class);
-			defineType(LogManager.class);
-
-			// Define List types https://github.com/studio42gmbh/dl/issues/10
-			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
-			defineType(new ListDLType(objectType),
-				"java.util.List",
-				"java.util.ArrayList",
-				"java.util.LinkedList",
-				"java.util.Collections$UnmodifiableList",
-				ListDLType.class.getName()
-			);
-
-			// Define Map types https://github.com/studio42gmbh/dl/issues/11
-			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
-			defineType(new MapDLType(objectType),
-				"java.util.Map",
-				"java.util.HashMap",
-				"java.util.Collections$UnmodifiableMap",
-				"de.s42.base.collections.MapHelper$MapN",
-				"java.util.Collections$CheckedMap",
-				MapDLType.class.getName()
-			);
-
-			// Define Set types https://github.com/studio42gmbh/dl/issues/24
-			// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
-			defineType(new SetDLType(objectType),
-				"java.util.Set",
-				"java.util.HashSet",
-				"java.util.Collections$UnmodifiableSet",
-				"java.util.ImmutableCollections$SetN",
-				SetDLType.class.getName());
-
-			// Define type Core and map $core with this
-			CoreDLType coreType = (CoreDLType) defineType(new CoreDLType(),
-				"Core",
-				DLCore.class.getName(),
-				DefaultCore.class.getName(),
-				CoreDLType.class.getName()
-			);
-			addExported(new CoreDLInstance(this, coreType));
-			
-			// Define basic exports
-			addExported("OS", SystemHelper.getOSName());
+			loadExports(this);
 
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+
+	public static void loadExports(BaseDLCore core) throws DLException
+	{
+		assert core != null;
+
+		// Define type Core and map $core with this
+		CoreDLType coreType = (CoreDLType) core.defineType(new CoreDLType(),
+			"Core",
+			DLCore.class.getName(),
+			DefaultCore.class.getName(),
+			CoreDLType.class.getName()
+		);
+		core.addExported(new CoreDLInstance(core, coreType));
+
+		// Define type for Environment and map an instance in $env
+		core.defineType(Environment.class);
+		core.addExported("env", new Environment());
+	}
+
+	public static void loadResolvers(BaseDLCore core)
+	{
+		assert core != null;
+
+		// Add file and resource resolver
+		core.addResolver(new LibraryCoreResolver(core));
+		core.addResolver(new FileCoreResolver(core));
+		core.addResolver(new ResourceCoreResolver(core));
+		core.addResolver(new StringCoreResolver(core));
+	}
+
+	public static void loadAnnotations(DLCore core) throws DLException
+	{
+		assert core != null;
+
+		// Define basic annotations
+		core.defineAnnotationFactory(new JavaDLAnnotation(), JavaDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new RequiredDLAnnotation(), RequiredDLAnnotation.required.class.getSimpleName());
+		core.defineAnnotationFactory(new ReadOnlyDLAnnotation(), ReadOnlyDLAnnotation.readonly.class.getSimpleName());
+		core.defineAnnotationFactory(new WriteOnlyDLAnnotation(), WriteOnlyDLAnnotation.writeonly.class.getSimpleName());
+
+		core.defineAnnotationFactory(new DontPersistDLAnnotation(), DontPersistDLAnnotation.dontPersist.class.getSimpleName());
+		core.defineAnnotationFactory(new DynamicDLAnnotation(), DynamicDLAnnotation.dynamic.class.getSimpleName());
+		core.defineAnnotationFactory(new NoGenericsDLAnnotation(), NoGenericsDLAnnotation.noGenerics.class.getSimpleName());
+		core.defineAnnotationFactory(new ContainDLAnnotation(), ContainDLAnnotation.contain.class.getSimpleName());
+
+		// File annotations
+		core.defineAnnotationFactory(new IsFileDLAnnotation(), IsFileDLAnnotation.isFile.class.getSimpleName());
+		core.defineAnnotationFactory(new IsDirectoryDLAnnotation(), IsDirectoryDLAnnotation.isDirectory.class.getSimpleName());
+
+		// Reflect annotations
+		core.defineAnnotationFactory(new TypeNameDLAnnotation(), TypeNameDLAnnotation.typeName.class.getSimpleName());
+		core.defineAnnotationFactory(new AttributeNamesDLAnnotation(), AttributeNamesDLAnnotation.attributeNames.class.getSimpleName());
+
+		core.defineAnnotationFactory(new ContainOnlyDLAnnotation(), ContainOnlyDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new ContainOnceDLAnnotation(), ContainOnceDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new ExportDLAnnotation(), ExportDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new GenerateUUIDDLAnnotation(), GenerateUUIDDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new GenericDLAnnotation(), GenericDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new LengthDLAnnotation(), LengthDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new RangeDLAnnotation(), RangeDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new GreaterDLAnnotation(), GreaterDLAnnotation.greater.class.getSimpleName());
+		core.defineAnnotationFactory(new GreaterEqualDLAnnotation(), GreaterEqualDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new EqualDLAnnotation(), EqualDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new NotEqualDLAnnotation(), NotEqualDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new LesserEqualDLAnnotation(), LesserEqualDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new LesserDLAnnotation(), LesserDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new PreliminaryDLAnnotation(), PreliminaryDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new RequiredOrDLAnnotation(), RequiredOrDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new UniqueDLAnnotation(), UniqueDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new RegexDLAnnotation(), RegexDLAnnotation.DEFAULT_SYMBOL);
+	}
+
+	public static void loadPragmas(DLCore core) throws DLException
+	{
+		assert core != null;
+
+		// Define basic pragmas
+		core.definePragma(new BasePathPragma());
+		core.definePragma(new DefinePragmaPragma());
+		core.definePragma(new DisableDefinePragmasPragma());
+		core.definePragma(new DisableUsePragmasPragma());
+		core.definePragma(new DisableDefineTypesPragma());
+		core.definePragma(new DisableDefineAnnotationsPragma());
+		core.definePragma(new DisableRequirePragma());
+		core.definePragma(new DisableUseAssertsPragma());
+	}
+
+	public static void loadTypes(BaseDLCore core) throws DLException
+	{
+		assert core != null;
+
+		// Define basic simple types
+		DLType objectType = core.defineType(new ObjectDLType(),
+			"java.lang.Object",
+			ObjectDLType.class.getName()
+		);
+
+		// Number types
+		DefaultDLType numberType = (DefaultDLType) core.defineType(new NumberDLType(objectType),
+			"java.lang.Number",
+			NumberDLType.class.getName());
+
+		core.defineType(new DoubleDLType(numberType),
+			"java.lang.Double",
+			"double",
+			DoubleDLType.class.getName());
+
+		core.defineType(new FloatDLType(numberType),
+			"java.lang.Float",
+			"float",
+			FloatDLType.class.getName());
+
+		core.defineType(new IntegerDLType(numberType),
+			"java.lang.Integer",
+			"int",
+			IntegerDLType.class.getName());
+
+		core.defineType(new BooleanDLType(numberType),
+			"java.lang.Boolean",
+			"boolean",
+			"bool",
+			BooleanDLType.class.getName());
+
+		core.defineType(new LongDLType(numberType),
+			"java.lang.Long",
+			"long",
+			LongDLType.class.getName());
+
+		core.defineType(new ByteDLType(numberType),
+			"java.lang.Byte",
+			"byte",
+			ByteDLType.class.getName());
+
+		core.defineType(new ShortDLType(numberType),
+			"java.lang.Short",
+			"short",
+			ShortDLType.class.getName());
+
+		core.defineType(new CharDLType(objectType),
+			"java.lang.Character",
+			"Char",
+			"char",
+			CharDLType.class.getName());
+
+		core.defineType(new StringDLType(objectType),
+			"java.lang.String",
+			"string",
+			"str",
+			StringDLType.class.getName());
+
+		// Base Types
+		// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
+		core.defineType(new ArrayDLType(objectType),
+			"java.lang.Array",
+			ArrayDLType.class.getName()
+		);
+
+		core.defineType(new PathDLType(objectType),
+			"java.nio.file.Path",
+			"sun.nio.fs.WindowsPath",
+			PathDLType.class.getName()
+		);
+
+		core.defineType(new ClassDLType(objectType),
+			"java.lang.Class",
+			ClassDLType.class.getName()
+		);
+
+		core.defineType(new SymbolDLType(objectType),
+			SymbolDLType.class.getName());
+
+		core.defineType(new UUIDDLType(objectType),
+			"java.util.UUID",
+			"uuid",
+			UUIDDLType.class.getName());
+
+		core.defineType(new DateDLType(objectType),
+			"java.util.Date",
+			"java.sql.Timestamp",
+			DateDLType.class.getName());
+
+		// Base classes to types
+		core.defineType(DLEntity.class, "DLEntity");
+
+		// Define log types
+		core.defineType(LogLevel.class);
+		core.defineType(Logger.class);
+		core.defineType(LogManager.class);
+
+		// Define List types https://github.com/studio42gmbh/dl/issues/10
+		// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
+		core.defineType(new ListDLType(objectType),
+			"java.util.List",
+			"java.util.ArrayList",
+			"java.util.LinkedList",
+			"java.util.Collections$UnmodifiableList",
+			ListDLType.class.getName()
+		);
+
+		// Define Map types https://github.com/studio42gmbh/dl/issues/11
+		// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
+		core.defineType(new MapDLType(objectType),
+			"java.util.Map",
+			"java.util.HashMap",
+			"java.util.Collections$UnmodifiableMap",
+			"de.s42.base.collections.MapHelper$MapN",
+			"java.util.Collections$CheckedMap",
+			MapDLType.class.getName()
+		);
+
+		// Define Set types https://github.com/studio42gmbh/dl/issues/24
+		// The specific generic types will be generated automatically in BaseDLCore.getType(String name, List<DLType> genericTypes)
+		core.defineType(new SetDLType(objectType),
+			"java.util.Set",
+			"java.util.HashSet",
+			"java.util.Collections$UnmodifiableSet",
+			"java.util.ImmutableCollections$SetN",
+			SetDLType.class.getName());
 	}
 }

@@ -25,7 +25,6 @@
 //</editor-fold>
 package de.s42.dl.alias;
 
-import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidCore;
@@ -40,68 +39,89 @@ public class DLAliasTest
 {
 
 	@Test
-	public void validAliasType() throws DLException
+	public void aliasType() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type A; alias B A; B test;");
+		DefaultCore core = new DefaultCore();
+		core.parse("aliasType",
+			"type A; alias B A; B test;"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidAliasAlreadyDefinedType() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type A; type B; alias B A; B test;");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidAliasAlreadyDefinedType",
+			"type A; type B; alias B A; B test;"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidCore.class)
 	public void invalidAliasUndefinedType() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "alias B A;");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidAliasUndefinedType",
+			"alias B A;"
+		);
 	}
 
 	@Test
-	public void validAliasContainsType() throws DLException
+	public void aliasContainsType() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type A; alias B A; type C contains A; C test { B test2; }");
+		DefaultCore core = new DefaultCore();
+		core.parse("aliasContainsType",
+			"type A; alias B A; type C contains A; C test { B test2; }"
+		);
 	}
 
 	@Test
-	public void validAliasExternType() throws DLException
+	public void aliasExternType() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "Integer value : 4; alias i Integer; type C { i val; } C test { val : $value; }");
+		DefaultCore core = new DefaultCore();
+		core.parse("aliasExternType",
+			"Integer value : 4; alias i Integer; type C { i val; } C test { val : $value; }"
+		);
 	}
-	
+
 	@Test
-	public void validAliasAnnotation() throws DLException
+	public void aliasAnnotation() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "alias test dynamic;");
-		core.parse("Anonymous2", "type T @test;");
+		DefaultCore core = new DefaultCore();
+		core.parse("aliasAnnotation",
+			"alias test dynamic;"
+		);
+		core.parse("aliasAnnotation2",
+			"type T @test;"
+		);
 	}
-	
+
 	@Test(expectedExceptions = InvalidCore.class)
 	public void invalidAliasAnnotation() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "alias test notDefined;");
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidAliasAnnotation",
+			"alias test notDefined;"
+		);
 	}
-		
+
 	@Test
-	public void validAliasPragma() throws DLException
+	public void aliasPragma() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "alias test disableDefineTypes;");
-		core.parse("Anonymous2", "pragma test;");
+		DefaultCore core = new DefaultCore();
+		core.parse("aliasPragma",
+			"alias test disableDefineTypes;"
+		);
+		core.parse("aliasPragma2",
+			"pragma test;"
+		);
 	}
-	
+
 	@Test(expectedExceptions = InvalidCore.class)
 	public void invalidAliasPragma() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "alias test notDefined;");
-	}
-	
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidAliasPragma",
+			"alias test notDefined;"
+		);
+	}	
 }
