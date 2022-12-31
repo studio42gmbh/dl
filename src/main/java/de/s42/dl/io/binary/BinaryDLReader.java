@@ -89,7 +89,7 @@ public class BinaryDLReader implements DLReader
 		this.core = core;
 	}
 
-	protected void validateSignature(ByteBuffer in) throws IOException
+	private void validateSignature(ByteBuffer in) throws IOException
 	{
 		int signature = in.getInt();
 		if (signature != DLHelper.BIN_SIGNATURE) {

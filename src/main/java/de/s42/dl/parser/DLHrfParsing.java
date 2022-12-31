@@ -43,7 +43,12 @@ import static de.s42.dl.parser.DLHrfParsingErrorHandler.*;
 import de.s42.dl.parser.DLParser.*;
 import de.s42.dl.types.base.ArrayDLType;
 import de.s42.dl.validation.ValidationResult;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Path;
+import org.antlr.v4.runtime.CharStream;
+import org.xml.sax.InputSource;
 
 /**
  *
@@ -413,20 +418,32 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	@SuppressWarnings("UseSpecificCatch")
 	public void enterRequire(RequireContext ctx)
 	{
 		try {
 
+			// Check if requiring is allowed
 			if (!core.isAllowRequire()) {
 				throw new InvalidCore("Not allowed to require in core");
 			}
 
 			try {
+				// Require a module from the given id
 				DLModule requiredModule = core.parse(ctx.requireModule().getText());
-				module.addChild(requiredModule);
-			} catch (Throwable ex) {
-				throw new InvalidModule(createErrorMessage(module, "Error requiring module '" + ctx.requireModule().getText() + "'", ex, ctx.requireModule()), ex);
+
+				// Make sure a module that was already required is not added twice
+				if (!module.hasChild(requiredModule.getName())) {
+					module.addChild(requiredModule);
+				}
+
+			} catch (RuntimeException ex) {
+				throw new InvalidModule(
+					createErrorMessage(
+						module,
+						"Error requiring module '" + ctx.requireModule().getText() + "'",
+						ex,
+						ctx.requireModule()),
+					 ex);
 			}
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);
@@ -1215,12 +1232,37 @@ public class DLHrfParsing extends DLParserBaseListener
 	 */
 	public static DLModule parse(DLCore core, String moduleId, String data) throws DLException
 	{
+		assert data != null;
+		
+		return parse(core, moduleId, CharStreams.fromString(data));
+	}
+	
+	public static DLModule parse(DLCore core, String moduleId, Path data) throws DLException, IOException
+	{
+		assert data != null;
+		
+		return parse(core, moduleId, CharStreams.fromPath(data));
+	}
+	
+	public static DLModule parse(DLCore core, String moduleId, InputStream data) throws DLException, IOException
+	{
+		assert data != null;
+		
+		return parse(core, moduleId, CharStreams.fromStream(data));
+	}
+		
+	public static DLModule parse(DLCore core, String moduleId, CharStream data) throws DLException
+	{
+		assert core != null;
+		assert moduleId != null;
+		assert data != null;
+		
 		DLModule module = core.createModule(moduleId);
 
 		DLHrfParsing parsing = new DLHrfParsing(core, module);
 
 		// Setup lexer
-		DLLexer lexer = new DLLexer(CharStreams.fromString(data));
+		DLLexer lexer = new DLLexer(data);
 		lexer.removeErrorListeners();
 		lexer.addErrorListener(new DLHrfParsingErrorHandler(parsing, module));
 
@@ -1245,7 +1287,9 @@ public class DLHrfParsing extends DLParserBaseListener
 			// Otherwise just forward ex
 			throw ex;
 		}
-
+		
 		return module;
-	}
+	}	
+	
+	
 }

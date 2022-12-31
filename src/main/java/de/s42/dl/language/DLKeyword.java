@@ -33,6 +33,7 @@ public enum DLKeyword
 {
 	Abstract("abstract"),
 	Alias("alias"),
+	Assert("assert"),
 	Annotation("annotation"),
 	Contains("contains"),
 	Declare("declare"),

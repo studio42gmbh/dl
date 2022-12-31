@@ -26,6 +26,7 @@
 package de.s42.dl.util;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.base.files.FilesHelper;
 import de.s42.base.strings.StringHelper;
 import de.s42.base.zip.ZipHelper;
 import de.s42.dl.*;
@@ -34,6 +35,7 @@ import de.s42.dl.exceptions.DLException;
 import de.s42.dl.io.DLWriter;
 import de.s42.dl.io.binary.BinaryDLWriter;
 import de.s42.dl.io.hrf.HrfDLWriter;
+import de.s42.dl.language.DLFileType;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.awt.Color;
@@ -57,14 +59,6 @@ public final class DLHelper
 {
 
 	private final static Logger log = LogManager.getLogger(DLHelper.class.getName());
-
-	public static enum DLFileType
-	{
-		HRF,
-		HRFMIN,
-		BIN,
-		BINCOMPRESSED
-	}
 
 	public static int BIN_SIGNATURE = 0x444C3432;
 
@@ -519,7 +513,7 @@ public final class DLHelper
 		result.append("}");
 
 		return result.toString();
-	}	
+	}
 
 	public static boolean isDLB(Path file)
 	{
@@ -538,7 +532,7 @@ public final class DLHelper
 		assert Files.isRegularFile(file);
 
 		int fileSignature = 0;
-		try ( RandomAccessFile raf = new RandomAccessFile(file.toFile(), "r")) {
+		try (RandomAccessFile raf = new RandomAccessFile(file.toFile(), "r")) {
 			fileSignature = raf.readInt();
 		} catch (IOException e) {
 			// handle if you like
@@ -547,15 +541,38 @@ public final class DLHelper
 		return fileSignature;
 	}
 
+	/**
+	 * Tries to recognize the filre type first by extension then by signature dword in files. Defaults to HRF otherwise
+	 *
+	 * @param file
+	 *
+	 * @return
+	 */
 	public static DLFileType recognizeFileType(Path file)
 	{
+		String ext = FilesHelper.getExtension(file).toLowerCase();
+
+		// Default ending .dl to be HRF
+		if (ext.equals(DLFileType.HRF.defaultExtension)) {
+			return DLFileType.HRF;
+		} // Default ending .dlb to be BIN 
+		else if (ext.equals(DLFileType.BIN.defaultExtension)) {
+			return DLFileType.BIN;
+		} // Default ending .dla to be BINCOMPRESSED
+		else if (ext.equals(DLFileType.BINCOMPRESSED.defaultExtension)) {
+			return DLFileType.BINCOMPRESSED;
+		}
+
+		// Try to identify the file using the first 4 bytes as signature from file
 		int fileSignature = getIntFileSignature(file);
 
 		if (isDLB(fileSignature)) {
 			return DLFileType.BIN;
-		} else if (ZipHelper.isArchive(fileSignature)) {
+		} // Attention: All zips will be recognized as BINCOMPRESSED
+		else if (ZipHelper.isArchive(fileSignature)) {
 			return DLFileType.BINCOMPRESSED;
-		} else {
+		} // The default is HRF
+		else {
 			return DLFileType.HRF;
 		}
 	}
@@ -569,12 +586,12 @@ public final class DLHelper
 
 		// Write human readable format
 		if (fileType == DLFileType.HRF || fileType == DLFileType.HRFMIN) {
-			try ( DLWriter writer = new HrfDLWriter(file, core, fileType == DLFileType.HRF)) {
+			try (DLWriter writer = new HrfDLWriter(file, core, fileType == DLFileType.HRF)) {
 				writer.write(entity);
 			}
 		} // Write binary format 
 		else if (fileType == DLFileType.BIN || fileType == DLFileType.BINCOMPRESSED) {
-			try ( DLWriter writer = new BinaryDLWriter(file, core, fileType == DLFileType.BINCOMPRESSED)) {
+			try (DLWriter writer = new BinaryDLWriter(file, core, fileType == DLFileType.BINCOMPRESSED)) {
 				writer.write(entity);
 			}
 		}
@@ -594,7 +611,7 @@ public final class DLHelper
 		assert fileType != null;
 
 		if (fileType == DLFileType.HRF || fileType == DLFileType.HRFMIN) {
-			try ( DLWriter writer = new HrfDLWriter(file, core, fileType == DLFileType.HRF)) {
+			try (DLWriter writer = new HrfDLWriter(file, core, fileType == DLFileType.HRF)) {
 
 				for (DLType type : core.getTypes()) {
 					if (filter.test(type)) {

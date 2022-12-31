@@ -25,11 +25,9 @@
 //</editor-fold>
 package de.s42.dl.types;
 
-import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.core.BaseDLCore;
 import de.s42.dl.core.DefaultCore;
-import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.log.LogManager;
@@ -50,7 +48,7 @@ public class DeclareTypesTest
 	public void validDeclaration() throws DLException
 	{
 		BaseDLCore core = new BaseDLCore();
-		core.addResolver(new StringCoreResolver(core));
+		core.addResolver(DefaultCore.STRING_RESOLVER);
 		core.setAllowDefineTypes(true);
 		core.parse("validDeclaration", "declare type T;");
 	}
@@ -59,18 +57,18 @@ public class DeclareTypesTest
 	public void validMultipleDeclaration() throws DLException
 	{
 		BaseDLCore core = new BaseDLCore();
-		core.addResolver(new StringCoreResolver(core));
+		core.addResolver(DefaultCore.STRING_RESOLVER);
 		core.setAllowDefineTypes(true);
 		core.parse("validDeclaration", "declare type T; declare type T; declare type T;");
 	}
-	
+
 	@Test
 	public void validDeclarationAfterDefinition() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
 		core.parse("validDeclaration", "type T { int x; } declare type T;");
 	}
-	
+
 	@Test
 	public void validDeclarationAndDefinition() throws DLException
 	{
@@ -81,7 +79,7 @@ public class DeclareTypesTest
 	@Test
 	public void validDependentDeclarationAndDefinition() throws DLException
 	{
-		DefaultCore core = new DefaultCore();				
+		DefaultCore core = new DefaultCore();
 		core.parse("validDependentDeclarationAndDefinition",
 			"declare type T;"
 			+ "declare type T2;"
@@ -90,19 +88,19 @@ public class DeclareTypesTest
 			+ "T t { x : 42; }"
 			+ "T2 t2 @export { other : $t; y : 3.1415; }"
 		);
-		
-		DLInstance t2 = core.getExported("t2").orElseThrow();		
-		Assert.assertEquals((float)t2.get("y"), 3.1415f);
-		
-		DLInstance other = t2.getInstance("other");		
-		Assert.assertEquals((int)other.get("x"), 42);		
+
+		DLInstance t2 = core.getExported("t2").orElseThrow();
+		Assert.assertEquals((float) t2.get("y"), 3.1415f);
+
+		DLInstance other = t2.getInstance("other");
+		Assert.assertEquals((int) other.get("x"), 42);
 	}
 
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidDeclarationWithBody() throws DLException
 	{
 		BaseDLCore core = new BaseDLCore();
-		core.addResolver(new StringCoreResolver(core));
+		core.addResolver(DefaultCore.STRING_RESOLVER);
 		core.setAllowDefineTypes(true);
 		core.parse("invalidDeclarationWithBody", "declare type T {}");
 	}

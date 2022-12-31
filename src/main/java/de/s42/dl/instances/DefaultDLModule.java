@@ -39,29 +39,37 @@ import java.util.Optional;
  */
 public class DefaultDLModule extends DefaultDLInstance implements DLModule
 {
-
+	public final static DLType MODULE_TYPE = new ModuleDLType();
+	
 	protected final List<DLType> definedTypes = new ArrayList<>();
 
 	public DefaultDLModule()
 	{
-		super(new ModuleDLType());
+		super(MODULE_TYPE);
 	}
 
 	public DefaultDLModule(String name)
 	{
-		super(new ModuleDLType(), name);
+		super(MODULE_TYPE, name);
 	}
 
 	@Override
 	public String getShortName()
 	{
 		String shortName = getName();
+		
+		int index = shortName.lastIndexOf(File.separatorChar);
+		
+		if (index == -1) {
+			index = shortName.lastIndexOf('/');
+		}
 
-		if (!shortName.contains(File.separator)) {
+		// No separators in path
+		if (index == -1) {
 			return shortName;
 		}
 
-		return shortName.substring(shortName.lastIndexOf(File.separator) + 1);
+		return shortName.substring(index + 1);
 	}
 
 	@Override

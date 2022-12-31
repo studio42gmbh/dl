@@ -72,6 +72,11 @@ import de.s42.log.Logger;
  */
 public class DefaultCore extends BaseDLCore
 {
+	
+	public final static DLCoreResolver RESOURCE_RESOLVER = new ResourceCoreResolver();
+	public final static DLCoreResolver STRING_RESOLVER = new StringCoreResolver();
+	public final static DLCoreResolver FILE_RESOLVER = new FileCoreResolver();
+	public final static DLCoreResolver LIBRARY_RESOLVER = new LibraryCoreResolver();
 
 	public DefaultCore()
 	{
@@ -122,10 +127,10 @@ public class DefaultCore extends BaseDLCore
 		assert core != null;
 
 		// Add file and resource resolver
-		core.addResolver(new LibraryCoreResolver(core));
-		core.addResolver(new FileCoreResolver(core));
-		core.addResolver(new ResourceCoreResolver(core));
-		core.addResolver(new StringCoreResolver(core));
+		core.addResolver(LIBRARY_RESOLVER);
+		core.addResolver(FILE_RESOLVER);
+		core.addResolver(RESOURCE_RESOLVER);
+		core.addResolver(STRING_RESOLVER);
 	}
 
 	public static void loadAnnotations(DLCore core) throws DLException

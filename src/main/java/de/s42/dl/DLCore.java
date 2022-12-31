@@ -33,7 +33,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- *
+ * A core is not intended to be used to parse in multiple threads!
  * @author Benjamin Schiller
  */
 public interface DLCore
@@ -171,6 +171,7 @@ public interface DLCore
 
 	public void setAllowUsePragmas(boolean allowUsePragmas);
 
+	// ASSERTS
 	public boolean isAllowUseAsserts();
 
 	public void setAllowUseAsserts(boolean allowUseAsserts);
@@ -179,4 +180,13 @@ public interface DLCore
 	public boolean isAllowRequire();
 
 	public void setAllowRequire(boolean allowRequire);
+	
+	// CONFIG (intended for tools using cores not inside of DL)
+	public Object getConfig(String key);
+	
+	public Object getConfig(String key, Object defaultValue);	
+	
+	public Object setConfig(String key, Object value);
+	
+	public Set<String> getConfigKeys();
 }

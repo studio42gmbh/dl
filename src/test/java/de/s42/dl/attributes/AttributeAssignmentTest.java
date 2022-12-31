@@ -30,7 +30,6 @@ import de.s42.dl.DLModule;
 import de.s42.dl.DLType;
 import de.s42.dl.core.BaseDLCore;
 import de.s42.dl.core.DefaultCore;
-import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -83,7 +82,7 @@ public class AttributeAssignmentTest
 	public void simpleUntypedModuleAttributeAssignmentInBaseCore() throws Exception
 	{
 		BaseDLCore core = new BaseDLCore();
-		core.addResolver(new StringCoreResolver(core));
+		core.addResolver(DefaultCore.STRING_RESOLVER);
 		core.setAllowDefineTypes(true);
 		DLModule module = core.parse("simpleUntypedModuleAttributeAssignmentInBaseCore",
 			"x : 42; y : true; z : 3.14; w : \"Test\";"

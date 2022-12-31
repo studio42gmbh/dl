@@ -23,40 +23,43 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.require;
-
-import de.s42.dl.core.BaseDLCore;
-import de.s42.dl.core.DefaultCore;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
-import org.testng.annotations.Test;
+package de.s42.dl.language;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class RequireTest
+public enum DLFileType
 {
-
-	private final static Logger log = LogManager.getLogger(RequireTest.class.getName());
-
-	@Test
-	public void requireBaseLibraryInDefaultDLCore() throws Exception
+	/**
+	 * Human Readable Format
+	 */
+	HRF("dl"),
+	
+	/**
+	 * Minified Human Readable Format
+	 */
+	HRFMIN("dl"),
+	
+	/**
+	 * Binary Format
+	 */
+	BIN("dlb"),
+	
+	/**
+	 * Compressed Binary Format (Zip Container for BIN)
+	 */
+	BINCOMPRESSED("dla");
+	
+	public final static String HRF_EXTENSION = "dl";
+	public final static String HRFMIN_EXTENSION = "dl";
+	public final static String BIN_EXTENSION = "dlb";
+	public final static String BINCOMPRESSED_EXTENION = "dla";
+	
+	public final String defaultExtension;
+	
+	private DLFileType(String defaultExtension)
 	{
-		DefaultCore core = new DefaultCore();
-		core.parse("requireBaseLibraryInDefaultDLCore",
-			"require \"dl:standard/base.dl\";"
-		);
-	}
-
-	@Test
-	public void requireBaseLibraryInBaseDLCore() throws Exception
-	{
-		BaseDLCore core = new BaseDLCore(true);
-		core.addResolver(DefaultCore.STRING_RESOLVER);
-		core.addResolver(DefaultCore.LIBRARY_RESOLVER);
-		core.parse("requireBaseLibraryInBaseDLCore",
-			"require \"dl:standard/base.dl\";"
-		);
+		this.defaultExtension = defaultExtension;
 	}
 }

@@ -29,7 +29,6 @@ import de.s42.dl.DLCore;
 import de.s42.dl.DLModule;
 import de.s42.dl.core.DLCoreResolver;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidModule;
 import de.s42.dl.parser.DLHrfParsing;
 
 /**
@@ -39,44 +38,25 @@ import de.s42.dl.parser.DLHrfParsing;
 public class StringCoreResolver implements DLCoreResolver
 {
 
-	protected final DLCore core;
+	@Override
+	public String resolveModuleId(DLCore core, String moduleId)
+	{
+		return moduleId;
+	}
 
-	public StringCoreResolver(DLCore core)
+	@Override
+	public boolean canParse(DLCore core, String moduleId, String data)
+	{
+		return (core != null) && (moduleId != null) && (data != null);
+	}
+
+	@Override
+	public DLModule parse(DLCore core, String moduleId, String data) throws DLException
 	{
 		assert core != null;
-
-		this.core = core;
-	}
-
-	@Override
-	public boolean canParse(String moduleId)
-	{
-		return false;
-	}
-
-	@Override
-	public boolean canParse(String moduleId, String data)
-	{
-		return (moduleId != null) && (data != null);
-	}
-
-	@Override
-	public DLModule parse(String moduleId, String data) throws DLException
-	{
 		assert moduleId != null;
 		assert data != null;
 
 		return DLHrfParsing.parse(core, moduleId, data);
-	}
-
-	@Override
-	public DLModule parse(String moduleId) throws InvalidModule
-	{
-		throw new InvalidModule("Error can just load module with string");
-	}
-
-	public DLCore getCore()
-	{
-		return core;
 	}
 }

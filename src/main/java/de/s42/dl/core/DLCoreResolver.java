@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl.core;
 
+import de.s42.dl.DLCore;
 import de.s42.dl.DLModule;
 import de.s42.dl.exceptions.DLException;
 
@@ -35,11 +36,9 @@ import de.s42.dl.exceptions.DLException;
 public interface DLCoreResolver
 {
 
-	public boolean canParse(String moduleId);
+	public String resolveModuleId(DLCore core, String moduleId);
 
-	public boolean canParse(String moduleId, String data);
+	public boolean canParse(DLCore core, String moduleId, String data);
 
-	public DLModule parse(String moduleId) throws DLException;
-
-	public DLModule parse(String moduleId, String data) throws DLException;
+	public DLModule parse(DLCore core, String resolvedModuleId, String data) throws DLException;
 }

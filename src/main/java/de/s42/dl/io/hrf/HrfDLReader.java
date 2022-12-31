@@ -25,7 +25,6 @@
 //</editor-fold>
 package de.s42.dl.io.hrf;
 
-import de.s42.base.files.FilesHelper;
 import de.s42.dl.*;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.io.DLReader;
@@ -41,51 +40,74 @@ import java.util.Iterator;
 public class HrfDLReader implements DLReader
 {
 
-	protected final Iterator<DLInstance> instances;
-	protected final DLModule module;
+	protected Iterator<DLInstance> instances;
+	protected DLModule module;
 	protected final DLCore core;
+	protected final Path file;
 
 	/**
-	 * This reader is reading the DL Human Readable Format.ATTENTION: The file is loaded as String before parsing.
-	 * Be aware to have enough RAM for large files.
+	 * This reader is reading the DL Human Readable Format.
 	 *
 	 * @param file file to read the content from
 	 * @param core core as context
 	 *
-	 * @throws IOException if file can not be read
-	 * @throws de.s42.dl.exceptions.DLException if the content can not be parsed
 	 */
-	public HrfDLReader(Path file, DLCore core) throws IOException, DLException
+	public HrfDLReader(Path file, DLCore core)
 	{
 		assert file != null;
 		assert core != null;
 
-		module = DLHrfParsing.parse(
-			core,
-			file.toString(),
-			FilesHelper.getFileAsString(file)
-		);
-
-		instances = module.getChildren().iterator();
-
 		this.core = core;
+		this.file = file;
 	}
+
+	protected synchronized void readIntern() throws IOException
+	{
+		if (module != null) {
+			return;
+		}
+
+		// Use default parser for parsing the file contents
+		try {
+			module = DLHrfParsing.parse(
+				core,
+				file.toAbsolutePath().normalize().toString(),
+				file
+			);
+		} catch (DLException ex) {
+			throw new IOException("Could not read hrf - " + ex.getMessage(), ex);
+		}
+	}
+	
+	protected synchronized void readInternIterator() throws IOException
+	{
+		readIntern();
+		
+		instances = module.getChildren().iterator();
+	}
+	
 
 	@Override
 	public Object readObject() throws IOException
 	{
+		readIntern();
+
 		return ((DLInstance) read()).toJavaObject();
 	}
 
 	@Override
 	public <DLEntityType extends DLEntity> DLEntityType read() throws IOException
 	{
+		readInternIterator();
+
 		return (DLEntityType) instances.next();
 	}
 
 	@Override
 	public boolean ready() throws IOException
 	{
+		readInternIterator();
+
 		return instances.hasNext();
 	}
 
@@ -93,11 +115,6 @@ public class HrfDLReader implements DLReader
 	public void close() throws IOException
 	{
 		// nothing to do -> the file was closed after reading into a String
-	}
-
-	public DLModule getModule()
-	{
-		return module;
 	}
 
 	public DLCore getCore()
@@ -108,6 +125,8 @@ public class HrfDLReader implements DLReader
 	@Override
 	public DLModule readModule() throws IOException
 	{
-		return getModule();
+		readIntern();
+		
+		return module;
 	}
 }

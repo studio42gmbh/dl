@@ -35,7 +35,6 @@ import de.s42.dl.exceptions.UndefinedType;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.core.DefaultCore;
-import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.exceptions.InvalidInstance;
@@ -79,7 +78,7 @@ public class DLTypesTest
 	public void externDLTypeDefinition() throws DLException
 	{
 		BaseDLCore core = new BaseDLCore();
-		core.addResolver(new StringCoreResolver(core));
+		core.addResolver(DefaultCore.STRING_RESOLVER);
 		core.setAllowDefineTypes(true);
 		core.parse("externDLTypeDefinition",
 			"extern type de.s42.dl.types.primitive.StringDLType;"
@@ -220,7 +219,7 @@ public class DLTypesTest
 	public void invalidTypeAnnotationNotDefined() throws DLException
 	{
 		BaseDLCore core = new BaseDLCore();
-		core.addResolver(new StringCoreResolver(core));
+		core.addResolver(DefaultCore.STRING_RESOLVER);
 		core.setAllowDefineTypes(true);
 		core.parse("invalidTypeAnnotationNotDefined",
 			"type T @dynamic;"
@@ -459,7 +458,7 @@ public class DLTypesTest
 			"TestDefine t { ignoredVal : true; bla : true; }"
 		);
 	}
-	
+
 	@Test
 	public void aliasRedefineExternTypeAndAliases() throws DLException
 	{
@@ -468,7 +467,7 @@ public class DLTypesTest
 			"extern type de.s42.dl.types.primitive.StringDLType alias java.lang.String, String, string, str;"
 		);
 	}
-	
+
 	@Test
 	public void invalidAliasRedefineExternTypeAndAliasesLocalDuplicate() throws DLException
 	{

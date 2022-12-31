@@ -34,13 +34,14 @@ import de.s42.dl.exceptions.InvalidModule;
 import de.s42.dl.io.DLReader;
 import de.s42.dl.io.binary.BinaryDLReader;
 import de.s42.dl.io.hrf.HrfDLReader;
-import de.s42.dl.util.DLHelper.DLFileType;
+import de.s42.dl.language.DLFileType;
 import static de.s42.dl.util.DLHelper.recognizeFileType;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  *
@@ -49,101 +50,143 @@ import java.nio.file.Path;
 public class FileCoreResolver implements DLCoreResolver
 {
 
+	public final static String LOCAL_PATH_CONFIG_KEY = "de.s42.dl.core.resolvers.FileCoreResolver.localPath";
+
 	private final static Logger log = LogManager.getLogger(FileCoreResolver.class.getName());
 
-	protected final DLCore core;
+	public Path getLocalPathInCore(DLCore core)
+	{
+		assert core != null;
+		
+		return (Path) core.getConfig(LOCAL_PATH_CONFIG_KEY, null);
+	}
 
-	public FileCoreResolver(DLCore core)
+	/**
+	 * This method allows to preapre the core so that the local path lookup can use this path
+	 *
+	 * @param core
+	 * @param path
+	 */
+	public void setLocalPathInCore(DLCore core, Path path)
 	{
 		assert core != null;
 
-		this.core = core;
+		core.setConfig(LOCAL_PATH_CONFIG_KEY, path);
 	}
-	
-	protected Path resolveModule(String moduleId)
+
+	public String getContent(DLCore core, String moduleId) throws InvalidModule, IOException
 	{
+		assert core != null;
 		assert moduleId != null;
-		
-		Path filePath = Path.of(moduleId);
-		Path basePath = core.getBasePath();
-		Path modulePath;
 
-		if (basePath != null) {
-			modulePath = basePath.resolve(filePath).normalize().toAbsolutePath();
-		} else {
-			modulePath = filePath.normalize().toAbsolutePath();
-		}
-		
-		return modulePath;
+		return FilesHelper.getFileAsString(resolveModulePath(core, moduleId).orElseThrow());
 	}
 
-	public String getContent(String moduleId) throws InvalidModule, IOException
+	public Optional<Path> resolveModulePath(DLCore core, String moduleId)
 	{
+		assert core != null;
+		assert moduleId != null;
 
-		return FilesHelper.getFileAsString(resolveModule(moduleId));
+		Path filePath = Path.of(moduleId);
+
+		// Look relative to current path
+		Path localPath = getLocalPathInCore(core);
+		if (localPath != null) {
+			Path modulePath = localPath.resolve(filePath);
+
+			if (Files.isRegularFile(modulePath)) {
+				return Optional.of(modulePath);
+			}
+		}
+
+		// Look relative to core base path
+		Path basePath = core.getBasePath();
+		if (basePath != null) {
+			Path modulePath = basePath.resolve(filePath);
+
+			if (Files.isRegularFile(modulePath)) {
+				return Optional.of(modulePath);
+			}
+		}
+
+		// Look relative to working dir
+		if (Files.isRegularFile(filePath)) {
+			return Optional.of(filePath);
+		}
+
+		return Optional.empty();
 	}
 
 	@Override
-	public boolean canParse(String moduleId)
+	public String resolveModuleId(DLCore core, String moduleId)
 	{
+		assert core != null;
+		assert moduleId != null;
+
+		return resolveModulePath(core, moduleId).orElseThrow().toAbsolutePath().normalize().toString();
+	}
+
+	@Override
+	public boolean canParse(DLCore core, String moduleId, String data)
+	{
+		if (core == null) {
+			return false;
+		}
+
 		if (moduleId == null) {
 			return false;
 		}
 
-		return Files.isRegularFile(resolveModule(moduleId));
+		if (data != null) {
+			return false;
+		}
+
+		return resolveModulePath(core, moduleId).isPresent();
 	}
 
 	@Override
-	public boolean canParse(String moduleId, String data)
+	public DLModule parse(DLCore core, String resolvedModuleId, String data) throws DLException
 	{
-		return false;
-	}
+		assert core != null;
+		assert resolvedModuleId != null;
+		assert data == null;
 
-	@Override
-	public DLModule parse(String moduleId) throws DLException
-	{
-		assert moduleId != null;
+		Path modulePath = Path.of(resolvedModuleId);
+
+		// Get the old path
+		Path oldLocalPath = getLocalPathInCore(core);
+
+		// Change config path to be relative to the new parsed file
+		setLocalPathInCore(core, modulePath.getParent());
 
 		try {
 
-			Path modulePath = resolveModule(moduleId);
-
 			DLFileType fileType = recognizeFileType(modulePath);
 
-			log.debug(FilesHelper.createMavenNetbeansFileConsoleLink("Parsing file of type " + fileType,
+			/*log.debug(FilesHelper.createMavenNetbeansFileConsoleLink("Parsing file of type " + fileType,
 				modulePath.getFileName().toString(),
 				modulePath.toAbsolutePath().toString(), 1, 1, false));
-
-			DLModule module = null;
-
+			 */
+			// Use HRF reader for HRF formats
 			if (fileType == DLFileType.HRF || fileType == DLFileType.HRFMIN) {
 				try (DLReader reader = new HrfDLReader(modulePath, core)) {
-
-					module = reader.readModule();
+					return reader.readModule();
 				}
-			} else if (fileType == DLFileType.BIN || fileType == DLFileType.BINCOMPRESSED) {
-				try (DLReader reader = new BinaryDLReader(modulePath, core)) {
-
-					module = reader.readModule();
-				}
-			} else {
-				throw new IOException("Unrecognized file type " + fileType);
 			}
 
-			return module;
+			// Use BIN reader for BIN formats						
+			if (fileType == DLFileType.BIN || fileType == DLFileType.BINCOMPRESSED) {
+				try (DLReader reader = new BinaryDLReader(modulePath, core)) {
+					return reader.readModule();
+				}
+			}
+
+			throw new InvalidModule("\"Error loading module from file - Unrecognized file type " + fileType);
 		} catch (IOException ex) {
 			throw new InvalidModule("Error loading module from file - " + ex.getMessage(), ex);
+		} finally {
+			// Set config back to old path
+			setLocalPathInCore(core, oldLocalPath);
 		}
-	}
-
-	@Override
-	public DLModule parse(String moduleId, String data) throws InvalidModule
-	{
-		throw new InvalidModule("Error can just load module from file");
-	}
-
-	public DLCore getCore()
-	{
-		return core;
 	}
 }

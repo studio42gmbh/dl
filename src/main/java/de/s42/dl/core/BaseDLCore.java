@@ -79,6 +79,7 @@ public class BaseDLCore implements DLCore
 	protected final MappedList<String, DLAnnotationFactory> annotationFactories = new MappedList<>();
 	protected final Map<String, DLModule> requiredModules = new HashMap<>();
 	protected final MappedList<String, DLInstance> exported = new MappedList<>();
+	protected final Map<String, Object> configs = new HashMap<>();
 	protected Path basePath;
 	protected boolean allowDefineTypes;
 	protected boolean allowDefineAnnotationFactories;
@@ -87,7 +88,7 @@ public class BaseDLCore implements DLCore
 	protected boolean allowUseAsserts;
 	protected boolean allowRequire;
 	protected ClassLoader classLoader;
-	
+
 	public BaseDLCore()
 	{
 		this(false);
@@ -302,7 +303,7 @@ public class BaseDLCore implements DLCore
 		}
 
 		annotationFactories.add(name, factory);
-		
+
 		// Always define its java class name as alias
 		if (!name.equals(factory.getClass().getName())) {
 			defineAliasForAnnotationFactory(factory.getClass().getName(), name);
@@ -762,7 +763,7 @@ public class BaseDLCore implements DLCore
 			this),
 			genericType.getJavaDataType().arrayType().getName());
 	}
-	
+
 	protected void attachAnnotations(Class typeClass, DLType type) throws DLException
 	{
 		//Attach single type annotation
@@ -778,9 +779,9 @@ public class BaseDLCore implements DLCore
 			for (AnnotationDL annotation : annotationContainer.value()) {
 				createAnnotation(annotation.value(), type, annotation.parameters());
 			}
-		}		
+		}
 	}
-	
+
 	@SuppressWarnings({"UseSpecificCatch", "null"})
 	@Override
 	public DLType createType(Class<?> typeClass) throws DLException
@@ -839,7 +840,7 @@ public class BaseDLCore implements DLCore
 			if (info.isFinal()) {
 				classType.setFinal(true);
 			}
-			
+
 			// Attach annotations
 			attachAnnotations(typeClass, classType);
 
@@ -880,13 +881,12 @@ public class BaseDLCore implements DLCore
 				else {
 					// Create specialized array type
 					if (attributeJavaType.isArray()) {
-						
+
 						// Special handling for arrays of type being just defined
 						Optional<DLType> optType;
 						if (attributeJavaType.getComponentType().equals(typeClass)) {
-							optType = getArrayType(classType);							
-						}
-						// Support other array types -> the component type has to be already defined
+							optType = getArrayType(classType);
+						} // Support other array types -> the component type has to be already defined
 						else {
 							optType = getArrayType(attributeJavaType.getComponentType());
 						}
@@ -1084,17 +1084,16 @@ public class BaseDLCore implements DLCore
 	public Optional<DLType> getType(Class javaClass)
 	{
 		assert javaClass != null;
-		
+
 		// Special handling for arrays -> Transform Java naming into Array<?> in DL
 		if (javaClass.isArray()) {
-			
+
 			Class componentType = javaClass.componentType();
-			
+
 			// Return ungeneric array for Object[]
 			if (componentType.equals(Object.class)) {
 				return getType(ArrayDLType.DEFAULT_SYMBOL);
-			}			
-			else {
+			} else {
 				return getArrayType(componentType);
 			}
 		}
@@ -1264,22 +1263,22 @@ public class BaseDLCore implements DLCore
 		if (!allowDefineTypes) {
 			return Optional.empty();
 		}
-		
+
 		// add generic version
 		optType = types.get(name);
-		
+
 		DLType type = optType.orElseThrow();
-				
+
 		if (!type.isAllowGenericTypes()) {
 			return Optional.empty();
 		}
-		
+
 		if (!(type instanceof DefaultDLType)) {
 			return Optional.empty();
 		}
 
 		// generate specific typed version
-		DefaultDLType specificType = ((DefaultDLType)type).copy();
+		DefaultDLType specificType = ((DefaultDLType) type).copy();
 
 		try {
 			specificType.addGenericTypes(genericTypes);
@@ -1339,12 +1338,6 @@ public class BaseDLCore implements DLCore
 		return pragmas.list();
 	}
 
-	@Override
-	public DLModule parse(String moduleId) throws DLException
-	{
-		return parse(moduleId, null);
-	}
-
 	public boolean removeFromRequiredModules(String moduleId)
 	{
 		return requiredModules.remove(moduleId) != null;
@@ -1356,43 +1349,47 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
+	public DLModule parse(String moduleId) throws DLException
+	{
+		return parse(moduleId, null);
+	}
+	
+	@Override
 	public DLModule parse(String moduleId, String data) throws DLException
 	{
 		assert moduleId != null;
 
+		// Find a suitable resolver
+		DLCoreResolver foundResolver = resolvers
+			.stream()
+			.filter((resolver) -> {
+				return resolver.canParse(this, moduleId, data);
+			})
+			.findFirst()
+			.orElseThrow(() -> {
+				return new InvalidModule("No resolver found for module id " + moduleId);
+			});
+
+		
+		// Allows the rsolver to normalize the id (i.e. absolute path, ...)
+		String resolvedModuleId = foundResolver.resolveModuleId(this, moduleId);
+
 		// If the module was already loaded -> just return from cache
-		if (requiredModules.containsKey(moduleId)) {
-			log.trace("Ignoring file module (already loaded) " + moduleId);
-			return requiredModules.get(moduleId);
+		DLModule requiredModule = requiredModules.get(resolvedModuleId);
+		if (requiredModule != null) {
+			log.trace("Ignoring file module (already loaded) resolvedModuleId '" + resolvedModuleId + "' original '" + moduleId + "'");
+			return requiredModule;
 		}
 
-		DLModule module = null;
+		// Let the rsolver resolve the module
+		DLModule resolvedModule = foundResolver.parse(this, resolvedModuleId, data);
 
-		// Find first resolver that can parse the resource and let it parse it
-		if (data != null) {
-			for (DLCoreResolver resolver : resolvers) {
-				if (resolver.canParse(moduleId, data)) {
-					module = resolver.parse(moduleId, data);
-					break;
-				}
-			}
-		} else {
-			for (DLCoreResolver resolver : resolvers) {
-				if (resolver.canParse(moduleId)) {
-					module = resolver.parse(moduleId);
-					break;
-				}
-			}
-		}
+		// Add the resolved module to the cache
+		// USE the resolvedModuleId to make sure different unresolved 
+		// ids which resolve to the same module will not cause multiple loads!
+		requiredModules.put(resolvedModuleId, resolvedModule);
 
-		// Still not loaded -> No resolver was found for the given path
-		if (module == null) {
-			throw new InvalidModule("No resolver found for module id " + moduleId);
-		}
-
-		requiredModules.put(moduleId, module);
-
-		return module;
+		return resolvedModule;
 	}
 
 	@Override
@@ -1687,5 +1684,29 @@ public class BaseDLCore implements DLCore
 	public void setAllowUseAsserts(boolean allowUseAsserts)
 	{
 		this.allowUseAsserts = allowUseAsserts;
+	}
+
+	@Override
+	public Optional<Object> getConfig(String key)
+	{
+		return Optional.ofNullable(configs.get(key));
+	}
+
+	@Override
+	public Object getConfig(String key, Object defaultValue)
+	{
+		return configs.getOrDefault(key, defaultValue);
+	}
+
+	@Override
+	public Object setConfig(String key, Object value)
+	{
+		return configs.put(key, value);
+	}
+
+	@Override
+	public Set<String> getConfigKeys()
+	{
+		return Collections.unmodifiableSet(configs.keySet());
 	}
 }

@@ -47,7 +47,7 @@ public class DLFileTest
 	{
 		HrfDLReader reader = new HrfDLReader(Path.of(getClass().getResource("simple.dl").toURI()), new DefaultCore());
 
-		DLModule module = reader.getModule();
+		DLModule module = reader.readModule();
 
 		Assert.assertEquals(module.get("firstName"), "Benjamin");
 		Assert.assertEquals(module.getString("firstName"), "Benjamin");

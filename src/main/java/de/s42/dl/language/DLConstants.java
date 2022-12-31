@@ -34,8 +34,6 @@ public final class DLConstants
 
 	public final static String MIME_TYPE = "text/dl";
 
-	public final static String FILE_ENDING = "dl";
-
 	public final static String LANGUAGE_NAME = "Data Language";
 	
 	public final static String LANGUAGE_SHORT_NAME = "DL";

@@ -46,60 +46,52 @@ public class ResourceCoreResolver implements DLCoreResolver
 
 	private final static Logger log = LogManager.getLogger(ResourceCoreResolver.class.getName());
 
-	protected final DLCore core;
-
-	public ResourceCoreResolver(DLCore core)
-	{
-		assert core != null;
-
-		this.core = core;
-	}
-
 	@Override
-	public boolean canParse(String moduleId)
-	{
-		if (moduleId == null) {
-			return false;
-		}
-				
-		return ResourceHelper.hasResource(moduleId);
-	}
-
-	@Override
-	public boolean canParse(String moduleId, String data)
-	{
-		return false;
-	}
-
-	@Override
-	public DLModule parse(String moduleId) throws DLException
+	public String resolveModuleId(DLCore core, String moduleId)
 	{
 		assert moduleId != null;
 		
-		try {
-
-			log.debug("Parsing resource " + moduleId);
-
-			Optional<String> res = ResourceHelper.getResourceAsString(moduleId);
-
-			if (res.isEmpty()) {
-				throw new InvalidModule("Resource " + moduleId + " could not be loaded");
-			}
-
-			return DLHrfParsing.parse(core, moduleId, res.get());
-		} catch (IOException ex) {
-			throw new InvalidModule("Error loading module from resource - " + ex.getMessage(), ex);
-		}
+		return moduleId;
 	}
 
 	@Override
-	public DLModule parse(String moduleId, String data) throws InvalidModule
+	public boolean canParse(DLCore core, String moduleId, String data)
 	{
-		throw new InvalidModule("Error can just load module from resource");
+		if (core == null) {
+			return false;
+		}
+
+		if (moduleId == null) {
+			return false;
+		}
+
+		if (data != null) {
+			return false;
+		}
+
+		return ResourceHelper.hasResource(resolveModuleId(core, moduleId));
 	}
 
-	public DLCore getCore()
+	@Override
+	public DLModule parse(DLCore core, String resolvedModuleId, String data) throws DLException
 	{
-		return core;
+		assert core != null;
+		assert resolvedModuleId != null;
+		assert data == null;
+
+		try {
+
+			//log.debug("Parsing resource " + resolvedModuleId);
+
+			Optional<String> res = ResourceHelper.getResourceAsString(resolvedModuleId);
+
+			if (res.isEmpty()) {
+				throw new InvalidModule("Resource " + resolvedModuleId + " could not be loaded");
+			}
+
+			return DLHrfParsing.parse(core, resolvedModuleId, res.get());
+		} catch (IOException ex) {
+			throw new InvalidModule("Error loading module from resource - " + ex.getMessage(), ex);
+		}
 	}
 }
