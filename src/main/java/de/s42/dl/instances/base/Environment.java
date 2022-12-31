@@ -26,6 +26,7 @@
 
 package de.s42.dl.instances.base;
 
+import de.s42.base.files.FilesHelper;
 import de.s42.base.system.SystemHelper;
 import de.s42.dl.DL;
 
@@ -54,5 +55,10 @@ public class Environment
 	public String getOsVersion()
 	{
 		return SystemHelper.getOSVersion();
+	}
+	
+	public String getWorkingDirectory()
+	{
+		return FilesHelper.getWorkingDirectory().toAbsolutePath().toString();
 	}
 }
