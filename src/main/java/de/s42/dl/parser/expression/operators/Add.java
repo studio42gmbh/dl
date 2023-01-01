@@ -74,13 +74,13 @@ public class Add extends BinaryOperator
 			return (String) firstEval + (String) secondEval;
 		}
 
-		// Allow to add numbers to strings by converting them to string
-		if (firstEval instanceof String && secondEval instanceof Number) {
-			return ((String) firstEval) + secondEval;
+		// Allow to add any not null to strings by converting them to string
+		if (firstEval instanceof String && (secondEval != null)) {
+			return ((String) firstEval) + secondEval.toString();
 		}
 
 		throw new DLHrfParsingException(
-			"Types invalid in '" + context.getText() + "' both have to be either int, long, float, double or String",
+			"Types invalid in '" + context.getText() + "' both have to be either int, long, float, double or String or first is String",
 			module,
 			context
 		);

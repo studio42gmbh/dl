@@ -46,6 +46,20 @@ public class Xor extends BinaryOperator
 	@Override
 	public Boolean evaluate()
 	{
-		return !Objects.equals(first.evaluate(), second.evaluate());
+		Object fst = first.evaluate();
+		
+		// Convert enums to strings to allow convenient comparison
+		if (fst instanceof Enum) {
+			fst = fst.toString();
+		}
+		
+		Object snd = second.evaluate();
+		
+		// Convert enums to strings to allow convenient comparison
+		if (snd instanceof Enum) {
+			snd = snd.toString();
+		}
+				
+		return !Objects.equals(fst, snd);
 	}
 }

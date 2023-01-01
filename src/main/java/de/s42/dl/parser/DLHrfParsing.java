@@ -29,7 +29,6 @@ import de.s42.dl.parser.expression.DLHrfExpressionParser;
 import de.s42.dl.*;
 import de.s42.dl.exceptions.*;
 import de.s42.dl.attributes.DefaultDLAttribute;
-import de.s42.dl.types.DefaultDLEnum;
 import de.s42.dl.types.DefaultDLType;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -48,7 +47,6 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import org.antlr.v4.runtime.CharStream;
-import org.xml.sax.InputSource;
 
 /**
  *
@@ -72,7 +70,6 @@ public class DLHrfParsing extends DLParserBaseListener
 	private DLInstance currentInstance;
 	private DLInstance lastInstance;
 	private DefaultDLType currentType;
-	private DefaultDLEnum currentEnum;
 
 	private final Deque<DLInstance> currentAttributeAssignmentInstances = new ArrayDeque<>();
 	protected DefaultDLAttribute dlInstanceAssignAttribute;
@@ -314,7 +311,7 @@ public class DLHrfParsing extends DLParserBaseListener
 								"Error binding annotation '"
 								+ annotationName
 								+ "' to pragma '"
-								+ currentEnum.getName() + "'", ex, aCtx.annotationName()), ex);
+								+ pragma.getName() + "'", ex, aCtx.annotationName()), ex);
 					}
 				});
 
@@ -443,7 +440,7 @@ public class DLHrfParsing extends DLParserBaseListener
 						"Error requiring module '" + ctx.requireModule().getText() + "'",
 						ex,
 						ctx.requireModule()),
-					 ex);
+					ex);
 			}
 		} catch (DLException ex) {
 			throw new RuntimeException(ex);
@@ -468,7 +465,8 @@ public class DLHrfParsing extends DLParserBaseListener
 					DLEnum enumImpl = core.createEnum((Class<Enum>) Class.forName(enumName));
 
 					// Map the enum as defined
-					core.defineType(enumImpl);
+					DLType enumType = core.defineType(enumImpl);
+					module.addDefinedType(enumType);
 
 					// Define alias for the given annotationName
 					if (!enumImpl.getName().equals(enumName)) {
@@ -488,28 +486,28 @@ public class DLHrfParsing extends DLParserBaseListener
 			} // Define a new enum
 			else {
 
-				currentEnum = (DefaultDLEnum) core.createEnum();
-				currentEnum.setName(ctx.enumName().getText());
-				core.defineType(currentEnum);
+				DLEnum enumType = core.createEnum(ctx.enumName().getText());
+				core.defineType(enumType);
+				module.addDefinedType(enumType);
 
 				// Map annotations
 				mapAnnotations(ctx.annotation(), (annotationName, parameters, aCtx) -> {
 					try {
-						core.createAnnotation(annotationName, currentEnum, parameters);
+						core.createAnnotation(annotationName, enumType, parameters);
 					} catch (DLException ex) {
 						throw new InvalidAnnotation(
 							createErrorMessage(module,
 								"Error binding annotation '"
 								+ annotationName
 								+ "' to enum '"
-								+ currentEnum.getName() + "'", ex, aCtx.annotationName()), ex);
+								+ enumType.getName() + "'", ex, aCtx.annotationName()), ex);
 					}
 				});
 
 				// Define aliases from enum definition
 				if (ctx.aliases() != null) {
 					for (AliasNameContext aliasCtx : ctx.aliases().aliasName()) {
-						core.defineAliasForType(aliasCtx.identifier().getText(), currentEnum);
+						core.defineAliasForType(aliasCtx.identifier().getText(), enumType);
 					}
 				}
 
@@ -518,7 +516,7 @@ public class DLHrfParsing extends DLParserBaseListener
 
 					if (aCtx.symbolOrString() != null) {
 
-						currentEnum.addValue(aCtx.symbolOrString().getText());
+						enumType.addValue(aCtx.symbolOrString().getText());
 					}
 				}
 			}
@@ -1233,30 +1231,30 @@ public class DLHrfParsing extends DLParserBaseListener
 	public static DLModule parse(DLCore core, String moduleId, String data) throws DLException
 	{
 		assert data != null;
-		
+
 		return parse(core, moduleId, CharStreams.fromString(data));
 	}
-	
+
 	public static DLModule parse(DLCore core, String moduleId, Path data) throws DLException, IOException
 	{
 		assert data != null;
-		
+
 		return parse(core, moduleId, CharStreams.fromPath(data));
 	}
-	
+
 	public static DLModule parse(DLCore core, String moduleId, InputStream data) throws DLException, IOException
 	{
 		assert data != null;
-		
+
 		return parse(core, moduleId, CharStreams.fromStream(data));
 	}
-		
+
 	public static DLModule parse(DLCore core, String moduleId, CharStream data) throws DLException
 	{
 		assert core != null;
 		assert moduleId != null;
 		assert data != null;
-		
+
 		DLModule module = core.createModule(moduleId);
 
 		DLHrfParsing parsing = new DLHrfParsing(core, module);
@@ -1287,9 +1285,8 @@ public class DLHrfParsing extends DLParserBaseListener
 			// Otherwise just forward ex
 			throw ex;
 		}
-		
+
 		return module;
-	}	
-	
-	
+	}
+
 }

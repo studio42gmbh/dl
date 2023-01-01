@@ -78,6 +78,7 @@ public class DefaultDLEnum extends DefaultDLType implements DLEnum
 		return values.list();
 	}
 
+	@Override
 	public void addValue(String value) throws InvalidValue
 	{
 		assert value != null;

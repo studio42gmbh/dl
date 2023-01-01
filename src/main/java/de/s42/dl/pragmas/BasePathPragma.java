@@ -69,6 +69,6 @@ public class BasePathPragma extends AbstractDLPragma
 
 		((BaseDLCore) core).setBasePath(basePath);
 
-		log.debug("Set core base path to '" + basePath.toAbsolutePath().toString() + "'");
+		//log.debug("Set core base path to '" + basePath.toAbsolutePath().toString() + "'");
 	}
 }
