@@ -32,7 +32,7 @@ type A3;
 
 type B2 extends A2; 
 
-type B @containOnce(B2) @contain(A, 2, 5) contains A, A3; 
+type B @contain(B2, 1, 1) @contain(A, 2, 5) contains A, A3; 
 
 type C extends B; 
 

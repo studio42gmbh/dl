@@ -223,7 +223,6 @@ POW :					'^' ;
 
 // WHITESPACE -> DISCARD
 
-WS :					[ \t\n\r]+ -> skip ;
-
+WS :					[ \t\n\r]+  -> channel(HIDDEN) ;
 
 // END

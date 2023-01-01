@@ -81,11 +81,11 @@ public class DLFileTest
 		Assert.assertEquals(user.get("id"), UUID.fromString("ad232384-4a04-4119-9e95-4753f31e3b09"));
 		Assert.assertEquals(user.get("name"), "John \"Rambo\" Doe");
 
-		DLInstance user2 = module.getChild(1);
+		DLInstance user2 = module.getChild(2);
 		Assert.assertEquals(user2.get("id"), UUID.fromString("bd232384-4a04-4119-9e95-4753f31e3b09"));
 		Assert.assertEquals(user2.get("name"), "John \"Rambo\" Doe 2");
 
-		DLInstance user3 = module.getChild(2);
+		DLInstance user3 = module.getChild(3);
 		Assert.assertEquals(user3.get("id"), UUID.fromString("bd332384-4a04-4119-9e95-4753f31e3b08"));
 		Assert.assertEquals(user3.get("name"), "Default Name");
 	}

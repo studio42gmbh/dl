@@ -24,6 +24,9 @@
  */
 //</editor-fold>
 
+// This will be treated as a child in this module as well -> so careful when accessing by offset in modules
+require "dl:standard/base.dl";
+
 UUID id: "ad232384-4a04-4119-9e95-4753f31e3b09";
 
 type User @dynamic {	

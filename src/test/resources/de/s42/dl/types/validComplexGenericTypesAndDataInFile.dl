@@ -24,6 +24,8 @@
  */
 //</editor-fold>
 
+require "dl:standard/base.dl";
+
 abstract type Test;
 
 type TestInt extends Test
