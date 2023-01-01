@@ -30,6 +30,7 @@ extern type de.s42.dl.types.base.UUIDDLType alias UUID, java.util.UUID, uuid;
 extern type de.s42.dl.types.base.DateDLType alias Date, java.util.Date, java.sql.Timestamp;
 
 extern type de.s42.dl.DLEntity alias DLEntity;
+extern type de.s42.dl.instances.base.Environment;
 
 // Module information
 String description: "This module defines the basic annotations, types, enums";

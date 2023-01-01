@@ -24,6 +24,8 @@
  */
 //</editor-fold>
 
+require "dl:standard/base.dl";
+
 type User @dynamic {
 	
 	String name /*@length(4, 120)*/ : "Default";
