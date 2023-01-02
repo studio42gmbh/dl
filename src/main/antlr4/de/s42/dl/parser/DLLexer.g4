@@ -224,4 +224,10 @@ POW :					'^' ;
 
 WS :					[ \t\n\r]+  -> channel(HIDDEN) ;
 
+// CAPTURE THE REST AS UNKNOWN TOKENs 
+// this makes usind this lexer easier to use in IDEs etc. as 
+// it can not end in a partial state like STRING which annoys the parsers
+
+UNKNOWN :				. ;
+
 // END
