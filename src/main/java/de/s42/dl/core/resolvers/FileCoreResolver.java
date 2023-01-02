@@ -181,9 +181,9 @@ public class FileCoreResolver implements DLCoreResolver
 				}
 			}
 
-			throw new InvalidModule("\"Error loading module from file - Unrecognized file type " + fileType);
+			throw new InvalidModule("\"Error loading module from file '" + modulePath + "' - Unrecognized file type " + fileType);
 		} catch (IOException ex) {
-			throw new InvalidModule("Error loading module from file - " + ex.getMessage(), ex);
+			throw new InvalidModule("Error loading module from file '" + modulePath + "' - " + ex.getMessage(), ex);
 		} finally {
 			// Set config back to old path
 			setLocalPathInCore(core, oldLocalPath);
