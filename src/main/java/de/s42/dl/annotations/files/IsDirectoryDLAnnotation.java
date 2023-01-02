@@ -27,7 +27,7 @@ package de.s42.dl.annotations.files;
 
 import de.s42.dl.DLAttribute;
 import de.s42.dl.DLInstance;
-import de.s42.dl.annotations.AbstractDLConcept;
+import de.s42.dl.annotations.AbstractDLContract;
 import de.s42.dl.annotations.DLAnnotationType;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidDirectory;
@@ -43,7 +43,7 @@ import java.nio.file.Path;
  *
  * @author Benjamin Schiller
  */
-public class IsDirectoryDLAnnotation extends AbstractDLConcept<IsDirectoryDLAnnotation>
+public class IsDirectoryDLAnnotation extends AbstractDLContract<IsDirectoryDLAnnotation>
 {
 
 	@Retention(RetentionPolicy.RUNTIME)

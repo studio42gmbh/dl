@@ -40,7 +40,7 @@ import java.lang.annotation.Target;
  *
  * @author Benjamin Schiller
  */
-public class ContainDLAnnotation extends AbstractDLConcept<ContainDLAnnotation>
+public class ContainDLAnnotation extends AbstractDLContract<ContainDLAnnotation>
 {
 
 	@Retention(RetentionPolicy.RUNTIME)

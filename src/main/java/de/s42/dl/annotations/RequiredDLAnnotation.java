@@ -39,7 +39,7 @@ import java.lang.annotation.Target;
  *
  * @author Benjamin Schiller
  */
-public class RequiredDLAnnotation extends AbstractDLConcept<RequiredDLAnnotation>
+public class RequiredDLAnnotation extends AbstractDLContract<RequiredDLAnnotation>
 {
 
 	@Retention(RetentionPolicy.RUNTIME)

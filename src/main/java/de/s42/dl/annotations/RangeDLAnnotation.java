@@ -26,9 +26,7 @@
 package de.s42.dl.annotations;
 
 import de.s42.dl.DLAttribute;
-import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
-import de.s42.dl.DLType;
 import de.s42.dl.attributes.DefaultDLAttribute;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.types.DefaultDLType;
@@ -43,11 +41,11 @@ import java.lang.annotation.Target;
  *
  * @author Benjamin Schiller
  */
-public class RangeDLAnnotation extends AbstractDLConcept<RequiredDLAnnotation>
+public class RangeDLAnnotation extends AbstractDLContract<RequiredDLAnnotation>
 {
 
 	public final static String DEFAULT_SYMBOL = "range";
-	
+
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = {ElementType.FIELD})
 	@DLAnnotationType(RangeDLAnnotation.class)
@@ -64,7 +62,7 @@ public class RangeDLAnnotation extends AbstractDLConcept<RequiredDLAnnotation>
 
 	@DLAnnotationParameter(ordinal = 1, defaultValue = "2147483647")
 	protected int max = Integer.MAX_VALUE;
-	
+
 	private String attributeName;
 
 	@Override
@@ -74,7 +72,7 @@ public class RangeDLAnnotation extends AbstractDLConcept<RequiredDLAnnotation>
 	}
 
 	@Override
-	public boolean validate(DLInstance instance, ValidationResult result) 
+	public boolean validate(DLInstance instance, ValidationResult result)
 	{
 		return validateValue(instance.get(name), result);
 	}
@@ -85,7 +83,7 @@ public class RangeDLAnnotation extends AbstractDLConcept<RequiredDLAnnotation>
 		if (val == null) {
 			return true;
 		}
-		
+
 		// make sure its a Number
 		if (!(val instanceof Number)) {
 			result.addError(InvalidValueType.toString(), "Attribute has to be of type Number");
@@ -98,15 +96,15 @@ public class RangeDLAnnotation extends AbstractDLConcept<RequiredDLAnnotation>
 			result.addError(InvalidValueType.toString(), "Attribute '" + name + "' has to be min " + min + " but is " + doubleVal);
 			return false;
 		}
-		
+
 		if (doubleVal > max) {
 			result.addError(InvalidValueType.toString(), "Attribute '" + name + "' has to be max " + max + " but is " + doubleVal);
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	@Override
 	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation
 	{
@@ -115,6 +113,6 @@ public class RangeDLAnnotation extends AbstractDLConcept<RequiredDLAnnotation>
 		this.attributeName = attribute.getName();
 
 		((DefaultDLType) attribute.getContainer()).addInstanceValidator(this);
-		((DefaultDLAttribute)attribute).addValidator(this);
+		((DefaultDLAttribute) attribute).addValidator(this);
 	}
 }

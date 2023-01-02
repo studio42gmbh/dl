@@ -45,7 +45,7 @@ import java.util.regex.Pattern;
  *
  * @author Benjamin Schiller
  */
-public class AttributeNamesDLAnnotation extends AbstractDLConcept<AttributeNamesDLAnnotation>
+public class AttributeNamesDLAnnotation extends AbstractDLContract<AttributeNamesDLAnnotation>
 {
 
 	private final static Logger log = LogManager.getLogger(AttributeNamesDLAnnotation.class.getName());

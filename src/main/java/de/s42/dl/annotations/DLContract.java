@@ -25,40 +25,14 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.DLAttribute;
-import de.s42.dl.DLInstance;
-import de.s42.dl.DLType;
-import static de.s42.dl.validation.DefaultValidationCode.CanNotValidateAttribute;
-import static de.s42.dl.validation.DefaultValidationCode.CanNotValidateInstance;
-import static de.s42.dl.validation.DefaultValidationCode.CanNotValidateType;
-import de.s42.dl.validation.ValidationResult;
+import de.s42.dl.DLAnnotation;
+import de.s42.dl.validation.DLValidator;
 
 /**
  *
  * @author Benjamin Schiller
- * @param <DLConceptType>
  */
-public abstract class AbstractDLConcept<DLConceptType extends DLConcept> extends AbstractDLAnnotation<DLConceptType> implements DLConcept
+public interface DLContract extends DLValidator, DLAnnotation
 {
 	
-	@Override
-	public boolean validate(DLAttribute attribute, ValidationResult result)
-	{
-		result.addError(CanNotValidateAttribute.toString(), "Concept " + getClass().getCanonicalName() + " can not validate an attribute");
-		return false;
-	}
-
-	@Override
-	public boolean validate(DLInstance instance, ValidationResult result)
-	{
-		result.addError(CanNotValidateInstance.toString(), "Concept " + getClass().getCanonicalName() + " can not validate an instance");
-		return false;
-	}
-
-	@Override
-	public boolean validate(DLType type, ValidationResult result)
-	{
-		result.addError(CanNotValidateType.toString(), "Concept " + getClass().getCanonicalName() + " can not validate a type");
-		return false;
-	}
 }

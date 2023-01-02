@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
  *
  * @author Benjamin Schiller
  */
-public class TypeNameDLAnnotation extends AbstractDLConcept<TypeNameDLAnnotation>
+public class TypeNameDLAnnotation extends AbstractDLContract<TypeNameDLAnnotation>
 {
 
 	@Retention(RetentionPolicy.RUNTIME)
@@ -49,8 +49,9 @@ public class TypeNameDLAnnotation extends AbstractDLConcept<TypeNameDLAnnotation
 	@DLAnnotationType(TypeNameDLAnnotation.class)
 	public static @interface typeName
 	{
+
 		public String pattern();
-		
+
 		public boolean ignoreAbstract() default false;
 	}
 
@@ -59,24 +60,24 @@ public class TypeNameDLAnnotation extends AbstractDLConcept<TypeNameDLAnnotation
 
 	@DLAnnotationParameter(ordinal = 1, required = false, defaultValue = "false")
 	protected boolean ignoreAbstract = false;
-	
+
 	private Pattern patternPattern;
-	
+
 	@Override
 	public boolean validate(DLType type, ValidationResult result)
 	{
 		assert type != null;
 		assert result != null;
-		
+
 		if (isIgnoreAbstract() && type.isAbstract()) {
-			return true;			
+			return true;
 		}
-		
+
 		if (!patternPattern.matcher(type.getName()).matches()) {
 			result.addError(NotMatching.toString(), "Type name '" + type.getName() + "' does not match pattern '" + pattern + "'");
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -84,9 +85,9 @@ public class TypeNameDLAnnotation extends AbstractDLConcept<TypeNameDLAnnotation
 	public void bindToType(DLType type) throws DLException
 	{
 		assert type != null;
-		
+
 		type.addValidator(this);
-		
+
 		// Precompile pattern - after binding the pattern and typepattern may not get changed anymore for consistency
 		patternPattern = Pattern.compile(pattern);
 	}
@@ -100,7 +101,7 @@ public class TypeNameDLAnnotation extends AbstractDLConcept<TypeNameDLAnnotation
 	public void setPattern(String pattern)
 	{
 		assert patternPattern == null;
-		
+
 		this.pattern = pattern;
 	}
 
