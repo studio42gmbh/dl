@@ -37,7 +37,7 @@ public interface DLModule extends DLInstance
 
 	public String getShortName();
 
-	public Optional<?> resolveReference(DLCore core, String path);
+	public Optional<?> resolveReference(String path);
 
 	public List<DLType> getDefinedTypes();
 

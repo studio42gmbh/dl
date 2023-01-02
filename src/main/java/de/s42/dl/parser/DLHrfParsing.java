@@ -91,7 +91,7 @@ public class DLHrfParsing extends DLParserBaseListener
 
 	protected Object resolveReference(String refId, ParserRuleContext context) throws InvalidValue
 	{
-		return DLHrfExpressionParser.resolveReference(core, module, refId, context);
+		return DLHrfExpressionParser.resolveReference(module, refId, context);
 	}
 
 	protected DLType fetchTypeIdentifier(InstanceTypeContext ctx) throws DLException
@@ -240,6 +240,17 @@ public class DLHrfParsing extends DLParserBaseListener
 		}
 	}
 
+	public static String getRequireModuleId(RequireModuleIdContext ctx)
+	{
+		assert ctx != null;
+
+		if (ctx.STRING_LITERAL() != null) {
+			return DLHrfExpressionParser.unescapeString(ctx.STRING_LITERAL().getText());
+		} else {
+			return ctx.SYMBOL().getText();
+		}
+	}
+	
 	@Override
 	public void enterAssert(AssertContext ctx)
 	{
@@ -417,6 +428,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	@Override
 	public void enterRequire(RequireContext ctx)
 	{
+		assert ctx != null;
+
 		try {
 
 			// Check if requiring is allowed
@@ -424,9 +437,13 @@ public class DLHrfParsing extends DLParserBaseListener
 				throw new InvalidCore("Not allowed to require in core");
 			}
 
+			// Require a module from the given id
+			String requiredModuleId = getRequireModuleId(ctx.requireModuleId());
+
+			// If it is a string unsecape it
 			try {
-				// Require a module from the given id
-				DLModule requiredModule = core.parse(ctx.requireModule().getText());
+
+				DLModule requiredModule = core.parse(requiredModuleId);
 
 				// Make sure a module that was already required is not added twice
 				if (!module.hasChild(requiredModule.getName())) {
@@ -437,9 +454,9 @@ public class DLHrfParsing extends DLParserBaseListener
 				throw new InvalidModule(
 					createErrorMessage(
 						module,
-						"Error requiring module '" + ctx.requireModule().getText() + "'",
+						"Error requiring module '" + requiredModuleId + "'",
 						ex,
-						ctx.requireModule()),
+						ctx.requireModuleId()),
 					ex);
 			}
 		} catch (DLException ex) {
@@ -513,11 +530,7 @@ public class DLHrfParsing extends DLParserBaseListener
 
 				// Map values
 				for (EnumValueDefinitionContext aCtx : ctx.enumBody().enumValueDefinition()) {
-
-					if (aCtx.symbolOrString() != null) {
-
-						enumType.addValue(aCtx.symbolOrString().getText());
-					}
+					enumType.addValue(aCtx.getText());
 				}
 			}
 		} catch (DLException ex) {

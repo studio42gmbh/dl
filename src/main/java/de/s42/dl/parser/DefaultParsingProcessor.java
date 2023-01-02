@@ -29,6 +29,7 @@ import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLModule;
 import de.s42.dl.DLType;
+import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -66,9 +67,13 @@ public class DefaultParsingProcessor implements DLParsingProcessor
 	@Override
 	public void beginModule() throws IOException
 	{
-		module = core.createModule();
-		idBySymbol.clear();
-		symbolById.clear();
+		try {
+			module = core.createModule();
+			idBySymbol.clear();
+			symbolById.clear();
+		} catch (DLException ex) {
+			throw new IOException("Could not begin module - " + ex.getMessage(), ex);
+		}
 	}
 
 	@Override

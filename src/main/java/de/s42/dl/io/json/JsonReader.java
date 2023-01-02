@@ -34,7 +34,6 @@ import de.s42.dl.DLType;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidType;
-import de.s42.dl.instances.DefaultDLModule;
 import de.s42.dl.io.DLReader;
 import de.s42.dl.validation.ValidationResult;
 import java.io.IOException;
@@ -80,11 +79,14 @@ public class JsonReader implements DLReader
 
 	private void init(DLCore core, String json) throws IOException
 	{
+		assert core != null;
+		assert json != null;
+
 		try {
 			// Handle arrays
 			if (json.startsWith("[")) {
 
-				module = new DefaultDLModule();
+				module = core.createModule();
 
 				JSONArray array = new JSONArray(json);
 
@@ -100,7 +102,7 @@ public class JsonReader implements DLReader
 				if (instance instanceof DLModule) {
 					module = (DLModule) instance;
 				} else {
-					module = new DefaultDLModule();
+					module = core.createModule();
 					module.addChild(instance);
 				}
 			}

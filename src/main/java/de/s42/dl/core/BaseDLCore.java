@@ -53,6 +53,7 @@ import de.s42.dl.types.DLContainer;
 import de.s42.dl.types.DefaultDLEnum;
 import de.s42.dl.types.DefaultDLType;
 import de.s42.dl.types.base.ArrayDLType;
+import de.s42.dl.types.dl.ModuleDLType;
 import de.s42.dl.types.primitive.ObjectDLType;
 import de.s42.dl.validation.ValidationResult;
 import de.s42.log.LogManager;
@@ -102,6 +103,26 @@ public class BaseDLCore implements DLCore
 		allowUsePragmas = allowAll;
 		allowRequire = allowAll;
 		allowUseAsserts = allowAll;
+		
+		init();
+	}
+	
+	private void init()	
+	{
+		loadModuleType(this);
+	}
+	
+	/**
+	 * A core needs to provide a module type to bootstrap loading modules
+	 * @param core 
+	 */
+	public static void loadModuleType(BaseDLCore core)
+	{
+		assert core != null;
+		
+		ModuleDLType moduleType = new ModuleDLType(core);
+		core.types.add(moduleType.getName(), moduleType);
+		core.types.add(DLModule.class.getName(), moduleType);
 	}
 
 	public BaseDLCore copy() throws InvalidCore
@@ -148,55 +169,37 @@ public class BaseDLCore implements DLCore
 	@Override
 	public DLType createType()
 	{
-		DefaultDLType type = new DefaultDLType();
-		type.setCore(this);
-
-		return type;
+		return new DefaultDLType(this);
 	}
 
 	@Override
 	public DLType createType(String typeName)
 	{
-		DefaultDLType type = new DefaultDLType(typeName);
-		type.setCore(this);
-
-		return type;
+		return new DefaultDLType(this, typeName);
 	}
 
 	@Override
 	public DLEnum createEnum()
 	{
-		DefaultDLEnum type = new DefaultDLEnum();
-		type.setCore(this);
-
-		return type;
+		return new DefaultDLEnum(this);
 	}
 
 	@Override
 	public DLEnum createEnum(String name)
 	{
-		DefaultDLEnum type = new DefaultDLEnum(name);
-		type.setCore(this);
-
-		return type;
+		return new DefaultDLEnum(this, name);
 	}
 
 	@Override
 	public DLEnum createEnum(String name, Class<? extends Enum> enumImpl)
 	{
-		DefaultDLEnum type = new DefaultDLEnum(name, enumImpl);
-		type.setCore(this);
-
-		return type;
+		return new DefaultDLEnum(this, name, enumImpl);
 	}
 
 	@Override
 	public DLEnum createEnum(Class<? extends Enum> enumImpl)
 	{
-		DefaultDLEnum type = new DefaultDLEnum(enumImpl);
-		type.setCore(this);
-
-		return type;
+		return new DefaultDLEnum(this, enumImpl);
 	}
 
 	@Override
@@ -1405,15 +1408,19 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public DLModule createModule()
-	{
-		return new DefaultDLModule();
+	public DLModule createModule() throws InvalidType
+	{		
+		return new DefaultDLModule(getType(DLModule.class).orElseThrow(() -> {			
+			return new InvalidType("Could not resolve type for module");
+		}));		
 	}
 
 	@Override
-	public DLModule createModule(String name)
+	public DLModule createModule(String name) throws InvalidType
 	{
-		return new DefaultDLModule(name);
+		return new DefaultDLModule(getType(DLModule.class).orElseThrow(() -> {			
+			return new InvalidType("Could not resolve type for module");
+		}), name);		
 	}
 
 	@Override

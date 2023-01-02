@@ -85,11 +85,27 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 	}
 
+	public DefaultDLType(DLCore core)
+	{
+		assert core != null;
+
+		this.core = core;
+	}
+
 	public DefaultDLType(String name)
 	{
 		assert name != null;
 
 		this.name = name;
+	}
+
+	public DefaultDLType(DLCore core, String name)
+	{
+		assert name != null;
+		assert core != null;
+
+		this.name = name;
+		this.core = core;
 	}
 
 	public DefaultDLType(String name, Class javaType)

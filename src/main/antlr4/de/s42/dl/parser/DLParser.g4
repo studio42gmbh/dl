@@ -58,7 +58,6 @@ staticParameterName : identifier ;
 genericParameters : GENERIC_OPEN genericParameter ( COMMA genericParameter )* COMMA? GENERIC_CLOSE ;
 genericParameter : identifier ;
 
-symbolOrString : STRING_LITERAL | SYMBOL ;
 aliases : KEYWORD_ALIAS aliasName ( COMMA aliasName )* ;
 aliasName : identifier;
 
@@ -124,10 +123,10 @@ aliasDefinition : identifier ;
 
 require : 
 	KEYWORD_REQUIRE 
-	requireModule 
+	requireModuleId
 	SEMI_COLON ;
 
-requireModule : symbolOrString ;
+requireModuleId : STRING_LITERAL | SYMBOL ;
 
 
 // ANNOTATIONDEFINITION
@@ -174,7 +173,7 @@ enumDefinition :
 
 enumName : identifier;
 enumBody : SCOPE_OPEN enumValueDefinition ( COMMA enumValueDefinition )* COMMA? SCOPE_CLOSE ;
-enumValueDefinition : symbolOrString ;
+enumValueDefinition : SYMBOL ;
 
 
 // TYPE ATTRIBUTE DEFINITION

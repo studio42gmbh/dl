@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl.parser.expression;
 
+import de.s42.base.strings.StringHelper;
 import de.s42.dl.parser.expression.operators.Xor;
 import de.s42.dl.parser.expression.operators.Or;
 import de.s42.dl.parser.expression.operators.Not;
@@ -49,9 +50,7 @@ import java.util.Optional;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 /**
- * Handles expressions in DL. This is just a reference implementation. In case expressions will be part of the DL spec
- * this has to be optimized.
- * See https://github.com/studio42gmbh/dl/issues/20
+ * Handles expressions in DL. This is a reference implementation.
  *
  * @author Benjamin Schiller
  */
@@ -166,11 +165,11 @@ public final class DLHrfExpressionParser
 		Object value;
 
 		if (ctx.STRING_LITERAL() != null) {
-			value = ctx.getText();
+			value = unescapeString(ctx.getText());
 		} else if (ctx.SYMBOL() != null) {
 			value = ctx.getText();
 		} else if (ctx.INTEGER_LITERAL() != null) {
-			// https://github.com/studio42gmbh/dl/issues/26
+			// DLHrfParsing Allow hexadecimal numbers ad basic format in HRF DL 0x00... (#26)
 			String t = ctx.INTEGER_LITERAL().getText();
 			if (t.startsWith("0") && t.length() > 1) {
 				if (t.startsWith("0x")) {
@@ -192,7 +191,7 @@ public final class DLHrfExpressionParser
 				value = false;
 			}
 		} else if (ctx.REF() != null) {
-			value = resolveReference(core, module, ctx.REF().getText(), ctx);
+			value = resolveReference(module, ctx.REF().getText(), ctx);
 		} else {
 			throw new DLHrfParsingException(
 				"Unknown atom part " + ctx.getText(),
@@ -221,11 +220,16 @@ public final class DLHrfExpressionParser
 			return new Atom(value);
 		}
 	}
+	
+	public static String unescapeString(String stringValue)
+	{
+		return StringHelper.unescapeJavaString(stringValue.substring(1, stringValue.length() - 1));		
+	}
 
-	public static Object resolveReference(DLCore core, DLModule module, String refId, ParserRuleContext ctx) throws ParserException
+	public static Object resolveReference(DLModule module, String refId, ParserRuleContext ctx) throws ParserException
 	{
 		// Resolve the reference ignoring the first char which is the $ sign
-		Optional ref = module.resolveReference(core, refId.substring(1));
+		Optional ref = module.resolveReference(refId.substring(1));
 
 		// Empty references are treated as errors
 		if (ref.isEmpty()) {

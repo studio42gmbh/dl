@@ -180,12 +180,11 @@ BOOLEAN_LITERAL :		'true' | 'false' ;
 // string literal which strips the leading and trailing quotes 
 // and also removes escaping \ already at lexer level
 fragment ESCAPED_QUOTE :'\\"' ;
-STRING_LITERAL :		'"' ( ESCAPED_QUOTE | ~('\n'|'\r') )*? '"' 
-	{ setText(de.s42.base.strings.StringHelper.unescapeJavaString(getText().substring(1, getText().length() - 1))); } ;
+STRING_LITERAL :		'"' ( ESCAPED_QUOTE | ~('\n'|'\r') )*? '"' ;
 
 FLOAT_LITERAL :			'-'? [0-9]+ '.' [0-9]+ ('E' [-+]? [0-9]+)? ;
 
-// https://github.com/studio42gmbh/dl/issues/26 DLHrfParsing Allow hexadecimal numbers ad basic format in HRF DL 0x00...
+// DLHrfParsing Allow hexadecimal numbers ad basic format in HRF DL 0x00... (#26)
 INTEGER_LITERAL :		'-'? [0-9] [xXbB]? [0-9]* ;
 
 // rather restrictive - but ref symbols should be well readable anyways not some special sign party

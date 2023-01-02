@@ -97,6 +97,11 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 		this.type = type;
 	}
 
+	public DLCore getCore()
+	{
+		return getType().getCore();
+	}
+
 	@Override
 	public boolean addValidator(DLInstanceValidator validator)
 	{
@@ -587,7 +592,7 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	{
 		try {
 			if (javaObject == null) {
-				DLCore core = getType().getCore();
+				DLCore core = getCore();
 				javaObject = core.convertFromInstance(this);
 			}
 		} catch (Throwable ex) {
@@ -643,21 +648,20 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
-		
+
 		if (type != null) {
 			builder.append(type.getCanonicalName());
 		}
-		
+
 		if (name != null) {
 			builder.append(" ");
 			builder.append(name);
 		}
-		
+
 		/*for (DLAnnotation annotation : annotations) {
 			builder.append(" ");
 			builder.append(annotation.toString());
 		}*/
-		
-		return builder.toString();		
+		return builder.toString();
 	}
 }

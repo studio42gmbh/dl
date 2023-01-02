@@ -54,9 +54,28 @@ public class DefaultDLEnum extends DefaultDLType implements DLEnum
 		javaType = String.class;
 	}
 
+	public DefaultDLEnum(DLCore core)
+	{
+		super(core);
+		
+		javaType = String.class;
+	}
+
+	public DefaultDLEnum(DLCore core, String name)
+	{
+		super(core, name);
+
+		javaType = String.class;
+	}
+	
 	public DefaultDLEnum(Class<? extends Enum> enumImpl)
 	{
 		this(enumImpl.getName(), enumImpl);
+	}
+
+	public DefaultDLEnum(DLCore core, Class<? extends Enum> enumImpl)
+	{
+		this(core, enumImpl.getName(), enumImpl);
 	}
 
 	public DefaultDLEnum(String name, Class<? extends Enum> enumImpl)
@@ -72,6 +91,20 @@ public class DefaultDLEnum extends DefaultDLType implements DLEnum
 		}
 	}
 
+	public DefaultDLEnum(DLCore core, String name, Class<? extends Enum> enumImpl)
+	{
+		super(core, name);
+
+		assert enumImpl != null;
+
+		javaType = enumImpl;
+
+		for (Object enumC : enumImpl.getEnumConstants()) {
+			values.add(enumC.toString(), enumC);
+		}
+	}
+
+	
 	@Override
 	public List getValues()
 	{

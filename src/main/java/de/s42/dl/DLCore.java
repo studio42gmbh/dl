@@ -48,9 +48,9 @@ public interface DLCore
 
 	public DLModule parse(String moduleId, String data) throws DLException;
 
-	public DLModule createModule();
+	public DLModule createModule() throws DLException;
 
-	public DLModule createModule(String name);
+	public DLModule createModule(String name) throws DLException;
 
 	// INSTANCES
 	public DLInstance createInstance(DLType type);

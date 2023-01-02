@@ -26,7 +26,6 @@
 package de.s42.dl.instances;
 
 import de.s42.dl.*;
-import de.s42.dl.types.dl.ModuleDLType;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,20 +38,23 @@ import java.util.Optional;
  */
 public class DefaultDLModule extends DefaultDLInstance implements DLModule
 {
-	public final static DLType MODULE_TYPE = new ModuleDLType();
-	
 	protected final List<DLType> definedTypes = new ArrayList<>();
-
-	public DefaultDLModule()
+	
+	/*public DefaultDLModule()
 	{
-		super(MODULE_TYPE);
+		super();
+	}*/
+
+	public DefaultDLModule(DLType type)
+	{
+		super(type);
 	}
 
-	public DefaultDLModule(String name)
+	public DefaultDLModule(DLType type, String name)
 	{
-		super(MODULE_TYPE, name);
+		super(type, name);
 	}
-
+	
 	@Override
 	public String getShortName()
 	{
@@ -73,10 +75,11 @@ public class DefaultDLModule extends DefaultDLInstance implements DLModule
 	}
 
 	@Override
-	public Optional<?> resolveReference(DLCore core, String path)
+	public Optional<?> resolveReference(String path)
 	{
-		assert core != null;
 		assert path != null;
+		
+		DLCore core = getCore();
 
 		Object exportedOpt = core.resolveExportedPath(path);
 

@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl.types.dl;
 
+import de.s42.dl.DLCore;
 import de.s42.dl.DLType;
 import de.s42.dl.types.DefaultDLType;
 import java.util.HashMap;
@@ -53,9 +54,29 @@ public class ModuleDLType extends DefaultDLType
 	public ModuleDLType(String name)
 	{
 		super(name);
+		
 		init();
 	}
 
+	public ModuleDLType(DLCore core)
+	{
+		this(core, DEFAULT_SYMBOL);
+	}
+
+	public ModuleDLType(DLCore core, DLType parent)
+	{
+		this(core, DEFAULT_SYMBOL);
+
+		addParent(parent);
+	}
+
+	public ModuleDLType(DLCore core, String name)
+	{
+		super(core, name);
+		
+		init();
+	}
+	
 	private void init()
 	{
 		setAllowDynamicAttributes(true);
