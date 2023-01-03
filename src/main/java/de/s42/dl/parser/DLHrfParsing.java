@@ -834,6 +834,16 @@ public class DLHrfParsing extends DLParserBaseListener
 					for (ParentTypeNameContext pCtx : typeHeader.parentTypeName()) {
 
 						String parentTypeName = pCtx.getText();
+						
+						// Ensure a class is not extended from itself
+						if (parentTypeName.equals(typeName)) {
+							throw new InvalidType(
+								createErrorMessage(
+									module,
+									"Type can not be extended by itself " + currentType.getCanonicalName(),
+									pCtx)
+							);
+						}
 
 						DLType parentType = core.getType(parentTypeName).orElseThrow(() -> {
 							return new UndefinedType(

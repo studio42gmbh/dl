@@ -468,12 +468,23 @@ public class DLTypesTest
 		);
 	}
 
+	// @todo
 	@Test
 	public void invalidAliasRedefineExternTypeAndAliasesLocalDuplicate() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		core.parse("aliasRedefineTypeAndAliases",
+		core.parse("invalidAliasRedefineExternTypeAndAliasesLocalDuplicate",
 			"extern type de.s42.dl.types.primitive.StringDLType alias java.lang.String, String, String, string, str;"
 		);
 	}
+	
+	@Test(expectedExceptions = InvalidType.class)
+	public void invalidTypeExtendsItself() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidTypeExtendsItself",
+			"type T extends T;"
+		);
+	}
+	
 }
