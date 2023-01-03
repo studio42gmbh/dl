@@ -220,9 +220,11 @@ DIV :					'/' ;
 POW :					'^' ;
 
 
-// WHITESPACE -> DISCARD
+// WHITESPACE -> Hide
 
-WS :					[ \t\n\r]+  -> channel(HIDDEN) ;
+WHITESPACES :			[ \t\r]+  -> channel(HIDDEN) ;
+
+NEWLINE :				[\n] -> channel(HIDDEN) ;
 
 // CAPTURE THE REST AS UNKNOWN TOKENs 
 // this makes usind this lexer easier to use in IDEs etc. as 

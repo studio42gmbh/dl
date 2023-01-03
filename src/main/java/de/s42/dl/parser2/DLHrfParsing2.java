@@ -33,6 +33,7 @@ import de.s42.dl.parser.DLParser;
 import de.s42.dl.parser.DLParserBaseListener;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
+import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
@@ -81,21 +82,28 @@ public class DLHrfParsing2 extends DLParserBaseListener
 		DLLexer lexer = new DLLexer(CharStreams.fromString(data));
 		lexer.removeErrorListeners();
 		lexer.addErrorListener(new DLHrfParsing2ErrorHandler(parsing, module));
-		TokenStream tokens = new CommonTokenStream(lexer);
+		TokenStream tokens = new BufferedTokenStream(lexer);
 
 		// @test Iterate tokens from lexer
+		boolean justNewline = false;
 		while (true) {
 			Token token = tokens.LT(1);
-			log.debug("TOKEN: " + token);
+			log.info("TOKEN : " + token);
 			if (token.getType() == DLLexer.EOF) {
 				break;
+			}
+			else if (token.getType() == DLLexer.NEWLINE) {
+				justNewline = true;
+			}			
+			else if (justNewline && token.getType() == DLLexer.WHITESPACES) {
+				log.warn("WS at beginning of line : " + token);
 			}
 			tokens.consume();
 		}
 		tokens.seek(0);
 		
 		// Setup parser
-		DLParser parser = new DLParser(tokens);
+		DLParser parser = new DLParser(new CommonTokenStream(lexer));
 		parser.removeErrorListeners();
 		parser.addErrorListener(new DLHrfParsing2ErrorHandler(parsing, module));
 
