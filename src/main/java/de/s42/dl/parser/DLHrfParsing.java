@@ -782,7 +782,10 @@ public class DLHrfParsing extends DLParserBaseListener
 					} catch (ClassNotFoundException ex) {
 						throw new InvalidType(createErrorMessage(module, "Class not found for type '" + typeName + "' - " + ex.getMessage(), ctx), ex);
 					}
-				} else {
+				} else {					
+					// Make sure also a repeated extern definition is added to the module types for consistency 
+					// (it should not matter in which order a module is loaded what types are defined)
+					module.addDefinedType(core.getType(typeName).orElseThrow());
 					currentType = null;
 				}
 			} // Define a type

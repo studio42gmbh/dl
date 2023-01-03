@@ -40,6 +40,7 @@ import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -54,10 +55,10 @@ public class FileCoreResolver implements DLCoreResolver
 
 	private final static Logger log = LogManager.getLogger(FileCoreResolver.class.getName());
 
-	public Path getLocalPathInCore(DLCore core)
+	public static Path getLocalPathInCore(DLCore core)
 	{
 		assert core != null;
-		
+
 		return (Path) core.getConfig(LOCAL_PATH_CONFIG_KEY, null);
 	}
 
@@ -67,19 +68,21 @@ public class FileCoreResolver implements DLCoreResolver
 	 * @param core
 	 * @param path
 	 */
-	public void setLocalPathInCore(DLCore core, Path path)
+	public static void setLocalPathInCore(DLCore core, Path path)
 	{
 		assert core != null;
 
 		core.setConfig(LOCAL_PATH_CONFIG_KEY, path);
 	}
 
-	public String getContent(DLCore core, String moduleId) throws InvalidModule, IOException
+	@Override
+	public String getContent(DLCore core, String resolvedModuleId, String data) throws InvalidModule, IOException
 	{
 		assert core != null;
-		assert moduleId != null;
+		assert resolvedModuleId != null;
+		assert data == null;
 
-		return FilesHelper.getFileAsString(resolveModulePath(core, moduleId).orElseThrow());
+		return FilesHelper.getFileAsString(Path.of(resolvedModuleId));
 	}
 
 	public Optional<Path> resolveModulePath(DLCore core, String moduleId)
@@ -87,31 +90,36 @@ public class FileCoreResolver implements DLCoreResolver
 		assert core != null;
 		assert moduleId != null;
 
-		Path filePath = Path.of(moduleId);
+		try {
 
-		// Look relative to current path
-		Path localPath = getLocalPathInCore(core);
-		if (localPath != null) {
-			Path modulePath = localPath.resolve(filePath);
+			Path filePath = Path.of(moduleId);
 
-			if (Files.isRegularFile(modulePath)) {
-				return Optional.of(modulePath);
+			// Look relative to current path
+			Path localPath = getLocalPathInCore(core);
+			if (localPath != null) {
+				Path modulePath = localPath.resolve(filePath);
+
+				if (Files.isRegularFile(modulePath)) {
+					return Optional.of(modulePath);
+				}
 			}
-		}
 
-		// Look relative to core base path
-		Path basePath = core.getBasePath();
-		if (basePath != null) {
-			Path modulePath = basePath.resolve(filePath);
+			// Look relative to core base path
+			Path basePath = core.getBasePath();
+			if (basePath != null) {
+				Path modulePath = basePath.resolve(filePath);
 
-			if (Files.isRegularFile(modulePath)) {
-				return Optional.of(modulePath);
+				if (Files.isRegularFile(modulePath)) {
+					return Optional.of(modulePath);
+				}
 			}
-		}
 
-		// Look relative to working dir
-		if (Files.isRegularFile(filePath)) {
-			return Optional.of(filePath);
+			// Look relative to working dir
+			if (Files.isRegularFile(filePath)) {
+				return Optional.of(filePath);
+			}
+		} catch (InvalidPathException ex) {
+			log.error(ex.getMessage());
 		}
 
 		return Optional.empty();
@@ -149,7 +157,6 @@ public class FileCoreResolver implements DLCoreResolver
 	{
 		assert core != null;
 		assert resolvedModuleId != null;
-		assert data == null;
 
 		Path modulePath = Path.of(resolvedModuleId);
 

@@ -29,7 +29,9 @@ import de.s42.dl.DLCore;
 import de.s42.dl.DLModule;
 import de.s42.dl.core.DLCoreResolver;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidModule;
 import de.s42.dl.parser.DLHrfParsing;
+import java.io.IOException;
 
 /**
  *
@@ -39,8 +41,18 @@ public class StringCoreResolver implements DLCoreResolver
 {
 
 	@Override
+	public String getContent(DLCore core, String moduleId, String data) throws InvalidModule, IOException
+	{
+		assert data != null;
+		
+		return data;
+	}
+	
+	@Override
 	public String resolveModuleId(DLCore core, String moduleId)
 	{
+		assert moduleId != null;
+		
 		return moduleId;
 	}
 

@@ -38,30 +38,17 @@ import java.util.Optional;
  */
 public class DefaultDLModule extends DefaultDLInstance implements DLModule
 {
+
 	protected final List<DLType> definedTypes = new ArrayList<>();
-	
-	/*public DefaultDLModule()
-	{
-		super();
-	}*/
 
-	public DefaultDLModule(DLType type)
+	public static String createShortName(String moduleName)
 	{
-		super(type);
-	}
+		assert moduleName != null;
 
-	public DefaultDLModule(DLType type, String name)
-	{
-		super(type, name);
-	}
-	
-	@Override
-	public String getShortName()
-	{
-		String shortName = getName();
-		
+		String shortName = moduleName;
+
 		int index = shortName.lastIndexOf(File.separatorChar);
-		
+
 		if (index == -1) {
 			index = shortName.lastIndexOf('/');
 		}
@@ -74,11 +61,27 @@ public class DefaultDLModule extends DefaultDLInstance implements DLModule
 		return shortName.substring(index + 1);
 	}
 
+	public DefaultDLModule(DLType type)
+	{
+		super(type);
+	}
+
+	public DefaultDLModule(DLType type, String name)
+	{
+		super(type, name);
+	}
+
+	@Override
+	public String getShortName()
+	{
+		return createShortName(getName());
+	}
+
 	@Override
 	public Optional<?> resolveReference(String path)
 	{
 		assert path != null;
-		
+
 		DLCore core = getCore();
 
 		Object exportedOpt = core.resolveExportedPath(path);

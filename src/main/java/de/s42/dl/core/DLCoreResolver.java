@@ -28,6 +28,8 @@ package de.s42.dl.core;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLModule;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidModule;
+import java.io.IOException;
 
 /**
  *
@@ -35,10 +37,41 @@ import de.s42.dl.exceptions.DLException;
  */
 public interface DLCoreResolver
 {
-
-	public String resolveModuleId(DLCore core, String moduleId);
-
+	/**
+	 * Checks if this resolver could parse the given moduleId and data in the core
+	 * @param core
+	 * @param moduleId
+	 * @param data
+	 * @return 
+	 */
 	public boolean canParse(DLCore core, String moduleId, String data);
 
+	/**
+	 * Resolves the given moduleId to a normalized resolved module id for thisresolver (allows for better caching and avoiding duplicates)
+	 * @param core
+	 * @param moduleId
+	 * @return 
+	 */
+	public String resolveModuleId(DLCore core, String moduleId);
+
+	/**
+	 * Retrieves the referenced content by the resolved module id as string
+	 * @param core
+	 * @param resolvedModuleId
+	 * @param data
+	 * @return
+	 * @throws InvalidModule
+	 * @throws IOException 
+	 */
+	public String getContent(DLCore core, String resolvedModuleId, String data) throws InvalidModule, IOException;
+	
+	/**
+	 * Parses the referenced content
+	 * @param core
+	 * @param resolvedModuleId
+	 * @param data
+	 * @return
+	 * @throws DLException 
+	 */
 	public DLModule parse(DLCore core, String resolvedModuleId, String data) throws DLException;
 }

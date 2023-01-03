@@ -25,13 +25,9 @@
 //</editor-fold>
 package de.s42.dl.core.resolvers;
 
-import de.s42.base.resources.ResourceHelper;
 import de.s42.dl.DLCore;
-import de.s42.dl.exceptions.InvalidModule;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
-import java.io.IOException;
-import java.util.Optional;
 
 /**
  *
@@ -44,22 +40,6 @@ public class LibraryCoreResolver extends ResourceCoreResolver
 	public final static String LIB_BASE_PATH = "de/s42/dl/lib/";
 
 	private final static Logger log = LogManager.getLogger(LibraryCoreResolver.class.getName());
-
-	public String getContent(DLCore core, String moduleId) throws InvalidModule, IOException
-	{
-		assert core != null;
-		assert moduleId != null;
-
-		String libraryModule = resolveModuleId(core, moduleId);
-
-		Optional<String> res = ResourceHelper.getResourceAsString(libraryModule);
-
-		if (res.isEmpty()) {
-			throw new InvalidModule("Resource " + libraryModule + " could not be loaded");
-		}
-
-		return res.orElseThrow();
-	}
 
 	@Override
 	public String resolveModuleId(DLCore core, String moduleId)
