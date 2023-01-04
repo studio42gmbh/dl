@@ -240,15 +240,17 @@ public class DLHrfParsing extends DLParserBaseListener
 		}
 	}
 
-	public static String getRequireModuleId(RequireModuleIdContext ctx)
+	public static Optional<String> getRequireModuleId(RequireModuleIdContext ctx)
 	{
 		assert ctx != null;
 
 		if (ctx.STRING_LITERAL() != null) {
-			return DLHrfExpressionParser.unescapeString(ctx.STRING_LITERAL().getText());
-		} else {
-			return ctx.SYMBOL().getText();
+			return Optional.of(DLHrfExpressionParser.unescapeString(ctx.STRING_LITERAL().getText()));
+		} else if (ctx.SYMBOL() != null) {
+			return  Optional.of(ctx.SYMBOL().getText());
 		}
+		
+		return Optional.empty();
 	}
 	
 	@Override
@@ -438,8 +440,10 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 
 			// Require a module from the given id
-			String requiredModuleId = getRequireModuleId(ctx.requireModuleId());
-
+			String requiredModuleId = getRequireModuleId(ctx.requireModuleId()).orElseThrow(() -> {
+				return new InvalidModule("Required module name is empty");
+			});
+			
 			// If it is a string unsecape it
 			try {
 
