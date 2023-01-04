@@ -37,30 +37,46 @@ public class ReservedKeyword extends ParserException
 	public ReservedKeyword()
 	{
 		super();
+
 		keyword = "<unknown>";
 	}
 
 	public ReservedKeyword(String msg)
 	{
 		super(msg);
+
 		keyword = "<unknown>";
 	}
 
 	public ReservedKeyword(Throwable cause)
 	{
 		super(cause);
+
 		keyword = "<unknown>";
 	}
 
 	public ReservedKeyword(String msg, Throwable cause)
 	{
 		super(msg, cause);
+
 		keyword = "<unknown>";
 	}
 
-	public ReservedKeyword(String msg, String keyword, int line, int position)
+	public ReservedKeyword(String msg, String keyword, int line, int position, int offset)
 	{
-		super(msg, line, position);
+		super(msg, line, position, offset);
+
+		assert keyword != null;
+
+		this.keyword = keyword;
+	}
+
+	public ReservedKeyword(String msg, String keyword, int startLine, int startPosition, int startOffset, int endLine, int endPosition, int endOffset)
+	{
+		super(msg, startLine, startPosition, startOffset, endLine, endPosition, endOffset);
+
+		assert keyword != null;
+
 		this.keyword = keyword;
 	}
 

@@ -29,7 +29,7 @@ package de.s42.dl.exceptions;
  *
  * @author Benjamin Schiller
  */
-public class UndefinedAnnotation extends DLException
+public class UndefinedAnnotation extends DLParserException
 {
 
 	public UndefinedAnnotation()

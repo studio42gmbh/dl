@@ -55,32 +55,47 @@ public class DLHrfParsingException extends ParserException
 		super(msg, cause);
 	}
 
-	public DLHrfParsingException(String msg, int line, int position)
+	public DLHrfParsingException(String msg, int line, int position, int offset)
 	{
-		super(msg, line, position);
+		super(msg, line, position, offset);
 	}
 
-	public DLHrfParsingException(String msg, int line, int position, Exception cause)
+	public DLHrfParsingException(String msg, int line, int position, int offset, Exception cause)
 	{
-		super(msg, line, position, cause);
+		super(msg, line, position, offset, cause);
 	}
 
 	public DLHrfParsingException(String msg, ParserRuleContext context)
 	{
-		super(msg, context.getStart().getLine(), context.getStart().getCharPositionInLine() + 1);
+		super(msg,
+			context.getStart().getLine(),
+			context.getStart().getCharPositionInLine() + 1,
+			context.getStart().getStartIndex(),
+			context.getStop().getLine(),
+			context.getStop().getCharPositionInLine() + 1,
+			context.getStop().getStopIndex() + 1
+		);
 	}
 
 	public DLHrfParsingException(String msg, Exception ex, ParserRuleContext context)
 	{
-		super(msg, context.getStart().getLine(), context.getStart().getCharPositionInLine() + 1, ex);
+		super(msg,
+			context.getStart().getLine(),
+			context.getStart().getCharPositionInLine() + 1,
+			context.getStart().getStartIndex(),
+			context.getStop().getLine(),
+			context.getStop().getCharPositionInLine() + 1,
+			context.getStop().getStopIndex() + 1,
+			ex
+		);
 	}
 
 	public DLHrfParsingException(String msg, DLModule module, ParserRuleContext context)
 	{
 		this(DLHrfParsingErrorHandler.createErrorMessage(module, msg, context), context);
 	}
-	
-	public DLHrfParsingException(String msg, DLModule module, ParserRuleContext context, Exception ex)		
+
+	public DLHrfParsingException(String msg, DLModule module, ParserRuleContext context, Exception ex)
 	{
 		this(DLHrfParsingErrorHandler.createErrorMessage(module, msg, ex, context), ex, context);
 	}

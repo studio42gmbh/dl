@@ -29,7 +29,7 @@ package de.s42.dl.exceptions;
  *
  * @author Benjamin Schiller
  */
-public class InvalidCore extends DLException
+public class InvalidCore extends DLParserException
 {
 
 	public InvalidCore()

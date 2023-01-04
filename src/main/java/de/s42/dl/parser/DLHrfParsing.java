@@ -221,22 +221,31 @@ public class DLHrfParsing extends DLParserBaseListener
 		return genericTypes;
 	}
 
-	public void mapAnnotations(List<AnnotationContext> annotations, AnnotationMapper mapper) throws DLException
+	public void mapAnnotations(List<AnnotationContext> annotations, AnnotationMapper mapper)
 	{
 		assert annotations != null;
 		assert mapper != null;
 
 		for (AnnotationContext ctx : annotations) {
 
-			String annotationName = ctx.annotationName().getText();
+			try {
+				String annotationName = ctx.annotationName().getText();
 
-			if (!core.hasAnnotationFactory(annotationName)) {
-				throw new UndefinedAnnotation(createErrorMessage(module, "Annotation factory '" + annotationName + "' is not defined", ctx));
+				if (!core.hasAnnotationFactory(annotationName)) {
+					throw new UndefinedAnnotation(createErrorMessage(module, "Annotation factory '" + annotationName + "' is not defined", ctx));
+				}
+
+				Object[] parameters = fetchStaticParameters(annotationName, ctx.staticParameters());
+
+				mapper.accept(annotationName, parameters, ctx);
+			} catch (DLException ex) {
+				throw new DLHrfParsingException(
+					"Error mapping annotation - " + ex.getMessage(),
+					module,
+					ctx,
+					ex
+				);
 			}
-
-			Object[] parameters = fetchStaticParameters(annotationName, ctx.staticParameters());
-
-			mapper.accept(annotationName, parameters, ctx);
 		}
 	}
 
@@ -247,12 +256,12 @@ public class DLHrfParsing extends DLParserBaseListener
 		if (ctx.STRING_LITERAL() != null) {
 			return Optional.of(DLHrfExpressionParser.unescapeString(ctx.STRING_LITERAL().getText()));
 		} else if (ctx.SYMBOL() != null) {
-			return  Optional.of(ctx.SYMBOL().getText());
+			return Optional.of(ctx.SYMBOL().getText());
 		}
-		
+
 		return Optional.empty();
 	}
-	
+
 	@Override
 	public void enterAssert(AssertContext ctx)
 	{
@@ -281,6 +290,10 @@ public class DLHrfParsing extends DLParserBaseListener
 				throw new DLHrfParsingException(message, module, ctx);
 			}
 		} catch (RuntimeException | DLException ex) {
+			if (ex instanceof DLHrfParsingException) {
+				throw (DLHrfParsingException)ex;
+			}
+			
 			throw new DLHrfParsingException(
 				"Error asserting - " + ex.getMessage(),
 				module,
@@ -362,6 +375,10 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 
 		} catch (DLException | ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException | RuntimeException | InvocationTargetException ex) {
+			if (ex instanceof DLHrfParsingException) {
+				throw (DLHrfParsingException)ex;
+			}
+			
 			throw new DLHrfParsingException(
 				"Error defining pragma - " + ex.getMessage(),
 				module,
@@ -423,7 +440,12 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 
 		} catch (DLException ex) {
-			throw new RuntimeException(ex);
+			throw new DLHrfParsingException(
+				"Error in alias - " + ex.getMessage(),
+				module,
+				ctx,
+				ex
+			);
 		}
 	}
 
@@ -443,7 +465,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			String requiredModuleId = getRequireModuleId(ctx.requireModuleId()).orElseThrow(() -> {
 				return new InvalidModule("Required module name is empty");
 			});
-			
+
 			// If it is a string unsecape it
 			try {
 
@@ -464,7 +486,12 @@ public class DLHrfParsing extends DLParserBaseListener
 					ex);
 			}
 		} catch (DLException ex) {
-			throw new RuntimeException(ex);
+			throw new DLHrfParsingException(
+				"Error in require - " + ex.getMessage(),
+				module,
+				ctx,
+				ex
+			);
 		}
 	}
 
@@ -538,7 +565,12 @@ public class DLHrfParsing extends DLParserBaseListener
 				}
 			}
 		} catch (DLException ex) {
-			throw new RuntimeException(ex);
+			throw new DLHrfParsingException(
+				"Error defining enum - " + ex.getMessage(),
+				module,
+				ctx,
+				ex
+			);
 		}
 	}
 
@@ -599,7 +631,12 @@ public class DLHrfParsing extends DLParserBaseListener
 			instances.push(currentInstance);
 			currentInstance = instance;
 		} catch (DLException ex) {
-			throw new RuntimeException(ex);
+			throw new DLHrfParsingException(
+				"Error defining instance - " + ex.getMessage(),
+				module,
+				ctx,
+				ex
+			);
 		}
 	}
 
@@ -620,7 +657,12 @@ public class DLHrfParsing extends DLParserBaseListener
 			lastInstance = currentInstance;
 			currentInstance = instances.pop();
 		} catch (DLException ex) {
-			throw new RuntimeException(ex);
+			throw new DLHrfParsingException(
+				"Error defining instance - " + ex.getMessage(),
+				module,
+				ctx,
+				ex
+			);
 		}
 	}
 
@@ -676,7 +718,12 @@ public class DLHrfParsing extends DLParserBaseListener
 
 			// @improvement define annotations internal - something like combining others with boolean like contracts?
 		} catch (DLException ex) {
-			throw new RuntimeException(ex);
+			throw new DLHrfParsingException(
+				"Error defining annotation - " + ex.getMessage(),
+				module,
+				ctx,
+				ex
+			);
 		}
 	}
 
@@ -786,7 +833,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					} catch (ClassNotFoundException ex) {
 						throw new InvalidType(createErrorMessage(module, "Class not found for type '" + typeName + "' - " + ex.getMessage(), ctx), ex);
 					}
-				} else {					
+				} else {
 					// Make sure also a repeated extern definition is added to the module types for consistency 
 					// (it should not matter in which order a module is loaded what types are defined)
 					module.addDefinedType(core.getType(typeName).orElseThrow());
@@ -841,7 +888,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					for (ParentTypeNameContext pCtx : typeHeader.parentTypeName()) {
 
 						String parentTypeName = pCtx.getText();
-						
+
 						// Ensure a class is not extended from itself
 						if (parentTypeName.equals(typeName)) {
 							throw new InvalidType(
@@ -902,7 +949,12 @@ public class DLHrfParsing extends DLParserBaseListener
 				}
 			}
 		} catch (DLException ex) {
-			throw new RuntimeException(ex);
+			throw new DLHrfParsingException(
+				"Error defining type - " + ex.getMessage(),
+				module,
+				ctx,
+				ex
+			);
 		}
 	}
 
@@ -925,15 +977,19 @@ public class DLHrfParsing extends DLParserBaseListener
 				module.addDefinedType(currentType);
 
 			} catch (InvalidType ex) {
-				throw new RuntimeException(ex);
+				throw new DLHrfParsingException(
+					"Error defining type - " + ex.getMessage(),
+					module,
+					ctx,
+					ex
+				);
 			}
 		}
 	}
 
 	// @todo https://github.com/studio42gmbh/dl/issues/28 DLHrfParsing Allow multiple value and expression assignment as default values in type attribute definition
 	@Override
-	public void enterTypeAttributeDefinition(TypeAttributeDefinitionContext ctx
-	)
+	public void enterTypeAttributeDefinition(TypeAttributeDefinitionContext ctx)
 	{
 		try {
 			String typeName = ctx.typeAttributeDefinitionType().typeIdentifier().getText();
@@ -1018,6 +1074,11 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 
 		} catch (RuntimeException | DLException ex) {
+			
+			if (ex instanceof DLHrfParsingException) {
+				throw (DLHrfParsingException)ex;
+			}
+			
 			throw new DLHrfParsingException(
 				"Error defining attribute - " + ex.getMessage(),
 				module,
@@ -1028,8 +1089,7 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	public void exitTypeAttributeDefinition(TypeAttributeDefinitionContext ctx
-	)
+	public void exitTypeAttributeDefinition(TypeAttributeDefinitionContext ctx)
 	{
 		if (dlInstanceAssignAttribute != null) {
 			dlInstanceAssignAttribute.setDefaultValue(lastInstance);
@@ -1039,16 +1099,14 @@ public class DLHrfParsing extends DLParserBaseListener
 
 	// @todo https://github.com/studio42gmbh/dl/issues/17 DLHrfParsing improve, refactor and cleanup enterAttributeAssignment
 	@Override
-	public void enterAttributeAssignment(AttributeAssignmentContext ctx
-	)
+	public void enterAttributeAssignment(AttributeAssignmentContext ctx)
 	{
 		currentAttributeAssignmentInstances.push(currentInstance);
 		currentAttributeAssignmentList.push(new ArrayList<>(Math.max(MIN_ASSIGNABLE_CAPACITY, ctx.attributeAssignable().size())));
 	}
 
 	@Override
-	public void exitAttributeAssignable(AttributeAssignableContext ctx
-	)
+	public void exitAttributeAssignable(AttributeAssignableContext ctx)
 	{
 		List assignables = currentAttributeAssignmentList.peek();
 
@@ -1080,6 +1138,10 @@ public class DLHrfParsing extends DLParserBaseListener
 				);
 			}
 		} catch (RuntimeException | DLException ex) {
+			if (ex instanceof DLHrfParsingException) {
+				throw (DLHrfParsingException)ex;
+			}
+			
 			throw new DLHrfParsingException(
 				"Error assigning attribute",
 				module,
@@ -1090,8 +1152,7 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	public void exitAttributeAssignment(AttributeAssignmentContext ctx
-	)
+	public void exitAttributeAssignment(AttributeAssignmentContext ctx)
 	{
 		// Used for tracking nested attribute instance assignments in instance definition
 		currentAttributeAssignmentInstances.pop();
@@ -1236,6 +1297,10 @@ public class DLHrfParsing extends DLParserBaseListener
 				);
 			}
 		} catch (RuntimeException | DLException ex) {
+			if (ex instanceof DLHrfParsingException) {
+				throw (DLHrfParsingException)ex;
+			}
+			
 			throw new DLHrfParsingException(
 				"Error defining attribute",
 				module,
@@ -1285,7 +1350,48 @@ public class DLHrfParsing extends DLParserBaseListener
 		assert moduleId != null;
 		assert data != null;
 
-		DLModule module = core.createModule(moduleId);
+		try {
+			return parseDirect(core, moduleId, data);
+		} catch (RuntimeException ex) {
+
+			// @todo this whole block is ugly compatibility code - remove soon
+			if (ex.getCause() instanceof DLException) {
+
+				DLException dlEx = (DLException) ex.getCause();
+
+				if (ex instanceof ParserException && dlEx instanceof DLParserException) {
+
+					ParserException pEx = (ParserException) ex;
+					DLParserException dlPEx = (DLParserException) dlEx;
+
+					dlPEx.setEndLine(pEx.getEndLine());
+					dlPEx.setEndOffset(pEx.getEndOffset());
+					dlPEx.setEndPosition(pEx.getEndPosition());
+					dlPEx.setStartLine(pEx.getStartLine());
+					dlPEx.setStartOffset(pEx.getStartOffset());
+					dlPEx.setStartPosition(pEx.getStartPosition());
+				}
+
+				throw dlEx;
+			}
+
+			// Otherwise just forward ex
+			throw ex;
+		}
+	}
+
+	public static DLModule parseDirect(DLCore core, String moduleId, CharStream data) throws DLHrfParsingException
+	{
+		assert core != null;
+		assert moduleId != null;
+		assert data != null;
+
+		DLModule module;
+		try {
+			module = core.createModule(moduleId);
+		} catch (DLException ex) {
+			throw new DLHrfParsingException("Error creating module - " + ex.getMessage(), ex);
+		}
 
 		DLHrfParsing parsing = new DLHrfParsing(core, module);
 
@@ -1300,21 +1406,9 @@ public class DLHrfParsing extends DLParserBaseListener
 		parser.addErrorListener(new DLHrfParsingErrorHandler(parsing, module));
 
 		// Parse module
-		try {
-			DataContext root = parser.data();
-			ParseTreeWalker walker = new ParseTreeWalker();
-
-			walker.walk(parsing, root);
-		} catch (RuntimeException ex) {
-
-			// Unwrap DLException for nicer stack trace
-			if (ex.getCause() instanceof DLException) {
-				throw (DLException) ex.getCause();
-			}
-
-			// Otherwise just forward ex
-			throw ex;
-		}
+		DataContext root = parser.data();
+		ParseTreeWalker walker = new ParseTreeWalker();
+		walker.walk(parsing, root);
 
 		return module;
 	}

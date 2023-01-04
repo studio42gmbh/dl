@@ -29,7 +29,7 @@ package de.s42.dl.exceptions;
  *
  * @author Benjamin Schiller
  */
-public class UndefinedType extends DLException
+public class UndefinedType extends DLParserException
 {
 
 	public UndefinedType()

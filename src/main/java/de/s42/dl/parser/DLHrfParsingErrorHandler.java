@@ -63,12 +63,15 @@ public class DLHrfParsingErrorHandler extends BaseErrorListener
 				
 				throw new ReservedKeyword(
 					createErrorMessage(module, "Reserved keyword '" + token.getText() + "' was used", line, position),
-					token.getText(), line, position);
+					token.getText(), 
+					line, position, token.getStartIndex(),
+					line, position + token.getStopIndex() - token.getStartIndex(), token.getStopIndex()
+				);
 			}
 		}
 		
 		throw new ParserException(
-			createErrorMessage(module, message, line, position), line, position);
+			createErrorMessage(module, message, line, position), line, position, 0);
 	}
 
 	public String createErrorMessage(String reason, ParserRuleContext context) throws RuntimeException

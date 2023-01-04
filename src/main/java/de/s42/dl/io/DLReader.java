@@ -26,6 +26,7 @@
 package de.s42.dl.io;
 
 import de.s42.dl.*;
+import de.s42.dl.exceptions.DLException;
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -36,11 +37,11 @@ import java.io.IOException;
 public interface DLReader extends Closeable, AutoCloseable
 {
 
-	public <DLEntityType extends DLEntity> DLEntityType read() throws IOException;
+	public <DLEntityType extends DLEntity> DLEntityType read() throws DLException, IOException;
 
-	public DLModule readModule() throws IOException;
+	public DLModule readModule() throws DLException, IOException;
 
-	public <ObjectType extends Object> ObjectType readObject() throws IOException;
+	public <ObjectType extends Object> ObjectType readObject() throws DLException, IOException;
 
-	public boolean ready() throws IOException;
+	public boolean ready() throws DLException, IOException;
 }

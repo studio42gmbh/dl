@@ -29,7 +29,7 @@ package de.s42.dl.exceptions;
  *
  * @author Benjamin Schiller
  */
-public class InvalidType extends DLException
+public class InvalidType extends DLParserException
 {
 
 	public InvalidType()

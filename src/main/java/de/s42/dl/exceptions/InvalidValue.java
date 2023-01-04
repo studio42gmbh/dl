@@ -29,7 +29,7 @@ package de.s42.dl.exceptions;
  *
  * @author Benjamin Schiller
  */
-public class InvalidValue extends DLException
+public class InvalidValue extends DLParserException
 {
 
 	public InvalidValue()

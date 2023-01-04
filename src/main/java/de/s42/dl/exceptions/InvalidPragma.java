@@ -29,7 +29,7 @@ package de.s42.dl.exceptions;
  *
  * @author Benjamin Schiller
  */
-public class InvalidPragma extends DLException
+public class InvalidPragma extends DLParserException
 {
 
 	public InvalidPragma()

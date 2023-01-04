@@ -29,17 +29,17 @@ package de.s42.dl.exceptions;
  *
  * @author Benjamin Schiller
  */
-public class ParserException extends RuntimeException
+public class DLParserException extends DLException
 {
 
-	protected final int startLine;
-	protected final int startPosition;
-	protected final int startOffset;
-	protected final int endLine;
-	protected final int endPosition;
-	protected final int endOffset;
+	protected int startLine;
+	protected int startPosition;
+	protected int startOffset;
+	protected int endLine;
+	protected int endPosition;
+	protected int endOffset;
 
-	public ParserException()
+	public DLParserException()
 	{
 		startLine = 0;
 		startPosition = 0;
@@ -49,7 +49,7 @@ public class ParserException extends RuntimeException
 		endOffset = 0;
 	}
 
-	public ParserException(String msg)
+	public DLParserException(String msg)
 	{
 		super(msg);
 
@@ -61,7 +61,7 @@ public class ParserException extends RuntimeException
 		endOffset = 0;
 	}
 
-	public ParserException(Throwable cause)
+	public DLParserException(Throwable cause)
 	{
 		super(cause);
 
@@ -73,7 +73,7 @@ public class ParserException extends RuntimeException
 		endOffset = 0;
 	}
 
-	public ParserException(String msg, Throwable cause)
+	public DLParserException(String msg, Throwable cause)
 	{
 		super(msg, cause);
 
@@ -85,7 +85,7 @@ public class ParserException extends RuntimeException
 		endOffset = 0;
 	}
 
-	public ParserException(String msg, int line, int position, int offset)
+	public DLParserException(String msg, int line, int position, int offset)
 	{
 		super(msg);
 
@@ -101,7 +101,7 @@ public class ParserException extends RuntimeException
 		endOffset = offset;
 	}
 
-	public ParserException(String msg, int line, int position, int offset, Exception cause)
+	public DLParserException(String msg, int line, int position, int offset, Exception cause)
 	{
 		super(msg, cause);
 
@@ -117,7 +117,7 @@ public class ParserException extends RuntimeException
 		endOffset = offset;
 	}
 
-	public ParserException(String msg, int startLine, int startPosition, int startOffset, int endLine, int endPosition, int endOffset)
+	public DLParserException(String msg, int startLine, int startPosition, int startOffset, int endLine, int endPosition, int endOffset)
 	{
 		super(msg);
 
@@ -139,7 +139,7 @@ public class ParserException extends RuntimeException
 		this.endOffset = endOffset;
 	}
 
-	public ParserException(String msg, int startLine, int startPosition, int startOffset, int endLine, int endPosition, int endOffset, Exception cause)
+	public DLParserException(String msg, int startLine, int startPosition, int startOffset, int endLine, int endPosition, int endOffset, Exception cause)
 	{
 		super(msg, cause);
 
@@ -189,5 +189,41 @@ public class ParserException extends RuntimeException
 	public int getEndOffset()
 	{
 		return endOffset;
+	}
+
+	@Deprecated
+	public void setStartLine(int startLine)
+	{
+		this.startLine = startLine;
+	}
+
+	@Deprecated
+	public void setStartPosition(int startPosition)
+	{
+		this.startPosition = startPosition;
+	}
+
+	@Deprecated
+	public void setStartOffset(int startOffset)
+	{
+		this.startOffset = startOffset;
+	}
+
+	@Deprecated
+	public void setEndLine(int endLine)
+	{
+		this.endLine = endLine;
+	}
+
+	@Deprecated
+	public void setEndPosition(int endPosition)
+	{
+		this.endPosition = endPosition;
+	}
+
+	@Deprecated
+	public void setEndOffset(int endOffset)
+	{
+		this.endOffset = endOffset;
 	}
 }

@@ -29,7 +29,7 @@ package de.s42.dl.exceptions;
  *
  * @author Benjamin Schiller
  */
-public class InvalidAnnotation extends DLException
+public class InvalidAnnotation extends DLParserException
 {
 
 	public InvalidAnnotation()

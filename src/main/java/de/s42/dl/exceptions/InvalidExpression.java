@@ -29,7 +29,7 @@ package de.s42.dl.exceptions;
  *
  * @author Benjamin Schiller
  */
-public class InvalidExpression extends DLException
+public class InvalidExpression extends DLParserException
 {
 
 	public InvalidExpression()

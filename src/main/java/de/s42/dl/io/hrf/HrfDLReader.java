@@ -61,25 +61,21 @@ public class HrfDLReader implements DLReader
 		this.file = file;
 	}
 
-	protected synchronized void readIntern() throws IOException
+	protected synchronized void readIntern() throws IOException, DLException
 	{
 		if (module != null) {
 			return;
 		}
 
 		// Use default parser for parsing the file contents
-		try {
-			module = DLHrfParsing.parse(
-				core,
-				file.toAbsolutePath().normalize().toString(),
-				file
-			);
-		} catch (DLException ex) {
-			throw new IOException("Could not read hrf - " + ex.getMessage(), ex);
-		}
+		module = DLHrfParsing.parse(
+			core,
+			file.toAbsolutePath().normalize().toString(),
+			file
+		);
 	}
 	
-	protected synchronized void readInternIterator() throws IOException
+	protected synchronized void readInternIterator() throws IOException, DLException
 	{
 		readIntern();
 		
@@ -88,7 +84,7 @@ public class HrfDLReader implements DLReader
 	
 
 	@Override
-	public Object readObject() throws IOException
+	public Object readObject() throws IOException, DLException
 	{
 		readIntern();
 
@@ -96,7 +92,7 @@ public class HrfDLReader implements DLReader
 	}
 
 	@Override
-	public <DLEntityType extends DLEntity> DLEntityType read() throws IOException
+	public <DLEntityType extends DLEntity> DLEntityType read() throws IOException, DLException
 	{
 		readInternIterator();
 
@@ -104,7 +100,7 @@ public class HrfDLReader implements DLReader
 	}
 
 	@Override
-	public boolean ready() throws IOException
+	public boolean ready() throws IOException, DLException
 	{
 		readInternIterator();
 
@@ -123,7 +119,7 @@ public class HrfDLReader implements DLReader
 	}
 
 	@Override
-	public DLModule readModule() throws IOException
+	public DLModule readModule() throws IOException, DLException
 	{
 		readIntern();
 		

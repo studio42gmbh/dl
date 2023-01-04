@@ -29,7 +29,7 @@ package de.s42.dl.exceptions;
  *
  * @author Benjamin Schiller
  */
-public class InvalidModule extends DLException
+public class InvalidModule extends DLParserException
 {
 
 	public InvalidModule()

@@ -29,7 +29,7 @@ package de.s42.dl.exceptions;
  *
  * @author Benjamin Schiller
  */
-public class InvalidAttribute extends DLException
+public class InvalidAttribute extends DLParserException
 {
 
 	public InvalidAttribute()
