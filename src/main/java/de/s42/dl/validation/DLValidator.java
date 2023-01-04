@@ -29,7 +29,7 @@ package de.s42.dl.validation;
  *
  * @author Benjamin Schiller
  */
-public interface DLValidator extends DLTypeValidator, DLAttributeValidator, DLInstanceValidator
+public interface DLValidator extends DLTypeValidator, DLAttributeValidator, DLInstanceValidator, DLReadValidator
 {
 
 }

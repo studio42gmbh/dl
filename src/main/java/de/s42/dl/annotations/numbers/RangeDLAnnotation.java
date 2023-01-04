@@ -27,11 +27,13 @@ package de.s42.dl.annotations;
 
 import de.s42.dl.DLAttribute;
 import de.s42.dl.DLInstance;
-import de.s42.dl.attributes.DefaultDLAttribute;
+import de.s42.dl.DLType;
+import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.types.DefaultDLType;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
 import de.s42.dl.validation.ValidationResult;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -41,10 +43,10 @@ import java.lang.annotation.Target;
  *
  * @author Benjamin Schiller
  */
-public class RangeDLAnnotation extends AbstractDLContract<RequiredDLAnnotation>
+public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
 {
 
-	public final static String DEFAULT_SYMBOL = "range";
+	private final static Logger log = LogManager.getLogger(RangeDLAnnotation.class.getName());
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = {ElementType.FIELD})
@@ -52,16 +54,16 @@ public class RangeDLAnnotation extends AbstractDLContract<RequiredDLAnnotation>
 	public static @interface range
 	{
 
-		public int min() default Integer.MIN_VALUE;
+		public double min() default -Double.MAX_VALUE;
 
-		public int max() default Integer.MAX_VALUE;
+		public double max() default Double.MAX_VALUE;
 	}
 
-	@DLAnnotationParameter(ordinal = 0, defaultValue = "-2147483648")
-	protected int min = Integer.MIN_VALUE;
+	@DLAnnotationParameter(ordinal = 0, defaultValue = "-1.7976931348623157E308")
+	protected double min = -Double.MAX_VALUE;
 
-	@DLAnnotationParameter(ordinal = 1, defaultValue = "2147483647")
-	protected int max = Integer.MAX_VALUE;
+	@DLAnnotationParameter(ordinal = 1, defaultValue = "1.7976931348623157E308")
+	protected double max = Double.MAX_VALUE;
 
 	private String attributeName;
 
@@ -74,7 +76,30 @@ public class RangeDLAnnotation extends AbstractDLContract<RequiredDLAnnotation>
 	@Override
 	public boolean validate(DLInstance instance, ValidationResult result)
 	{
-		return validateValue(instance.get(name), result);
+		return validateValue(instance.get(attributeName), result);
+	}
+
+	@Override
+	public boolean validate(DLType type, Object value, ValidationResult result)
+	{
+		if (value == null) {
+			return true;
+		}
+
+		if (!value.getClass().isArray()) {
+			result.addError(InvalidValueType.toString(), "Attribute has to be of type Array");
+			return false;
+		}
+
+		boolean valid = true;
+
+		// Validate each val in the array
+		Object[] values = (Object[]) value;
+		for (Object val : values) {
+			valid &= validateValue(val, result);
+		}
+
+		return valid;
 	}
 
 	protected boolean validateValue(Object val, ValidationResult result)
@@ -93,12 +118,16 @@ public class RangeDLAnnotation extends AbstractDLContract<RequiredDLAnnotation>
 		double doubleVal = ((Number) val).doubleValue();
 
 		if (doubleVal < min) {
-			result.addError(InvalidValueType.toString(), "Attribute '" + name + "' has to be min " + min + " but is " + doubleVal);
+			result.addError(InvalidValueType.toString(),
+				((attributeName != null) ? "Attribute '" + attributeName + "'" : "Value") + " has to be min " + min + " but is " + doubleVal
+			);
 			return false;
 		}
 
 		if (doubleVal > max) {
-			result.addError(InvalidValueType.toString(), "Attribute '" + name + "' has to be max " + max + " but is " + doubleVal);
+			result.addError(InvalidValueType.toString(),
+				((attributeName != null) ? "Attribute '" + attributeName + "'" : "Value") + " has to be max " + max + " but is " + doubleVal
+			);
 			return false;
 		}
 
@@ -106,13 +135,41 @@ public class RangeDLAnnotation extends AbstractDLContract<RequiredDLAnnotation>
 	}
 
 	@Override
+	public void bindToType(DLType type) throws DLException
+	{
+		assert type != null;
+
+		type.addReadValidator(this);
+	}
+
+	@Override
 	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation
 	{
 		assert attribute != null;
 
-		this.attributeName = attribute.getName();
+		attributeName = attribute.getName();
 
-		((DefaultDLType) attribute.getContainer()).addInstanceValidator(this);
-		((DefaultDLAttribute) attribute).addValidator(this);
+		attribute.getContainer().addInstanceValidator(this);
+		attribute.addValidator(this);
+	}
+
+	public double getMin()
+	{
+		return min;
+	}
+
+	public void setMin(double min)
+	{
+		this.min = min;
+	}
+
+	public double getMax()
+	{
+		return max;
+	}
+
+	public void setMax(double max)
+	{
+		this.max = max;
 	}
 }

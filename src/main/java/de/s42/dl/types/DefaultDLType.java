@@ -38,6 +38,7 @@ import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.exceptions.UndefinedType;
 import de.s42.dl.validation.DLInstanceValidator;
+import de.s42.dl.validation.DLReadValidator;
 import de.s42.dl.validation.DLTypeValidator;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidAttributeRedefinition;
 import de.s42.dl.validation.ValidationResult;
@@ -67,6 +68,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	protected final MappedList<String, DLAttribute> attributes = new MappedList<>();
 	protected final List<DLTypeValidator> validators = new ArrayList<>();
 	protected final List<DLInstanceValidator> instanceValidators = new ArrayList<>();
+	protected final List<DLReadValidator> readValidators = new ArrayList<>();
 	protected final List<DLType> parents = new ArrayList<>();
 	protected final List<DLType> genericTypes = new ArrayList<>();
 	protected final List<DLType> containedTypes = new ArrayList<>();
@@ -139,6 +141,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 			copy.javaType = javaType;
 			copy.attributes.addAll(attributes);
 			copy.validators.addAll(validators);
+			copy.readValidators.addAll(readValidators);
 			copy.instanceValidators.addAll(instanceValidators);
 			copy.parents.addAll(parents);
 			copy.genericTypes.addAll(genericTypes);
@@ -227,18 +230,6 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	}
 
 	@Override
-	public Class getJavaDataType()
-	{
-		Class type = getJavaType();
-
-		if (type != null) {
-			return type;
-		}
-
-		return Object.class;
-	}
-
-	@Override
 	public boolean isDerivedTypeOf(DLType other)
 	{
 		assert other != null;
@@ -277,6 +268,20 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	{
 		return isSimpleType() && !isAbstract();
 	}
+	
+	protected void validateRead(Object... sources) throws InvalidType
+	{
+		if (!readValidators.isEmpty()) {
+			ValidationResult result = new ValidationResult();
+			for (DLReadValidator validator : readValidators) {
+				validator.validate(this, sources, result);
+			}
+
+			if (!result.isValid()) {
+				throw new InvalidType("Type '" + getCanonicalName() + "' coud not read valid - " + result.toMessage());
+			}
+		}		
+	}
 
 	@Override
 	public Object read(Object... sources) throws InvalidValue, InvalidType
@@ -290,6 +295,9 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 		if (isComplexType()) {
 			throw new InvalidType("Type '" + getCanonicalName() + "' is complex and thus can not be used to read input");
 		}
+		
+		// Validate read
+		validateRead(sources);
 
 		if (sources != null && sources.length == 1) {
 
@@ -546,6 +554,14 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 		assert validator != null;
 
 		return instanceValidators.add(validator);
+	}
+
+	@Override
+	public boolean addReadValidator(DLReadValidator validator)
+	{
+		assert validator != null;
+
+		return readValidators.add(validator);
 	}
 
 	@Override
@@ -811,14 +827,13 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
-		
+
 		builder.append(getCanonicalName());
-		
+
 		/*for (DLAnnotation annotation : annotations) {
 			builder.append(" ");
 			builder.append(annotation.toString());
 		}*/
-		
 		return builder.toString();
 	}
 
@@ -844,7 +859,8 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 		this.complexType = complexType;
 	}
 
-	public Class getJavaType()
+	@Override
+	public Class getJavaDataType()
 	{
 		// Return the given type
 		if (javaType != null) {
@@ -854,7 +870,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 		// If not try to get the parents given type - in order of inheritance
 		for (DLType parent : parents) {
 
-			Class parentJavaType = ((DefaultDLType) parent).getJavaType();
+			Class parentJavaType = ((DefaultDLType) parent).getJavaDataType();
 
 			if (parentJavaType != null) {
 				return parentJavaType;

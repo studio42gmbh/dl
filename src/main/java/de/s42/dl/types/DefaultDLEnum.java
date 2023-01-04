@@ -57,7 +57,7 @@ public class DefaultDLEnum extends DefaultDLType implements DLEnum
 	public DefaultDLEnum(DLCore core)
 	{
 		super(core);
-		
+
 		javaType = String.class;
 	}
 
@@ -67,7 +67,7 @@ public class DefaultDLEnum extends DefaultDLType implements DLEnum
 
 		javaType = String.class;
 	}
-	
+
 	public DefaultDLEnum(Class<? extends Enum> enumImpl)
 	{
 		this(enumImpl.getName(), enumImpl);
@@ -104,7 +104,6 @@ public class DefaultDLEnum extends DefaultDLType implements DLEnum
 		}
 	}
 
-	
 	@Override
 	public List getValues()
 	{
@@ -154,9 +153,9 @@ public class DefaultDLEnum extends DefaultDLType implements DLEnum
 	{
 		assert sources != null;
 
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{getJavaType()});
+		Object[] result = ConversionHelper.convertArray(sources, new Class[]{getJavaDataType()});
 
-		if (getJavaType().equals(String.class)) {
+		if (getJavaDataType().equals(String.class)) {
 			if (!values.contains(result[0].toString())) {
 				throw new InvalidValue(
 					"Value '" + result[0]

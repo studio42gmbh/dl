@@ -31,6 +31,7 @@ import de.s42.dl.DLType;
 import de.s42.dl.annotations.*;
 import de.s42.dl.annotations.files.IsDirectoryDLAnnotation;
 import de.s42.dl.annotations.files.IsFileDLAnnotation;
+import de.s42.dl.annotations.numbers.EvenDLAnnotation;
 import de.s42.dl.annotations.reflect.AttributeNamesDLAnnotation;
 import de.s42.dl.annotations.reflect.TypeNameDLAnnotation;
 import de.s42.dl.core.resolvers.FileCoreResolver;
@@ -155,6 +156,10 @@ public class DefaultCore extends BaseDLCore
 		// Reflect annotations
 		core.defineAnnotationFactory(new TypeNameDLAnnotation(), TypeNameDLAnnotation.typeName.class.getSimpleName());
 		core.defineAnnotationFactory(new AttributeNamesDLAnnotation(), AttributeNamesDLAnnotation.attributeNames.class.getSimpleName());
+		
+		// Number annotations
+		core.defineAnnotationFactory(new RangeDLAnnotation(), RangeDLAnnotation.range.class.getSimpleName());
+		core.defineAnnotationFactory(new EvenDLAnnotation(), EvenDLAnnotation.even.class.getSimpleName());
 
 		core.defineAnnotationFactory(new ContainOnlyDLAnnotation(), ContainOnlyDLAnnotation.DEFAULT_SYMBOL);
 		core.defineAnnotationFactory(new ContainOnceDLAnnotation(), ContainOnceDLAnnotation.DEFAULT_SYMBOL);
@@ -162,7 +167,6 @@ public class DefaultCore extends BaseDLCore
 		core.defineAnnotationFactory(new GenerateUUIDDLAnnotation(), GenerateUUIDDLAnnotation.DEFAULT_SYMBOL);
 		core.defineAnnotationFactory(new GenericDLAnnotation(), GenericDLAnnotation.DEFAULT_SYMBOL);
 		core.defineAnnotationFactory(new LengthDLAnnotation(), LengthDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new RangeDLAnnotation(), RangeDLAnnotation.DEFAULT_SYMBOL);
 		core.defineAnnotationFactory(new GreaterDLAnnotation(), GreaterDLAnnotation.greater.class.getSimpleName());
 		core.defineAnnotationFactory(new GreaterEqualDLAnnotation(), GreaterEqualDLAnnotation.DEFAULT_SYMBOL);
 		core.defineAnnotationFactory(new EqualDLAnnotation(), EqualDLAnnotation.DEFAULT_SYMBOL);

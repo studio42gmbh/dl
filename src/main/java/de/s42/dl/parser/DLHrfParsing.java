@@ -291,9 +291,9 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 		} catch (RuntimeException | DLException ex) {
 			if (ex instanceof DLHrfParsingException) {
-				throw (DLHrfParsingException)ex;
+				throw (DLHrfParsingException) ex;
 			}
-			
+
 			throw new DLHrfParsingException(
 				"Error asserting - " + ex.getMessage(),
 				module,
@@ -376,9 +376,9 @@ public class DLHrfParsing extends DLParserBaseListener
 
 		} catch (DLException | ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException | RuntimeException | InvocationTargetException ex) {
 			if (ex instanceof DLHrfParsingException) {
-				throw (DLHrfParsingException)ex;
+				throw (DLHrfParsingException) ex;
 			}
-			
+
 			throw new DLHrfParsingException(
 				"Error defining pragma - " + ex.getMessage(),
 				module,
@@ -510,7 +510,13 @@ public class DLHrfParsing extends DLParserBaseListener
 
 				try {
 
-					DLEnum enumImpl = core.createEnum((Class<Enum>) Class.forName(enumName));
+					Class enumClass = Class.forName(enumName);
+
+					if (!enumClass.isEnum()) {
+						throw new InvalidType(createErrorMessage(module, "Extern enum '" + enumName + "' has to be a valid Enum class", ctx));
+					}
+
+					DLEnum enumImpl = core.createEnum((Class<Enum>) enumClass);
 
 					// Map the enum as defined
 					DLType enumType = core.defineType(enumImpl);
@@ -797,7 +803,14 @@ public class DLHrfParsing extends DLParserBaseListener
 
 					// Define type from extern definition
 					try {
-						currentType = (DefaultDLType) core.createType(Class.forName(typeName));
+
+						Class typeClass = Class.forName(typeName);
+
+						if (typeClass.isEnum()) {
+							throw new InvalidType(createErrorMessage(module, "Extern type '" + typeClass + "' may not be an Enum class (use keyword enum)", ctx));
+						}
+
+						currentType = (DefaultDLType) core.createType(typeClass);
 
 						// map the new type
 						core.defineType(currentType);
@@ -1074,11 +1087,11 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 
 		} catch (RuntimeException | DLException ex) {
-			
+
 			if (ex instanceof DLHrfParsingException) {
-				throw (DLHrfParsingException)ex;
+				throw (DLHrfParsingException) ex;
 			}
-			
+
 			throw new DLHrfParsingException(
 				"Error defining attribute - " + ex.getMessage(),
 				module,
@@ -1139,9 +1152,9 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 		} catch (RuntimeException | DLException ex) {
 			if (ex instanceof DLHrfParsingException) {
-				throw (DLHrfParsingException)ex;
+				throw (DLHrfParsingException) ex;
 			}
-			
+
 			throw new DLHrfParsingException(
 				"Error assigning attribute",
 				module,
@@ -1298,9 +1311,9 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 		} catch (RuntimeException | DLException ex) {
 			if (ex instanceof DLHrfParsingException) {
-				throw (DLHrfParsingException)ex;
+				throw (DLHrfParsingException) ex;
 			}
-			
+
 			throw new DLHrfParsingException(
 				"Error defining attribute",
 				module,
@@ -1344,6 +1357,7 @@ public class DLHrfParsing extends DLParserBaseListener
 		return parse(core, moduleId, CharStreams.fromStream(data));
 	}
 
+	@SuppressWarnings("deprecation")
 	public static DLModule parse(DLCore core, String moduleId, CharStream data) throws DLException
 	{
 		assert core != null;

@@ -31,7 +31,6 @@ import de.s42.dl.DLType;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
-import de.s42.dl.types.DefaultDLType;
 import de.s42.dl.types.SimpleDLType;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidGenericParameters;
 import de.s42.dl.validation.ValidationResult;
@@ -130,6 +129,9 @@ public class SetDLType extends SimpleDLType
 	public Object read(Object... sources) throws InvalidType
 	{
 		assert sources != null;
+
+		// Validate read
+		validateRead(sources);
 
 		Set result;
 

@@ -29,6 +29,7 @@ import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.validation.DLInstanceValidator;
+import de.s42.dl.validation.DLReadValidator;
 import de.s42.dl.validation.DLTypeValidator;
 import de.s42.dl.validation.DLValidatable;
 import de.s42.dl.validation.ValidationResult;
@@ -49,11 +50,13 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 	public String getCanonicalName();
 
 	public Class getJavaDataType();
-	
+
 	// VALIDATION
 	public boolean validateInstance(DLInstance instance, ValidationResult result);
 
 	public boolean addValidator(DLTypeValidator validator);
+
+	public boolean addReadValidator(DLReadValidator validator);
 
 	public boolean addInstanceValidator(DLInstanceValidator validator);
 
@@ -67,9 +70,9 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 	public Object write(Object data) throws DLException;
 
 	public void setAttributeFromValue(DLInstance instance, String name, Object value) throws DLException;
-	
+
 	public boolean canRead();
-	
+
 	// CONVERSION
 	public DLInstance fromJavaObject(Object object) throws DLException;
 
@@ -85,7 +88,8 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 
 	/**
 	 * Shall return all distinct parents (deep)
-	 * @return 
+	 *
+	 * @return
 	 */
 	public List<DLType> getParents();
 

@@ -61,4 +61,11 @@ public abstract class AbstractDLContract<DLConceptType extends DLContract> exten
 		result.addError(CanNotValidateType.toString(), "Concept " + getClass().getCanonicalName() + " can not validate a type");
 		return false;
 	}
+
+	@Override
+	public boolean validate(DLType type, Object value, ValidationResult result)
+	{
+		result.addError(CanNotValidateType.toString(), "Concept " + getClass().getCanonicalName() + " can not validate a read for a type");
+		return false;
+	}
 }

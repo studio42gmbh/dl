@@ -35,3 +35,4 @@ extern type de.s42.dl.instances.base.Environment;
 // Module information
 String description: "This module defines the basic annotations, types, enums";
 String version : "base-0.1.0-2022-12-30";
+//String dlVersion : $env.dlVersion;

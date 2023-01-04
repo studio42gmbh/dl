@@ -169,6 +169,9 @@ public class MapDLType extends DefaultDLType
 	{
 		assert sources != null;
 
+		// Validate read
+		validateRead(sources);
+
 		// @todo handle reading of maps
 		if (sources.length % 2 != 0) {
 			throw new InvalidValue("has to contain an even number of inputs, but has " + sources.length);

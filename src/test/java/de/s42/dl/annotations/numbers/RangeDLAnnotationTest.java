@@ -23,55 +23,54 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types.primitive;
+package de.s42.dl.annotations.numbers;
 
-import de.s42.base.conversion.ConversionHelper;
-import de.s42.dl.DLType;
-import de.s42.dl.exceptions.InvalidType;
-import de.s42.dl.types.SimpleDLType;
+import de.s42.dl.core.DefaultCore;
+import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidInstance;
+import de.s42.dl.exceptions.InvalidValue;
+import org.testng.annotations.Test;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class NumberDLType extends SimpleDLType
+public class RangeDLAnnotationTest
 {
 
-	public final static String DEFAULT_SYMBOL = "Number";
-
-	public NumberDLType()
+	@Test
+	public void simpleRangeAnnotation() throws DLException
 	{
-		this(DEFAULT_SYMBOL);
+		DefaultCore core = new DefaultCore();
+		core.parse("simpleRangeAnnotation",
+			"type T { double v @range(min : 5, max : 20); } T t { v : 7.5654; }"
+		);
 	}
 
-	public NumberDLType(DLType parent)
+	@Test(expectedExceptions = InvalidInstance.class)
+	public void invalidGreaterAnnotationBelowMin() throws DLException
 	{
-		this(DEFAULT_SYMBOL);
-
-		addParent(parent);
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidGreaterAnnotationBelowMin",
+			"type T { double v @range(10.0, 20.0); } T t { v : 9.9; }"
+		);
 	}
 
-	public NumberDLType(String name)
+	@Test
+	public void derivedLongWithRangeAnnotationType() throws DLException
 	{
-		super(name);
+		DefaultCore core = new DefaultCore();
+		core.parse("derivedLongWithRangeAnnotationType",
+			"type RLong @range(10, 20) extends Long; RLong t : 12;"
+		);
 	}
 
-	@Override
-	public Object read(Object... sources) throws InvalidType
+	@Test(expectedExceptions = InvalidValue.class)
+	public void invalidDerivedLongWithRangeAnnotationTypeAboveMax() throws DLException
 	{
-		assert sources != null;
-
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Number.class});
-		
-		// Validate read
-		validateRead(sources);
-
-		return (Number) result[0];
-	}
-
-	@Override
-	public Class getJavaDataType()
-	{
-		return Number.class;
+		DefaultCore core = new DefaultCore();
+		core.parse("invalidDerivedLongWithRangeAnnotationTypeAboveMax",
+			"type RLong @range(10, 20) extends Long; RLong t : 22;"
+		);
 	}
 }

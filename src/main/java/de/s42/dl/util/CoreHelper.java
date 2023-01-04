@@ -57,8 +57,8 @@ public final class CoreHelper
 
 		for (DLType type : core.getTypes()) {
 
-			if (((DefaultDLType) type).getJavaType() != null) {
-				String className = ((DefaultDLType) type).getJavaType().getName();
+			if (((DefaultDLType) type).getJavaDataType() != null) {
+				String className = ((DefaultDLType) type).getJavaDataType().getName();
 				Class typeInstanceClass = null;
 
 				if (className != null) {
@@ -80,8 +80,8 @@ public final class CoreHelper
 						final Class fTypeInstanceClass = typeInstanceClass;
 						type.getParents().forEach((DLType parent) -> {
 
-							if (((DefaultDLType) parent).getJavaType() != null) {
-								String parentClassName = ((DefaultDLType) type).getJavaType().getName();
+							if (((DefaultDLType) parent).getJavaDataType() != null) {
+								String parentClassName = ((DefaultDLType) type).getJavaDataType().getName();
 
 								try {
 									Class typeParentClass = Class.forName(parentClassName);

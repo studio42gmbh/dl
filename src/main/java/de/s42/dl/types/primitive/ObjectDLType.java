@@ -26,6 +26,7 @@
 package de.s42.dl.types.primitive;
 
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.types.SimpleDLType;
 
 /**
@@ -48,11 +49,14 @@ public class ObjectDLType extends SimpleDLType
 	}
 
 	@Override
-	public Object read(Object... sources)
+	public Object read(Object... sources) throws InvalidType
 	{
 		assert sources != null;
 
 		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Object.class});
+		
+		// Validate read
+		validateRead(sources);
 
 		return (Object) result[0];
 	}

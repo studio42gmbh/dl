@@ -23,32 +23,19 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.validation;
 
-import de.s42.dl.DLCore;
-import de.s42.dl.core.DefaultCore;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidInstance;
-import org.testng.annotations.Test;
+import de.s42.dl.DLType;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class RangeDLAnnotationTest
+public interface DLReadValidator
 {
 
-	@Test(enabled = false)
-	public void validGreaterAnnotations() throws DLException
+	default public boolean validate(DLType type, Object value, ValidationResult result)
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { double v @range(5, 20); } T t { v : 7.5654; }");
-	}
-
-	@Test(enabled = false, expectedExceptions = InvalidInstance.class)
-	public void invalidGreaterAnnotations() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { double v @range(10, 20); } T t { v : 9.9; }");
+		return true;
 	}
 }
