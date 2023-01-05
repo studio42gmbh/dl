@@ -44,5 +44,6 @@ public enum DefaultValidationCode
 	InvalidFile,
 	InvalidDirectory,
 	NotMatching,
-	InvalidAttributeRedefinition
+	InvalidAttributeRedefinition,
+	InvalidContract
 }

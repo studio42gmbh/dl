@@ -92,41 +92,6 @@ public abstract class AbstractDLAnnotation<DLAnnotationType extends DLAnnotation
 	}
 
 	@Override
-	public DLAnnotationType createAnnotation(String name, DLAnnotated container) throws DLException
-	{
-		assert name != null;
-		assert container != null;
-
-		try {
-			AbstractDLAnnotation annotation = (AbstractDLAnnotation) getClass().getConstructor().newInstance();
-			annotation.setName(name);
-			annotation.setContainer(container);
-			container.addAnnotation(annotation);
-			return (DLAnnotationType) annotation;
-		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
-			throw new DLException("Error creating annotation - " + ex.getMessage(), ex);
-		}
-	}
-
-	@Override
-	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Map<String, Object> namedParameters) throws DLException
-	{
-		assert name != null;
-		assert container != null;
-
-		try {
-			AbstractDLAnnotation annotation = (AbstractDLAnnotation) getClass().getConstructor().newInstance();
-			annotation.setName(name);
-			annotation.setContainer(container);
-			parameters.applyNamedParameters(namedParameters, annotation);
-			container.addAnnotation(annotation);
-			return (DLAnnotationType) annotation;
-		} catch (InvalidBean | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
-			throw new DLException("Error creating annotation - " + ex.getMessage(), ex);
-		}
-	}
-
-	@Override
 	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException
 	{
 		assert name != null;
@@ -225,19 +190,19 @@ public abstract class AbstractDLAnnotation<DLAnnotationType extends DLAnnotation
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
-		
+
 		builder.append("@");
 		builder.append(name);
-		
+
 		if (parameters.hasParameters()) {
-			
+
 			try {
 				BeanInfo info = BeanHelper.getBeanInfo(getClass());
-				
+
 				builder.append("(");
 				NamedParameter[] params = parameters.getParameters();
 				for (int i = 0; i < params.length; ++i) {
-					if (i > 0) {	
+					if (i > 0) {
 						builder.append(", ");
 					}
 					NamedParameter param = params[i];
@@ -246,14 +211,14 @@ public abstract class AbstractDLAnnotation<DLAnnotationType extends DLAnnotation
 					builder.append(info.read(this, param.name));
 				}
 				builder.append(")");
-			} catch (InvalidBean ex) {			
+			} catch (InvalidBean ex) {
 				throw new RuntimeException("Error toString this annotation - " + ex.getMessage(), ex);
 			}
 		}
-				
+
 		return builder.toString();
 	}
-	
+
 	@Override
 	public int hashCode()
 	{

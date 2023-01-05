@@ -27,6 +27,7 @@ package de.s42.dl.parser;
 
 import de.s42.dl.parser.expression.DLHrfExpressionParser;
 import de.s42.dl.*;
+import de.s42.dl.annotations.DLContract;
 import de.s42.dl.exceptions.*;
 import de.s42.dl.attributes.DefaultDLAttribute;
 import de.s42.dl.types.DefaultDLType;
@@ -40,6 +41,7 @@ import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import static de.s42.dl.parser.DLHrfParsingErrorHandler.*;
 import de.s42.dl.parser.DLParser.*;
+import de.s42.dl.parser.contracts.DLHrfContractParser;
 import de.s42.dl.types.base.ArrayDLType;
 import de.s42.dl.validation.ValidationResult;
 import java.io.IOException;
@@ -114,8 +116,13 @@ public class DLHrfParsing extends DLParserBaseListener
 		return optType.orElseThrow();
 	}
 
-	protected Object[] fetchStaticParameters(String annotationName, StaticParametersContext ctx) throws InvalidValue, DLException
+	public static Object[] fetchStaticParameters(DLModule module, String annotationName, StaticParametersContext ctx) throws InvalidValue, DLException
 	{
+		assert module != null;
+		assert annotationName != null;
+
+		DLCore core = module.getType().getCore();
+
 		DLAnnotationFactory annotationFactory = core.getAnnotationFactory(annotationName).orElseThrow(() -> {
 			return new InvalidAnnotation(createErrorMessage(module, "Annotation factory '" + annotationName + "' is not defined", ctx));
 		});
@@ -137,7 +144,7 @@ public class DLHrfParsing extends DLParserBaseListener
 
 			for (int i = 0; i < size; ++i) {
 
-				Pair<String, Object> namedParameter = fetchNamedStaticParameter(ctx.staticParameter().get(i));
+				Pair<String, Object> namedParameter = fetchNamedStaticParameter(module, ctx.staticParameter().get(i));
 
 				if (!annotationFactory.isValidNamedParameter(namedParameter.a, namedParameter.b)) {
 					throw new InvalidAnnotation(createErrorMessage(module, "Parameter " + namedParameter.a + " is not a valid named parameter in annotation '" + annotationName + "' - value " + namedParameter.b, ctx.staticParameter(i)));
@@ -153,7 +160,7 @@ public class DLHrfParsing extends DLParserBaseListener
 		Object[] parameters = new Object[size];
 
 		for (int i = 0; i < size; ++i) {
-			parameters[i] = fetchStaticParameter(ctx.staticParameter().get(i));
+			parameters[i] = fetchStaticParameter(module, ctx.staticParameter().get(i));
 		}
 
 		if (!annotationFactory.isValidFlatParameters(parameters)) {
@@ -163,13 +170,17 @@ public class DLHrfParsing extends DLParserBaseListener
 		return parameters;
 	}
 
-	protected boolean isNamedStaticParameter(StaticParameterContext ctx) throws InvalidValue
+	protected static boolean isNamedStaticParameter(StaticParameterContext ctx) throws InvalidValue
 	{
+		assert ctx != null;
+
 		return ctx.staticParameterName() != null;
 	}
 
-	protected Object[] fetchStaticParameters(StaticParametersContext ctx) throws InvalidValue
+	public static Object[] fetchStaticParameters(DLModule module, StaticParametersContext ctx) throws InvalidValue
 	{
+		assert module != null;
+
 		if (ctx == null || ctx.staticParameter() == null || ctx.staticParameter().isEmpty()) {
 			return new Object[0];
 		}
@@ -179,24 +190,29 @@ public class DLHrfParsing extends DLParserBaseListener
 		Object[] parameters = new Object[size];
 
 		for (int i = 0; i < size; ++i) {
-			parameters[i] = fetchStaticParameter(ctx.staticParameter().get(i));
+			parameters[i] = fetchStaticParameter(module, ctx.staticParameter().get(i));
 		}
 
 		return parameters;
 	}
 
-	protected Pair<String, Object> fetchNamedStaticParameter(StaticParameterContext ctx) throws InvalidValue
+	protected static Pair<String, Object> fetchNamedStaticParameter(DLModule module, StaticParameterContext ctx) throws InvalidValue
 	{
+		assert module != null;
+		assert ctx != null;
+
 		String name = ctx.staticParameterName().identifier().getText();
-		Object value = fetchStaticParameter(ctx);
+		Object value = fetchStaticParameter(module, ctx);
 
 		return new Pair<>(name, value);
 	}
 
-	protected Object fetchStaticParameter(StaticParameterContext ctx) throws InvalidValue
+	protected static Object fetchStaticParameter(DLModule module, StaticParameterContext ctx) throws InvalidValue
 	{
+		assert module != null;
+		assert ctx != null;
 
-		return DLHrfExpressionParser.resolveExpression(core, module, ctx.expression());
+		return DLHrfExpressionParser.resolveExpression(module, ctx.expression());
 	}
 
 	public List<DLType> fetchGenericParameters(GenericParametersContext ctx) throws DLException
@@ -235,7 +251,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					throw new UndefinedAnnotation(createErrorMessage(module, "Annotation factory '" + annotationName + "' is not defined", ctx));
 				}
 
-				Object[] parameters = fetchStaticParameters(annotationName, ctx.staticParameters());
+				Object[] parameters = fetchStaticParameters(module, annotationName, ctx.staticParameters());
 
 				mapper.accept(annotationName, parameters, ctx);
 			} catch (DLException ex) {
@@ -273,7 +289,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 
 			// Resolve the given test expression
-			Object result = DLHrfExpressionParser.resolveExpression(core, module, ctx.assertTest().expression());
+			Object result = DLHrfExpressionParser.resolveExpression(module, ctx.assertTest().expression());
 
 			// If it did not returned a boolean true -> Throw an exception
 			if (!(result instanceof Boolean)
@@ -282,7 +298,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				String message;
 
 				if (ctx.assertMessage() != null) {
-					message = "" + DLHrfExpressionParser.resolveExpression(core, module, ctx.assertMessage().expression());
+					message = "" + DLHrfExpressionParser.resolveExpression(module, ctx.assertMessage().expression());
 				} else {
 					message = "Assert '" + ctx.assertTest().getText() + "' is not true";
 				}
@@ -365,7 +381,7 @@ public class DLHrfParsing extends DLParserBaseListener
 
 				String pragmaIdentifier = ctx.pragmaName().getText();
 
-				Object[] parameters = fetchStaticParameters(ctx.staticParameters());
+				Object[] parameters = fetchStaticParameters(module, ctx.staticParameters());
 
 				try {
 					core.doPragma(pragmaIdentifier, parameters);
@@ -681,10 +697,10 @@ public class DLHrfParsing extends DLParserBaseListener
 				throw new InvalidCore("Not allowed to define annotations in core");
 			}
 
+			String annotationName = ctx.annotationDefinitionName().getText();
+
 			// Keyword extern found optionally defined the external annotation
 			if (ctx.KEYWORD_EXTERN() != null) {
-
-				String annotationName = ctx.annotationDefinitionName().getText();
 
 				try {
 
@@ -714,15 +730,44 @@ public class DLHrfParsing extends DLParserBaseListener
 						ex);
 				}
 
-			} else {
-				throw new InvalidAnnotation(
-					createErrorMessage(
-						module,
-						"Annotations can not be defined internally yet",
-						ctx));
-			}
+			} // Create an annotation from a annotation expression
+			else {
 
-			// @improvement define annotations internal - something like combining others with boolean like contracts?
+				// Resolve annotation expression
+				DLAnnotationFactory<DLContract> contract;
+				try {
+					contract = DLHrfContractParser.resolveExpression(module, ctx.annotationDefinitionExpression());
+				} catch (ParserException ex) {
+					throw new InvalidAnnotation(
+						createErrorMessage(
+							module,
+							"Invalid annotation expression '" + annotationName + "' - " + ex.getMessage(),
+							ctx),
+						ex);
+				}
+
+				Set<String> localAliases = new HashSet<>();
+
+				if (ctx.aliases() != null) {
+
+					for (AliasNameContext aliasCtx : ctx.aliases().aliasName()) {
+						String aliasName = aliasCtx.identifier().getText();
+
+						// Prevent duplicate aliases in this definition
+						if (!localAliases.add(aliasName)) {
+							throw new InvalidType(
+								createErrorMessage(
+									module,
+									"Alias name '" + aliasName + "' is not unique", ctx));
+						}
+					}
+				}
+
+				core.defineAnnotationFactory(contract, annotationName, localAliases.toArray(String[]::new));
+
+				// @todo
+				log.debug("enterAnnotationDefinition:contract", contract);
+			}
 		} catch (DLException ex) {
 			throw new DLHrfParsingException(
 				"Error defining annotation - " + ex.getMessage(),
@@ -1036,7 +1081,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				} // Resolve and validate type of reference
 				else if (ctx.typeAttributeDefinitionDefault().expression() != null) {
 
-					defaultValue = DLHrfExpressionParser.resolveExpression(core, module, ctx.typeAttributeDefinitionDefault().expression());
+					defaultValue = DLHrfExpressionParser.resolveExpression(module, ctx.typeAttributeDefinitionDefault().expression());
 
 					if (type != null) {
 
@@ -1128,7 +1173,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			// Add the resolved expression
 			if (ctx.expression() != null) {
 				try {
-					assignables.add(DLHrfExpressionParser.resolveExpression(core, module, ctx.expression()));
+					assignables.add(DLHrfExpressionParser.resolveExpression(module, ctx.expression()));
 				} catch (RuntimeException ex) {
 					throw new InvalidValue(
 						createErrorMessage(

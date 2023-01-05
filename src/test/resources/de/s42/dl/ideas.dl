@@ -1,3 +1,101 @@
+
+// TRANSFORM DATA
+// see also https://github.com/antlr/antlr4/blob/master/doc/tree-matching.md
+// and https://github.com/antlr/antlr4/blob/master/tool-testsuite/test/org/antlr/v4/test/tool/TestXPath.java
+
+// Data
+
+NodeRoot a {
+	
+	NodeFolder {
+		
+		NodeR deep {
+			NodeA {}	
+			NodeB {}
+		}
+	}
+	
+	NodeR first {
+		NodeB b {}
+		NodeA c {}	
+	}
+
+	NodeR {
+		NodeA {}
+	}
+
+	NodeR other {}
+}
+
+// Transform target
+NodeR t i <- $.?<NodeR> {
+	NodeB x <- $i.?<NodeB>  {
+		NodeA y  <- $i.?<NodeA> {}
+	}
+}
+
+// Apply
+Object r : $t(a);
+
+//r =
+
+NodeRoot a {
+	
+	NodeFolder {
+		
+		NodeR deep {
+			NodeB {
+				NodeA {}	
+			}
+		}
+	}
+	
+	NodeR first {
+		NodeB b {
+			NodeA c {}	
+		}
+	}
+
+	NodeR {
+		NodeA {}
+	}
+
+	NodeR other {}
+}
+
+
+// LOG FOR DEBUG
+
+pragma logTrace("Stuff");
+pragma logDebug("Stuff");
+pragma logInfo("Stuff");
+pragma logWarn("Stuff");
+pragma logError("Stuff");
+
+
+// PATTERN MATCHING IN #...
+// Would allow to resolve complex data from current data set
+
+Array<String> filtered : #<Poject,Folder>[.*Naur.*].?name;
+
+
+// TUPLE, VARIANT ... SUMTYPES, PRODUCTTYPES
+
+Tuple<String, Integer, Integer> tuple : "Hi", 42, 24;
+
+type MyVariant extends Variant<String, Integer>;
+
+Variant<String, Integer> variant : 42;
+MyVariant var : "Hallo";
+
+
+// KEYWORD EXPORT
+// export should be a keyword for types, annotations and instances ...
+
+export type T {}
+
+export T data {}
+
 // BYTE STRUCTURE ANNOTATION
 
 Type Data			@binary(id : 1, size : 1, endianess : big)

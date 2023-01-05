@@ -38,11 +38,17 @@ import java.util.Map;
 public interface DLAnnotationFactory<DLAnnotationType extends DLAnnotation>
 {
 
-	public DLAnnotationType createAnnotation(String name, DLAnnotated container) throws DLException;
-
 	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException;
 
-	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Map<String, Object> namedParameters) throws DLException;
+	default public DLAnnotationType createAnnotation(String name, DLAnnotated container) throws DLException
+	{
+		return createAnnotation(name, container, new Object[]{});
+	}
+
+	default public DLAnnotationType createAnnotation(String name, DLAnnotated container, Map<String, Object> namedParameters) throws DLException
+	{
+		return createAnnotation(name, container, toFlatParameters(namedParameters));
+	}
 
 	default public boolean isValidNamedParameters(Map<String, Object> namedParameters)
 	{

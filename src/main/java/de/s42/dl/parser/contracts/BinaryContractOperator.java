@@ -23,14 +23,55 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.parser.contracts;
+
+import de.s42.dl.DLModule;
+import de.s42.dl.parser.DLParser.AnnotationDefinitionExpressionContext;
 
 /**
  *
  * @author Benjamin Schiller
- * @param <DLConceptType>
  */
-public abstract class AbstractDLContract<DLConceptType extends DLContract>
-	extends AbstractDLAnnotation<DLConceptType> implements DLContract
+public abstract class BinaryContractOperator implements ContractExpression
 {
+
+	protected final DLModule module;
+	protected final AnnotationDefinitionExpressionContext context;
+	protected final ContractExpression first;
+	protected final ContractExpression second;
+
+	public BinaryContractOperator(ContractExpression first, ContractExpression second, AnnotationDefinitionExpressionContext context, DLModule module)
+	{
+		assert first != null;
+		assert second != null;
+		assert context != null;
+		assert module != null;
+
+		this.first = first;
+		this.second = second;
+		this.context = context;
+		this.module = module;
+	}
+
+	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
+	public ContractExpression getFirst()
+	{
+		return first;
+	}
+
+	public ContractExpression getSecond()
+	{
+		return second;
+	}
+
+	public AnnotationDefinitionExpressionContext getContext()
+	{
+		return context;
+	}
+
+	public DLModule getModule()
+	{
+		return module;
+	}
+	//</editor-fold>
 }

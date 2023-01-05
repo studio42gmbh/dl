@@ -83,9 +83,4 @@ public interface DLAnnotation extends DLEntity
 	{
 		throw new InvalidAnnotation(getClass().getName() + " can not be bound to instances");
 	}
-
-	default public void bindToPragma(DLPragma pragma) throws DLException
-	{
-		throw new InvalidAnnotation(getClass().getName() + " can not be bound to pragmas");
-	}
 }

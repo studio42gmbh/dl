@@ -1,4 +1,6 @@
-/*^ The MIT License
+// <editor-fold desc="The MIT License" defaultstate="collapsed">
+/*
+ * The MIT License
  * 
  * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
  * 
@@ -20,57 +22,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+//</editor-fold>
+package de.s42.dl.parser.contracts.operators;
 
-require "dl:standard/base.dl";
+import de.s42.dl.DLModule;
+import de.s42.dl.parser.DLHrfParsingException;
+import de.s42.dl.parser.DLParser.AnnotationDefinitionExpressionContext;
+import de.s42.dl.parser.contracts.BinaryContractOperator;
+import de.s42.dl.parser.contracts.ContractExpression;
+import de.s42.dl.parser.contracts.DLContractFactory;
 
-abstract type Test;
-
-type TestInt extends Test
+/**
+ *
+ * @author Benjamin Schiller
+ */
+public class Or extends BinaryContractOperator
 {
-	Integer value;
-}
 
-type TestFloat extends Test
-{
-	Float value;
-}
+	public Or(ContractExpression first, ContractExpression second, AnnotationDefinitionExpressionContext context, DLModule module)
+	{
+		super(first, second, context, module);
+	}
 
-type TestDerivedFloat extends TestFloat
-{
-	Array<String> tags;
-}
-
-TestInt a {
-	value : 1;
-}
-
-TestFloat b {
-	value : 2.1;
-}
-
-TestDerivedFloat c {
-	value : 3.1;
-	tags: a, b, c;
-}
-
-
-type TestArray
-{
-	Array<TestFloat> array;
-}
-
-TestArray {
-	array : $b, $c;
-}
-
-type TestArray2
-{
-	Array<Test> array;
-}
-
-TestArray2 d {
-	array : 
-		$b, 
-		$a,
-	;
+	@Override
+	public DLContractFactory evaluate() throws DLHrfParsingException
+	{
+		DLContractFactory firstEval = first.evaluate();
+		DLContractFactory secondEval = second.evaluate();
+		
+		return new OrAnnotationFactory("or" + firstEval.getName() + secondEval.getName(), firstEval, secondEval, new Object[]{});		
+	}
 }

@@ -1,4 +1,6 @@
-/*^ The MIT License
+// <editor-fold desc="The MIT License" defaultstate="collapsed">
+/*
+ * The MIT License
  * 
  * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
  * 
@@ -20,57 +22,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+//</editor-fold>
+package de.s42.dl.parser.contracts.operators;
 
-require "dl:standard/base.dl";
+import de.s42.dl.parser.contracts.ContractExpression;
+import de.s42.dl.parser.contracts.DLContractFactory;
 
-abstract type Test;
-
-type TestInt extends Test
+/**
+ *
+ * @author Benjamin Schiller
+ */
+public class Contract implements ContractExpression
 {
-	Integer value;
-}
 
-type TestFloat extends Test
-{
-	Float value;
-}
+	protected DLContractFactory value;
 
-type TestDerivedFloat extends TestFloat
-{
-	Array<String> tags;
-}
+	public Contract(DLContractFactory value)
+	{
+		assert value != null;
 
-TestInt a {
-	value : 1;
-}
+		this.value = value;
+	}
 
-TestFloat b {
-	value : 2.1;
-}
+	@Override
+	public DLContractFactory evaluate()
+	{
+		return getValue();
+	}
 
-TestDerivedFloat c {
-	value : 3.1;
-	tags: a, b, c;
-}
+	public DLContractFactory getValue()
+	{
+		return value;
+	}
 
-
-type TestArray
-{
-	Array<TestFloat> array;
-}
-
-TestArray {
-	array : $b, $c;
-}
-
-type TestArray2
-{
-	Array<Test> array;
-}
-
-TestArray2 d {
-	array : 
-		$b, 
-		$a,
-	;
+	public void setValue(DLContractFactory value)
+	{
+		this.value = value;
+	}
 }

@@ -26,7 +26,6 @@
 package de.s42.dl.annotations;
 
 import de.s42.dl.*;
-import de.s42.dl.exceptions.DLException;
 
 /**
  *
@@ -50,12 +49,6 @@ public abstract class TagDLAnnotation<DLAnnotationType extends DLAnnotation> ext
 
 	@Override
 	public void bindToType(DLType type)
-	{
-		// do nothing - just a tag
-	}
-
-	@Override
-	public void bindToPragma(DLPragma pragma) throws DLException
 	{
 		// do nothing - just a tag
 	}

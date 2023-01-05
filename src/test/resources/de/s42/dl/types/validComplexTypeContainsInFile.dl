@@ -1,6 +1,4 @@
-// <editor-fold desc="The MIT License" defaultstate="collapsed">
-/*
- * The MIT License
+/*^ The MIT License
  * 
  * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
  * 
@@ -22,7 +20,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-//</editor-fold>
 
 type A; 
 
@@ -36,7 +33,7 @@ type B @contain(B2, 1, 1) @contain(A, 2, 5) contains A, A3;
 
 type C extends B; 
 
-type D extends A; 
+type D extends A;
 
 C test { 
 	A test2;	// -> A

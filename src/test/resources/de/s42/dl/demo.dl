@@ -1,0 +1,6 @@
+// Resolvment of other modules can be extended easily
+require "dl:standard/base.dl";
+
+long val : (56 + 4 - 7 + 6) / 2;
+
+String demo : "YAY: " + ($val * 2) + " or more";

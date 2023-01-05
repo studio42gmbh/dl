@@ -26,7 +26,11 @@
 package de.s42.dl.annotations;
 
 import de.s42.dl.DLAnnotation;
+import de.s42.dl.DLAttribute;
+import de.s42.dl.DLInstance;
+import de.s42.dl.DLType;
 import de.s42.dl.validation.DLValidator;
+import de.s42.dl.validation.ValidationResult;
 
 /**
  *
@@ -34,5 +38,28 @@ import de.s42.dl.validation.DLValidator;
  */
 public interface DLContract extends DLValidator, DLAnnotation
 {
-	
+
+	@Override
+	default public boolean validate(DLAttribute attribute, ValidationResult result)
+	{
+		return true;
+	}
+
+	@Override
+	default public boolean validate(DLInstance instance, ValidationResult result)
+	{
+		return true;
+	}
+
+	@Override
+	default public boolean validate(DLType type, ValidationResult result)
+	{
+		return true;
+	}
+
+	@Override
+	default public boolean validate(DLType type, Object value, ValidationResult result)
+	{
+		return true;
+	}
 }

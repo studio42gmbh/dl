@@ -26,7 +26,6 @@
 package de.s42.dl.annotations;
 
 import de.s42.dl.DLAnnotationFactory;
-import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
@@ -46,20 +45,6 @@ public class DLAnnotationTest
 
 	public static class TestAnnotation extends TagDLAnnotation
 	{
-	}
-
-	/**
-	 * Just extern annotations are allowed
-	 *
-	 * @throws DLException
-	 * @throws RuntimeException expected -> "extraneous input 'annotation' expecting {EOF, 'type', 'extern',
-	 * 'require', 'enum', 'abstract', 'alias', 'final', 'pragma', SYMBOL}"
-	 */
-	@Test(expectedExceptions = RuntimeException.class)
-	public void invalidInternalAnnotationNotAllowed() throws DLException, RuntimeException
-	{
-		DefaultCore core = new DefaultCore();
-		core.parse("invalidInternalAnnotationNotAllowed", "annotation T;");
 	}
 
 	@Test(expectedExceptions = {InvalidAnnotation.class})
@@ -89,13 +74,13 @@ public class DLAnnotationTest
 	public void externAnnotation() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		core.parse("externAnnotation", 
+		core.parse("externAnnotation",
 			"extern annotation de.s42.dl.annotations.DLAnnotationTest$TestAnnotation alias test;"
 		);
-		core.parse("externAnnotation2", 
+		core.parse("externAnnotation2",
 			"type T @de.s42.dl.annotations.DLAnnotationTest$TestAnnotation;"
 		);
-		core.parse("externAnnotation3", 
+		core.parse("externAnnotation3",
 			"type T2 @test;"
 		);
 	}
@@ -111,7 +96,7 @@ public class DLAnnotationTest
 	public void externAliasAnnotation() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		core.parse("externAliasAnnotation", 
+		core.parse("externAliasAnnotation",
 			"extern annotation de.s42.dl.annotations.DLAnnotationTest$TestAnnotation alias U, V;"
 		);
 		DLAnnotationFactory annotationU = core.getAnnotationFactory("U").orElseThrow();

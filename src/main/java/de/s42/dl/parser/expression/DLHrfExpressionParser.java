@@ -36,7 +36,6 @@ import de.s42.dl.parser.expression.operators.Equals;
 import de.s42.dl.parser.expression.operators.Atom;
 import de.s42.dl.parser.expression.operators.And;
 import de.s42.dl.parser.expression.operators.Add;
-import de.s42.dl.DLCore;
 import de.s42.dl.DLModule;
 import de.s42.dl.exceptions.ParserException;
 import de.s42.dl.parser.DLHrfParsingException;
@@ -64,9 +63,9 @@ public final class DLHrfExpressionParser
 		// never instantiated
 	}
 
-	public static Object resolveExpression(DLCore core, DLModule module, ExpressionContext ctx) throws ParserException
+	public static Object resolveExpression(DLModule module, ExpressionContext ctx) throws ParserException
 	{
-		Expression expr = buildExpression(core, module, ctx);
+		Expression expr = buildExpression(module, ctx);
 
 		Object value = expr.evaluate();
 
@@ -74,83 +73,83 @@ public final class DLHrfExpressionParser
 		return value;
 	}
 
-	public static Expression buildExpression(DLCore core, DLModule module, ExpressionContext ctx) throws ParserException
+	public static Expression buildExpression(DLModule module, ExpressionContext ctx) throws ParserException
 	{
 		if (ctx.PLUS() != null) {
 			return new Add(
-				buildExpression(core, module, ctx.expression(0)),
-				buildExpression(core, module, ctx.expression(1)),
+				buildExpression(module, ctx.expression(0)),
+				buildExpression(module, ctx.expression(1)),
 				ctx, module
 			);
 		} else if (ctx.MINUS() != null) {
 
 			// unary minus -> invert value
 			if (ctx.atom() != null) {
-				return buildAtom(core, module, ctx.atom(), true);
+				return buildAtom(module, ctx.atom(), true);
 			} else {
 				return new Subtract(
-					buildExpression(core, module, ctx.expression(0)),
-					buildExpression(core, module, ctx.expression(1)),
+					buildExpression(module, ctx.expression(0)),
+					buildExpression(module, ctx.expression(1)),
 					ctx, module
 				);
 			}
 		} else if (ctx.MUL() != null) {
 			return new Multiply(
-				buildExpression(core, module, ctx.expression(0)),
-				buildExpression(core, module, ctx.expression(1)),
+				buildExpression(module, ctx.expression(0)),
+				buildExpression(module, ctx.expression(1)),
 				ctx, module
 			);
 		} else if (ctx.DIV() != null) {
 			return new Divide(
-				buildExpression(core, module, ctx.expression(0)),
-				buildExpression(core, module, ctx.expression(1)),
+				buildExpression(module, ctx.expression(0)),
+				buildExpression(module, ctx.expression(1)),
 				ctx, module
 			);
 		} else if (ctx.AND() != null) {
 			return new And(
-				buildExpression(core, module, ctx.expression(0)),
-				buildExpression(core, module, ctx.expression(1)),
+				buildExpression(module, ctx.expression(0)),
+				buildExpression(module, ctx.expression(1)),
 				ctx, module
 			);
 		} else if (ctx.OR() != null) {
 			return new Or(
-				buildExpression(core, module, ctx.expression(0)),
-				buildExpression(core, module, ctx.expression(1)),
+				buildExpression(module, ctx.expression(0)),
+				buildExpression(module, ctx.expression(1)),
 				ctx, module
 			);
 		} else if (ctx.POW() != null) {
 			return new Pow(
-				buildExpression(core, module, ctx.expression(0)),
-				buildExpression(core, module, ctx.expression(1)),
+				buildExpression(module, ctx.expression(0)),
+				buildExpression(module, ctx.expression(1)),
 				ctx, module
 			);
 		} else if (ctx.XOR() != null) {
 			return new Xor(
-				buildExpression(core, module, ctx.expression(0)),
-				buildExpression(core, module, ctx.expression(1)),
+				buildExpression(module, ctx.expression(0)),
+				buildExpression(module, ctx.expression(1)),
 				ctx, module
 			);
 		} else if (ctx.EQUALS() != null) {
 			return new Equals(
-				buildExpression(core, module, ctx.expression(0)),
-				buildExpression(core, module, ctx.expression(1)),
+				buildExpression(module, ctx.expression(0)),
+				buildExpression(module, ctx.expression(1)),
 				ctx, module
 			);
 		} else if (ctx.LIKE() != null) {
 			return new Like(
-				buildExpression(core, module, ctx.expression(0)),
-				buildExpression(core, module, ctx.expression(1)),
+				buildExpression(module, ctx.expression(0)),
+				buildExpression(module, ctx.expression(1)),
 				ctx, module
 			);
-		}else if (ctx.NOT() != null) {
+		} else if (ctx.NOT() != null) {
 			return new Not(
-				buildExpression(core, module, ctx.expression(0)), 
+				buildExpression(module, ctx.expression(0)),
 				ctx, module
 			);
 		} else if (ctx.PARENTHESES_OPEN() != null) {
-			return buildExpression(core, module, ctx.expression(0));
+			return buildExpression(module, ctx.expression(0));
 		} else if (ctx.atom() != null) {
-			return buildAtom(core, module, ctx.atom(), false);
+			return buildAtom(module, ctx.atom(), false);
 		}
 
 		throw new DLHrfParsingException(
@@ -160,8 +159,11 @@ public final class DLHrfExpressionParser
 		);
 	}
 
-	private static Atom buildAtom(DLCore core, DLModule module, AtomContext ctx, boolean negate) throws ParserException
+	private static Atom buildAtom(DLModule module, AtomContext ctx, boolean negate) throws ParserException
 	{
+		assert module != null;
+		assert ctx != null;
+
 		Object value;
 
 		if (ctx.STRING_LITERAL() != null) {
@@ -220,10 +222,10 @@ public final class DLHrfExpressionParser
 			return new Atom(value);
 		}
 	}
-	
+
 	public static String unescapeString(String stringValue)
 	{
-		return StringHelper.unescapeJavaString(stringValue.substring(1, stringValue.length() - 1));		
+		return StringHelper.unescapeJavaString(stringValue.substring(1, stringValue.length() - 1));
 	}
 
 	public static Object resolveReference(DLModule module, String refId, ParserRuleContext ctx) throws ParserException

@@ -30,7 +30,6 @@ import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
 import de.s42.dl.annotations.AbstractDLContract;
 import de.s42.dl.annotations.DLAnnotationType;
-import de.s42.dl.annotations.RangeDLAnnotation;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
@@ -49,7 +48,7 @@ import java.lang.annotation.Target;
 public class EvenDLAnnotation extends AbstractDLContract<EvenDLAnnotation>
 {
 
-	private final static Logger log = LogManager.getLogger(RangeDLAnnotation.class.getName());
+	private final static Logger log = LogManager.getLogger(EvenDLAnnotation.class.getName());
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = {ElementType.FIELD})
@@ -67,10 +66,22 @@ public class EvenDLAnnotation extends AbstractDLContract<EvenDLAnnotation>
 	}
 
 	@Override
+	public boolean canValidateAttribute()
+	{
+		return true;
+	}
+	
+	@Override
 	public boolean validate(DLInstance instance, ValidationResult result)
 	{
 		return validateValue(instance.get(attributeName), result);
 	}
+
+	@Override
+	public boolean canValidateInstance()
+	{
+		return true;
+	}	
 
 	@Override
 	public boolean validate(DLType type, Object value, ValidationResult result)
@@ -93,6 +104,12 @@ public class EvenDLAnnotation extends AbstractDLContract<EvenDLAnnotation>
 		}
 
 		return valid;
+	}
+
+	@Override
+	public boolean canValidateTypeRead()
+	{
+		return true;
 	}
 
 	protected boolean validateValue(Object val, ValidationResult result)

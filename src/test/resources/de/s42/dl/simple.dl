@@ -1,6 +1,4 @@
-// <editor-fold desc="The MIT License" defaultstate="collapsed">
-/*
- * The MIT License
+/*^ The MIT License
  * 
  * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
  * 
@@ -22,18 +20,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-//</editor-fold>
 
 firstName:	Benjamin;
+
 lastName	:	"Schiller";
-middleName	:	"the \"Don\"";
-height :  190 ;
+middleName : "the \"Don\"";
+height :  190;
 
 score:		
-	-1.45  ; // could also be positive
+-1.45  ; // could also be positive
 
+
+type Y {
+}
+
+type X extends Y {
+	}
+
+type Z;
+
+Z y {
+	/*	X v {
+		}*/
+}
+
+Y ff {
+
+}
 
 awake	
-	:
- true
-  ;
+:
+true
+;

@@ -132,11 +132,18 @@ requireModuleId : STRING_LITERAL | SYMBOL ;
 // ANNOTATIONDEFINITION
 
 annotationDefinition : 
-	KEYWORD_EXTERN 
+	KEYWORD_EXTERN? 
 	KEYWORD_ANNOTATION 
 	annotationDefinitionName
 	aliases?
+	( COLON annotationDefinitionExpression )?
 	SEMI_COLON ;
+
+annotationDefinitionExpression : 
+	PARENTHESES_OPEN annotationDefinitionExpression PARENTHESES_CLOSE
+	| annotationDefinitionExpression ( AND | OR | XOR | EQUALS ) annotationDefinitionExpression
+	| NOT annotationDefinitionExpression
+	| annotation ;
 
 annotationDefinitionName : identifier ;
 

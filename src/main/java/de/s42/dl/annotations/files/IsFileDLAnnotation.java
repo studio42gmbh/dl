@@ -80,6 +80,12 @@ public class IsFileDLAnnotation extends AbstractDLContract<IsFileDLAnnotation>
 	}
 
 	@Override
+	public boolean canValidateInstance()
+	{
+		return true;
+	}
+
+	@Override
 	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation
 	{
 		assert attribute != null;

@@ -1,6 +1,4 @@
-// <editor-fold desc="The MIT License" defaultstate="collapsed">
-/*
- * The MIT License
+/*^ The MIT License
  * 
  * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
  * 
@@ -22,7 +20,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-//</editor-fold>
 
 require "dl:standard/base.dl";
 
@@ -43,7 +40,7 @@ User {
 	id: "ad332384-4a04-4119-9e95-4753f31e3b09";
 }
 
-User {
+User user2 {
 	String name: "John \"Rambo\" Doe 3";
 	id: "ad232384-4a04-4119-9e95-4753f31e3b04";
 }

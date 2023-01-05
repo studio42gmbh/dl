@@ -103,23 +103,24 @@ public class BaseDLCore implements DLCore
 		allowUsePragmas = allowAll;
 		allowRequire = allowAll;
 		allowUseAsserts = allowAll;
-		
+
 		init();
 	}
-	
-	private void init()	
+
+	private void init()
 	{
 		loadModuleType(this);
 	}
-	
+
 	/**
 	 * A core needs to provide a module type to bootstrap loading modules
-	 * @param core 
+	 *
+	 * @param core
 	 */
 	public static void loadModuleType(BaseDLCore core)
 	{
 		assert core != null;
-		
+
 		ModuleDLType moduleType = new ModuleDLType(core);
 		core.types.add(moduleType.getName(), moduleType);
 		core.types.add(DLModule.class.getName(), moduleType);
@@ -241,40 +242,6 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public DLAnnotation createAnnotation(String name, DLAnnotated container) throws DLException
-	{
-		assert name != null;
-		assert container != null;
-
-		DLAnnotationFactory annotationFactory = annotationFactories.get(name).orElseThrow(() -> {
-			return new InvalidAnnotation("Annotationfactory with name " + name + " not found");
-		});
-
-		DLAnnotation annotation = annotationFactory.createAnnotation(name, container);
-
-		bindAnnotation(annotation, container);
-
-		return annotation;
-	}
-
-	@Override
-	public DLAnnotation createAnnotation(String name, DLAnnotated container, Map<String, Object> namedParameters) throws DLException
-	{
-		assert name != null;
-		assert container != null;
-
-		DLAnnotationFactory annotationFactory = annotationFactories.get(name).orElseThrow(() -> {
-			return new InvalidAnnotation("Annotationfactory with name " + name + " not found");
-		});
-
-		DLAnnotation annotation = annotationFactory.createAnnotation(name, container, namedParameters);
-
-		bindAnnotation(annotation, container);
-
-		return annotation;
-	}
-
-	@Override
 	public DLAnnotation createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException
 	{
 		assert name != null;
@@ -306,11 +273,6 @@ public class BaseDLCore implements DLCore
 		}
 
 		annotationFactories.add(name, factory);
-
-		// Always define its java class name as alias
-		if (!name.equals(factory.getClass().getName())) {
-			defineAliasForAnnotationFactory(factory.getClass().getName(), name);
-		}
 
 		for (String alias : aliases) {
 			defineAliasForAnnotationFactory(alias, name);
@@ -827,7 +789,7 @@ public class BaseDLCore implements DLCore
 		DefaultDLType classType = (DefaultDLType) createType(typeName);
 		classType.setComplexType(true);
 		classType.setJavaType(typeClass);
-		createAnnotation(JavaDLAnnotation.DEFAULT_SYMBOL, classType);
+		createAnnotation(JavaDLAnnotation.DEFAULT_SYMBOL, classType, new Object[]{});
 
 		try {
 
@@ -933,7 +895,7 @@ public class BaseDLCore implements DLCore
 
 					// Add required if the annotated attribute is required
 					if (attributeDL.required()) {
-						createAnnotation(RequiredDLAnnotation.required.class.getSimpleName(), attribute);
+						createAnnotation(RequiredDLAnnotation.required.class.getSimpleName(), attribute, new Object[]{});
 					}
 				}
 
@@ -959,9 +921,9 @@ public class BaseDLCore implements DLCore
 
 				// Add readonly or write only annotations
 				if (property.isWriteOnly()) {
-					createAnnotation(WriteOnlyDLAnnotation.writeonly.class.getSimpleName(), attribute);
+					createAnnotation(WriteOnlyDLAnnotation.writeonly.class.getSimpleName(), attribute, new Object[]{});
 				} else if (property.isReadOnly()) {
-					createAnnotation(ReadOnlyDLAnnotation.readonly.class.getSimpleName(), attribute);
+					createAnnotation(ReadOnlyDLAnnotation.readonly.class.getSimpleName(), attribute, new Object[]{});
 				}
 
 				classType.addAttribute(attribute);
@@ -1356,7 +1318,7 @@ public class BaseDLCore implements DLCore
 	{
 		return parse(moduleId, null);
 	}
-	
+
 	@Override
 	public DLModule parse(String moduleId, String data) throws DLException
 	{
@@ -1373,7 +1335,6 @@ public class BaseDLCore implements DLCore
 				return new InvalidModule("No resolver found for module id " + moduleId);
 			});
 
-		
 		// Allows the rsolver to normalize the id (i.e. absolute path, ...)
 		String resolvedModuleId = foundResolver.resolveModuleId(this, moduleId);
 
@@ -1409,18 +1370,18 @@ public class BaseDLCore implements DLCore
 
 	@Override
 	public DLModule createModule() throws InvalidType
-	{		
-		return new DefaultDLModule(getType(DLModule.class).orElseThrow(() -> {			
+	{
+		return new DefaultDLModule(getType(DLModule.class).orElseThrow(() -> {
 			return new InvalidType("Could not resolve type for module");
-		}));		
+		}));
 	}
 
 	@Override
 	public DLModule createModule(String name) throws InvalidType
 	{
-		return new DefaultDLModule(getType(DLModule.class).orElseThrow(() -> {			
+		return new DefaultDLModule(getType(DLModule.class).orElseThrow(() -> {
 			return new InvalidType("Could not resolve type for module");
-		}), name);		
+		}), name);
 	}
 
 	@Override

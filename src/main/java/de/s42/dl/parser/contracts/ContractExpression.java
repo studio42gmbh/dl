@@ -1,4 +1,6 @@
-/*^ The MIT License
+// <editor-fold desc="The MIT License" defaultstate="collapsed">
+/*
+ * The MIT License
  * 
  * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
  * 
@@ -20,57 +22,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+//</editor-fold>
+package de.s42.dl.parser.contracts;
 
-require "dl:standard/base.dl";
+import de.s42.dl.DLAnnotationFactory;
+import de.s42.dl.annotations.DLContract;
+import de.s42.dl.exceptions.ParserException;
 
-abstract type Test;
-
-type TestInt extends Test
+/**
+ *
+ * @author Benjamin Schiller
+ */
+public interface ContractExpression
 {
-	Integer value;
-}
 
-type TestFloat extends Test
-{
-	Float value;
-}
-
-type TestDerivedFloat extends TestFloat
-{
-	Array<String> tags;
-}
-
-TestInt a {
-	value : 1;
-}
-
-TestFloat b {
-	value : 2.1;
-}
-
-TestDerivedFloat c {
-	value : 3.1;
-	tags: a, b, c;
-}
-
-
-type TestArray
-{
-	Array<TestFloat> array;
-}
-
-TestArray {
-	array : $b, $c;
-}
-
-type TestArray2
-{
-	Array<Test> array;
-}
-
-TestArray2 d {
-	array : 
-		$b, 
-		$a,
-	;
+	public DLContractFactory evaluate() throws ParserException;
 }

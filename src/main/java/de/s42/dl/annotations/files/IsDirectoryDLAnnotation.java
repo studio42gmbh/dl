@@ -80,6 +80,12 @@ public class IsDirectoryDLAnnotation extends AbstractDLContract<IsDirectoryDLAnn
 	}
 
 	@Override
+	public boolean canValidateInstance()
+	{
+		return true;
+	}
+
+	@Override
 	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation
 	{
 		assert attribute != null;

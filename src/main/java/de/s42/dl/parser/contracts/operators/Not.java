@@ -23,14 +23,58 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.parser.contracts.operators;
+
+import de.s42.dl.DLModule;
+import de.s42.dl.parser.DLHrfParsingException;
+import de.s42.dl.parser.DLParser.AnnotationDefinitionExpressionContext;
+import de.s42.dl.parser.contracts.ContractExpression;
+import de.s42.dl.parser.contracts.DLContractFactory;
 
 /**
  *
  * @author Benjamin Schiller
- * @param <DLConceptType>
  */
-public abstract class AbstractDLContract<DLConceptType extends DLContract>
-	extends AbstractDLAnnotation<DLConceptType> implements DLContract
+public class Not implements ContractExpression
 {
+
+	protected final DLModule module;
+	protected final AnnotationDefinitionExpressionContext context;
+	protected final ContractExpression first;
+
+	public Not(ContractExpression first, AnnotationDefinitionExpressionContext context, DLModule module)
+	{
+		assert first != null;
+		assert context != null;
+		assert module != null;
+
+		this.first = first;
+		this.context = context;
+		this.module = module;
+	}
+
+	@Override
+	public DLContractFactory evaluate() throws DLHrfParsingException
+	{
+		DLContractFactory firstEval = first.evaluate();
+
+		return new NotContractFactory("not" + firstEval.getName(), firstEval, new Object[]{});
+	}
+
+	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
+	public DLModule getModule()
+	{
+		return module;
+	}
+
+	public AnnotationDefinitionExpressionContext getContext()
+	{
+		return context;
+	}
+
+	public ContractExpression getFirst()
+	{
+		return first;
+	}
+	//</editor-fold>
 }

@@ -1,0 +1,79 @@
+/*^ Info
+ * Showcase all DL Features in a nutshell
+ */
+
+// Assert environment
+assert $env.os ~= ".*Windows.*" : "Needs Windows to work properly but OS is " + $env.os;
+
+pragma basePath("/home/s42/dl/development/dl/src/test/resources");
+
+require "dl:standard/base.dl";
+require "simple.dl";
+require "annotation.dl";
+
+//pragma disableUseAsserts;
+
+String dlVersion : $env.dlVersion;
+String os : $env.os;
+String osVersion : $env.osVersion;
+String workingDirectory : $env.workingDirectory;
+Array<String> demo1 : t, t2, t3, $env.os;
+String demo2 : $os + " " + ((55 + 5) / 5);
+
+extern enum de.s42.dl.language.DLFileType alias FileType;
+
+enum Demo {
+	Yes,
+	No,
+	Perhaps,
+}
+
+type de.s42.dl.T alias T, U
+{
+	long x;
+	U r;
+	Demo d;
+	FileType f;
+}
+
+U t {
+	f : HRF;
+	x : 11 * 4 - 2;
+	r : U {
+		x : 44;
+		d : Yes;
+	};
+}
+
+assert $t.x == 42 : "Yes!";
+assert $t.f == HRF : "Enum is " + $t.f + " but should be HRF";
+
+/**
+ * Simple demo to showcase building an AST with DL
+ */
+type ASTNode extends Object;
+type ValueNode extends ASTNode
+{
+	Object value @required;
+}
+type Identifier extends ASTNode alias idn;
+type Literal extends ValueNode alias val;
+type Define extends ValueNode contains Identifier alias let;
+type AddToLeft extends ValueNode contains Identifier, Literal alias atl;
+type Return @contain(ASTNode, 1, 1) extends ASTNode contains Identifier, Literal alias ret;
+type Statement @contain(ASTNode, 1, 1) extends ASTNode contains Define, AddToLeft, Return alias st;
+type Function @contain(Statement, 1, 1000) extends ASTNode contains Statement alias func;
+
+/*
+ * func doSomething { let x = 3; x += 5; x += 7; return x; }
+ */
+func doSomething
+{
+	st { let { idn x; value : 3; } }
+	st { atl { idn x; value : 5; } }
+	st { atl { idn x; value : 7; } }
+	st { ret { idn x; } }
+}
+
+// Would be funny no?
+//pragma callAST($doSomething);

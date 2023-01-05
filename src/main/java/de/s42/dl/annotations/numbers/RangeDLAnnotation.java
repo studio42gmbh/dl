@@ -23,11 +23,14 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.numbers;
 
 import de.s42.dl.DLAttribute;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
+import de.s42.dl.annotations.AbstractDLContract;
+import de.s42.dl.annotations.DLAnnotationParameter;
+import de.s42.dl.annotations.DLAnnotationType;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
@@ -72,12 +75,24 @@ public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
 	{
 		return validateValue(attribute.getDefaultValue(), result);
 	}
-
+	
+	@Override
+	public boolean canValidateAttribute()
+	{
+		return true;
+	}
+	
 	@Override
 	public boolean validate(DLInstance instance, ValidationResult result)
 	{
 		return validateValue(instance.get(attributeName), result);
 	}
+	
+	@Override
+	public boolean canValidateInstance()
+	{
+		return true;
+	}	
 
 	@Override
 	public boolean validate(DLType type, Object value, ValidationResult result)
@@ -102,6 +117,12 @@ public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
 		return valid;
 	}
 
+	@Override
+	public boolean canValidateTypeRead()
+	{
+		return true;
+	}
+
 	protected boolean validateValue(Object val, ValidationResult result)
 	{
 		// allow to have null values
@@ -111,7 +132,7 @@ public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
 
 		// make sure its a Number
 		if (!(val instanceof Number)) {
-			result.addError(InvalidValueType.toString(), "Attribute has to be of type Number");
+			result.addError(InvalidValueType.toString(), "Attribute has to be of type Number in @" + getName());
 			return false;
 		}
 
@@ -119,14 +140,14 @@ public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
 
 		if (doubleVal < min) {
 			result.addError(InvalidValueType.toString(),
-				((attributeName != null) ? "Attribute '" + attributeName + "'" : "Value") + " has to be min " + min + " but is " + doubleVal
+				((attributeName != null) ? "Attribute '" + attributeName + "'" : "Value") + " has to be min " + min + " but is " + doubleVal + " in @" + getName()
 			);
 			return false;
 		}
 
 		if (doubleVal > max) {
 			result.addError(InvalidValueType.toString(),
-				((attributeName != null) ? "Attribute '" + attributeName + "'" : "Value") + " has to be max " + max + " but is " + doubleVal
+				((attributeName != null) ? "Attribute '" + attributeName + "'" : "Value") + " has to be max " + max + " but is " + doubleVal + " in @" + getName()
 			);
 			return false;
 		}

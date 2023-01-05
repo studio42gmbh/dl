@@ -64,11 +64,11 @@ public final class DLAnnotationHelper
 	{
 		// never instantiated
 	}
-	
+
 	public static List<DLAnnotation> createIfDLAnnotationContainer(DLCore core, Annotation javaAnnotation, DLAnnotated container) throws DLException
 	{
 		assert javaAnnotation != null;
-		
+
 		try {
 
 			// Check if the given java annotation is a tagged dl annotation
@@ -78,23 +78,23 @@ public final class DLAnnotationHelper
 
 			List<DLAnnotation> result = new ArrayList<>();
 
-			Annotation[] annotations = (Annotation[])javaAnnotation.annotationType().getMethod("value").invoke(javaAnnotation);
-			
+			Annotation[] annotations = (Annotation[]) javaAnnotation.annotationType().getMethod("value").invoke(javaAnnotation);
+
 			for (Annotation ann : annotations) {
-				
+
 				Optional<DLAnnotation> optDlAnnotation = createIfDLAnnotation(core, ann, container);
 
 				if (optDlAnnotation.isPresent()) {
 					result.add(optDlAnnotation.orElseThrow());
-				}				
+				}
 			}
 
 			return result;
 		} catch (DLException | IllegalAccessException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
 			throw new DLException("Error getting dl annotation - " + ex.getMessage(), ex);
-		}	
+		}
 	}
-	
+
 	public static Optional<DLAnnotation> createIfDLAnnotation(DLCore core, Annotation javaAnnotation, DLAnnotated container) throws DLException
 	{
 		assert javaAnnotation != null;
@@ -126,7 +126,9 @@ public final class DLAnnotationHelper
 				}
 			}
 
-			DLAnnotation dlAnnotation = core.createAnnotation(annotationName, container, namedParameters);
+			Object[] flatParameters = core.getAnnotationFactory(annotationName).orElseThrow().toFlatParameters(namedParameters);
+
+			DLAnnotation dlAnnotation = core.createAnnotation(annotationName, container, flatParameters);
 
 			return Optional.of(dlAnnotation);
 		} catch (DLException | IllegalAccessException | IllegalArgumentException | SecurityException | InvocationTargetException ex) {
@@ -145,9 +147,9 @@ public final class DLAnnotationHelper
 			if (optDlAnnotation.isPresent()) {
 				result.add(optDlAnnotation.orElseThrow());
 			}
-			
+
 			List<DLAnnotation> annotationsFromContainer = createIfDLAnnotationContainer(core, javaAnnotation, container);
-			
+
 			for (DLAnnotation annotation : annotationsFromContainer) {
 				result.add(annotation);
 			}

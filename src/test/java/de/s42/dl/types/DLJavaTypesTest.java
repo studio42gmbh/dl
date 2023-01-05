@@ -148,7 +148,7 @@ public class DLJavaTypesTest
 
 			//add annotation @required to attribute value
 			//core.addAnnotationToAttribute(this, valueAttrib, RequiredDLAnnotation.DEFAULT_SYMBOL, this);
-			core.createAnnotation(RequiredDLAnnotation.required.class.getSimpleName(), valueAttrib);
+			core.createAnnotation(RequiredDLAnnotation.required.class.getSimpleName(), valueAttrib, new Object[]{});
 		}
 	}
 
@@ -174,7 +174,7 @@ public class DLJavaTypesTest
 	public void invalidJavaTypeDefinedAttributeData() throws DLException
 	{
 		DLCore core = createCore();
-		core.parse("invalidJavaTypeDefinedAttributeData", 
+		core.parse("invalidJavaTypeDefinedAttributeData",
 			"Test { value : \"Test\"; }"
 		);
 	}
@@ -183,7 +183,7 @@ public class DLJavaTypesTest
 	public void invalidJavaTypeContained() throws DLException
 	{
 		DLCore core = createCore();
-		core.parse("invalidJavaTypeContained", 
+		core.parse("invalidJavaTypeContained",
 			"type B; Test { value : 1.0; B; }"
 		);
 	}
@@ -192,7 +192,7 @@ public class DLJavaTypesTest
 	public void invalidJavaTypeDefinedAttributeMissing() throws DLException
 	{
 		DLCore core = createCore();
-		core.parse("invalidJavaTypeDefinedAttributeMissing", 
+		core.parse("invalidJavaTypeDefinedAttributeMissing",
 			"Test;"
 		);
 	}
@@ -220,7 +220,7 @@ public class DLJavaTypesTest
 	public void invalidTypeFromClassMissingRequiredAttribute() throws DLException
 	{
 		DLCore core = createCore();
-		core.parse("invalidTypeFromClassMissingRequiredAttribute", 
+		core.parse("invalidTypeFromClassMissingRequiredAttribute",
 			"TestC test1 {}"
 		);
 	}

@@ -32,6 +32,7 @@ import de.s42.dl.annotations.*;
 import de.s42.dl.annotations.files.IsDirectoryDLAnnotation;
 import de.s42.dl.annotations.files.IsFileDLAnnotation;
 import de.s42.dl.annotations.numbers.EvenDLAnnotation;
+import de.s42.dl.annotations.numbers.RangeDLAnnotation;
 import de.s42.dl.annotations.reflect.AttributeNamesDLAnnotation;
 import de.s42.dl.annotations.reflect.TypeNameDLAnnotation;
 import de.s42.dl.core.resolvers.FileCoreResolver;
@@ -139,44 +140,44 @@ public class DefaultCore extends BaseDLCore
 		assert core != null;
 
 		// Define basic annotations
-		core.defineAnnotationFactory(new JavaDLAnnotation(), JavaDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new RequiredDLAnnotation(), RequiredDLAnnotation.required.class.getSimpleName());
-		core.defineAnnotationFactory(new ReadOnlyDLAnnotation(), ReadOnlyDLAnnotation.readonly.class.getSimpleName());
-		core.defineAnnotationFactory(new WriteOnlyDLAnnotation(), WriteOnlyDLAnnotation.writeonly.class.getSimpleName());
+		core.defineAnnotationFactory(new JavaDLAnnotation(), JavaDLAnnotation.DEFAULT_SYMBOL, JavaDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new RequiredDLAnnotation(), RequiredDLAnnotation.required.class.getSimpleName(), RequiredDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new ReadOnlyDLAnnotation(), ReadOnlyDLAnnotation.readonly.class.getSimpleName(), ReadOnlyDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new WriteOnlyDLAnnotation(), WriteOnlyDLAnnotation.writeonly.class.getSimpleName(), WriteOnlyDLAnnotation.class.getName());
 
-		core.defineAnnotationFactory(new DontPersistDLAnnotation(), DontPersistDLAnnotation.dontPersist.class.getSimpleName());
-		core.defineAnnotationFactory(new DynamicDLAnnotation(), DynamicDLAnnotation.dynamic.class.getSimpleName());
-		core.defineAnnotationFactory(new NoGenericsDLAnnotation(), NoGenericsDLAnnotation.noGenerics.class.getSimpleName());
-		core.defineAnnotationFactory(new ContainDLAnnotation(), ContainDLAnnotation.contain.class.getSimpleName());
+		core.defineAnnotationFactory(new DontPersistDLAnnotation(), DontPersistDLAnnotation.dontPersist.class.getSimpleName(), DontPersistDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new DynamicDLAnnotation(), DynamicDLAnnotation.dynamic.class.getSimpleName(), DynamicDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new NoGenericsDLAnnotation(), NoGenericsDLAnnotation.noGenerics.class.getSimpleName(), NoGenericsDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new ContainDLAnnotation(), ContainDLAnnotation.contain.class.getSimpleName(), ContainDLAnnotation.class.getName());
 
 		// File annotations
-		core.defineAnnotationFactory(new IsFileDLAnnotation(), IsFileDLAnnotation.isFile.class.getSimpleName());
-		core.defineAnnotationFactory(new IsDirectoryDLAnnotation(), IsDirectoryDLAnnotation.isDirectory.class.getSimpleName());
+		core.defineAnnotationFactory(new IsFileDLAnnotation(), IsFileDLAnnotation.isFile.class.getSimpleName(), IsFileDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new IsDirectoryDLAnnotation(), IsDirectoryDLAnnotation.isDirectory.class.getSimpleName(), IsDirectoryDLAnnotation.class.getName());
 
 		// Reflect annotations
-		core.defineAnnotationFactory(new TypeNameDLAnnotation(), TypeNameDLAnnotation.typeName.class.getSimpleName());
-		core.defineAnnotationFactory(new AttributeNamesDLAnnotation(), AttributeNamesDLAnnotation.attributeNames.class.getSimpleName());
+		core.defineAnnotationFactory(new TypeNameDLAnnotation(), TypeNameDLAnnotation.typeName.class.getSimpleName(), TypeNameDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new AttributeNamesDLAnnotation(), AttributeNamesDLAnnotation.attributeNames.class.getSimpleName(), AttributeNamesDLAnnotation.class.getName());
 		
 		// Number annotations
-		core.defineAnnotationFactory(new RangeDLAnnotation(), RangeDLAnnotation.range.class.getSimpleName());
-		core.defineAnnotationFactory(new EvenDLAnnotation(), EvenDLAnnotation.even.class.getSimpleName());
+		core.defineAnnotationFactory(new RangeDLAnnotation(), RangeDLAnnotation.range.class.getSimpleName(), RangeDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new EvenDLAnnotation(), EvenDLAnnotation.even.class.getSimpleName(), EvenDLAnnotation.class.getName());
 
-		core.defineAnnotationFactory(new ContainOnlyDLAnnotation(), ContainOnlyDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new ContainOnceDLAnnotation(), ContainOnceDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new ExportDLAnnotation(), ExportDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new GenerateUUIDDLAnnotation(), GenerateUUIDDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new GenericDLAnnotation(), GenericDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new LengthDLAnnotation(), LengthDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new GreaterDLAnnotation(), GreaterDLAnnotation.greater.class.getSimpleName());
-		core.defineAnnotationFactory(new GreaterEqualDLAnnotation(), GreaterEqualDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new EqualDLAnnotation(), EqualDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new NotEqualDLAnnotation(), NotEqualDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new LesserEqualDLAnnotation(), LesserEqualDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new LesserDLAnnotation(), LesserDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new PreliminaryDLAnnotation(), PreliminaryDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new RequiredOrDLAnnotation(), RequiredOrDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new UniqueDLAnnotation(), UniqueDLAnnotation.DEFAULT_SYMBOL);
-		core.defineAnnotationFactory(new RegexDLAnnotation(), RegexDLAnnotation.DEFAULT_SYMBOL);
+		core.defineAnnotationFactory(new ContainOnlyDLAnnotation(), ContainOnlyDLAnnotation.DEFAULT_SYMBOL, ContainOnlyDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new ContainOnceDLAnnotation(), ContainOnceDLAnnotation.DEFAULT_SYMBOL, ContainOnceDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new ExportDLAnnotation(), ExportDLAnnotation.DEFAULT_SYMBOL, ExportDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new GenerateUUIDDLAnnotation(), GenerateUUIDDLAnnotation.DEFAULT_SYMBOL, GenerateUUIDDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new GenericDLAnnotation(), GenericDLAnnotation.DEFAULT_SYMBOL, GenericDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new LengthDLAnnotation(), LengthDLAnnotation.DEFAULT_SYMBOL, LengthDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new GreaterDLAnnotation(), GreaterDLAnnotation.greater.class.getSimpleName(), GreaterDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new GreaterEqualDLAnnotation(), GreaterEqualDLAnnotation.DEFAULT_SYMBOL, GreaterEqualDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new EqualDLAnnotation(), EqualDLAnnotation.DEFAULT_SYMBOL, EqualDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new NotEqualDLAnnotation(), NotEqualDLAnnotation.DEFAULT_SYMBOL, NotEqualDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new LesserEqualDLAnnotation(), LesserEqualDLAnnotation.DEFAULT_SYMBOL, LesserEqualDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new LesserDLAnnotation(), LesserDLAnnotation.DEFAULT_SYMBOL, LesserDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new PreliminaryDLAnnotation(), PreliminaryDLAnnotation.DEFAULT_SYMBOL, PreliminaryDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new RequiredOrDLAnnotation(), RequiredOrDLAnnotation.DEFAULT_SYMBOL, RequiredOrDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new UniqueDLAnnotation(), UniqueDLAnnotation.DEFAULT_SYMBOL, UniqueDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new RegexDLAnnotation(), RegexDLAnnotation.DEFAULT_SYMBOL, RegexDLAnnotation.class.getName());
 	}
 
 	public static void loadPragmas(DLCore core) throws DLException

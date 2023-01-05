@@ -1,0 +1,92 @@
+/*^ / * Info * /
+ * Showcase all DL Features in a nutshell
+ */
+
+// Assert environment
+assert $env.os ~= ".*Windows.*" : "Needs Windows to work properly but OS is " + $env.os;
+
+// Resolvment of other modules can be extended easily
+require "dl:standard/base.dl";
+
+enum State 
+{
+	Draft, 
+	Review,
+	Final,
+}
+
+extern enum de.s42.dl.language.DLKeyword alias DLKeyword;
+
+// Allow to define extern annoatations that have to be provided by the environment
+extern annotation range/*(min, max)*/;
+extern annotation even;
+
+// Combined annotations (concepts) for easier and flexible validation
+annotation evenLong42/*(max)*/ : @even & @range(min : 0, max : 42);
+
+// Constrained types of base types
+type Long42 @evenLong42 extends Long;
+
+// Allow to define extern types that have to be provided by the environment
+extern type de.s42.dl.netbeans.editing.api.DLEditor alias DLEditor;
+
+// Abstract base types with rules to enforce sub type constraints (in this example the naming) and composing of parent types
+abstract type Node @typeName(ignoreAbstract : true, pattern : ".*Node(V[0-9]+)?") 
+extends DLEntity, DLEditor, State
+{
+	Long42 val : 42;
+	Integer val2 : 2;
+	State state @required;
+}
+
+// Derived types with dynamic attributes (allows to add arbitrary key values to instances of that type)
+type LeafNodeV1 @dynamic 
+extends Node
+alias Leaf;
+
+// Types support final, containment and aliasing as language feature
+final type ContainerNodeV1
+extends Node 
+contains Node 
+alias Container, Root
+{
+	State state @required : Draft;
+}
+
+// The pragma keyword allows to do immediate actions while parsing
+pragma disableDefineTypes;
+
+Long scale : 4;
+
+// Create a Root node and export it to other modules
+Root configTree @export {
+	
+	// A contained node
+	Container folder {
+		
+		val : 20;
+		
+		Leaf data {
+			
+			// Dynamically calculate values from given data before
+			val : ( $scale + 7 ) * 2 + 6;
+			
+			// Natural usage of enum values
+			state : Final;
+			
+			// Array types of types in simple "," notation
+			Array tags : "synchronized", "distributed", "language independent";				
+			
+			// Dynamic attribtutes
+			String display : "Data";
+		}
+	}
+	
+	// Anonymous instances
+	Leaf {
+		state : Review;
+	}
+}
+
+// Resolve deep paths for a reference
+Node configData : $configTree.folder.data;

@@ -36,6 +36,7 @@ module de.sft.dl
 	exports de.s42.dl;
 	exports de.s42.dl.annotations;
 	exports de.s42.dl.annotations.files;
+	exports de.s42.dl.annotations.numbers;
 	exports de.s42.dl.annotations.reflect;
 	exports de.s42.dl.attributes;
 	exports de.s42.dl.core;
@@ -50,7 +51,10 @@ module de.sft.dl
 	exports de.s42.dl.language;
 	exports de.s42.dl.parameters;
 	exports de.s42.dl.parser;
+	exports de.s42.dl.parser.contracts;
+	exports de.s42.dl.parser.contracts.operators;
 	exports de.s42.dl.parser.expression;
+	exports de.s42.dl.parser.expression.operators;
 	exports de.s42.dl.parser2;
 	exports de.s42.dl.pragmas;
 	exports de.s42.dl.types;

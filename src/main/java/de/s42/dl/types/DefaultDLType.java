@@ -278,7 +278,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 			}
 
 			if (!result.isValid()) {
-				throw new InvalidType("Type '" + getCanonicalName() + "' coud not read valid - " + result.toMessage());
+				throw new InvalidType("Type '" + getCanonicalName() + "' could not read valid - " + result.toMessage());
 			}
 		}		
 	}

@@ -115,11 +115,7 @@ public interface DLCore
 	public DLAttribute createAttribute(String attributeName, DLType type, DLType container) throws DLException;
 
 	// ANNOTATIONS
-	public DLAnnotation createAnnotation(String name, DLAnnotated container) throws DLException;
-
 	public DLAnnotation createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException;
-
-	public DLAnnotation createAnnotation(String name, DLAnnotated container, Map<String, Object> namedParameters) throws DLException;
 
 	public DLAnnotationFactory defineAnnotationFactory(DLAnnotationFactory factory, String name, String... aliases) throws DLException;
 

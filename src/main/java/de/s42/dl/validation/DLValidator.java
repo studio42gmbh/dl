@@ -32,4 +32,23 @@ package de.s42.dl.validation;
 public interface DLValidator extends DLTypeValidator, DLAttributeValidator, DLInstanceValidator, DLReadValidator
 {
 
+	default public boolean canValidateType()
+	{
+		return false;
+	}
+
+	default public boolean canValidateTypeRead()
+	{
+		return false;
+	}
+
+	default public boolean canValidateAttribute()
+	{
+		return false;
+	}
+
+	default public boolean canValidateInstance()
+	{
+		return false;
+	}
 }
