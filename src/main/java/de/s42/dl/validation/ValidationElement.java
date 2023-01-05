@@ -25,7 +25,7 @@
 //</editor-fold>
 package de.s42.dl.validation;
 
-import de.s42.dl.annotations.RequiredDLAnnotation.required;
+import de.s42.dl.annotations.attributes.RequiredDLAnnotation.required;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 

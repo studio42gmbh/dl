@@ -27,7 +27,7 @@ package de.s42.dl.pragmas;
 
 import de.s42.dl.exceptions.InvalidPragma;
 import de.s42.dl.*;
-import de.s42.dl.annotations.DontPersistDLAnnotation.dontPersist;
+import de.s42.dl.annotations.persistence.DontPersistDLAnnotation.dontPersist;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import org.testng.annotations.Test;

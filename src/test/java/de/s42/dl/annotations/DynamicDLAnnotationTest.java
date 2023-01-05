@@ -25,9 +25,10 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
+import de.s42.dl.annotations.types.DynamicDLAnnotation;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLType;
-import de.s42.dl.annotations.DynamicDLAnnotation.dynamic;
+import de.s42.dl.annotations.types.DynamicDLAnnotation.dynamic;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;

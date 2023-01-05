@@ -3,10 +3,10 @@
  */
 
 // Basic Annotations
-extern annotation de.s42.dl.annotations.JavaDLAnnotation alias java;
-extern annotation de.s42.dl.annotations.RequiredDLAnnotation alias required;
-extern annotation de.s42.dl.annotations.ReadOnlyDLAnnotation alias readonly;
-extern annotation de.s42.dl.annotations.WriteOnlyDLAnnotation alias writeonly;
+extern annotation de.s42.dl.annotations.types.JavaDLAnnotation alias java;
+extern annotation de.s42.dl.annotations.attributes.RequiredDLAnnotation alias required;
+extern annotation de.s42.dl.annotations.attributes.ReadOnlyDLAnnotation alias readonly;
+extern annotation de.s42.dl.annotations.attributes.WriteOnlyDLAnnotation alias writeonly;
 
 // Primitive types
 extern type de.s42.dl.types.primitive.ObjectDLType alias Object, java.lang.Object;

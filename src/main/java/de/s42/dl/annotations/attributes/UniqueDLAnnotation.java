@@ -23,27 +23,67 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.attributes;
 
-import de.s42.dl.DLType;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.types.DefaultDLType;
+import de.s42.dl.annotations.AbstractDLAnnotation;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class GenericDLAnnotation extends AbstractDLAnnotation
+public class UniqueDLAnnotation extends AbstractDLAnnotation
 {
 
-	public final static String DEFAULT_SYMBOL = "generic";
+	public final static String DEFAULT_SYMBOL = "unique";
+
+	/*
+	private static class UniqueDLInstanceValidator implements DLInstanceValidator
+	{
+
+		private final Set uniqueCache = new HashSet();
+		private final DLAttribute attribute;
+
+		UniqueDLInstanceValidator(DLAttribute attribute)
+		{
+			assert attribute != null;
+
+			this.attribute = attribute;
+		}
+
+		@Override
+		public void validate(DLInstance instance) throws InvalidInstance
+		{
+			assert instance != null;
+
+			Object val = instance.get(attribute.getName());
+
+			if (uniqueCache.contains(val)) {
+				throw new InvalidInstance("Attribute value '" + attribute.getName() + "' has to be unique");
+			}
+
+			uniqueCache.add(val);
+		}
+	}
+
+	public UniqueDLAnnotation()
+	{
+		this(DEFAULT_SYMBOL);
+	}
+
+	public UniqueDLAnnotation(String name)
+	{
+		super(name);
+	}
 
 	@Override
-	public void bindToType(DLType type) throws InvalidAnnotation
+	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws InvalidAnnotation
 	{
 		assert type != null;
+		assert attribute != null;
 
-		//allow generic types
-		((DefaultDLType) type).setAllowGenericTypes(true);
+		validateParameters(parameters, null);
+
+		((DefaultDLType) type).addInstanceValidator(new UniqueDLInstanceValidator(attribute));
 	}
+	 */
 }

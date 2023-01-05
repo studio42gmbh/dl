@@ -23,65 +23,45 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.attributes;
+
+import de.s42.dl.annotations.attributes.AbstractComparisonDLAnnotation;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class UniqueDLAnnotation extends AbstractDLAnnotation
+public class GreaterEqualDLAnnotation extends AbstractComparisonDLAnnotation<Object, GreaterEqualDLAnnotation>
 {
 
-	public final static String DEFAULT_SYMBOL = "unique";
+	public final static String DEFAULT_SYMBOL = "greaterEqual";
 
-	/*
-	private static class UniqueDLInstanceValidator implements DLInstanceValidator
+	@Override
+	protected String errorMessage(Object val, Object refVal)
 	{
-
-		private final Set uniqueCache = new HashSet();
-		private final DLAttribute attribute;
-
-		UniqueDLInstanceValidator(DLAttribute attribute)
-		{
-			assert attribute != null;
-
-			this.attribute = attribute;
-		}
-
-		@Override
-		public void validate(DLInstance instance) throws InvalidInstance
-		{
-			assert instance != null;
-
-			Object val = instance.get(attribute.getName());
-
-			if (uniqueCache.contains(val)) {
-				throw new InvalidInstance("Attribute value '" + attribute.getName() + "' has to be unique");
-			}
-
-			uniqueCache.add(val);
-		}
-	}
-
-	public UniqueDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public UniqueDLAnnotation(String name)
-	{
-		super(name);
+		return "val '" + val + "' must be greater or equal than refval '" + refVal + "'";
 	}
 
 	@Override
-	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws InvalidAnnotation
+	protected boolean compare(Object val, Object refVal)
 	{
-		assert type != null;
-		assert attribute != null;
+		assert val != null;
+		assert refVal != null;
 
-		validateParameters(parameters, null);
+		if (val instanceof Double && refVal instanceof Double) {
+			return ((Double) val >= (Double) refVal);
+		} else if (val instanceof Float && refVal instanceof Float) {
+			return ((Float) val >= (Float) refVal);
+		} else if (val instanceof Long && refVal instanceof Long) {
+			return ((Long) val >= (Long) refVal);
+		} else if (val instanceof Integer && refVal instanceof Integer) {
+			return ((Integer) val >= (Integer) refVal);
+		} else if (val instanceof Short && refVal instanceof Short) {
+			return ((Short) val >= (Short) refVal);
+		} else if (val instanceof String && refVal instanceof String) {
+			return ((String) val).compareTo((String) refVal) >= 0;
+		}
 
-		((DefaultDLType) type).addInstanceValidator(new UniqueDLInstanceValidator(attribute));
+		throw new IllegalArgumentException("Types of val and refVal have to be Number or String");
 	}
-	 */
 }

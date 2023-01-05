@@ -23,60 +23,65 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.attributes;
 
-import de.s42.dl.DLAttribute;
-import de.s42.dl.DLType;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.types.DefaultDLType;
-import de.s42.dl.validation.DLTypeValidator;
-import static de.s42.dl.validation.DefaultValidationCode.InvalidGenericTypes;
-import de.s42.dl.validation.ValidationResult;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import de.s42.dl.annotations.AbstractDLAnnotation;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class NoGenericsDLAnnotation extends AbstractDLAnnotation
+public class GenerateUUIDDLAnnotation extends AbstractDLAnnotation
 {
 
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(value = {ElementType.FIELD})
-	@DLAnnotationType(NoGenericsDLAnnotation.class)
-	public static @interface noGenerics
-	{
-	}
+	public final static String DEFAULT_SYMBOL = "generateUUID";
 
-	private static class NoGenericsValidator implements DLTypeValidator
+	/*
+	private static class GenerateUUIDDLInstanceValidator implements DLInstanceValidator
 	{
+
+		private final DLAttribute attribute;
+
+		GenerateUUIDDLInstanceValidator(DLAttribute attribute)
+		{
+			assert attribute != null;
+
+			this.attribute = attribute;
+		}
 
 		@Override
-		public boolean validate(DLType type, ValidationResult result)
+		public void validate(DLInstance instance)
 		{
-			assert type != null;
+			assert instance != null;
 
-			boolean valid = true;
+			Object val = instance.get(attribute.getName());
 
-			for (DLAttribute attribute : type.getAttributes()) {
-				if (attribute.getType().isGenericType()) {
-					result.addError(InvalidGenericTypes.toString(), "Type " + type + " may not contain generics, but " + attribute + " has", type);
-					valid = false;
-				}
+			if (val == null) {
+				instance.set(attribute.getName(), UUID.randomUUID());
 			}
-
-			return valid;
 		}
 	}
 
+
+	public GenerateUUIDDLAnnotation()
+	{
+		this(DEFAULT_SYMBOL);
+	}
+
+	public GenerateUUIDDLAnnotation(String name)
+	{
+		super(name);
+	}
+
 	@Override
-	public void bindToType(DLType type) throws DLException
+	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws InvalidAnnotation
 	{
 		assert type != null;
+		assert attribute != null;
 
-		((DefaultDLType) type).addValidator(new NoGenericsValidator());
+		validateParameters(parameters, null);
+
+		((DefaultDLType) type).addInstanceValidator(new GenerateUUIDDLInstanceValidator(attribute));
 	}
+	 */
 }

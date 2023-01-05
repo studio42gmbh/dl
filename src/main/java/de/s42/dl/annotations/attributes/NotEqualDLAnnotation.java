@@ -23,14 +23,31 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.attributes;
+
+import de.s42.dl.annotations.attributes.AbstractComparisonDLAnnotation;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class PreliminaryDLAnnotation extends TagDLAnnotation<PreliminaryDLAnnotation>
+public class NotEqualDLAnnotation extends AbstractComparisonDLAnnotation<Object, NotEqualDLAnnotation>
 {
 
-	public final static String DEFAULT_SYMBOL = "preliminary";
+	public final static String DEFAULT_SYMBOL = "notEqual";
+
+	@Override
+	protected String errorMessage(Object val, Object refVal)
+	{
+		return "val '" + val + "' must be not equal to refval '" + refVal + "'";
+	}
+
+	@Override
+	protected boolean compare(Object val, Object refVal)
+	{
+		assert val != null;
+		assert refVal != null;
+
+		return !val.equals(refVal);
+	}
 }

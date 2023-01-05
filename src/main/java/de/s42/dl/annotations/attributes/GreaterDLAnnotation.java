@@ -25,19 +25,32 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
+import de.s42.dl.annotations.attributes.AbstractComparisonDLAnnotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  *
  * @author Benjamin Schiller
  */
-public class EqualDLAnnotation extends AbstractComparisonDLAnnotation<Object, EqualDLAnnotation>
+public class GreaterDLAnnotation extends AbstractComparisonDLAnnotation<Object, GreaterDLAnnotation>
 {
 
-	public final static String DEFAULT_SYMBOL = "equal";
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = {ElementType.FIELD})
+	@DLAnnotationType(GreaterDLAnnotation.class)
+	public static @interface greater
+	{
+
+		public String other();
+	}
 
 	@Override
 	protected String errorMessage(Object val, Object refVal)
 	{
-		return "val '" + val + "' must be equal to refval '" + refVal + "'";
+		return "val '" + val + "' must be greater than refval '" + refVal + "'";
 	}
 
 	@Override
@@ -46,6 +59,20 @@ public class EqualDLAnnotation extends AbstractComparisonDLAnnotation<Object, Eq
 		assert val != null;
 		assert refVal != null;
 
-		return val.equals(refVal);
+		if (val instanceof Double && refVal instanceof Double) {
+			return ((Double) val > (Double) refVal);
+		} else if (val instanceof Float && refVal instanceof Float) {
+			return ((Float) val > (Float) refVal);
+		} else if (val instanceof Long && refVal instanceof Long) {
+			return ((Long) val > (Long) refVal);
+		} else if (val instanceof Integer && refVal instanceof Integer) {
+			return ((Integer) val > (Integer) refVal);
+		} else if (val instanceof Short && refVal instanceof Short) {
+			return ((Short) val > (Short) refVal);
+		} else if (val instanceof String && refVal instanceof String) {
+			return ((String) val).compareTo((String) refVal) > 0;
+		}
+
+		throw new IllegalArgumentException("Types of val and refVal have to be Number or String");
 	}
 }

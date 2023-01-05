@@ -23,7 +23,9 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.strings;
+
+import de.s42.dl.annotations.AbstractDLAnnotation;
 
 /**
  *

@@ -23,63 +23,41 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.attributes;
+
+import de.s42.dl.DLAttribute;
+import de.s42.dl.annotations.AbstractDLAnnotation;
+import de.s42.dl.annotations.DLAnnotationType;
+import de.s42.dl.attributes.DefaultDLAttribute;
+import de.s42.dl.exceptions.InvalidAnnotation;
+import de.s42.dl.exceptions.InvalidAttribute;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class GenerateUUIDDLAnnotation extends AbstractDLAnnotation
+public class ReadOnlyDLAnnotation extends AbstractDLAnnotation
 {
 
-	public final static String DEFAULT_SYMBOL = "generateUUID";
-
-	/*
-	private static class GenerateUUIDDLInstanceValidator implements DLInstanceValidator
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = {ElementType.FIELD})
+	@DLAnnotationType(WriteOnlyDLAnnotation.class)
+	public static @interface readonly
 	{
-
-		private final DLAttribute attribute;
-
-		GenerateUUIDDLInstanceValidator(DLAttribute attribute)
-		{
-			assert attribute != null;
-
-			this.attribute = attribute;
-		}
-
-		@Override
-		public void validate(DLInstance instance)
-		{
-			assert instance != null;
-
-			Object val = instance.get(attribute.getName());
-
-			if (val == null) {
-				instance.set(attribute.getName(), UUID.randomUUID());
-			}
-		}
-	}
-
-
-	public GenerateUUIDDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public GenerateUUIDDLAnnotation(String name)
-	{
-		super(name);
 	}
 
 	@Override
-	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws InvalidAnnotation
+	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation, InvalidAttribute
 	{
-		assert type != null;
-		assert attribute != null;
-
-		validateParameters(parameters, null);
-
-		((DefaultDLType) type).addInstanceValidator(new GenerateUUIDDLInstanceValidator(attribute));
+		if (attribute instanceof DefaultDLAttribute) {
+			((DefaultDLAttribute) attribute).setReadable(true);
+			((DefaultDLAttribute) attribute).setWritable(false);
+		} else {
+			throw new InvalidAttribute("Attribute has to be of type DefaultDLAttribute");
+		}
 	}
-	 */
 }

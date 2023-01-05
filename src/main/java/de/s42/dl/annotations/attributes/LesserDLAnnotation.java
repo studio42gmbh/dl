@@ -23,21 +23,23 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.attributes;
+
+import de.s42.dl.annotations.attributes.AbstractComparisonDLAnnotation;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class NotEqualDLAnnotation extends AbstractComparisonDLAnnotation<Object, NotEqualDLAnnotation>
+public class LesserDLAnnotation extends AbstractComparisonDLAnnotation<Object, LesserDLAnnotation>
 {
 
-	public final static String DEFAULT_SYMBOL = "notEqual";
+	public final static String DEFAULT_SYMBOL = "lesser";
 
 	@Override
 	protected String errorMessage(Object val, Object refVal)
 	{
-		return "val '" + val + "' must be not equal to refval '" + refVal + "'";
+		return "val '" + val + "' must be lesser than refval '" + refVal + "'";
 	}
 
 	@Override
@@ -46,6 +48,20 @@ public class NotEqualDLAnnotation extends AbstractComparisonDLAnnotation<Object,
 		assert val != null;
 		assert refVal != null;
 
-		return !val.equals(refVal);
+		if (val instanceof Double && refVal instanceof Double) {
+			return ((Double) val < (Double) refVal);
+		} else if (val instanceof Float && refVal instanceof Float) {
+			return ((Float) val < (Float) refVal);
+		} else if (val instanceof Long && refVal instanceof Long) {
+			return ((Long) val < (Long) refVal);
+		} else if (val instanceof Integer && refVal instanceof Integer) {
+			return ((Integer) val < (Integer) refVal);
+		} else if (val instanceof Short && refVal instanceof Short) {
+			return ((Short) val < (Short) refVal);
+		} else if (val instanceof String && refVal instanceof String) {
+			return ((String) val).compareTo((String) refVal) < 0;
+		}
+
+		throw new IllegalArgumentException("Types of val and refVal have to be Number or String");
 	}
 }

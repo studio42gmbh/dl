@@ -23,11 +23,13 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.attributes;
 
 import de.s42.base.validation.IsSymbol;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.*;
+import de.s42.dl.annotations.AbstractDLAnnotation;
+import de.s42.dl.annotations.DLAnnotationParameter;
 import de.s42.dl.attributes.DefaultDLAttribute;
 import de.s42.dl.types.DefaultDLType;
 import de.s42.dl.validation.DLAttributeValidator;

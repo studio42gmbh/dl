@@ -30,6 +30,10 @@ import de.s42.dl.DLAttribute;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
 import de.s42.dl.validation.DLValidator;
+import static de.s42.dl.validation.DefaultValidationCode.CanNotValidateAttribute;
+import static de.s42.dl.validation.DefaultValidationCode.CanNotValidateInstance;
+import static de.s42.dl.validation.DefaultValidationCode.CanNotValidateType;
+import static de.s42.dl.validation.DefaultValidationCode.CanNotValidateTypeRead;
 import de.s42.dl.validation.ValidationResult;
 
 /**
@@ -42,24 +46,44 @@ public interface DLContract extends DLValidator, DLAnnotation
 	@Override
 	default public boolean validate(DLAttribute attribute, ValidationResult result)
 	{
+		if (!canValidateAttribute()) {
+			result.addError(CanNotValidateAttribute.toString(), "Can not validate an attribute");
+			return false;
+		}
+		
 		return true;
 	}
 
 	@Override
 	default public boolean validate(DLInstance instance, ValidationResult result)
 	{
+		if (!canValidateInstance()) {
+			result.addError(CanNotValidateInstance.toString(), "Can not validate an instance");
+			return false;
+		}
+		
 		return true;
 	}
 
 	@Override
 	default public boolean validate(DLType type, ValidationResult result)
 	{
+		if (!canValidateAttribute()) {
+			result.addError(CanNotValidateType.toString(), "Can not validate a type");
+			return false;
+		}
+		
 		return true;
 	}
 
 	@Override
 	default public boolean validate(DLType type, Object value, ValidationResult result)
 	{
+		if (!canValidateTypeRead()) {
+			result.addError(CanNotValidateTypeRead.toString(), "can not validate a type value");
+			return false;
+		}
+		
 		return true;
 	}
 }

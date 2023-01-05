@@ -23,23 +23,16 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.documentation;
 
-import de.s42.dl.*;
-import de.s42.dl.exceptions.InvalidInstance;
+import de.s42.dl.annotations.TagDLAnnotation;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class ExportDLAnnotation extends AbstractDLAnnotation<ExportDLAnnotation>
+public class PreliminaryDLAnnotation extends TagDLAnnotation<PreliminaryDLAnnotation>
 {
 
-	public final static String DEFAULT_SYMBOL = "export";
-
-	@Override
-	public void bindToInstance(DLInstance instance) throws InvalidInstance
-	{
-		instance.getType().getCore().addExported(instance);
-	}
+	public final static String DEFAULT_SYMBOL = "preliminary";
 }

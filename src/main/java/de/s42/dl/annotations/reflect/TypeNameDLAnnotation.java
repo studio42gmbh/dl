@@ -82,6 +82,12 @@ public class TypeNameDLAnnotation extends AbstractDLContract<TypeNameDLAnnotatio
 	}
 
 	@Override
+	public boolean canValidateType()
+	{
+		return true;
+	}
+
+	@Override
 	public void bindToType(DLType type) throws DLException
 	{
 		assert type != null;

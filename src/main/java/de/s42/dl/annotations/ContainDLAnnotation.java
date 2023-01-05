@@ -68,6 +68,12 @@ public class ContainDLAnnotation extends AbstractDLContract<ContainDLAnnotation>
 	protected DLType containedType;
 
 	@Override
+	public boolean canValidateType()
+	{
+		return true;
+	}
+
+	@Override
 	public boolean validate(DLInstance instance, ValidationResult result)
 	{
 		assert instance != null;

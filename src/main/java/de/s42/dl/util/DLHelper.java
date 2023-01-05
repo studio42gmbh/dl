@@ -30,7 +30,7 @@ import de.s42.base.files.FilesHelper;
 import de.s42.base.strings.StringHelper;
 import de.s42.base.zip.ZipHelper;
 import de.s42.dl.*;
-import de.s42.dl.annotations.DontPersistDLAnnotation;
+import de.s42.dl.annotations.persistence.DontPersistDLAnnotation;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.io.DLWriter;
 import de.s42.dl.io.binary.BinaryDLWriter;

@@ -23,11 +23,15 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.attributes;
 
-import de.s42.dl.DLType;
+import de.s42.dl.DLAttribute;
+import de.s42.dl.DLInstance;
+import de.s42.dl.annotations.AbstractDLContract;
+import de.s42.dl.annotations.DLAnnotationType;
 import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.types.DefaultDLType;
+import static de.s42.dl.validation.DefaultValidationCode.RequiredAttribute;
+import de.s42.dl.validation.ValidationResult;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,22 +41,46 @@ import java.lang.annotation.Target;
  *
  * @author Benjamin Schiller
  */
-public class DynamicDLAnnotation extends AbstractDLAnnotation<DynamicDLAnnotation>
+public class RequiredDLAnnotation extends AbstractDLContract<RequiredDLAnnotation>
 {
 
 	@Retention(RetentionPolicy.RUNTIME)
-	@Target(value = {ElementType.FIELD, ElementType.TYPE})
-	@DLAnnotationType(DynamicDLAnnotation.class)
-	public static @interface dynamic
+	@Target(value = {ElementType.FIELD})
+	@DLAnnotationType(RequiredDLAnnotation.class)
+	public static @interface required
 	{
 	}
 
-	@Override
-	public void bindToType(DLType type) throws InvalidAnnotation
-	{
-		assert type != null;
+	private String attributeName;
 
-		//allow dynamic attributes
-		((DefaultDLType) type).setAllowDynamicAttributes(true);
+	@Override
+	public boolean validate(DLInstance instance, ValidationResult result)
+	{
+		assert instance != null;
+
+		Object val = instance.get(attributeName);
+
+		if (val == null) {
+			result.addError(RequiredAttribute.toString(), "Attribute value '" + attributeName + "' is required and may not be null", instance);
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public boolean canValidateAttribute()
+	{
+		return true;
+	}
+
+	@Override
+	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation
+	{
+		assert attribute != null;
+
+		this.attributeName = attribute.getName();
+
+		attribute.getContainer().addInstanceValidator(this);
 	}
 }

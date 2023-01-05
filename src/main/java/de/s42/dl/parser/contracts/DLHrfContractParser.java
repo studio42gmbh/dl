@@ -131,7 +131,7 @@ public final class DLHrfContractParser
 			Object[] parameters = DLHrfParsing.fetchStaticParameters(module, annotationName, ctx.staticParameters());
 			DLAnnotationFactory factory = core.getAnnotationFactory(annotationName).orElseThrow();
 
-			ContractAnnotationFactory contract = new ContractAnnotationFactory(annotationName, factory, parameters);
+			ContractAnnotationFactory contract = new ContractAnnotationFactory("contract" + annotationName, factory, parameters);
 
 			return new Contract(contract);
 		} catch (DLException ex) {

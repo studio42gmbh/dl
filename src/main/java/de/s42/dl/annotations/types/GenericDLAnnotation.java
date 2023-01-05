@@ -23,56 +23,28 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.types;
 
-import de.s42.dl.DLAttribute;
-import de.s42.dl.DLInstance;
+import de.s42.dl.DLType;
+import de.s42.dl.annotations.AbstractDLAnnotation;
 import de.s42.dl.exceptions.InvalidAnnotation;
-import static de.s42.dl.validation.DefaultValidationCode.RequiredAttribute;
-import de.s42.dl.validation.ValidationResult;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import de.s42.dl.types.DefaultDLType;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class RequiredDLAnnotation extends AbstractDLContract<RequiredDLAnnotation>
+public class GenericDLAnnotation extends AbstractDLAnnotation
 {
 
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(value = {ElementType.FIELD})
-	@DLAnnotationType(RequiredDLAnnotation.class)
-	public static @interface required
-	{
-	}
-
-	private String attributeName;
+	public final static String DEFAULT_SYMBOL = "generic";
 
 	@Override
-	public boolean validate(DLInstance instance, ValidationResult result)
+	public void bindToType(DLType type) throws InvalidAnnotation
 	{
-		assert instance != null;
+		assert type != null;
 
-		Object val = instance.get(attributeName);
-
-		if (val == null) {
-			result.addError(RequiredAttribute.toString(), "Attribute value '" + attributeName + "' is required and may not be null", instance);
-			return false;
-		}
-
-		return true;
-	}
-
-	@Override
-	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation
-	{
-		assert attribute != null;
-
-		this.attributeName = attribute.getName();
-
-		attribute.getContainer().addInstanceValidator(this);
+		//allow generic types
+		((DefaultDLType) type).setAllowGenericTypes(true);
 	}
 }

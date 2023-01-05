@@ -23,10 +23,13 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.types;
 
 import de.s42.dl.DLCore;
 import de.s42.dl.DLType;
+import de.s42.dl.annotations.AbstractDLAnnotation;
+import de.s42.dl.annotations.DLAnnotationParameter;
+import de.s42.dl.annotations.DLAnnotationType;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.types.DefaultDLType;

@@ -23,24 +23,31 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.attributes;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import de.s42.dl.annotations.attributes.AbstractComparisonDLAnnotation;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DontPersistDLAnnotation extends TagDLAnnotation<DontPersistDLAnnotation>
+public class EqualDLAnnotation extends AbstractComparisonDLAnnotation<Object, EqualDLAnnotation>
 {
 
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(value = {ElementType.FIELD, ElementType.TYPE})
-	@DLAnnotationType(DontPersistDLAnnotation.class)
-	public static @interface dontPersist
+	public final static String DEFAULT_SYMBOL = "equal";
+
+	@Override
+	protected String errorMessage(Object val, Object refVal)
 	{
+		return "val '" + val + "' must be equal to refval '" + refVal + "'";
+	}
+
+	@Override
+	protected boolean compare(Object val, Object refVal)
+	{
+		assert val != null;
+		assert refVal != null;
+
+		return val.equals(refVal);
 	}
 }

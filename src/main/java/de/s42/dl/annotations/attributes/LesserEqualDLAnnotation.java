@@ -23,39 +23,45 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.attributes;
 
-import de.s42.dl.DLAttribute;
-import de.s42.dl.attributes.DefaultDLAttribute;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.exceptions.InvalidAttribute;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import de.s42.dl.annotations.attributes.AbstractComparisonDLAnnotation;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class WriteOnlyDLAnnotation extends AbstractDLAnnotation
+public class LesserEqualDLAnnotation extends AbstractComparisonDLAnnotation<Object, LesserEqualDLAnnotation>
 {
 
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(value = {ElementType.FIELD})
-	@DLAnnotationType(WriteOnlyDLAnnotation.class)
-	public static @interface writeonly
+	public final static String DEFAULT_SYMBOL = "lesserEqual";
+
+	@Override
+	protected String errorMessage(Object val, Object refVal)
 	{
+		return "val '" + val + "' must be lesser or equal than refval '" + refVal + "'";
 	}
 
 	@Override
-	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation, InvalidAttribute
+	protected boolean compare(Object val, Object refVal)
 	{
-		if (attribute instanceof DefaultDLAttribute) {
-			((DefaultDLAttribute) attribute).setReadable(false);
-			((DefaultDLAttribute) attribute).setWritable(true);
-		} else {
-			throw new InvalidAttribute("Attribute has to be of type DefaultDLAttribute");
+		assert val != null;
+		assert refVal != null;
+
+		if (val instanceof Double && refVal instanceof Double) {
+			return ((Double) val <= (Double) refVal);
+		} else if (val instanceof Float && refVal instanceof Float) {
+			return ((Float) val <= (Float) refVal);
+		} else if (val instanceof Long && refVal instanceof Long) {
+			return ((Long) val <= (Long) refVal);
+		} else if (val instanceof Integer && refVal instanceof Integer) {
+			return ((Integer) val <= (Integer) refVal);
+		} else if (val instanceof Short && refVal instanceof Short) {
+			return ((Short) val <= (Short) refVal);
+		} else if (val instanceof String && refVal instanceof String) {
+			return ((String) val).compareTo((String) refVal) <= 0;
 		}
+
+		throw new IllegalArgumentException("Types of val and refVal have to be Number or String");
 	}
 }

@@ -23,43 +23,38 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.types;
+
+import de.s42.dl.DLType;
+import de.s42.dl.annotations.AbstractDLAnnotation;
+import de.s42.dl.annotations.DLAnnotationType;
+import de.s42.dl.exceptions.InvalidAnnotation;
+import de.s42.dl.types.DefaultDLType;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class LesserDLAnnotation extends AbstractComparisonDLAnnotation<Object, LesserDLAnnotation>
+public class DynamicDLAnnotation extends AbstractDLAnnotation<DynamicDLAnnotation>
 {
 
-	public final static String DEFAULT_SYMBOL = "lesser";
-
-	@Override
-	protected String errorMessage(Object val, Object refVal)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = {ElementType.FIELD, ElementType.TYPE})
+	@DLAnnotationType(DynamicDLAnnotation.class)
+	public static @interface dynamic
 	{
-		return "val '" + val + "' must be lesser than refval '" + refVal + "'";
 	}
 
 	@Override
-	protected boolean compare(Object val, Object refVal)
+	public void bindToType(DLType type) throws InvalidAnnotation
 	{
-		assert val != null;
-		assert refVal != null;
+		assert type != null;
 
-		if (val instanceof Double && refVal instanceof Double) {
-			return ((Double) val < (Double) refVal);
-		} else if (val instanceof Float && refVal instanceof Float) {
-			return ((Float) val < (Float) refVal);
-		} else if (val instanceof Long && refVal instanceof Long) {
-			return ((Long) val < (Long) refVal);
-		} else if (val instanceof Integer && refVal instanceof Integer) {
-			return ((Integer) val < (Integer) refVal);
-		} else if (val instanceof Short && refVal instanceof Short) {
-			return ((Short) val < (Short) refVal);
-		} else if (val instanceof String && refVal instanceof String) {
-			return ((String) val).compareTo((String) refVal) < 0;
-		}
-
-		throw new IllegalArgumentException("Types of val and refVal have to be Number or String");
+		//allow dynamic attributes
+		((DefaultDLType) type).setAllowDynamicAttributes(true);
 	}
 }

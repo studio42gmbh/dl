@@ -23,12 +23,10 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.persistence;
 
-import de.s42.dl.DLAttribute;
-import de.s42.dl.attributes.DefaultDLAttribute;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import de.s42.dl.exceptions.InvalidAttribute;
+import de.s42.dl.annotations.DLAnnotationType;
+import de.s42.dl.annotations.TagDLAnnotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -38,24 +36,13 @@ import java.lang.annotation.Target;
  *
  * @author Benjamin Schiller
  */
-public class ReadOnlyDLAnnotation extends AbstractDLAnnotation
+public class DontPersistDLAnnotation extends TagDLAnnotation<DontPersistDLAnnotation>
 {
 
 	@Retention(RetentionPolicy.RUNTIME)
-	@Target(value = {ElementType.FIELD})
-	@DLAnnotationType(WriteOnlyDLAnnotation.class)
-	public static @interface readonly
+	@Target(value = {ElementType.FIELD, ElementType.TYPE})
+	@DLAnnotationType(DontPersistDLAnnotation.class)
+	public static @interface dontPersist
 	{
-	}
-
-	@Override
-	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation, InvalidAttribute
-	{
-		if (attribute instanceof DefaultDLAttribute) {
-			((DefaultDLAttribute) attribute).setReadable(true);
-			((DefaultDLAttribute) attribute).setWritable(false);
-		} else {
-			throw new InvalidAttribute("Attribute has to be of type DefaultDLAttribute");
-		}
 	}
 }

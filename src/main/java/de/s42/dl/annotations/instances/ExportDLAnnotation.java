@@ -23,43 +23,24 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.instances;
+
+import de.s42.dl.*;
+import de.s42.dl.annotations.AbstractDLAnnotation;
+import de.s42.dl.exceptions.InvalidInstance;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class GreaterEqualDLAnnotation extends AbstractComparisonDLAnnotation<Object, GreaterEqualDLAnnotation>
+public class ExportDLAnnotation extends AbstractDLAnnotation<ExportDLAnnotation>
 {
 
-	public final static String DEFAULT_SYMBOL = "greaterEqual";
+	public final static String DEFAULT_SYMBOL = "export";
 
 	@Override
-	protected String errorMessage(Object val, Object refVal)
+	public void bindToInstance(DLInstance instance) throws InvalidInstance
 	{
-		return "val '" + val + "' must be greater or equal than refval '" + refVal + "'";
-	}
-
-	@Override
-	protected boolean compare(Object val, Object refVal)
-	{
-		assert val != null;
-		assert refVal != null;
-
-		if (val instanceof Double && refVal instanceof Double) {
-			return ((Double) val >= (Double) refVal);
-		} else if (val instanceof Float && refVal instanceof Float) {
-			return ((Float) val >= (Float) refVal);
-		} else if (val instanceof Long && refVal instanceof Long) {
-			return ((Long) val >= (Long) refVal);
-		} else if (val instanceof Integer && refVal instanceof Integer) {
-			return ((Integer) val >= (Integer) refVal);
-		} else if (val instanceof Short && refVal instanceof Short) {
-			return ((Short) val >= (Short) refVal);
-		} else if (val instanceof String && refVal instanceof String) {
-			return ((String) val).compareTo((String) refVal) >= 0;
-		}
-
-		throw new IllegalArgumentException("Types of val and refVal have to be Number or String");
+		instance.getType().getCore().addExported(instance);
 	}
 }

@@ -25,6 +25,10 @@
 //</editor-fold>
 package de.s42.dl.core;
 
+import de.s42.dl.annotations.attributes.WriteOnlyDLAnnotation;
+import de.s42.dl.annotations.attributes.RequiredDLAnnotation;
+import de.s42.dl.annotations.attributes.ReadOnlyDLAnnotation;
+import de.s42.dl.annotations.types.JavaDLAnnotation;
 import de.s42.dl.*;
 import de.s42.base.beans.BeanHelper;
 import de.s42.base.beans.BeanInfo;
