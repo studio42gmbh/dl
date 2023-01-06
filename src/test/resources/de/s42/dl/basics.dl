@@ -1,8 +1,17 @@
+/*^ MIT License
+ *
+ * This is the MIT License ...
+ * ...
+ * 
+ */
 
 require "dl:standard/base.dl";
 
+annotation odd : !@even;
+annotation evenRange42OrOdd : ( @range(0, 42) & @even ) | ( !@range(0, 42) & @odd );
+
 // Special constrained base types
-final type Long42 @range(0, 42) extends Long;
+final type EvenLong42 @evenRange42OrOdd extends Long;
 
 // Simple tree types
 abstract type Node;
@@ -10,13 +19,17 @@ type Container extends Node contains Node alias Root;
 dynamic type Leaf extends Node;
 type Statistics extends Node
 {
-	Long42 l42 @required;
+	EvenLong42 l42 @required;
 	String version @required;
 }
 
+//^ Root root
 Root root {
 	Statistics {
 		version : "1.0.0";
-		l42 : 41;
+		l42 : 49;
 	}
 }
+//^
+
+boolean b : true & !(false & true);

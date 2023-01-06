@@ -75,11 +75,12 @@ assertMessage : expression ;
 
 expression : 
 	PARENTHESES_OPEN expression PARENTHESES_CLOSE
+	| NOT expression
 	| expression POW expression
 	| expression ( MUL | DIV ) expression
 	| expression ( PLUS | MINUS ) expression
-	| expression ( AND | OR | XOR | EQUALS | LIKE ) expression
-	| NOT expression
+	| expression ( AND | OR ) expression
+	| expression ( XOR | EQUALS | LIKE ) expression
 	| MINUS? atom ;
 
 atom : FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | STRING_LITERAL | SYMBOL | REF ;
@@ -141,8 +142,9 @@ annotationDefinition :
 
 annotationDefinitionExpression : 
 	PARENTHESES_OPEN annotationDefinitionExpression PARENTHESES_CLOSE
-	| annotationDefinitionExpression ( AND | OR | XOR | EQUALS ) annotationDefinitionExpression
 	| NOT annotationDefinitionExpression
+	| annotationDefinitionExpression ( AND | OR  ) annotationDefinitionExpression
+	| annotationDefinitionExpression ( XOR | EQUALS ) annotationDefinitionExpression
 	| annotation ;
 
 annotationDefinitionName : identifier ;
