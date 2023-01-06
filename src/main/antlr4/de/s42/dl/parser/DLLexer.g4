@@ -51,6 +51,7 @@ KEYWORD_FINAL :			'final' ;
 KEYWORD_PRAGMA :		'pragma' ;
 KEYWORD_DECLARE :		'declare' ;
 KEYWORD_ASSERT :		'assert' ;
+KEYWORD_DYNAMIC :		'dynamic' ;
 //KEYWORD_EXPORT :		'export' ;
 
 

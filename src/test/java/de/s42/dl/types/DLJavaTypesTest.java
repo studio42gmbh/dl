@@ -30,7 +30,6 @@ import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.*;
 import de.s42.dl.DLAttribute.AttributeDL;
-import de.s42.dl.annotations.types.DynamicDLAnnotation.dynamic;
 import de.s42.dl.annotations.attributes.RequiredDLAnnotation;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
@@ -51,7 +50,6 @@ public class DLJavaTypesTest
 
 	private final static Logger log = LogManager.getLogger(DLJavaTypesTest.class.getName());
 
-	@dynamic
 	public static class TestClass
 	{
 

@@ -129,7 +129,7 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 
 	public boolean hasAttributes();
 
-	public boolean isAllowDynamicAttributes();
+	public boolean isDynamic();
 
 	// GENERIC
 	public List<DLType> getGenericTypes();

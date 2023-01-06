@@ -3,19 +3,25 @@ require "dl:standard/base.dl";
 
 annotation odd : !@even;
 annotation odd42 : @odd & @range(0, 42);
-annotation odd21to42 : @odd42 & @range(21, 42);
+annotation odd21to42 : @odd42 & @range(21);
 
 annotation requiredFile : @required & @isFile;
 
 type SpecialLong @odd21to42 extends Long;
+
+//type RequiredFile @requiredFile extends Path;
 
 SpecialLong val : 21;
 
 type MyType
 {
 	Path path @requiredFile;
+	String display;
+	SpecialLong val;
+	//Long val2 @odd21to42;
 }
 
-MyType t {
+MyType t @export {
 	path : "/home/notes-wsbs2022.txt";
+	val : 41;
 }

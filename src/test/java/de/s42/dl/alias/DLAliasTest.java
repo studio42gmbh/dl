@@ -88,10 +88,10 @@ public class DLAliasTest
 	{
 		DefaultCore core = new DefaultCore();
 		core.parse("aliasAnnotation",
-			"alias test dynamic;"
+			"alias test required;"
 		);
 		core.parse("aliasAnnotation2",
-			"type T @test;"
+			"type T { int x @test; }"
 		);
 	}
 

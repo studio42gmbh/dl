@@ -23,7 +23,7 @@
 
 require "dl:standard/base.dl";
 
-type User @dynamic {
+dynamic type User {
 	
 	String name /*@length(4, 120)*/ : "Default";
 	UUID id /*@generateUUID*/ @required /*@unique*/;

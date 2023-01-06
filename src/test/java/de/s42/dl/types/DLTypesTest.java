@@ -152,12 +152,12 @@ public class DLTypesTest
 		);
 	}
 
-	@Test(expectedExceptions = InvalidAnnotation.class)
-	public void invalidExternTypeNoAnnotationAllowed() throws DLException
+	@Test(expectedExceptions = InvalidType.class)
+	public void invalidExternTypeNoDynamicAllowed() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		core.parse("invalidExternTypeNoAnnotationAllowed",
-			"extern type de.s42.dl.types.DLTypesTest$TestClass @dynamic;"
+		core.parse("invalidExternTypeNoDynamicAllowed",
+			"extern dynamic type de.s42.dl.types.DLTypesTest$TestClass;"
 		);
 	}
 
@@ -211,7 +211,7 @@ public class DLTypesTest
 	{
 		DefaultCore core = new DefaultCore();
 		core.parse("typeWithAnnotationDefined",
-			"type T @dynamic;"
+			"type T @noGenerics;"
 		);
 	}
 
@@ -222,7 +222,7 @@ public class DLTypesTest
 		core.addResolver(DefaultCore.STRING_RESOLVER);
 		core.setAllowDefineTypes(true);
 		core.parse("invalidTypeAnnotationNotDefined",
-			"type T @dynamic;"
+			"type T @undefined;"
 		);
 	}
 

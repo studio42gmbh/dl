@@ -87,7 +87,7 @@ public class MapDLType extends DefaultDLType
 	private void init(DLType genericKeyType, DLType genericValueType)
 	{
 		setAllowGenericTypes(true);
-		setAllowDynamicAttributes(true);
+		setDynamic(true);
 
 		if (genericKeyType != null && genericValueType != null) {
 			try {

@@ -74,7 +74,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	protected final List<DLType> containedTypes = new ArrayList<>();
 
 	protected DLCore core;
-	protected boolean allowDynamicAttributes = false;
+	protected boolean dynamic = false;
 	protected boolean allowGenericTypes = false;
 	protected boolean isAbstract = false;
 	protected boolean isFinal = false;
@@ -134,7 +134,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 			copy.core = core; // ATTENTION: This type is not contained in core after copy
 			copy.name = name;
-			copy.allowDynamicAttributes = allowDynamicAttributes;
+			copy.dynamic = dynamic;
 			copy.allowGenericTypes = allowGenericTypes;
 			copy.isAbstract = isAbstract;
 			copy.isFinal = isFinal;
@@ -268,7 +268,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	{
 		return isSimpleType() && !isAbstract();
 	}
-	
+
 	protected void validateRead(Object... sources) throws InvalidType
 	{
 		if (!readValidators.isEmpty()) {
@@ -280,7 +280,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 			if (!result.isValid()) {
 				throw new InvalidType("Type '" + getCanonicalName() + "' could not read valid - " + result.toMessage());
 			}
-		}		
+		}
 	}
 
 	@Override
@@ -295,7 +295,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 		if (isComplexType()) {
 			throw new InvalidType("Type '" + getCanonicalName() + "' is complex and thus can not be used to read input");
 		}
-		
+
 		// Validate read
 		validateRead(sources);
 
@@ -720,7 +720,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	public boolean isComplexType()
 	{
 		return complexType
-			|| isAllowDynamicAttributes()
+			|| isDynamic()
 			|| hasAttributes()
 			|| hasContainedTypes();
 	}
@@ -729,17 +729,6 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	public boolean isSimpleType()
 	{
 		return !isComplexType();
-	}
-
-	@Override
-	public boolean isAllowDynamicAttributes()
-	{
-		return allowDynamicAttributes;
-	}
-
-	public void setAllowDynamicAttributes(boolean allowDynamicAttributes)
-	{
-		this.allowDynamicAttributes = allowDynamicAttributes;
 	}
 
 	@Override
@@ -941,5 +930,16 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	public void setCore(DLCore core)
 	{
 		this.core = core;
+	}
+
+	@Override
+	public boolean isDynamic()
+	{
+		return dynamic;
+	}
+
+	public void setDynamic(boolean dynamic)
+	{
+		this.dynamic = dynamic;
 	}
 }

@@ -26,7 +26,7 @@ require "dl:standard/base.dl";
 
 UUID id: "ad232384-4a04-4119-9e95-4753f31e3b09";
 
-type User @dynamic {	
+dynamic type User {	
 	String name: "Default Name";
 	UUID id : "bd332384-4a04-4119-9e95-4753f31e3b08";
 }

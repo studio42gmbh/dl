@@ -156,6 +156,7 @@ typeDefinition :
 
 typeHeader : 	
     ( KEYWORD_DECLARE | KEYWORD_EXTERN | KEYWORD_FINAL | KEYWORD_ABSTRACT )?
+	KEYWORD_DYNAMIC?
 	KEYWORD_TYPE 
 	typeDefinitionName 
 	annotation* 

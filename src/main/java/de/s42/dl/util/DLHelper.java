@@ -103,7 +103,7 @@ public final class DLHelper
 			builder.append(" final");
 		}
 
-		if (type.isAllowDynamicAttributes()) {
+		if (type.isDynamic()) {
 			builder.append(" dynamic");
 		}
 

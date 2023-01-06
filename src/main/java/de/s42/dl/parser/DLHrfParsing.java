@@ -825,14 +825,19 @@ public class DLHrfParsing extends DLParserBaseListener
 
 				// Extension is not allowed for extern types
 				if (typeHeader.KEYWORD_EXTENDS() != null) {
-					throw new InvalidType(createErrorMessage(module, "Extern type '" + typeName + "' may not extend other types", ctx));
+					throw new InvalidType(createErrorMessage(module, "Extern type '" + typeName + "' may not be set to extend other types", ctx));
 				}
 
 				// Containment is not allowed for extern types
 				if (typeHeader.KEYWORD_CONTAINS() != null) {
-					throw new InvalidType(createErrorMessage(module, "Extern type '" + typeName + "' may not contain other types", ctx));
+					throw new InvalidType(createErrorMessage(module, "Extern type '" + typeName + "' may not be set to contain other types", ctx));
 				}
 
+				// Dynamic is not allowed for extern types
+				if (typeHeader.KEYWORD_DYNAMIC() != null) {
+					throw new InvalidType(createErrorMessage(module, "Extern type '" + typeName + "' may not be set dynamic", ctx));
+				}
+				
 				// Annotations are not allowed on extern types
 				if (!typeHeader.annotation().isEmpty()) {
 					throw new InvalidAnnotation(createErrorMessage(module, "Extern type '" + typeName + "' may not have annotations", ctx));
@@ -842,7 +847,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				if (ctx.typeBody() != null) {
 					throw new InvalidType(createErrorMessage(module, "Extern type '" + typeName + "' may not have a body", ctx));
 				}
-
+				
 				// Allows to have multiple statements of external declaration
 				if (!core.hasType(typeName)) {
 
@@ -925,6 +930,10 @@ public class DLHrfParsing extends DLParserBaseListener
 					currentType.setFinal(true);
 				}
 
+				if (typeHeader.KEYWORD_DYNAMIC() != null) {
+					currentType.setDynamic(true);
+				}
+				
 				// Map annotations
 				mapAnnotations(typeHeader.annotation(), (annotationName, parameters, aCtx) -> {
 					try {
@@ -1242,7 +1251,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				.orElse(null);
 
 			// Ensure check if instance allows dynamic attributes
-			if (!currentInstance.getType().isAllowDynamicAttributes()
+			if (!currentInstance.getType().isDynamic()
 				&& attributeType == null) {
 				throw new InvalidAttribute(
 					createErrorMessage(

@@ -63,7 +63,7 @@ public abstract class SimpleDLType extends DefaultDLType
 	}
 
 	@Override
-	public boolean isAllowDynamicAttributes()
+	public boolean isDynamic()
 	{
 		return false;
 	}
@@ -97,10 +97,10 @@ public abstract class SimpleDLType extends DefaultDLType
 	}
 
 	@Override
-	public void setAllowDynamicAttributes(boolean allowDynamicAttributes)
+	public void setDynamic(boolean dynamic)
 	{
-		if (allowDynamicAttributes) {
-			throw new UnsupportedOperationException("May not setAllowDynamicAttributes");
+		if (dynamic) {
+			throw new UnsupportedOperationException("May not set dynamic");
 		}
 	}
 

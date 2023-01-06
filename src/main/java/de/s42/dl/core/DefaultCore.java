@@ -30,7 +30,6 @@ import de.s42.dl.annotations.attributes.RequiredDLAnnotation;
 import de.s42.dl.annotations.types.NoGenericsDLAnnotation;
 import de.s42.dl.annotations.attributes.ReadOnlyDLAnnotation;
 import de.s42.dl.annotations.types.JavaDLAnnotation;
-import de.s42.dl.annotations.types.DynamicDLAnnotation;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLEntity;
 import de.s42.dl.DLType;
@@ -156,7 +155,6 @@ public class DefaultCore extends BaseDLCore
 		core.defineAnnotationFactory(new WriteOnlyDLAnnotation(), WriteOnlyDLAnnotation.writeonly.class.getSimpleName(), WriteOnlyDLAnnotation.class.getName());
 
 		core.defineAnnotationFactory(new DontPersistDLAnnotation(), DontPersistDLAnnotation.dontPersist.class.getSimpleName(), DontPersistDLAnnotation.class.getName());
-		core.defineAnnotationFactory(new DynamicDLAnnotation(), DynamicDLAnnotation.dynamic.class.getSimpleName(), DynamicDLAnnotation.class.getName());
 		core.defineAnnotationFactory(new NoGenericsDLAnnotation(), NoGenericsDLAnnotation.noGenerics.class.getSimpleName(), NoGenericsDLAnnotation.class.getName());
 		core.defineAnnotationFactory(new ContainDLAnnotation(), ContainDLAnnotation.contain.class.getSimpleName(), ContainDLAnnotation.class.getName());
 
@@ -177,7 +175,7 @@ public class DefaultCore extends BaseDLCore
 		core.defineAnnotationFactory(new GreaterEqualDLAnnotation(), GreaterEqualDLAnnotation.DEFAULT_SYMBOL, GreaterEqualDLAnnotation.class.getName());
 
 		core.defineAnnotationFactory(new GenericDLAnnotation(), GenericDLAnnotation.DEFAULT_SYMBOL, GenericDLAnnotation.class.getName());
-		
+
 		/*
 		core.defineAnnotationFactory(new ContainOnlyDLAnnotation(), ContainOnlyDLAnnotation.DEFAULT_SYMBOL, ContainOnlyDLAnnotation.class.getName());
 		core.defineAnnotationFactory(new ContainOnceDLAnnotation(), ContainOnceDLAnnotation.DEFAULT_SYMBOL, ContainOnceDLAnnotation.class.getName());

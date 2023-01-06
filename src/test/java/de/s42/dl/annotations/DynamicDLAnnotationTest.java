@@ -25,15 +25,10 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
-import de.s42.dl.annotations.types.DynamicDLAnnotation;
 import de.s42.dl.DLCore;
-import de.s42.dl.DLType;
-import de.s42.dl.annotations.types.DynamicDLAnnotation.dynamic;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidAnnotation;
 import org.testng.annotations.Test;
-import org.testng.Assert;
 
 /**
  *
@@ -41,32 +36,11 @@ import org.testng.Assert;
  */
 public class DynamicDLAnnotationTest
 {
-	@dynamic
-	public static class DynamicClass
-	{
-
-	}
 
 	@Test
-	public void validDontPersistJavaType() throws DLException
-	{
-		DefaultCore core = new DefaultCore();
-		DLType type = core.defineType(DynamicClass.class);
-		Assert.assertTrue(type.hasAnnotation(DynamicDLAnnotation.class), "@dynamic should be mapped for type DynamicClass");
-		Assert.assertTrue(type.isAllowDynamicAttributes(), "type.allowDynamicAttributes");
-	}
-	
-	@Test
-	public void validAnnotationForDynamicType() throws DLException
+	public void simpleDynamicType() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("validAnnotationForDynamicType", "type Dynamic @dynamic; Dynamic test { value : 1; }");
-	}
-
-	@Test(expectedExceptions = {InvalidAnnotation.class})
-	public void invalidParametersAnnotationForDynamicType() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidParametersAnnotationForDynamicType", "type Dynamic @dynamic(1);");
+		core.parse("simpleDynamicType", "dynamic type Dynamic; Dynamic test { value : 1; }");
 	}
 }

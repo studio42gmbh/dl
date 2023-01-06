@@ -54,8 +54,6 @@ public class ModuleDLType extends DefaultDLType
 	public ModuleDLType(String name)
 	{
 		super(name);
-		
-		init();
 	}
 
 	public ModuleDLType(DLCore core)
@@ -73,15 +71,8 @@ public class ModuleDLType extends DefaultDLType
 	public ModuleDLType(DLCore core, String name)
 	{
 		super(core, name);
-		
-		init();
 	}
 	
-	private void init()
-	{
-		setAllowDynamicAttributes(true);
-	}
-
 	@Override
 	public Class getJavaDataType()
 	{
@@ -92,5 +83,19 @@ public class ModuleDLType extends DefaultDLType
 	public boolean mayContainType(DLType type)
 	{
 		return true;
+	}
+
+	@Override
+	public boolean isDynamic()
+	{
+		return true;
+	}
+	
+	@Override
+	public void setDynamic(boolean dynamic)
+	{
+		if (!dynamic) {
+			throw new UnsupportedOperationException("May not set not dynamic");
+		}
 	}
 }
