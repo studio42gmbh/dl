@@ -25,11 +25,9 @@
 //</editor-fold>
 package de.s42.dl.annotations.files;
 
-import de.s42.dl.DLAttribute;
 import de.s42.dl.DLInstance;
 import de.s42.dl.annotations.AbstractDLContract;
 import de.s42.dl.annotations.DLAnnotationType;
-import de.s42.dl.exceptions.InvalidAnnotation;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidDirectory;
 import de.s42.dl.validation.ValidationResult;
 import java.lang.annotation.ElementType;
@@ -53,10 +51,8 @@ public class IsDirectoryDLAnnotation extends AbstractDLContract<IsDirectoryDLAnn
 	{
 	}
 
-	private String attributeName;
-
 	@Override
-	public boolean validate(DLInstance instance, ValidationResult result)
+	public boolean validate(DLInstance instance, String attributeName, ValidationResult result)
 	{
 		assert instance != null;
 
@@ -80,18 +76,14 @@ public class IsDirectoryDLAnnotation extends AbstractDLContract<IsDirectoryDLAnn
 	}
 
 	@Override
-	public boolean canValidateInstance()
+	public boolean canValidateAttribute()
 	{
 		return true;
 	}
 
 	@Override
-	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation
+	public boolean canValidateInstance()
 	{
-		assert attribute != null;
-
-		this.attributeName = attribute.getName();
-
-		attribute.getContainer().addInstanceValidator(this);
+		return true;
 	}
 }

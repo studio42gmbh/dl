@@ -26,6 +26,7 @@
 package de.s42.dl.validation;
 
 import de.s42.dl.DLAttribute;
+import de.s42.dl.DLInstance;
 
 /**
  *
@@ -35,6 +36,11 @@ public interface DLAttributeValidator
 {
 
 	default public boolean validate(DLAttribute attribute, ValidationResult result)
+	{
+		return true;
+	}
+	
+	default public boolean validate(DLInstance instance, String attributeName, ValidationResult result)
 	{
 		return true;
 	}

@@ -26,15 +26,14 @@
 package de.s42.dl.annotations;
 
 import de.s42.base.validation.IsSymbol;
-import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.*;
-import de.s42.dl.exceptions.DLException;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidContain;
 import de.s42.dl.validation.ValidationResult;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Optional;
 
 /**
  *
@@ -65,10 +64,44 @@ public class ContainDLAnnotation extends AbstractDLContract<ContainDLAnnotation>
 	@DLAnnotationParameter(ordinal = 2, defaultValue = "2147483647")
 	protected int max = Integer.MAX_VALUE;
 
-	protected DLType containedType;
-
 	@Override
 	public boolean canValidateType()
+	{
+		return true;
+	}
+
+	/**
+	 * Ensure type may generally contain the other type and the other type exists.
+	 *
+	 * @param type
+	 * @param result
+	 *
+	 * @return
+	 */
+	@Override
+	public boolean validate(DLType type, ValidationResult result)
+	{
+		assert type != null;
+		assert result != null;
+
+		Optional<DLType> optContainedType = validateAndGetContainedType(type, result);
+
+		if (optContainedType.isEmpty()) {
+			return false;
+		}
+
+		DLType containedType = optContainedType.orElseThrow();
+
+		if (!type.mayContainType(containedType)) {
+			result.addError(InvalidContain.toString(), "Type '" + type + "' may not contain '" + containedType + "' not found in core");
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public boolean canValidateInstance()
 	{
 		return true;
 	}
@@ -77,6 +110,17 @@ public class ContainDLAnnotation extends AbstractDLContract<ContainDLAnnotation>
 	public boolean validate(DLInstance instance, ValidationResult result)
 	{
 		assert instance != null;
+		assert result != null;
+
+		DLType type = instance.getType();
+
+		Optional<DLType> optContainedType = validateAndGetContainedType(type, result);
+
+		if (optContainedType.isEmpty()) {
+			return false;
+		}
+
+		DLType containedType = optContainedType.orElseThrow();
 
 		int count = instance.getChildren(containedType).size();
 
@@ -88,17 +132,26 @@ public class ContainDLAnnotation extends AbstractDLContract<ContainDLAnnotation>
 		return true;
 	}
 
-	@Override
-	public synchronized void bindToType(DLType type) throws DLException
+	protected Optional<DLType> validateAndGetContainedType(DLType type, ValidationResult result)
 	{
 		assert type != null;
+		assert result != null;
 
-		// Resolve one validator per annotation instance
-		containedType = type.getCore().getType(contain).orElseThrow(() -> {
-			return new InvalidAnnotation("Type '" + contain + "' not found in core");
-		});
+		Optional<DLType> optContainedType = type.getCore().getType(contain);
 
-		type.addInstanceValidator(this);
+		if (optContainedType.isEmpty()) {
+			result.addError(InvalidContain.toString(), "Type '" + contain + "' not found in core");
+			return Optional.empty();
+		}
+
+		DLType containedType = optContainedType.orElseThrow();
+
+		if (!type.mayContainType(containedType)) {
+			result.addError(InvalidContain.toString(), "Type '" + type + "' may not contain '" + containedType + "' not found in core");
+			return Optional.empty();
+		}
+
+		return Optional.of(containedType);
 	}
 
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">

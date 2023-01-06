@@ -48,10 +48,10 @@ public class RangeDLAnnotationTest
 	}
 
 	@Test(expectedExceptions = InvalidInstance.class)
-	public void invalidGreaterAnnotationBelowMin() throws DLException
+	public void invalidRaneAnnotationBelowMin() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		core.parse("invalidGreaterAnnotationBelowMin",
+		core.parse("invalidRaneAnnotationBelowMin",
 			"type T { double v @range(10.0, 20.0); } T t { v : 9.9; }"
 		);
 	}

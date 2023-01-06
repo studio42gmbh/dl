@@ -28,7 +28,6 @@ package de.s42.dl.annotations.reflect;
 import de.s42.base.validation.IsValidRegex;
 import de.s42.dl.annotations.*;
 import de.s42.dl.DLType;
-import de.s42.dl.exceptions.DLException;
 import static de.s42.dl.validation.DefaultValidationCode.NotMatching;
 import de.s42.dl.validation.ValidationResult;
 import java.lang.annotation.ElementType;
@@ -73,6 +72,8 @@ public class TypeNameDLAnnotation extends AbstractDLContract<TypeNameDLAnnotatio
 			return true;
 		}
 
+		preparePatterns();
+
 		if (!patternPattern.matcher(type.getName()).matches()) {
 			result.addError(NotMatching.toString(), "Type name '" + type.getName() + "' does not match pattern '" + pattern + "'");
 			return false;
@@ -87,12 +88,11 @@ public class TypeNameDLAnnotation extends AbstractDLContract<TypeNameDLAnnotatio
 		return true;
 	}
 
-	@Override
-	public void bindToType(DLType type) throws DLException
+	protected synchronized void preparePatterns()
 	{
-		assert type != null;
-
-		type.addValidator(this);
+		if (patternPattern != null) {
+			return;
+		}
 
 		// Precompile pattern - after binding the pattern and typepattern may not get changed anymore for consistency
 		patternPattern = Pattern.compile(pattern);

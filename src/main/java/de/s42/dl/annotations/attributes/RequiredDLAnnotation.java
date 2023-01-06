@@ -25,11 +25,9 @@
 //</editor-fold>
 package de.s42.dl.annotations.attributes;
 
-import de.s42.dl.DLAttribute;
 import de.s42.dl.DLInstance;
 import de.s42.dl.annotations.AbstractDLContract;
 import de.s42.dl.annotations.DLAnnotationType;
-import de.s42.dl.exceptions.InvalidAnnotation;
 import static de.s42.dl.validation.DefaultValidationCode.RequiredAttribute;
 import de.s42.dl.validation.ValidationResult;
 import java.lang.annotation.ElementType;
@@ -51,12 +49,12 @@ public class RequiredDLAnnotation extends AbstractDLContract<RequiredDLAnnotatio
 	{
 	}
 
-	private String attributeName;
-
 	@Override
-	public boolean validate(DLInstance instance, ValidationResult result)
+	public boolean validate(DLInstance instance, String attributeName, ValidationResult result)
 	{
 		assert instance != null;
+		assert attributeName != null;
+		assert result != null;
 
 		Object val = instance.get(attributeName);
 
@@ -73,14 +71,10 @@ public class RequiredDLAnnotation extends AbstractDLContract<RequiredDLAnnotatio
 	{
 		return true;
 	}
-
+	
 	@Override
-	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation
+	public boolean canValidateInstance()
 	{
-		assert attribute != null;
-
-		this.attributeName = attribute.getName();
-
-		attribute.getContainer().addInstanceValidator(this);
+		return true;
 	}
 }

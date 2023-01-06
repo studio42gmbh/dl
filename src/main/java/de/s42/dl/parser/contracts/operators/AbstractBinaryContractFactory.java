@@ -32,6 +32,7 @@ import de.s42.dl.DLType;
 import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.annotations.DLContract;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.parser.contracts.DLContractFactory;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -117,14 +118,25 @@ public class AbstractBinaryContractFactory implements DLContractFactory, DLContr
 		try {
 			DLContract proxiedAnnotationFirst = factoryFirst.createAnnotation(factoryFirst.getName(), container, this.flatParameters);
 			DLContract proxiedAnnotationSecond = factorySecond.createAnnotation(factorySecond.getName(), container, this.flatParameters);
+
+			if (!proxiedAnnotationFirst.canEqualValidations(proxiedAnnotationSecond)) {
+				throw new InvalidAnnotation("@" + factoryFirst.getName() + " and @" + factorySecond.getName() + " can not be combind as they have different can validations in annotation @" + getName() + "");
+			}
+
 			AbstractBinaryContractFactory contract = (AbstractBinaryContractFactory) getClass()
 				.getConstructor(DLContract.class, DLContract.class, String.class, String.class, String.class, DLAnnotated.class)
 				.newInstance(proxiedAnnotationFirst, proxiedAnnotationSecond, this.name, factoryFirst.getName(), factorySecond.getName(), container);
 			container.addAnnotation(contract);
 			return contract;
-		} catch (DLException | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
-			throw new DLException("Error creating annotation - " + ex.getMessage(), ex);
+		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
+			throw new InvalidAnnotation("Error creating annotation @" + getName() + " - " + ex.getMessage(), ex);
 		}
+	}
+
+	@Override
+	public Class getAnnotationType()
+	{
+		return getClass();
 	}
 
 	// <editor-fold desc="Bindings" defaultstate="collapsed">
@@ -163,6 +175,7 @@ public class AbstractBinaryContractFactory implements DLContractFactory, DLContr
 
 		if (canValidateAttribute()) {
 			attribute.addValidator(this);
+			attribute.getContainer().addInstanceValidator(this);
 		}
 	}
 	//</editor-fold>

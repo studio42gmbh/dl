@@ -110,6 +110,12 @@ public abstract class AbstractDLAnnotation<DLAnnotationType extends DLAnnotation
 	}
 
 	@Override
+	public Class<DLAnnotationType> getAnnotationType()
+	{
+		return (Class<DLAnnotationType>)getClass();
+	}
+	
+	@Override
 	public boolean hasParameters()
 	{
 		return parameters.hasParameters();

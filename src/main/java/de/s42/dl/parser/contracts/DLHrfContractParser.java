@@ -28,6 +28,7 @@ package de.s42.dl.parser.contracts;
 import de.s42.dl.DLAnnotationFactory;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLModule;
+import de.s42.dl.annotations.DLContract;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.ParserException;
 import de.s42.dl.parser.DLHrfParsing;
@@ -128,10 +129,18 @@ public final class DLHrfContractParser
 				);
 			}
 
-			Object[] parameters = DLHrfParsing.fetchStaticParameters(module, annotationName, ctx.staticParameters());
 			DLAnnotationFactory factory = core.getAnnotationFactory(annotationName).orElseThrow();
-
-			ContractAnnotationFactory contract = new ContractAnnotationFactory("contract" + annotationName, factory, parameters);
+			
+			if (!DLContract.class.isAssignableFrom(factory.getAnnotationType())) {
+				throw new DLHrfParsingException(
+					"Annotation '" + annotationName + "' is not a contract",
+					module,
+					ctx
+				);
+			}
+			
+			Object[] parameters = DLHrfParsing.fetchStaticParameters(module, annotationName, ctx.staticParameters());
+			ContractAnnotationFactory contract = new ContractAnnotationFactory(annotationName, factory, parameters);
 
 			return new Contract(contract);
 		} catch (DLException ex) {

@@ -49,7 +49,7 @@ public class And extends BinaryContractOperator
 	{
 		DLContractFactory firstEval = first.evaluate();
 		DLContractFactory secondEval = second.evaluate();
-
+		
 		return new AndAnnotationFactory("and" + firstEval.getName() + secondEval.getName(), firstEval, secondEval, new Object[]{});		
 	}
 }

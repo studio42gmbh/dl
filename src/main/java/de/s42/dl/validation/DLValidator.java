@@ -51,4 +51,13 @@ public interface DLValidator extends DLTypeValidator, DLAttributeValidator, DLIn
 	{
 		return false;
 	}
+
+	default public boolean canEqualValidations(DLValidator other)
+	{
+		return (other != null)
+			&& (canValidateAttribute() == other.canValidateAttribute())
+			&& (canValidateInstance() == other.canValidateInstance())
+			&& (canValidateType() == other.canValidateType())
+			&& (canValidateTypeRead() == other.canValidateTypeRead());
+	}
 }

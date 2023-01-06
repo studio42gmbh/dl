@@ -1,6 +1,21 @@
 // Resolvment of other modules can be extended easily
 require "dl:standard/base.dl";
 
-long val : (56 + 4 - 7 + 6) / 2;
+annotation odd : !@even;
+annotation odd42 : @odd & @range(0, 42);
+annotation odd21to42 : @odd42 & @range(21, 42);
 
-String demo : "YAY: " + ($val * 2) + " or more";
+annotation requiredFile : @required & @isFile;
+
+type SpecialLong @odd21to42 extends Long;
+
+SpecialLong val : 21;
+
+type MyType
+{
+	Path path @requiredFile;
+}
+
+MyType t {
+	path : "/home/notes-wsbs2022.txt";
+}

@@ -57,12 +57,16 @@ public class EvenDLAnnotation extends AbstractDLContract<EvenDLAnnotation>
 	{
 	}
 
-	private String attributeName;
-
 	@Override
 	public boolean validate(DLAttribute attribute, ValidationResult result)
 	{
 		return validateValue(attribute.getDefaultValue(), result);
+	}
+
+	@Override
+	public boolean validate(DLInstance instance, String attributeName, ValidationResult result)
+	{
+		return validateValue(instance.getAttribute(attributeName).orElse(null), result);
 	}
 
 	@Override
@@ -72,18 +76,6 @@ public class EvenDLAnnotation extends AbstractDLContract<EvenDLAnnotation>
 	}
 	
 	@Override
-	public boolean validate(DLInstance instance, ValidationResult result)
-	{
-		return validateValue(instance.get(attributeName), result);
-	}
-
-	@Override
-	public boolean canValidateInstance()
-	{
-		return true;
-	}	
-
-	@Override
 	public boolean validate(DLType type, Object value, ValidationResult result)
 	{
 		if (value == null) {
@@ -91,7 +83,7 @@ public class EvenDLAnnotation extends AbstractDLContract<EvenDLAnnotation>
 		}
 
 		if (!value.getClass().isArray()) {
-			result.addError(InvalidValueType.toString(), "Attribute has to be of type Array");
+			result.addError(InvalidValueType.toString(), "Value has to be of type Array");
 			return false;
 		}
 
@@ -112,6 +104,12 @@ public class EvenDLAnnotation extends AbstractDLContract<EvenDLAnnotation>
 		return true;
 	}
 
+	@Override
+	public boolean canValidateInstance()
+	{
+		return true;
+	}
+	
 	protected boolean validateValue(Object val, ValidationResult result)
 	{
 		// allow to have null values
@@ -121,7 +119,7 @@ public class EvenDLAnnotation extends AbstractDLContract<EvenDLAnnotation>
 
 		// make sure its a Number
 		if (!(val instanceof Number)) {
-			result.addError(InvalidValueType.toString(), "Attribute has to be of type Number");
+			result.addError(InvalidValueType.toString(), "Value has to be of type Number");
 			return false;
 		}
 
@@ -129,30 +127,11 @@ public class EvenDLAnnotation extends AbstractDLContract<EvenDLAnnotation>
 
 		if (longVal % 2 != 0) {
 			result.addError(InvalidValueType.toString(),
-				((attributeName != null) ? "Attribute '" + attributeName + "'" : "Value") + " has to be even but is " + longVal
+				"Value has to be even but is " + longVal
 			);
 			return false;
 		}
 
 		return true;
-	}
-
-	@Override
-	public void bindToType(DLType type) throws DLException
-	{
-		assert type != null;
-
-		type.addReadValidator(this);
-	}
-
-	@Override
-	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation
-	{
-		assert attribute != null;
-
-		attributeName = attribute.getName();
-
-		attribute.getContainer().addInstanceValidator(this);
-		attribute.addValidator(this);
 	}
 }

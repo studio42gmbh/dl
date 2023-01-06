@@ -250,7 +250,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				if (!core.hasAnnotationFactory(annotationName)) {
 					throw new UndefinedAnnotation(createErrorMessage(module, "Annotation factory '" + annotationName + "' is not defined", ctx));
 				}
-
+				
 				Object[] parameters = fetchStaticParameters(module, annotationName, ctx.staticParameters());
 
 				mapper.accept(annotationName, parameters, ctx);

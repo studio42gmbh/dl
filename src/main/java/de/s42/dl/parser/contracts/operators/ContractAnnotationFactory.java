@@ -100,6 +100,12 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 		}
 	}
 
+	@Override
+	public Class getAnnotationType()
+	{
+		return getClass();
+	}
+
 	// <editor-fold desc="Bindings" defaultstate="collapsed">
 	@Override
 	public void bindToInstance(DLInstance instance) throws DLException
@@ -136,6 +142,7 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 
 		if (canValidateAttribute()) {
 			attribute.addValidator(this);
+			attribute.getContainer().addInstanceValidator(this);
 		}
 	}
 	//</editor-fold>

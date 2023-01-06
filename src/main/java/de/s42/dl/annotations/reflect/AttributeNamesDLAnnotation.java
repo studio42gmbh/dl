@@ -29,7 +29,6 @@ import de.s42.base.validation.IsValidRegex;
 import de.s42.dl.DLAttribute;
 import de.s42.dl.annotations.*;
 import de.s42.dl.DLType;
-import de.s42.dl.exceptions.DLException;
 import static de.s42.dl.validation.DefaultValidationCode.NotMatching;
 import de.s42.dl.validation.ValidationResult;
 import de.s42.log.LogManager;
@@ -87,6 +86,8 @@ public class AttributeNamesDLAnnotation extends AbstractDLContract<AttributeName
 	{
 		assert type != null;
 		assert result != null;
+		
+		preparePatterns();
 
 		boolean valid = true;
 
@@ -113,18 +114,17 @@ public class AttributeNamesDLAnnotation extends AbstractDLContract<AttributeName
 		return true;
 	}
 
-	@Override
-	public synchronized void bindToType(DLType type) throws DLException
+	protected synchronized void preparePatterns()
 	{
-		assert type != null;
-
-		type.addValidator(this);
+		if (patternPattern != null) {
+			return;
+		}
 
 		// Precompile pattern - after binding the pattern and typepattern may not get changed anymore for consistency
 		patternPattern = Pattern.compile(pattern);
 		typePatternPattern = Pattern.compile(typePattern);
 	}
-
+	
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
 	public String getPattern()
 	{

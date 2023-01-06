@@ -165,9 +165,9 @@ public class ContainDLAnnotationTest
 	}
 	
 	@Test(expectedExceptions = InvalidAnnotation.class)
-	public void invalidContaToAttribute() throws DLException
+	public void invalidContainedTypeAttribute() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("invalidContaToAttribute", "type T { int x @contain(Other); }");
+		core.parse("invalidContainedTypeAttribute", "type T { int x @contain(Other); }");
 	}
 }

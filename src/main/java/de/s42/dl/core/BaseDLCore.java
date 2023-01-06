@@ -59,6 +59,7 @@ import de.s42.dl.types.DefaultDLType;
 import de.s42.dl.types.base.ArrayDLType;
 import de.s42.dl.types.dl.ModuleDLType;
 import de.s42.dl.types.primitive.ObjectDLType;
+import de.s42.dl.validation.DLValidator;
 import de.s42.dl.validation.ValidationResult;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -237,10 +238,28 @@ public class BaseDLCore implements DLCore
 		assert container != null;
 
 		if (container instanceof DLAttribute) {
+			
+			if (annotation instanceof DLValidator && !((DLValidator)annotation).canValidateAttribute()) {
+				throw new InvalidAnnotation("Annotation '" + annotation + "' can not validate attributes");
+			}
+			
 			annotation.bindToAttribute((DLAttribute) container);
 		} else if (container instanceof DLInstance) {
+			
+			if (annotation instanceof DLValidator && !((DLValidator)annotation).canValidateInstance()) {
+				throw new InvalidAnnotation("Annotation '" + annotation + "' can not validate instances");
+			}
+						
 			annotation.bindToInstance((DLInstance) container);
 		} else if (container instanceof DLType) {
+			
+			if (annotation instanceof DLValidator 
+				&& !(((DLValidator)annotation).canValidateType()
+				|| ((DLValidator)annotation).canValidateTypeRead()
+				)) {
+				throw new InvalidAnnotation("Annotation '" + annotation + "' can not validate types");
+			}
+			
 			annotation.bindToType((DLType) container);
 		}
 	}
@@ -256,7 +275,7 @@ public class BaseDLCore implements DLCore
 		});
 
 		DLAnnotation annotation = annotationFactory.createAnnotation(name, container, flatParameters);
-
+		
 		bindAnnotation(annotation, container);
 
 		return annotation;

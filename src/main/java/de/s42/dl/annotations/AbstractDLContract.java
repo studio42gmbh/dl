@@ -25,6 +25,11 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
+import de.s42.dl.DLAttribute;
+import de.s42.dl.DLInstance;
+import de.s42.dl.DLType;
+import de.s42.dl.exceptions.DLException;
+
 /**
  *
  * @author Benjamin Schiller
@@ -33,4 +38,46 @@ package de.s42.dl.annotations;
 public abstract class AbstractDLContract<DLConceptType extends DLContract>
 	extends AbstractDLAnnotation<DLConceptType> implements DLContract
 {
+	@Override
+	final public void bindToInstance(DLInstance instance) throws DLException
+	{
+		//log.debug("bindToInstance", instance);
+
+		if (canValidateInstance()) {
+			instance.addValidator(this);
+		}
+	}
+
+	@Override
+	final public void bindToType(DLType type) throws DLException
+	{
+		//log.debug("bindToType", type);
+
+		if (canValidateType()) {
+			type.addValidator(this);
+		}
+
+		if (canValidateTypeRead()) {
+			type.addReadValidator(this);
+		}
+
+		if (canValidateInstance()) {
+			type.addInstanceValidator(this);
+		}
+	}
+
+	@Override
+	final public void bindToAttribute(DLAttribute attribute) throws DLException
+	{
+		//log.debug("bindToAttribute", attribute);
+
+		if (canValidateAttribute()) {
+			attribute.addValidator(this);
+		}
+		
+		if (canValidateInstance()) {
+			attribute.getContainer().addInstanceValidator(this);
+		}
+		
+	}	
 }

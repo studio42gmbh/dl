@@ -40,6 +40,8 @@ public interface DLAnnotationFactory<DLAnnotationType extends DLAnnotation>
 
 	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException;
 
+	public Class<DLAnnotationType> getAnnotationType();
+	
 	default public DLAnnotationType createAnnotation(String name, DLAnnotated container) throws DLException
 	{
 		return createAnnotation(name, container, new Object[]{});
@@ -49,7 +51,7 @@ public interface DLAnnotationFactory<DLAnnotationType extends DLAnnotation>
 	{
 		return createAnnotation(name, container, toFlatParameters(namedParameters));
 	}
-
+	
 	default public boolean isValidNamedParameters(Map<String, Object> namedParameters)
 	{
 		return false;

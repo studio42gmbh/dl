@@ -31,8 +31,6 @@ import de.s42.dl.DLType;
 import de.s42.dl.annotations.AbstractDLContract;
 import de.s42.dl.annotations.DLAnnotationParameter;
 import de.s42.dl.annotations.DLAnnotationType;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidAnnotation;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
 import de.s42.dl.validation.ValidationResult;
 import de.s42.log.LogManager;
@@ -68,35 +66,37 @@ public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
 	@DLAnnotationParameter(ordinal = 1, defaultValue = "1.7976931348623157E308")
 	protected double max = Double.MAX_VALUE;
 
-	private String attributeName;
-
 	@Override
 	public boolean validate(DLAttribute attribute, ValidationResult result)
 	{
+		assert attribute != null;
+		assert result != null;
+
 		return validateValue(attribute.getDefaultValue(), result);
 	}
-	
+
+	@Override
+	public boolean validate(DLInstance instance, String attributeName, ValidationResult result)
+	{
+		assert instance != null;
+		assert attributeName != null;
+		assert result != null;
+
+		return validateValue(instance.get(attributeName), result);
+	}
+
 	@Override
 	public boolean canValidateAttribute()
 	{
 		return true;
 	}
-	
-	@Override
-	public boolean validate(DLInstance instance, ValidationResult result)
-	{
-		return validateValue(instance.get(attributeName), result);
-	}
-	
-	@Override
-	public boolean canValidateInstance()
-	{
-		return true;
-	}	
 
 	@Override
 	public boolean validate(DLType type, Object value, ValidationResult result)
 	{
+		assert type != null;
+		assert result != null;
+
 		if (value == null) {
 			return true;
 		}
@@ -123,6 +123,12 @@ public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
 		return true;
 	}
 
+	@Override
+	public boolean canValidateInstance()
+	{
+		return true;
+	}
+
 	protected boolean validateValue(Object val, ValidationResult result)
 	{
 		// allow to have null values
@@ -140,38 +146,19 @@ public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
 
 		if (doubleVal < min) {
 			result.addError(InvalidValueType.toString(),
-				((attributeName != null) ? "Attribute '" + attributeName + "'" : "Value") + " has to be min " + min + " but is " + doubleVal + " in @" + getName()
+				"Value has to be min " + min + " but is " + doubleVal + " in @" + getName()
 			);
 			return false;
 		}
 
 		if (doubleVal > max) {
 			result.addError(InvalidValueType.toString(),
-				((attributeName != null) ? "Attribute '" + attributeName + "'" : "Value") + " has to be max " + max + " but is " + doubleVal + " in @" + getName()
+				"Value has to be max " + max + " but is " + doubleVal + " in @" + getName()
 			);
 			return false;
 		}
 
 		return true;
-	}
-
-	@Override
-	public void bindToType(DLType type) throws DLException
-	{
-		assert type != null;
-
-		type.addReadValidator(this);
-	}
-
-	@Override
-	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation
-	{
-		assert attribute != null;
-
-		attributeName = attribute.getName();
-
-		attribute.getContainer().addInstanceValidator(this);
-		attribute.addValidator(this);
 	}
 
 	public double getMin()
