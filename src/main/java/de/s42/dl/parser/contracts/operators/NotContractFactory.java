@@ -28,8 +28,8 @@ package de.s42.dl.parser.contracts.operators;
 import de.s42.dl.DLAttribute;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
-import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.annotations.DLContract;
+import de.s42.dl.language.DLOperators;
 import de.s42.dl.parser.contracts.DLContractFactory;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidContract;
 import de.s42.dl.validation.NoopValidationResult;
@@ -46,9 +46,9 @@ public class NotContractFactory extends ContractAnnotationFactory
 
 	private final static Logger log = LogManager.getLogger(NotContractFactory.class.getName());
 
-	public NotContractFactory(DLContract contract, String name, DLAnnotated container)
+	public NotContractFactory(DLContract contract, String name)
 	{
-		super(contract, name, container);
+		super(contract, name);
 	}
 
 	public NotContractFactory(String name, DLContractFactory factory, Object[] flatParameters)
@@ -56,6 +56,12 @@ public class NotContractFactory extends ContractAnnotationFactory
 		super(name, factory, flatParameters);
 	}
 
+	@Override
+	public String getOperatorAsString()
+	{
+		return DLOperators.Not.operator;
+	}
+	
 	@Override
 	public boolean validate(DLAttribute attribute, ValidationResult result)
 	{

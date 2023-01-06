@@ -30,6 +30,7 @@ import de.s42.dl.*;
 import de.s42.dl.annotations.persistence.DontPersistDLAnnotation.dontPersist;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.ParserException;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
@@ -68,7 +69,7 @@ public class DLPragmaTest
 	{
 		DLCore core = new DefaultCore();
 		core.parse("validDefineAndUsePragma",
-			"extern pragma de.s42.dl.pragmas.DLPragmaTest$TestPragma @noGenerics;"
+			"extern pragma de.s42.dl.pragmas.DLPragmaTest$TestPragma;"
 			+ "pragma test(6, 2);"
 			+ "pragma test(\"9\", \"4\");"
 		);
@@ -121,7 +122,7 @@ public class DLPragmaTest
 		core.parse("invalidCustomPragmaParameterType", "pragma test(6, true);");
 	}
 
-	@Test(expectedExceptions = InvalidPragma.class)
+	@Test(expectedExceptions = ParserException.class)
 	public void invalidPragmaUseAnnotation() throws DLException
 	{
 		DLCore core = new DefaultCore();

@@ -28,8 +28,8 @@ package de.s42.dl.parser.contracts.operators;
 import de.s42.dl.DLAttribute;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
-import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.annotations.DLContract;
+import de.s42.dl.language.DLOperators;
 import de.s42.dl.parser.contracts.DLContractFactory;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidContract;
 import de.s42.dl.validation.NoopValidationResult;
@@ -51,11 +51,17 @@ public class OrAnnotationFactory extends AbstractBinaryContractFactory
 		super(name, factoryFirst, factorySecond, flatParameters);
 	}
 
-	public OrAnnotationFactory(DLContract contractFirst, DLContract contractSecond, String name, String nameFirst, String nameSecond, DLAnnotated container)
+	public OrAnnotationFactory(DLContract contractFirst, DLContract contractSecond, String name, String nameFirst, String nameSecond, Object[] flatParameters)
 	{
-		super(contractFirst, contractSecond, name, nameFirst, nameSecond, container);
+		super(contractFirst, contractSecond, name, nameFirst, nameSecond, flatParameters);
 	}
 
+	@Override
+	public String getOperatorAsString()
+	{
+		return DLOperators.Or.operator;
+	}
+	
 	// <editor-fold desc="Validators" defaultstate="collapsed">
 	@Override
 	public boolean validate(DLAttribute attribute, ValidationResult result)

@@ -23,42 +23,51 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
-
-import de.s42.dl.*;
+package de.s42.dl.language;
 
 /**
  *
  * @author Benjamin Schiller
- * @param <DLAnnotationType>
  */
-public abstract class TagDLAnnotation<DLAnnotationType extends DLAnnotation> extends AbstractDLAnnotation<DLAnnotationType>
+public enum DLOperators
 {
+	And("&"),
+	Or("|"),
+	Not("!"),
+	Xor("!="),
+	Equals("=="),
+	Like("!="),
+	Plus("+"),
+	Minus("-"),
+	Pow("^"),
+	Multiply("*"),
+	Divide("/"),
+	Comma(",");
 
-	@Override
-	public void bindToAttribute(DLAttribute attribute)
-	{
-		assert attribute != null;
-		
-		container = attribute;
-		container.addAnnotation(this);
+	public final String operator;
+
+	public final static String[] OPERATORS;
+
+	static {
+		OPERATORS = new String[DLOperators.values().length];
+
+		for (int i = 0; i < DLOperators.values().length; ++i) {
+			OPERATORS[i] = DLOperators.values()[i].operator;
+		}
 	}
 
-	@Override
-	public void bindToInstance(DLInstance instance)
+	private DLOperators(String operator)
 	{
-		assert instance != null;
-		
-		container = instance;
-		container.addAnnotation(this);
+		this.operator = operator;
 	}
 
-	@Override
-	public void bindToType(DLType type)
+	public static String[] getOperators()
 	{
-		assert type != null;
-		
-		container = type;
-		container.addAnnotation(this);
+		return OPERATORS;
+	}
+
+	public boolean equals(String other)
+	{
+		return operator.equalsIgnoreCase(other);
 	}
 }

@@ -34,6 +34,7 @@ import de.s42.dl.DLCore;
 import de.s42.dl.DLEntity;
 import de.s42.dl.DLType;
 import de.s42.dl.annotations.*;
+import de.s42.dl.annotations.attributes.GreaterDLAnnotation;
 import de.s42.dl.annotations.attributes.GreaterEqualDLAnnotation;
 import de.s42.dl.annotations.files.IsDirectoryDLAnnotation;
 import de.s42.dl.annotations.files.IsFileDLAnnotation;

@@ -92,17 +92,14 @@ public abstract class AbstractDLAnnotation<DLAnnotationType extends DLAnnotation
 	}
 
 	@Override
-	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException
+	public DLAnnotationType createAnnotation(String name, Object[] flatParameters) throws DLException
 	{
 		assert name != null;
-		assert container != null;
 
 		try {
 			AbstractDLAnnotation annotation = (AbstractDLAnnotation) getClass().getConstructor().newInstance();
 			annotation.setName(name);
-			annotation.setContainer(container);
 			parameters.applyFlatParameters(flatParameters, annotation);
-			container.addAnnotation(annotation);
 			return (DLAnnotationType) annotation;
 		} catch (InvalidBean | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
 			throw new DLException("Error creating annotation - " + ex.getMessage(), ex);

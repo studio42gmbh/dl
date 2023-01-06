@@ -35,5 +35,7 @@ import de.s42.dl.annotations.DLContract;
  */
 public interface DLContractFactory extends DLAnnotationFactory<DLContract>, DLEntity
 {
+	public void setName(String name);
 	
+	public String getOperatorAsString();
 }

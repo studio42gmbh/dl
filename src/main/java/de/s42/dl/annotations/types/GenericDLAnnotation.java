@@ -43,7 +43,10 @@ public class GenericDLAnnotation extends AbstractDLAnnotation
 	public void bindToType(DLType type) throws InvalidAnnotation
 	{
 		assert type != null;
-
+		
+		container = type;
+		container.addAnnotation(this);
+		
 		//allow generic types
 		((DefaultDLType) type).setAllowGenericTypes(true);
 	}

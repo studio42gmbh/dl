@@ -71,7 +71,7 @@ public class RequiredDLAnnotation extends AbstractDLContract<RequiredDLAnnotatio
 	{
 		return true;
 	}
-	
+
 	@Override
 	public boolean canValidateInstance()
 	{

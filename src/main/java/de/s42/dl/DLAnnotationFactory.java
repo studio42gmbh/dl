@@ -25,7 +25,6 @@
 //</editor-fold>
 package de.s42.dl;
 
-import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import java.util.Map;
@@ -37,19 +36,18 @@ import java.util.Map;
  */
 public interface DLAnnotationFactory<DLAnnotationType extends DLAnnotation>
 {
-
-	public DLAnnotationType createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException;
-
 	public Class<DLAnnotationType> getAnnotationType();
-	
-	default public DLAnnotationType createAnnotation(String name, DLAnnotated container) throws DLException
+
+	public DLAnnotationType createAnnotation(String name, Object[] flatParameters) throws DLException;
+
+	default public DLAnnotationType createAnnotation(String name) throws DLException
 	{
-		return createAnnotation(name, container, new Object[]{});
+		return createAnnotation(name, new Object[]{});
 	}
 
-	default public DLAnnotationType createAnnotation(String name, DLAnnotated container, Map<String, Object> namedParameters) throws DLException
+	default public DLAnnotationType createAnnotation(String name, Map<String, Object> namedParameters) throws DLException
 	{
-		return createAnnotation(name, container, toFlatParameters(namedParameters));
+		return createAnnotation(name, toFlatParameters(namedParameters));
 	}
 	
 	default public boolean isValidNamedParameters(Map<String, Object> namedParameters)

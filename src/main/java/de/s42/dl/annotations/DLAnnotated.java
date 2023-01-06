@@ -54,4 +54,8 @@ public interface DLAnnotated extends DLEntity
 	public boolean hasAnnotation(String name);
 	
 	public void addAnnotation(DLAnnotation annotation);
+	
+	public void removeAnnotation(DLAnnotation annotation);
+	
+	public void removeAllAnnotations();
 }

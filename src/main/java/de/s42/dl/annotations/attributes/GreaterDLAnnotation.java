@@ -23,9 +23,9 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.attributes;
 
-import de.s42.dl.annotations.attributes.AbstractComparisonDLAnnotation;
+import de.s42.dl.annotations.DLAnnotationType;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

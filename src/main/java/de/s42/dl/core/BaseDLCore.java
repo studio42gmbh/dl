@@ -269,12 +269,13 @@ public class BaseDLCore implements DLCore
 	{
 		assert name != null;
 		assert container != null;
+		assert flatParameters != null;
 
 		DLAnnotationFactory annotationFactory = annotationFactories.get(name).orElseThrow(() -> {
 			return new InvalidAnnotation("Annotationfactory with name " + name + " not found");
 		});
 
-		DLAnnotation annotation = annotationFactory.createAnnotation(name, container, flatParameters);
+		DLAnnotation annotation = annotationFactory.createAnnotation(name, flatParameters);
 		
 		bindAnnotation(annotation, container);
 

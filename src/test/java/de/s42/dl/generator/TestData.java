@@ -26,7 +26,7 @@
 package de.s42.dl.generator;
 
 import de.s42.dl.DLAttribute.AttributeDL;
-import de.s42.dl.annotations.GreaterDLAnnotation.greater;
+import de.s42.dl.annotations.attributes.GreaterDLAnnotation.greater;
 import de.s42.dl.exceptions.InvalidType;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

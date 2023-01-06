@@ -27,7 +27,6 @@ package de.s42.dl.parser;
 
 import de.s42.dl.parser.expression.DLHrfExpressionParser;
 import de.s42.dl.*;
-import de.s42.dl.annotations.DLContract;
 import de.s42.dl.exceptions.*;
 import de.s42.dl.attributes.DefaultDLAttribute;
 import de.s42.dl.types.DefaultDLType;
@@ -41,6 +40,7 @@ import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import static de.s42.dl.parser.DLHrfParsingErrorHandler.*;
 import de.s42.dl.parser.DLParser.*;
+import de.s42.dl.parser.contracts.DLContractFactory;
 import de.s42.dl.parser.contracts.DLHrfContractParser;
 import de.s42.dl.types.base.ArrayDLType;
 import de.s42.dl.validation.ValidationResult;
@@ -65,17 +65,17 @@ public class DLHrfParsing extends DLParserBaseListener
 	 */
 	public final static int MIN_ASSIGNABLE_CAPACITY = 10;
 
-	private final Deque<DLInstance> instances = new ArrayDeque<>();
-	private final DLCore core;
-	private final DLModule module;
+	protected final Deque<DLInstance> instances = new ArrayDeque<>();
+	protected final DLCore core;
+	protected final DLModule module;
 
-	private DLInstance currentInstance;
-	private DLInstance lastInstance;
-	private DefaultDLType currentType;
+	protected DLInstance currentInstance;
+	protected DLInstance lastInstance;
+	protected DefaultDLType currentType;
 
-	private final Deque<DLInstance> currentAttributeAssignmentInstances = new ArrayDeque<>();
+	protected final Deque<DLInstance> currentAttributeAssignmentInstances = new ArrayDeque<>();
 	protected DefaultDLAttribute dlInstanceAssignAttribute;
-	private final Deque<List> currentAttributeAssignmentList = new ArrayDeque<>();
+	protected final Deque<List> currentAttributeAssignmentList = new ArrayDeque<>();
 
 	protected interface AnnotationMapper
 	{
@@ -250,7 +250,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				if (!core.hasAnnotationFactory(annotationName)) {
 					throw new UndefinedAnnotation(createErrorMessage(module, "Annotation factory '" + annotationName + "' is not defined", ctx));
 				}
-				
+
 				Object[] parameters = fetchStaticParameters(module, annotationName, ctx.staticParameters());
 
 				mapper.accept(annotationName, parameters, ctx);
@@ -343,20 +343,6 @@ public class DLHrfParsing extends DLParserBaseListener
 				// Define new pragma
 				core.definePragma(pragma);
 
-				// Map annotations
-				mapAnnotations(ctx.annotation(), (annotationName, parameters, aCtx) -> {
-					try {
-						core.createAnnotation(annotationName, pragma, parameters);
-					} catch (DLException ex) {
-						throw new InvalidAnnotation(
-							createErrorMessage(module,
-								"Error binding annotation '"
-								+ annotationName
-								+ "' to pragma '"
-								+ pragma.getName() + "'", ex, aCtx.annotationName()), ex);
-					}
-				});
-
 				// Map aliases
 				if (ctx.aliases() != null) {
 					for (AliasNameContext aliasCtx : ctx.aliases().aliasName()) {
@@ -373,10 +359,6 @@ public class DLHrfParsing extends DLParserBaseListener
 
 				if (ctx.aliases() != null) {
 					throw new InvalidPragma(createErrorMessage(module, "May not define alias when using a pragma", ctx));
-				}
-
-				if (!ctx.annotation().isEmpty()) {
-					throw new InvalidPragma(createErrorMessage(module, "May not bind annotations when using a pragma", ctx));
 				}
 
 				String pragmaIdentifier = ctx.pragmaName().getText();
@@ -734,9 +716,9 @@ public class DLHrfParsing extends DLParserBaseListener
 			else {
 
 				// Resolve annotation expression
-				DLAnnotationFactory<DLContract> contract;
+				DLContractFactory contract;
 				try {
-					contract = DLHrfContractParser.resolveExpression(module, ctx.annotationDefinitionExpression());
+					contract = DLHrfContractParser.resolveExpression(module, annotationName, ctx.annotationDefinitionExpression());
 				} catch (ParserException ex) {
 					throw new InvalidAnnotation(
 						createErrorMessage(
@@ -764,9 +746,6 @@ public class DLHrfParsing extends DLParserBaseListener
 				}
 
 				core.defineAnnotationFactory(contract, annotationName, localAliases.toArray(String[]::new));
-
-				// @todo
-				log.debug("enterAnnotationDefinition:contract", contract);
 			}
 		} catch (DLException ex) {
 			throw new DLHrfParsingException(
@@ -837,7 +816,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				if (typeHeader.KEYWORD_DYNAMIC() != null) {
 					throw new InvalidType(createErrorMessage(module, "Extern type '" + typeName + "' may not be set dynamic", ctx));
 				}
-				
+
 				// Annotations are not allowed on extern types
 				if (!typeHeader.annotation().isEmpty()) {
 					throw new InvalidAnnotation(createErrorMessage(module, "Extern type '" + typeName + "' may not have annotations", ctx));
@@ -847,7 +826,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				if (ctx.typeBody() != null) {
 					throw new InvalidType(createErrorMessage(module, "Extern type '" + typeName + "' may not have a body", ctx));
 				}
-				
+
 				// Allows to have multiple statements of external declaration
 				if (!core.hasType(typeName)) {
 
@@ -933,7 +912,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				if (typeHeader.KEYWORD_DYNAMIC() != null) {
 					currentType.setDynamic(true);
 				}
-				
+
 				// Map annotations
 				mapAnnotations(typeHeader.annotation(), (annotationName, parameters, aCtx) -> {
 					try {

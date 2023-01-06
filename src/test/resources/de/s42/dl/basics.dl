@@ -1,26 +1,22 @@
-/*^ More Infos about DL
- * 
- * For further infos on DL read https://github.com/studio42gmbh/dl/wiki
- */
-
-assert $env.os ~= ".*Windows.*" : "Needs Windows to work properly but OS is " + $env.os;
 
 require "dl:standard/base.dl";
 
-enum MyEnum { Yes, No, Perhaps }
+// Special constrained base types
+final type Long42 @range(0, 42) extends Long;
 
-type MyType extends Object
+// Simple tree types
+abstract type Node;
+type Container extends Node contains Node alias Root;
+dynamic type Leaf extends Node;
+type Statistics extends Node
 {
-	int x @required;
+	Long42 l42 @required;
+	String version @required;
 }
 
-int answer		: 42;
-String name		: "Data Language";
-double PI		: 3.14;
-boolean awake	: true;
-MyEnum mood		: Perhaps;
-
-// An exported instance of MyType
-MyType data @export { 
-	x : $answer;
+Root root {
+	Statistics {
+		version : "1.0.0";
+		l42 : 41;
+	}
 }

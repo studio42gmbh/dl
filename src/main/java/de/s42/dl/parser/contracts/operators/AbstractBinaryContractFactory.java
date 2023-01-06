@@ -44,20 +44,20 @@ import java.util.Map;
  *
  * @author Benjamin Schiller
  */
-public class AbstractBinaryContractFactory implements DLContractFactory, DLContract
+public abstract class AbstractBinaryContractFactory implements DLContractFactory, DLContract
 {
 
 	private final static Logger log = LogManager.getLogger(AbstractBinaryContractFactory.class.getName());
 
-	protected final Object[] flatParameters;
+	protected Object[] flatParameters;
 	protected final DLContractFactory factoryFirst;
 	protected final DLContractFactory factorySecond;
 	protected final DLContract contractFirst;
 	protected final DLContract contractSecond;
-	protected final String name;
+	protected String name;
 	protected final String nameFirst;
 	protected final String nameSecond;
-	protected final DLAnnotated container;
+	protected DLAnnotated container;
 
 	public AbstractBinaryContractFactory(
 		DLContract contractFirst,
@@ -65,16 +65,15 @@ public class AbstractBinaryContractFactory implements DLContractFactory, DLContr
 		String name,
 		String nameFirst,
 		String nameSecond,
-		DLAnnotated container
+		Object[] flatParameters
 	)
 	{
-		assert container != null;
 		assert contractFirst != null;
 		assert contractSecond != null;
 		assert name != null;
 		assert nameFirst != null;
 		assert nameSecond != null;
-		assert container != null;
+		assert flatParameters != null;
 
 		this.contractFirst = contractFirst;
 		this.contractSecond = contractSecond;
@@ -83,8 +82,7 @@ public class AbstractBinaryContractFactory implements DLContractFactory, DLContr
 		this.nameSecond = nameSecond;
 		this.factoryFirst = null;
 		this.factorySecond = null;
-		this.flatParameters = null;
-		this.container = container;
+		this.flatParameters = flatParameters;
 	}
 
 	public AbstractBinaryContractFactory(
@@ -106,27 +104,23 @@ public class AbstractBinaryContractFactory implements DLContractFactory, DLContr
 		this.contractFirst = null;
 		this.contractSecond = null;
 		this.name = name;
-		this.container = null;
 	}
 
 	@Override
-	public DLContract createAnnotation(String ignored, DLAnnotated container, Object[] flatParameters) throws DLException
+	public DLContract createAnnotation(String ignored, Object[] flatParameters) throws DLException
 	{
-		//assert name != null;
-		assert container != null;
-
 		try {
-			DLContract proxiedAnnotationFirst = factoryFirst.createAnnotation(factoryFirst.getName(), container, this.flatParameters);
-			DLContract proxiedAnnotationSecond = factorySecond.createAnnotation(factorySecond.getName(), container, this.flatParameters);
+			DLContract proxiedAnnotationFirst = factoryFirst.createAnnotation(factoryFirst.getName(), this.flatParameters);
+			DLContract proxiedAnnotationSecond = factorySecond.createAnnotation(factorySecond.getName(), this.flatParameters);
 
 			if (!proxiedAnnotationFirst.canEqualValidations(proxiedAnnotationSecond)) {
 				throw new InvalidAnnotation("@" + factoryFirst.getName() + " and @" + factorySecond.getName() + " can not be combind as they have different can validations in annotation @" + getName() + "");
 			}
 
 			AbstractBinaryContractFactory contract = (AbstractBinaryContractFactory) getClass()
-				.getConstructor(DLContract.class, DLContract.class, String.class, String.class, String.class, DLAnnotated.class)
-				.newInstance(proxiedAnnotationFirst, proxiedAnnotationSecond, this.name, factoryFirst.getName(), factorySecond.getName(), container);
-			container.addAnnotation(contract);
+				.getConstructor(DLContract.class, DLContract.class, String.class, String.class, String.class, Object[].class)
+				.newInstance(proxiedAnnotationFirst, proxiedAnnotationSecond, this.name, factoryFirst.getName(), factorySecond.getName(), flatParameters);
+			
 			return contract;
 		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
 			throw new InvalidAnnotation("Error creating annotation @" + getName() + " - " + ex.getMessage(), ex);
@@ -143,7 +137,11 @@ public class AbstractBinaryContractFactory implements DLContractFactory, DLContr
 	@Override
 	public void bindToInstance(DLInstance instance) throws DLException
 	{
+		assert instance != null;
+
 		//log.debug("bindToInstance", instance);
+		container = instance;
+		instance.addAnnotation(this);
 
 		if (canValidateInstance()) {
 			instance.addValidator(this);
@@ -153,7 +151,11 @@ public class AbstractBinaryContractFactory implements DLContractFactory, DLContr
 	@Override
 	public void bindToType(DLType type) throws DLException
 	{
+		assert type != null;
+
 		//log.debug("bindToType", type);
+		container = type;
+		type.addAnnotation(this);
 
 		if (canValidateType()) {
 			type.addValidator(this);
@@ -171,7 +173,11 @@ public class AbstractBinaryContractFactory implements DLContractFactory, DLContr
 	@Override
 	public void bindToAttribute(DLAttribute attribute) throws DLException
 	{
+		assert attribute != null;
+
 		//log.debug("bindToAttribute", attribute);
+		container = attribute;
+		attribute.addAnnotation(this);
 
 		if (canValidateAttribute()) {
 			attribute.addValidator(this);
@@ -256,5 +262,21 @@ public class AbstractBinaryContractFactory implements DLContractFactory, DLContr
 	{
 		return Collections.EMPTY_MAP;
 	}
-	//</editor-fold>		
+
+	@Override
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public DLContract getContractFirst()
+	{
+		return contractFirst;
+	}
+
+	public DLContract getContractSecond()
+	{
+		return contractSecond;
+	}
+	//</editor-fold>
 }

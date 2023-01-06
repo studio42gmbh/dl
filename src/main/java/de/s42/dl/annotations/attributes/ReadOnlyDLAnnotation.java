@@ -53,6 +53,11 @@ public class ReadOnlyDLAnnotation extends AbstractDLAnnotation
 	@Override
 	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation, InvalidAttribute
 	{
+		assert attribute != null;
+		
+		container = attribute;
+		container.addAnnotation(this);
+		
 		if (attribute instanceof DefaultDLAttribute) {
 			((DefaultDLAttribute) attribute).setReadable(true);
 			((DefaultDLAttribute) attribute).setWritable(false);

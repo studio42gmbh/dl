@@ -91,7 +91,7 @@ pragma :
 	KEYWORD_EXTERN?
 	KEYWORD_PRAGMA 
 	pragmaName
-	( ( annotation* aliases? ) | staticParameters? )	
+	( aliases? | staticParameters? )	
 	SEMI_COLON ;
 
 pragmaName : identifier ;
@@ -163,6 +163,7 @@ typeHeader :
 	( KEYWORD_EXTENDS parentTypeName ( COMMA parentTypeName )* )?
 	( KEYWORD_CONTAINS containsTypeName ( COMMA containsTypeName )* )?
 	aliases? ;
+
 typeDefinitionName : identifier;
 parentTypeName : identifier ;
 containsTypeName : identifier ;
@@ -203,7 +204,8 @@ typeAttributeDefinitionDefault : instanceDefinition | expression ;
 // INSTANCE DEFINITION
 
 instanceDefinition : 
-	instanceType instanceName?
+	instanceType 
+    instanceName?
 	annotation* 
 	( instanceBody | SEMI_COLON ) ;
 

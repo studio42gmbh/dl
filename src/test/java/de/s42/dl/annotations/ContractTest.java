@@ -25,6 +25,7 @@
 //</editor-fold>
 package de.s42.dl.annotations;
 
+import de.s42.dl.DLType;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
@@ -32,6 +33,7 @@ import de.s42.dl.exceptions.InvalidValue;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import org.testng.annotations.Test;
+import static org.testng.Assert.*;
 
 /**
  *
@@ -216,7 +218,7 @@ public class ContractTest
 			+ "Long42 i42 : 2;"
 		);
 	}
-		
+
 	@Test
 	public void complexContract() throws DLException, RuntimeException
 	{
@@ -231,7 +233,13 @@ public class ContractTest
 			+ "type LCContainer { LongComplicated val; }\n"
 			+ "LCContainer lcc { val : 1; }"
 		);
-		//DLType type = core.getType("LongComplicated").orElseThrow();
+
+		DLType type = core.getType("LongComplicated").orElseThrow();
+
 		//log.info(DLHelper.describe(type));
+		assertTrue(type.hasAnnotation("evenRange42"));
+		assertFalse(type.hasAnnotation("range"));
+		assertFalse(type.hasAnnotation("even"));
+
 	}
 }

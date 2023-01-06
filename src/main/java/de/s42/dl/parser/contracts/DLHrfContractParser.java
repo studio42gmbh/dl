@@ -60,13 +60,26 @@ public final class DLHrfContractParser
 		// never instantiated
 	}
 
-	public static DLContractFactory resolveExpression(DLModule module, AnnotationDefinitionExpressionContext ctx) throws ParserException
+	/**
+	 * Creates a complex contract annotation factory and sets its name from ctx
+	 * @param module
+	 * @param name
+	 * @param ctx
+	 * @return
+	 * @throws ParserException 
+	 */
+	public static DLContractFactory resolveExpression(DLModule module, String name, AnnotationDefinitionExpressionContext ctx) throws ParserException
 	{
+		assert module != null;
+		assert name != null;
+		assert ctx != null;
+		
 		ContractExpression expr = buildExpression(module, ctx);
 
 		DLContractFactory value = expr.evaluate();
-
-		//log.debug("EXPRESSION", ctx.getText(), "=", value);
+		
+		value.setName(name);
+		
 		return value;
 	}
 

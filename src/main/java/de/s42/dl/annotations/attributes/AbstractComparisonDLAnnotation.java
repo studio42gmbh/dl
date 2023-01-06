@@ -114,6 +114,9 @@ public abstract class AbstractComparisonDLAnnotation<DataType, DLAnnotationType 
 	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation
 	{
 		assert attribute != null;
+		
+		container = attribute;
+		container.addAnnotation(this);
 
 		ComparisonDLInstanceValidator validator = new ComparisonDLInstanceValidator(
 			attribute.getName(),

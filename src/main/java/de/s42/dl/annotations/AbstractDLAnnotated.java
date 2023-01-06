@@ -150,6 +150,17 @@ public abstract class AbstractDLAnnotated implements DLAnnotated
 	}
 
 	@Override
+	public void removeAnnotation(DLAnnotation annotation)
+	{
+		
+	}
+
+	@Override
+	public void removeAllAnnotations()
+	{
+	}
+	
+	@Override
 	public String getName()
 	{
 		return name;

@@ -30,8 +30,6 @@ import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
 import de.s42.dl.annotations.AbstractDLContract;
 import de.s42.dl.annotations.DLAnnotationType;
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidAnnotation;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
 import de.s42.dl.validation.ValidationResult;
 import de.s42.log.LogManager;
@@ -74,7 +72,7 @@ public class EvenDLAnnotation extends AbstractDLContract<EvenDLAnnotation>
 	{
 		return true;
 	}
-	
+
 	@Override
 	public boolean validate(DLType type, Object value, ValidationResult result)
 	{
@@ -109,7 +107,7 @@ public class EvenDLAnnotation extends AbstractDLContract<EvenDLAnnotation>
 	{
 		return true;
 	}
-	
+
 	protected boolean validateValue(Object val, ValidationResult result)
 	{
 		// allow to have null values

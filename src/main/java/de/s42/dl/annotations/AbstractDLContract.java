@@ -41,7 +41,12 @@ public abstract class AbstractDLContract<DLConceptType extends DLContract>
 	@Override
 	final public void bindToInstance(DLInstance instance) throws DLException
 	{
+		assert instance != null;
+		
 		//log.debug("bindToInstance", instance);
+		
+		container = instance;
+		container.addAnnotation(this);
 
 		if (canValidateInstance()) {
 			instance.addValidator(this);
@@ -51,7 +56,12 @@ public abstract class AbstractDLContract<DLConceptType extends DLContract>
 	@Override
 	final public void bindToType(DLType type) throws DLException
 	{
+		assert type != null;
+		
 		//log.debug("bindToType", type);
+		
+		container = type;
+		container.addAnnotation(this);
 
 		if (canValidateType()) {
 			type.addValidator(this);
@@ -69,7 +79,13 @@ public abstract class AbstractDLContract<DLConceptType extends DLContract>
 	@Override
 	final public void bindToAttribute(DLAttribute attribute) throws DLException
 	{
+		assert attribute != null;
+		
 		//log.debug("bindToAttribute", attribute);
+		
+		container = attribute;
+		container.addAnnotation(this);
+
 
 		if (canValidateAttribute()) {
 			attribute.addValidator(this);

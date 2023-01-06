@@ -82,7 +82,9 @@ public interface DLContract extends DLValidator, DLAnnotation
 		}
 		
 		boolean valid = true;
+		String cName = getName();
 		
+		// @todo how can we optimize the per attribute validation for contracts?
 		for (String attributeName : instance.getAttributeNames()) {
 			
 			Optional<DLAttribute> optAttribute = instance.getAttribute(attributeName);
@@ -93,7 +95,7 @@ public interface DLContract extends DLValidator, DLAnnotation
 			
 			DLAttribute attribute = optAttribute.orElseThrow();
 			
-			if (!attribute.hasAnnotation(getName())) {
+			if (!attribute.hasAnnotation(cName)) {
 				continue;
 			}
 			

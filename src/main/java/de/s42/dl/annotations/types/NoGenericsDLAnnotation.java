@@ -79,6 +79,9 @@ public class NoGenericsDLAnnotation extends AbstractDLAnnotation
 	{
 		assert type != null;
 
+		container = type;
+		container.addAnnotation(this);
+
 		((DefaultDLType) type).addValidator(new NoGenericsValidator());
 	}
 }

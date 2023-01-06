@@ -41,6 +41,11 @@ public class ExportDLAnnotation extends AbstractDLAnnotation<ExportDLAnnotation>
 	@Override
 	public void bindToInstance(DLInstance instance) throws InvalidInstance
 	{
+		assert instance != null;
+		
+		container = instance;
+		container.addAnnotation(this);
+		
 		instance.getType().getCore().addExported(instance);
 	}
 }

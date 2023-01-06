@@ -54,12 +54,11 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	protected final Object[] flatParameters;
 	protected final DLAnnotationFactory factory;
 	protected final DLContract contract;
-	protected final String name;
-	protected final DLAnnotated container;
+	protected String name;
+	protected DLAnnotated container;
 
-	public ContractAnnotationFactory(DLContract contract, String name, DLAnnotated container)
+	public ContractAnnotationFactory(DLContract contract, String name)
 	{
-		assert container != null;
 		assert contract != null;
 		assert name != null;
 
@@ -67,7 +66,7 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 		this.name = name;
 		this.factory = null;
 		this.flatParameters = null;
-		this.container = container;
+		this.container = null;
 	}
 
 	public ContractAnnotationFactory(String name, DLAnnotationFactory factory, Object[] flatParameters)
@@ -83,17 +82,13 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	}
 
 	@Override
-	public DLContract createAnnotation(String ignored, DLAnnotated container, Object[] flatParameters) throws DLException
+	public DLContract createAnnotation(String ignored, Object[] ignoredParameters) throws DLException
 	{
-		//assert name != null;
-		assert container != null;
-
 		try {
-			DLAnnotation proxiedAnnotation = factory.createAnnotation(this.name, container, this.flatParameters);
+			DLAnnotation proxiedAnnotation = factory.createAnnotation(this.name, this.flatParameters);
 			DLContract newContract = (ContractAnnotationFactory) getClass()
-				.getConstructor(DLContract.class, String.class, DLAnnotated.class)
-				.newInstance(proxiedAnnotation, this.name, container);
-			container.addAnnotation(newContract);
+				.getConstructor(DLContract.class, String.class)
+				.newInstance(proxiedAnnotation, this.name);
 			return newContract;
 		} catch (DLException | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
 			throw new DLException("Error creating annotation - " + ex.getMessage(), ex);
@@ -110,7 +105,11 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	@Override
 	public void bindToInstance(DLInstance instance) throws DLException
 	{
+		assert instance != null;
+
 		//log.debug("bindToInstance", instance);
+		container = instance;
+		instance.addAnnotation(this);
 
 		if (canValidateInstance()) {
 			instance.addValidator(this);
@@ -120,7 +119,11 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	@Override
 	public void bindToType(DLType type) throws DLException
 	{
+		assert type != null;
+
 		//log.debug("bindToType", type);
+		container = type;
+		type.addAnnotation(this);
 
 		if (canValidateType()) {
 			type.addValidator(this);
@@ -138,7 +141,11 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	@Override
 	public void bindToAttribute(DLAttribute attribute) throws DLException
 	{
+		assert attribute != null;
+
 		//log.debug("bindToAttribute", attribute);
+		container = attribute;
+		attribute.addAnnotation(this);
 
 		if (canValidateAttribute()) {
 			attribute.addValidator(this);
@@ -249,6 +256,23 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	public Map<String, Object> getNamedParameters()
 	{
 		return Collections.EMPTY_MAP;
+	}
+
+	@Override
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+	
+	public DLContract getContract()
+	{
+		return contract;
+	}
+
+	@Override
+	public String getOperatorAsString()
+	{
+		return "";
 	}
 	//</editor-fold>
 }

@@ -25,7 +25,6 @@
 //</editor-fold>
 package de.s42.dl.annotations.types;
 
-import de.s42.dl.DLCore;
 import de.s42.dl.DLType;
 import de.s42.dl.annotations.AbstractDLAnnotation;
 import de.s42.dl.annotations.DLAnnotationParameter;
@@ -51,16 +50,18 @@ public class JavaDLAnnotation extends AbstractDLAnnotation
 	private final static Logger log = LogManager.getLogger(JavaDLAnnotation.class.getName());
 
 	/**
-	 * ATTENTION: This annotation will be mapped under java -> for IDE and code standard guidelines we do not call it java here
+	 * ATTENTION: This annotation will be mapped under java -> for IDE and code standard guidelines we do not call it
+	 * java here
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = {ElementType.FIELD, ElementType.TYPE})
 	@DLAnnotationType(JavaDLAnnotation.class)
 	public static @interface javaAnnotation
 	{
+
 		String javaType();
 	}
-	
+
 	public final static String DEFAULT_SYMBOL = "java";
 
 	@DLAnnotationParameter(ordinal = 0)
@@ -70,7 +71,10 @@ public class JavaDLAnnotation extends AbstractDLAnnotation
 	public void bindToType(DLType type) throws InvalidAnnotation, InvalidType
 	{
 		assert type != null;
-		
+
+		container = type;
+		container.addAnnotation(this);
+
 		ClassLoader classLoader = type.getCore().getClassLoader();
 
 		if (javaType instanceof String) {
