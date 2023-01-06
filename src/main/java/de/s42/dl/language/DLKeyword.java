@@ -43,7 +43,8 @@ public enum DLKeyword
 	Final("final"),
 	Pragma("pragma"),
 	Require("require"),
-	Type("type");
+	Type("type"),
+	Dynamic("dynamic");
 
 	public final String keyword;
 
