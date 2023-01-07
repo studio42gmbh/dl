@@ -45,5 +45,6 @@ public enum DefaultValidationCode
 	InvalidDirectory,
 	NotMatching,
 	InvalidAttributeRedefinition,
-	InvalidContract
+	InvalidContract,
+	InvalidType,
 }

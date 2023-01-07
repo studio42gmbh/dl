@@ -36,6 +36,7 @@ import de.s42.dl.DLType;
 import de.s42.dl.annotations.*;
 import de.s42.dl.annotations.attributes.GreaterDLAnnotation;
 import de.s42.dl.annotations.attributes.GreaterEqualDLAnnotation;
+import de.s42.dl.annotations.attributes.NoDefaultValueDLAnnotation;
 import de.s42.dl.annotations.files.IsDirectoryDLAnnotation;
 import de.s42.dl.annotations.files.IsFileDLAnnotation;
 import de.s42.dl.annotations.instances.ExportDLAnnotation;
@@ -154,6 +155,7 @@ public class DefaultCore extends BaseDLCore
 		core.defineAnnotationFactory(new RequiredDLAnnotation(), RequiredDLAnnotation.required.class.getSimpleName(), RequiredDLAnnotation.class.getName());
 		core.defineAnnotationFactory(new ReadOnlyDLAnnotation(), ReadOnlyDLAnnotation.readonly.class.getSimpleName(), ReadOnlyDLAnnotation.class.getName());
 		core.defineAnnotationFactory(new WriteOnlyDLAnnotation(), WriteOnlyDLAnnotation.writeonly.class.getSimpleName(), WriteOnlyDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new NoDefaultValueDLAnnotation(), NoDefaultValueDLAnnotation.noDefaultValue.class.getSimpleName(), NoDefaultValueDLAnnotation.class.getName());
 
 		core.defineAnnotationFactory(new DontPersistDLAnnotation(), DontPersistDLAnnotation.dontPersist.class.getSimpleName(), DontPersistDLAnnotation.class.getName());
 		core.defineAnnotationFactory(new NoGenericsDLAnnotation(), NoGenericsDLAnnotation.noGenerics.class.getSimpleName(), NoGenericsDLAnnotation.class.getName());

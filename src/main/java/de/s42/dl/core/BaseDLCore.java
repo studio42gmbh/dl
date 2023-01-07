@@ -430,8 +430,9 @@ public class BaseDLCore implements DLCore
 		// Map a simple type
 		if (type.isSimpleType()) {
 			SimpleTypeDLInstance<DataType> instance = new SimpleTypeDLInstance<>(value, type, key);
-			if (!instance.validate(new ValidationResult())) {
-				throw new InvalidInstance("Error mapping simple type");
+			ValidationResult result = new ValidationResult();
+			if (!instance.validate(result)) {
+				throw new InvalidInstance("Error mapping simple type - " + result.toMessage());
 			}
 			addExported(instance);
 			return instance;
@@ -441,8 +442,9 @@ public class BaseDLCore implements DLCore
 
 			try {
 				ComplexTypeDLInstance<DataType> instance = new ComplexTypeDLInstance<>(value, type, key);
-				if (!instance.validate(new ValidationResult())) {
-					throw new InvalidInstance("Error mapping complex type");
+				ValidationResult result = new ValidationResult();
+				if (!instance.validate(result)) {
+					throw new InvalidInstance("Error mapping complex type - " + result.toMessage());
 				}
 				addExported(instance);
 				return instance;

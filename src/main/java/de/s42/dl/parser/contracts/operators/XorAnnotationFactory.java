@@ -66,6 +66,9 @@ public class XorAnnotationFactory extends AbstractBinaryContractFactory
 	@Override
 	public boolean validate(DLAttribute attribute, ValidationResult result)
 	{
+		assert attribute != null;
+		assert result != null;
+		
 		if (!canValidateAttribute()) {
 			result.addError(InvalidContract.toString(), "Can not validate attribute");
 			return false;
@@ -81,8 +84,31 @@ public class XorAnnotationFactory extends AbstractBinaryContractFactory
 	}
 
 	@Override
+	public boolean validate(DLAttribute attribute, Object value, ValidationResult result)
+	{
+		assert attribute != null;
+		assert result != null;
+		
+		if (!canValidateAttribute()) {
+			result.addError(InvalidContract.toString(), "Can not validate attribute value");
+			return false;
+		}
+
+		if (contractFirst.validate(attribute, value, new NoopValidationResult())
+			== contractSecond.validate(attribute, value, new NoopValidationResult())) {
+			result.addError(InvalidContract.toString(), "Xor @" + contractFirst.getName() + " are equal in " + name);
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
 	public boolean validate(DLInstance instance, ValidationResult result)
 	{
+		assert instance != null;
+		assert result != null;
+		
 		if (!canValidateInstance()) {
 			result.addError(InvalidContract.toString(), "Can not validate instance");
 			return false;
@@ -100,6 +126,9 @@ public class XorAnnotationFactory extends AbstractBinaryContractFactory
 	@Override
 	public boolean validate(DLType type, ValidationResult result)
 	{
+		assert type != null;
+		assert result != null;
+		
 		if (!canValidateType()) {
 			result.addError(InvalidContract.toString(), "Can not validate type");
 			return false;
@@ -117,6 +146,9 @@ public class XorAnnotationFactory extends AbstractBinaryContractFactory
 	@Override
 	public boolean validate(DLType type, Object value, ValidationResult result)
 	{
+		assert type != null;
+		assert result != null;
+		
 		if (!canValidateTypeRead()) {
 			result.addError(InvalidContract.toString(), "Can not validate type read");
 			return false;

@@ -1,7 +1,8 @@
 // Resolvment of other modules can be extended easily
 require "dl:standard/base.dl";
 
-annotation odd : !@even;
+// Need the trick with the | @noDefaultValue to support defining attributes without giving them default values
+annotation odd : !@even | @noDefaultValue;
 annotation odd42 : @odd & @range(0, 42);
 annotation odd21to42 : @odd42 & @range(21);
 
@@ -18,11 +19,11 @@ type MyType
 	RequiredFile path;
 	String display;
 	SpecialLong val;
-	Long val2 @odd21to42 : 23;
+	Long val2 @odd21to42;
 }
 
 MyType t @export {
 	path : "/home/notes-wsbs2022.txt";
 	val : 41;
-	val2 : -120;
+	val2 : 23;
 }

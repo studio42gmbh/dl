@@ -65,6 +65,9 @@ public class NotContractFactory extends ContractAnnotationFactory
 	@Override
 	public boolean validate(DLAttribute attribute, ValidationResult result)
 	{
+		assert attribute != null;
+		assert result != null;
+		
 		assert result != null;
 
 		if (contract.validate(attribute, new NoopValidationResult())) {
@@ -76,8 +79,27 @@ public class NotContractFactory extends ContractAnnotationFactory
 	}
 
 	@Override
+	public boolean validate(DLAttribute attribute, Object value, ValidationResult result)
+	{
+		assert attribute != null;
+		assert result != null;
+		
+		assert result != null;
+
+		if (contract.validate(attribute, value, new NoopValidationResult())) {
+			result.addError(InvalidContract.toString(), "Not @" + contract.getName() + " has failed");
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
 	public boolean validate(DLInstance instance, ValidationResult result)
 	{
+		assert instance != null;
+		assert result != null;
+		
 		assert result != null;
 
 		if (contract.validate(instance, new NoopValidationResult())) {
@@ -91,7 +113,9 @@ public class NotContractFactory extends ContractAnnotationFactory
 	@Override
 	public boolean validate(DLType type, ValidationResult result)
 	{
+		assert type != null;
 		assert result != null;
+		
 
 		if (contract.validate(type, new NoopValidationResult())) {
 			result.addError(InvalidContract.toString(), "Not @" + contract.getName() + " has failed");
@@ -104,7 +128,9 @@ public class NotContractFactory extends ContractAnnotationFactory
 	@Override
 	public boolean validate(DLType type, Object value, ValidationResult result)
 	{
+		assert type != null;
 		assert result != null;
+		
 
 		if (contract.validate(type, value, new NoopValidationResult())) {
 			result.addError(InvalidContract.toString(), "Not @" + contract.getName() + " has failed");

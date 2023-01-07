@@ -23,35 +23,37 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations.numbers;
+package de.s42.dl.annotations.attributes;
 
 import de.s42.dl.DLAttribute;
-import de.s42.dl.DLType;
 import de.s42.dl.annotations.AbstractDLContract;
-import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.annotations.DLAnnotationType;
-import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
+import static de.s42.dl.validation.DefaultValidationCode.RequiredAttribute;
 import de.s42.dl.validation.ValidationResult;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
+ * <p>This annotation allows to either enforce no default values for defined attributes,
+ * but is mainly also intended to be combined with negated other annotations to allow
+ * optional default values.</p>
+ * <code>
+ * ...
+ * annotation odd : !@even | @noDefaultValue;
+ * ...
+ * </code>
+ * 
  * @author Benjamin Schiller
  */
-public class EvenDLAnnotation extends AbstractDLContract<EvenDLAnnotation>
+public class NoDefaultValueDLAnnotation extends AbstractDLContract<NoDefaultValueDLAnnotation>
 {
-
-	private final static Logger log = LogManager.getLogger(EvenDLAnnotation.class.getName());
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = {ElementType.FIELD})
-	@DLAnnotationType(EvenDLAnnotation.class)
-	public static @interface even
+	@DLAnnotationType(NoDefaultValueDLAnnotation.class)
+	public static @interface noDefaultValue
 	{
 	}
 
@@ -68,70 +70,25 @@ public class EvenDLAnnotation extends AbstractDLContract<EvenDLAnnotation>
 	}
 
 	@Override
+	public boolean canValidateType()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean canValidateInstance()
+	{
+		return true;
+	}
+
+	@Override
 	public boolean validate(DLAttribute attribute, ValidationResult result)
 	{
+		assert result != null;
 		assert attribute != null;
-		assert result != null;
-		
-		return validateValue(attribute.getDefaultValue(), result, attribute);
-	}
 
-	@Override
-	public boolean validate(DLAttribute attribute, Object value, ValidationResult result)
-	{
-		assert attribute != null;
-		assert result != null;
-
-		return validateValue(value, result, attribute);
-	}
-
-	@Override
-	public boolean validate(DLType type, Object value, ValidationResult result)
-	{
-		assert type != null;
-		assert result != null;
-		
-		if (value == null) {
-			return result.isValid();
-		}
-
-		if (value.getClass().isArray()) {
-
-			// Validate each val in the array
-			Object[] values = (Object[]) value;
-			for (Object val : values) {
-				validateValue(val, result, type);
-			}
-
-			return result.isValid();
-		}
-
-		return validateValue(value, result, type);
-	}
-
-	protected boolean validateValue(Object val, ValidationResult result, DLAnnotated source)
-	{
-		assert source != null;
-		assert result != null;
-		
-		// allow to have null values
-		if (val == null) {
-			return result.isValid();
-		}
-
-		// make sure its a Number
-		if (!(val instanceof Number)) {
-			result.addError(InvalidValueType.toString(), "Value has to be of type Number", source);
-			return result.isValid();
-		}
-
-		long longVal = ((Number) val).longValue();
-
-		if (longVal % 2 != 0) {
-			result.addError(InvalidValueType.toString(),
-				"Value has to be even but is " + longVal,
-				source
-			);
+		if (attribute.getDefaultValue() != null) {
+			result.addError(RequiredAttribute.toString(), "Attribute may not have a default value", attribute);
 		}
 
 		return result.isValid();

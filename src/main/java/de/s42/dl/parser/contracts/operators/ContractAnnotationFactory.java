@@ -183,6 +183,9 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	@Override
 	public boolean validate(DLAttribute attribute, ValidationResult result)
 	{
+		assert attribute != null;
+		assert result != null;
+		
 		if (!canValidateAttribute()) {
 			result.addError(InvalidContract.toString(), "Can not validate attribute");
 			return false;
@@ -192,8 +195,25 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	}
 
 	@Override
+	public boolean validate(DLAttribute attribute, Object value, ValidationResult result)
+	{
+		assert attribute != null;
+		assert result != null;
+		
+		if (!canValidateAttribute()) {
+			result.addError(InvalidContract.toString(), "Can not validate attribute value");
+			return false;
+		}
+
+		return contract.validate(attribute, value, result);
+	}
+
+	@Override
 	public boolean validate(DLInstance instance, ValidationResult result)
 	{
+		assert instance != null;
+		assert result != null;
+		
 		if (!canValidateInstance()) {
 			result.addError(InvalidContract.toString(), "Can not validate instance");
 			return false;
@@ -205,6 +225,9 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	@Override
 	public boolean validate(DLType type, ValidationResult result)
 	{
+		assert type != null;
+		assert result != null;
+		
 		if (!canValidateType()) {
 			result.addError(InvalidContract.toString(), "Can not validate type");
 			return false;
@@ -216,6 +239,9 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	@Override
 	public boolean validate(DLType type, Object value, ValidationResult result)
 	{
+		assert type != null;
+		assert result != null;
+		
 		if (!canValidateTypeRead()) {
 			result.addError(InvalidContract.toString(), "Can not validate type read");
 			return false;

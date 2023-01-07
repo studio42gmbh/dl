@@ -56,7 +56,7 @@ public class ComplexTypeDLInstance<DataType> extends DefaultDLInstance
 
 		assert data != null;
 
-		this.data = data;
+		this.data = data;		
 		info = BeanHelper.getBeanInfo((Class<DataType>) data.getClass());
 	}
 

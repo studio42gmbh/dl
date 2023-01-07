@@ -97,9 +97,9 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 
 	public <ReturnType> ReturnType getValueFromJavaObject(Object object) throws InvalidAttribute
 	{
+		assert object != null;
+		
 		try {
-			assert object != null;
-
 			BeanInfo<?> info = BeanHelper.getBeanInfo(object.getClass());
 
 			BeanProperty property = info.getProperty(getName()).orElseThrow(() -> {
@@ -115,10 +115,8 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 	public void setValueToJavaObject(Object object, Object value) throws InvalidAttribute
 	{
 		assert object != null;
-		
-		try {
-			assert object != null;
 
+		try {
 			BeanInfo<?> info = BeanHelper.getBeanInfo(object.getClass());
 
 			BeanProperty property = info.getProperty(getName()).orElseThrow(() -> {
@@ -135,7 +133,7 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 	public boolean validate(ValidationResult result)
 	{
 		assert result != null;
-		
+
 		for (DLAttributeValidator validator : validators) {
 			validator.validate(this, result);
 		}
@@ -147,9 +145,8 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 	public boolean validateValue(Object value, ValidationResult result)
 	{
 		assert result != null;
-		
-		for (DLAttributeValidator validator : validators) {
 
+		for (DLAttributeValidator validator : validators) {
 			validator.validate(this, value, result);
 		}
 
@@ -353,7 +350,9 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 	 */
 	protected boolean annotationsEqualOrMoreSpecific(List<DLAnnotation> own, List<DLAnnotation> other)
 	{
-
+		assert own != null;
+		assert other != null;
+		
 		HashSet<DLAnnotation> setOther = new HashSet<>(other);
 
 		// Remove all annotations of this 

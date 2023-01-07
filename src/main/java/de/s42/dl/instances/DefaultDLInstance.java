@@ -99,7 +99,7 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 
 	public DLCore getCore()
 	{
-		return getType().getCore();
+		return type.getCore();
 	}
 
 	@Override
@@ -122,8 +122,8 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 		assert result != null;
 
 		// Type validator
-		if (getType() != null) {
-			getType().validateInstance(this, result);
+		if (type != null) {
+			type.validateInstance(this, result);
 		}
 
 		// Instance validators
@@ -137,13 +137,15 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	@Override
 	public Optional<DLAttribute> getAttribute(String name)
 	{
-		return getType().getAttribute(name);
+		assert name != null;
+		
+		return type.getAttribute(name);
 	}
 
 	@Override
 	public Set<String> getAttributeNames()
 	{
-		if (getType() != null) {
+		if (type != null) {
 
 			// @improvement is there a faster way to combine the attributes of the instance and the type? dynamic of parents is tricky
 			Set<String> attributeNames = new HashSet<>(attributes.keys());
@@ -183,7 +185,7 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	@Override
 	public boolean hasDynamicAttributes()
 	{
-		Set<String> attributeNames = getType().getAttributeNames();
+		Set<String> attributeNames = type.getAttributeNames();
 
 		for (String attributeName : attributes.keys()) {
 			if (!attributeNames.contains(attributeName)) {
@@ -197,6 +199,8 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	@Override
 	public boolean hasAttribute(String key)
 	{
+		assert key != null;
+		
 		return attributes.contains(key);
 	}
 
@@ -209,8 +213,8 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 
 		if (attribute.isPresent()) {
 			return attribute.orElseThrow();
-		} else if (getType() != null && getType().hasAttribute(key)) {
-			return getType().getAttribute(key).orElseThrow().getDefaultValue();
+		} else if (type != null && type.hasAttribute(key)) {
+			return type.getAttribute(key).orElseThrow().getDefaultValue();
 		}
 		return null;
 	}
@@ -396,12 +400,12 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	}
 
 	@Override
-	public Optional<DLInstance> getChild(DLType type)
+	public Optional<DLInstance> getChild(DLType childType)
 	{
-		assert type != null;
+		assert childType != null;
 
 		for (DLInstance child : children.list()) {
-			if (type.isAssignableFrom(child.getType())) {
+			if (childType.isAssignableFrom(child.getType())) {
 				return Optional.of(child);
 			}
 		}
@@ -410,11 +414,11 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	}
 
 	@Override
-	public Optional getChildAsJavaObject(DLType type)
+	public Optional getChildAsJavaObject(DLType childType)
 	{
-		assert type != null;
+		assert childType != null;
 
-		Optional<DLInstance> child = getChild(type);
+		Optional<DLInstance> child = getChild(childType);
 
 		if (child.isEmpty()) {
 			return Optional.empty();
@@ -424,14 +428,14 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	}
 
 	@Override
-	public List<DLInstance> getChildren(DLType type)
+	public List<DLInstance> getChildren(DLType childType)
 	{
-		assert type != null;
+		assert childType != null;
 
 		List<DLInstance> result = new ArrayList<>(children.size());
 
 		for (DLInstance child : children.list()) {
-			if (type.isAssignableFrom(child.getType())) {
+			if (childType.isAssignableFrom(child.getType())) {
 				result.add(child);
 			}
 		}
@@ -517,7 +521,8 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	protected Object resolveChildOrAttribute(DLInstance instance, String name)
 	{
 		assert instance != null;
-
+		assert name != null;
+		
 		Optional<DLInstance> child = instance.getChild(name);
 
 		if (child.isPresent()) {
@@ -599,6 +604,8 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	@Override
 	public List getChildrenAsJavaType(Class<?> javaType)
 	{
+		assert javaType != null;
+		
 		List result = new ArrayList<>(children.size());
 
 		for (DLInstance child : children.list()) {

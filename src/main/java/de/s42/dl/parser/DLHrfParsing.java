@@ -93,6 +93,9 @@ public class DLHrfParsing extends DLParserBaseListener
 
 	protected Object resolveReference(String refId, ParserRuleContext context) throws InvalidValue
 	{
+		assert refId != null;
+		assert context != null;
+
 		return DLHrfExpressionParser.resolveReference(module, refId, context);
 	}
 
@@ -217,21 +220,23 @@ public class DLHrfParsing extends DLParserBaseListener
 
 	public List<DLType> fetchGenericParameters(GenericParametersContext ctx) throws DLException
 	{
+		// parse generic types
+		if (ctx == null) {
+			return Collections.EMPTY_LIST;
+		}
+		
 		List<DLType> genericTypes = new ArrayList<>();
 
-		// parse generic types
-		if (ctx != null) {
 
-			for (GenericParameterContext genericParameter : ctx.genericParameter()) {
+		for (GenericParameterContext genericParameter : ctx.genericParameter()) {
 
-				String genericTypeName = genericParameter.getText();
+			String genericTypeName = genericParameter.getText();
 
-				if (!core.hasType(genericTypeName)) {
-					throw new UndefinedType(createErrorMessage(module, "Attribute generic type '" + genericTypeName + "' is not defined", genericParameter));
-				}
-
-				genericTypes.add(core.getType(genericTypeName).get());
+			if (!core.hasType(genericTypeName)) {
+				throw new UndefinedType(createErrorMessage(module, "Attribute generic type '" + genericTypeName + "' is not defined", genericParameter));
 			}
+
+			genericTypes.add(core.getType(genericTypeName).get());
 		}
 
 		return genericTypes;
@@ -322,6 +327,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	@Override
 	public void enterPragma(PragmaContext ctx)
 	{
+		assert ctx != null;
+
 		try {
 
 			// Define a pragma
@@ -389,6 +396,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	@Override
 	public void enterAlias(AliasContext ctx)
 	{
+		assert ctx != null;
+
 		try {
 			String aliasRedefinitionName = ctx.aliasRedefinition().getText();
 			String aliasDefinitionName = ctx.aliasDefinition().getText();
@@ -496,6 +505,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	@Override
 	public void enterEnumDefinition(EnumDefinitionContext ctx)
 	{
+		assert ctx != null;
+
 		try {
 			// Define an external enum from java
 			if (ctx.KEYWORD_EXTERN() != null) {
@@ -581,6 +592,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	@Override
 	public void enterInstanceDefinition(InstanceDefinitionContext ctx)
 	{
+		assert ctx != null;
+
 		try {
 			DLType type = null;
 
@@ -647,11 +660,11 @@ public class DLHrfParsing extends DLParserBaseListener
 	@Override
 	public void exitInstanceDefinition(InstanceDefinitionContext ctx)
 	{
-		try {
-			// @todo https://github.com/studio42gmbh/dl/issues/18 DLHrfParsing support multi nested instances in attribute assignment - currently just 1 stack is allowed
-			if (currentInstance.getType() != null) {
+		assert ctx != null;
 
-				//log.debug("currentInstance validate " + currentInstance.getName());
+		try {
+			if (currentInstance != null) {
+
 				ValidationResult result = new ValidationResult();
 				if (!currentInstance.validate(result)) {
 					throw new InvalidInstance(createErrorMessage(module, "Error validating instance - " + result.toMessage(), ctx));
@@ -673,6 +686,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	@Override
 	public void enterAnnotationDefinition(AnnotationDefinitionContext ctx)
 	{
+		assert ctx != null;
+
 		try {
 
 			if (!core.isAllowDefineAnnotationFactories()) {
@@ -760,6 +775,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	@Override
 	public void enterTypeDefinition(TypeDefinitionContext ctx)
 	{
+		assert ctx != null;
+
 		try {
 
 			if (!core.isAllowDefineTypes()) {
@@ -1005,9 +1022,10 @@ public class DLHrfParsing extends DLParserBaseListener
 	}
 
 	@Override
-	public void exitTypeDefinition(TypeDefinitionContext ctx
-	)
+	public void exitTypeDefinition(TypeDefinitionContext ctx)
 	{
+		assert ctx != null;
+
 		if (currentType != null) {
 			try {
 				ValidationResult result = new ValidationResult();
@@ -1037,6 +1055,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	@Override
 	public void enterTypeAttributeDefinition(TypeAttributeDefinitionContext ctx)
 	{
+		assert ctx != null;
+
 		try {
 			String typeName = ctx.typeAttributeDefinitionType().typeIdentifier().getText();
 
@@ -1148,6 +1168,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	@Override
 	public void exitTypeAttributeDefinition(TypeAttributeDefinitionContext ctx)
 	{
+		assert ctx != null;
+
 		try {
 			if (dlInstanceAssignAttribute != null) {
 				dlInstanceAssignAttribute.setDefaultValue(lastInstance);
@@ -1183,6 +1205,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	@Override
 	public void enterAttributeAssignment(AttributeAssignmentContext ctx)
 	{
+		assert ctx != null;
+
 		currentAttributeAssignmentInstances.push(currentInstance);
 		currentAttributeAssignmentList.push(new ArrayList<>(Math.max(MIN_ASSIGNABLE_CAPACITY, ctx.attributeAssignable().size())));
 	}
@@ -1190,6 +1214,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	@Override
 	public void exitAttributeAssignable(AttributeAssignableContext ctx)
 	{
+		assert ctx != null;
+
 		List assignables = currentAttributeAssignmentList.peek();
 
 		try {
@@ -1236,6 +1262,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	@Override
 	public void exitAttributeAssignment(AttributeAssignmentContext ctx)
 	{
+		assert ctx != null;
+
 		// Used for tracking nested attribute instance assignments in instance definition
 		currentAttributeAssignmentInstances.pop();
 
@@ -1272,7 +1300,7 @@ public class DLHrfParsing extends DLParserBaseListener
 						ctx
 					));
 			}
-			
+
 			// With explicitly given type
 			if (ctx.attributeType() != null) {
 
@@ -1334,11 +1362,11 @@ public class DLHrfParsing extends DLParserBaseListener
 					} // Normal single value instance assignments
 					else {
 
-						if (!instance.getType().isAssignableFrom(attributeType)) {
+						if (!attributeType.isAssignableFrom(instance.getType())) {
 							throw new InvalidType(
 								createErrorMessage(
 									module,
-									"Type of attribute '" + attributeType + " is not assignable of '" + instance.getType() + "'",
+									"Type of attribute '" + attributeType + " is not assignable from '" + instance.getType() + "'",
 									ctx));
 						}
 
@@ -1410,6 +1438,8 @@ public class DLHrfParsing extends DLParserBaseListener
 	 */
 	public static DLModule parse(DLCore core, String moduleId, String data) throws DLException
 	{
+		assert core != null;
+		assert moduleId != null;
 		assert data != null;
 
 		return parse(core, moduleId, CharStreams.fromString(data));
@@ -1417,6 +1447,8 @@ public class DLHrfParsing extends DLParserBaseListener
 
 	public static DLModule parse(DLCore core, String moduleId, Path data) throws DLException, IOException
 	{
+		assert core != null;
+		assert moduleId != null;
 		assert data != null;
 
 		return parse(core, moduleId, CharStreams.fromPath(data));
@@ -1424,6 +1456,8 @@ public class DLHrfParsing extends DLParserBaseListener
 
 	public static DLModule parse(DLCore core, String moduleId, InputStream data) throws DLException, IOException
 	{
+		assert core != null;
+		assert moduleId != null;
 		assert data != null;
 
 		return parse(core, moduleId, CharStreams.fromStream(data));

@@ -40,6 +40,7 @@ import de.s42.dl.exceptions.UndefinedType;
 import de.s42.dl.validation.DLInstanceValidator;
 import de.s42.dl.validation.DLTypeValidator;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidAttributeRedefinition;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidType;
 import de.s42.dl.validation.ValidationResult;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -225,6 +226,85 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 		return result.isValid();
 	}
 
+	@Override
+	public boolean addInstanceValidator(DLInstanceValidator validator)
+	{
+		assert validator != null;
+
+		return instanceValidators.add(validator);
+	}
+
+	@Override
+	public boolean addValidator(DLTypeValidator validator)
+	{
+		assert validator != null;
+
+		return validators.add(validator);
+	}
+
+	@Override
+	public List<DLTypeValidator> getValidators()
+	{
+		return Collections.unmodifiableList(validators);
+	}
+
+	@Override
+	public List<DLInstanceValidator> getInstanceValidators()
+	{
+		return Collections.unmodifiableList(instanceValidators);
+	}
+
+	@Override
+	public boolean validateInstance(DLInstance instance, ValidationResult result)
+	{
+		assert instance != null;
+		assert result != null;
+		
+		// Make sure you compare an instance of this type
+		if (!this.equals(instance.getType())) {
+			result.addError(InvalidType.toString(), "Instance does have an assignable type '" + instance.getType() + "' to this '" + this + "'", this);
+			return result.isValid();
+		}
+
+		// This types instance validators
+		for (DLInstanceValidator validator : getInstanceValidators()) {
+			validator.validate(instance, result);
+		}
+		
+		// Value validators
+		for (DLAttribute attribute : getOwnAttributes()) {
+			Object value = instance.get(attribute.getName());
+			attribute.validateValue(value, result);
+		}
+
+		// Iterate all parents
+		for (DLType parent : getParents()) {
+			validateInstanceParentIntern(parent, instance, result);
+		}
+
+		return result.isValid();
+	}
+	
+	protected boolean validateInstanceParentIntern(DLType parent, DLInstance instance, ValidationResult result)
+	{
+		assert parent != null;
+		assert instance != null;
+		assert result != null;
+		
+		for (DLInstanceValidator validator : parent.getInstanceValidators()) {
+			validator.validate(instance, result);
+		}
+		
+		// Value validators
+		for (DLAttribute attribute : parent.getOwnAttributes()) {
+
+			Object value = instance.get(attribute.getName());
+			attribute.validateValue(value, result);
+		}		
+		
+		return result.isValid();
+	}
+		
 	@Override
 	public boolean isDerivedTypeOf(DLType other)
 	{
@@ -570,60 +650,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 		return false;
 	}
-
-	@Override
-	public boolean addInstanceValidator(DLInstanceValidator validator)
-	{
-		assert validator != null;
-
-		return instanceValidators.add(validator);
-	}
-
-	@Override
-	public boolean addValidator(DLTypeValidator validator)
-	{
-		assert validator != null;
-
-		return validators.add(validator);
-	}
-
-	@Override
-	public List<DLTypeValidator> getValidators()
-	{
-		return Collections.unmodifiableList(validators);
-	}
-
-	@Override
-	public List<DLInstanceValidator> getInstanceValidators()
-	{
-		return Collections.unmodifiableList(instanceValidators);
-	}
-
-	@Override
-	public boolean validateInstance(DLInstance instance, ValidationResult result)
-	{
-		assert instance != null;
-		assert result != null;
-
-		for (DLInstanceValidator validator : instanceValidators) {
-			validator.validate(instance, result);
-		}
-		
-		// Value validators
-		for (DLAttribute attribute : getAttributes()) {
-
-			Object value = instance.get(attribute.getName());
-			attribute.validateValue(value, result);
-		}
-
-		// Recurse to direct parents
-		for (DLType parent : parents) {
-			parent.validateInstance(instance, result);
-		}
-
-		return result.isValid();
-	}
-
+	
 	@Override
 	public void addAttribute(DLAttribute attribute) throws InvalidType
 	{
@@ -890,7 +917,6 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 		// Default to DLInstance which means it can only accept instances
 		return DLInstance.class;
-		//return Object.class;
 	}
 
 	public void setJavaType(Class javaType)

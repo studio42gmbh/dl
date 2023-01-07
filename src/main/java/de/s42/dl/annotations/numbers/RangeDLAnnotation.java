@@ -122,6 +122,9 @@ public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
 
 	protected boolean validateValue(Object val, ValidationResult result, DLAnnotated source)
 	{
+		assert source != null;
+		assert result != null;
+		
 		// allow to have null values
 		if (val == null) {
 			return result.isValid();
