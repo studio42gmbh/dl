@@ -7,8 +7,7 @@
 
 require "dl:standard/base.dl";
 
-// Need the trick with the | @noDefaultValue to support defining attributes without giving them default values
-annotation odd : !@even | @noDefaultValue;
+annotation odd : !@even;
 annotation range42 : @range(0, 42);
 annotation evenRange42OrOdd : ( @range42 & @even ) | ( !@range42 & @odd );
 
