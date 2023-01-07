@@ -37,6 +37,9 @@ public class EqualDLAnnotation extends AbstractComparisonDLAnnotation<Object, Eq
 	@Override
 	protected String errorMessage(Object val, Object refVal)
 	{
+		assert val != null;
+		assert refVal != null;
+		
 		return "val '" + val + "' must be equal to refval '" + refVal + "'";
 	}
 

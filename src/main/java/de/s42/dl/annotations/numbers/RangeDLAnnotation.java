@@ -25,9 +25,7 @@
 //</editor-fold>
 package de.s42.dl.annotations.numbers;
 
-import de.s42.dl.DLAttribute;
-import de.s42.dl.DLType;
-import de.s42.dl.annotations.AbstractDLContract;
+import de.s42.dl.annotations.AbstractValueDLContract;
 import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.annotations.DLAnnotationParameter;
 import de.s42.dl.annotations.DLAnnotationType;
@@ -44,7 +42,7 @@ import java.lang.annotation.Target;
  *
  * @author Benjamin Schiller
  */
-public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
+public class RangeDLAnnotation extends AbstractValueDLContract<RangeDLAnnotation>
 {
 
 	private final static Logger log = LogManager.getLogger(RangeDLAnnotation.class.getName());
@@ -67,59 +65,6 @@ public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
 	protected double max = Double.MAX_VALUE;
 
 	@Override
-	public boolean canValidateAttribute()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean canValidateTypeRead()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean validate(DLAttribute attribute, ValidationResult result)
-	{
-		assert attribute != null;
-		assert result != null;
-
-		return validateValue(attribute.getDefaultValue(), result, attribute);
-	}
-
-	@Override
-	public boolean validate(DLAttribute attribute, Object value, ValidationResult result)
-	{
-		assert attribute != null;
-		assert result != null;
-
-		return validateValue(value, result, attribute);
-	}
-
-	@Override
-	public boolean validate(DLType type, Object value, ValidationResult result)
-	{
-		assert type != null;
-		assert result != null;
-
-		if (value == null) {
-			return result.isValid();
-		}
-
-		if (value.getClass().isArray()) {
-
-			// Validate each val in the array
-			Object[] values = (Object[]) value;
-			for (Object val : values) {
-				validateValue(val, result, type);
-			}
-
-			return result.isValid();
-		}
-
-		return validateValue(value, result, type);
-	}
-
 	protected boolean validateValue(Object val, ValidationResult result, DLAnnotated source)
 	{
 		assert source != null;
@@ -152,7 +97,8 @@ public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
 
 		return result.isValid();
 	}
-
+	
+	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
 	public double getMin()
 	{
 		return min;
@@ -172,4 +118,5 @@ public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
 	{
 		this.max = max;
 	}
+	//</editor-fold>	
 }

@@ -26,61 +26,74 @@
 package de.s42.dl.annotations;
 
 import de.s42.dl.DLAttribute;
-import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
+import de.s42.dl.validation.ValidationResult;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 
 /**
  *
  * @author Benjamin Schiller
  * @param <DLConceptType>
  */
-public abstract class AbstractDLContract<DLConceptType extends DLContract>
-	extends AbstractDLAnnotation<DLConceptType> implements DLContract
+public abstract class AbstractValueDLContract<DLConceptType extends AbstractValueDLContract> extends AbstractDLContract<DLConceptType>
 {
 
+	private final static Logger log = LogManager.getLogger(AbstractValueDLContract.class.getName());
+
+	abstract protected boolean validateValue(Object value, ValidationResult result, DLAnnotated source);
+
 	@Override
-	final public void bindToInstance(DLInstance instance)
+	public boolean canValidateAttribute()
 	{
-		assert instance != null;
-
-		//log.debug("bindToInstance", instance);
-		container = instance;
-		container.addAnnotation(this);
-
-		if (canValidateInstance()) {
-			instance.addValidator(this);
-		}
+		return true;
 	}
 
 	@Override
-	final public void bindToType(DLType type)
+	public boolean canValidateTypeRead()
 	{
-		assert type != null;
-
-		//log.debug("bindToType", type);
-		container = type;
-		container.addAnnotation(this);
-
-		if (canValidateType() || canValidateTypeRead()) {
-			type.addValidator(this);
-		}
-
-		if (canValidateInstance()) {
-			type.addInstanceValidator(this);
-		}
+		return true;
 	}
 
 	@Override
-	final public void bindToAttribute(DLAttribute attribute)
+	public boolean validate(DLAttribute attribute, ValidationResult result)
 	{
 		assert attribute != null;
+		assert result != null;
 
-		//log.debug("bindToAttribute", attribute);
-		container = attribute;
-		container.addAnnotation(this);
+		return validateValue(attribute.getDefaultValue(), result, attribute);
+	}
 
-		if (canValidateAttribute()) {
-			attribute.addValidator(this);
+	@Override
+	public boolean validate(DLAttribute attribute, Object value, ValidationResult result)
+	{
+		assert attribute != null;
+		assert result != null;
+
+		return validateValue(value, result, attribute);
+	}
+
+	@Override
+	public boolean validate(DLType type, Object value, ValidationResult result)
+	{
+		assert type != null;
+		assert result != null;
+
+		if (value == null) {
+			return true;
 		}
+
+		if (value.getClass().isArray()) {
+
+			// Validate each val in the array
+			Object[] values = (Object[]) value;
+			for (Object val : values) {
+				validateValue(val, result, type);
+			}
+
+			return result.isValid();
+		}
+
+		return validateValue(value, result, type);
 	}
 }

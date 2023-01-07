@@ -26,8 +26,7 @@
 package de.s42.dl.annotations.attributes;
 
 import de.s42.dl.DLAttribute;
-import de.s42.dl.DLType;
-import de.s42.dl.annotations.AbstractDLContract;
+import de.s42.dl.annotations.AbstractValueDLContract;
 import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.annotations.DLAnnotationType;
 import static de.s42.dl.validation.DefaultValidationCode.RequiredAttribute;
@@ -41,7 +40,7 @@ import java.lang.annotation.Target;
  *
  * @author Benjamin Schiller
  */
-public class RequiredDLAnnotation extends AbstractDLContract<RequiredDLAnnotation>
+public class RequiredDLAnnotation extends AbstractValueDLContract<RequiredDLAnnotation>
 {
 
 	@Retention(RetentionPolicy.RUNTIME)
@@ -51,36 +50,21 @@ public class RequiredDLAnnotation extends AbstractDLContract<RequiredDLAnnotatio
 	{
 	}
 
+	/**
+	 * Require allows to not define default values for an attribute.
+	 * @param attribute
+	 * @param result
+	 * @return 
+	 */
 	@Override
-	public boolean canValidateAttribute()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean canValidateTypeRead()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean validate(DLType type, Object value, ValidationResult result)
+	public boolean validate(DLAttribute attribute, ValidationResult result)
 	{
 		assert result != null;
-		assert type != null;
-
-		return validateValue(value, result, type);
-	}
-
-	@Override
-	public boolean validate(DLAttribute attribute, Object value, ValidationResult result)
-	{
-		assert result != null;
-		assert attribute != null;
 		
-		return validateValue(value, result, attribute);
+		return result.isValid();
 	}
 
+	@Override
 	protected boolean validateValue(Object value, ValidationResult result, DLAnnotated source)
 	{
 		assert result != null;

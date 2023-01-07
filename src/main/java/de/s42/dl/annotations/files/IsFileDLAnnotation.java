@@ -26,9 +26,8 @@
 package de.s42.dl.annotations.files;
 
 import de.s42.base.conversion.ConversionHelper;
-import de.s42.dl.DLAttribute;
-import de.s42.dl.DLType;
-import de.s42.dl.annotations.AbstractDLContract;
+import de.s42.dl.annotations.AbstractValueDLContract;
+import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.annotations.DLAnnotationType;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidFile;
 import de.s42.dl.validation.ValidationResult;
@@ -45,7 +44,7 @@ import java.nio.file.Path;
  *
  * @author Benjamin Schiller
  */
-public class IsFileDLAnnotation extends AbstractDLContract<IsFileDLAnnotation>
+public class IsFileDLAnnotation extends AbstractValueDLContract<IsFileDLAnnotation>
 {
 
 	private final static Logger log = LogManager.getLogger(IsFileDLAnnotation.class.getName());
@@ -58,51 +57,7 @@ public class IsFileDLAnnotation extends AbstractDLContract<IsFileDLAnnotation>
 	}
 
 	@Override
-	public boolean canValidateAttribute()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean canValidateTypeRead()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean validate(DLAttribute attribute, Object value, ValidationResult result)
-	{
-		assert attribute != null;
-		assert result != null;
-
-		return validateValue(value, result, attribute);
-	}
-
-	@Override
-	public boolean validate(DLType type, Object value, ValidationResult result)
-	{
-		assert type != null;
-		assert result != null;
-
-		if (value == null) {
-			return true;
-		}
-
-		if (value.getClass().isArray()) {
-
-			// Validate each val in the array
-			Object[] values = (Object[]) value;
-			for (Object val : values) {
-				validateValue(val, result, type);
-			}
-
-			return result.isValid();
-		}
-
-		return validateValue(value, result, type);
-	}
-
-	protected boolean validateValue(Object value, ValidationResult result, Object source)
+	protected boolean validateValue(Object value, ValidationResult result, DLAnnotated source)
 	{
 		if (value == null) {
 			return true;

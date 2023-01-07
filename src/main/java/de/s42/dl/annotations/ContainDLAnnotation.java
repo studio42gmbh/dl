@@ -70,6 +70,12 @@ public class ContainDLAnnotation extends AbstractDLContract<ContainDLAnnotation>
 		return true;
 	}
 
+	@Override
+	public boolean canValidateInstance()
+	{
+		return true;
+	}
+	
 	/**
 	 * Ensure type may generally contain the other type and the other type exists.
 	 *
@@ -97,12 +103,6 @@ public class ContainDLAnnotation extends AbstractDLContract<ContainDLAnnotation>
 			return false;
 		}
 
-		return true;
-	}
-
-	@Override
-	public boolean canValidateInstance()
-	{
 		return true;
 	}
 
