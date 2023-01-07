@@ -1,17 +1,17 @@
 --module-path
-'C:/home/s42/dl/development/dl/target/classes;C:/Users/Benjamin.Schiller/.m2/repository/org/json/json/20210307/json-20210307.jar;C:/Users/Benjamin.Schiller/.m2/repository/de/s42/log42/0.1.0/log42-0.1.0.jar;C:/Users/Benjamin.Schiller/.m2/repository/javax/activation/activation/1.1.1/activation-1.1.1.jar;C:/Users/Benjamin.Schiller/.m2/repository/org/antlr/antlr4-runtime/4.9.2/antlr4-runtime-4.9.2.jar;C:/Users/Benjamin.Schiller/.m2/repository/de/s42/base42/1.0.2/base42-1.0.2.jar'
+'C:/home/s42/dl/development/dl/target/classes;C:/Users/Benjamin.Schiller/.m2/repository/org/json/json/20210307/json-20210307.jar;C:/Users/Benjamin.Schiller/.m2/repository/org/antlr/antlr4-runtime/4.11.1/antlr4-runtime-4.11.1.jar;C:/Users/Benjamin.Schiller/.m2/repository/de/s42/log42/0.1.0/log42-0.1.0.jar;C:/Users/Benjamin.Schiller/.m2/repository/javax/activation/activation/1.1.1/activation-1.1.1.jar;C:/Users/Benjamin.Schiller/.m2/repository/de/s42/base42/1.0.2/base42-1.0.2.jar'
 --patch-module
 de.sft.dl='C:/home/s42/dl/development/dl/src/main/java;C:/home/s42/dl/development/dl/target/generated-sources/antlr4;C:/home/s42/dl/development/dl/target/generated-sources/annotations'
 -encoding
 'UTF-8'
 -private
 -source
-'14'
+'18'
 --module-source-path
 'C:/home/s42/dl/development/dl/docs/javadoc/src'
 -author
 -bottom
-'Copyright &#169; 2022. All rights reserved.'
+'Copyright &#169; 2023. All rights reserved.'
 -charset
 'UTF-8'
 -d
@@ -20,8 +20,6 @@ de.sft.dl='C:/home/s42/dl/development/dl/src/main/java;C:/home/s42/dl/developmen
 'UTF-8'
 -doctitle
 'Data Language Core 0.1.0 API'
--linkoffline
-'https://docs.oracle.com/en/java/javase/14/docs/api' 'C:/home/s42/dl/development/dl/target/javadoc-bundle-options'
 -use
 -version
 -windowtitle
