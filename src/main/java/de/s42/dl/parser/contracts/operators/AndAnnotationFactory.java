@@ -68,14 +68,15 @@ public class AndAnnotationFactory extends AbstractBinaryContractFactory
 	{
 		if (!canValidateAttribute()) {
 			result.addError(InvalidContract.toString(), "Can not validate attribute");
+			return false;
 		}
 
-		if (!contractFirst.validate(attribute, NoopValidationResult.NOOP_RESULT)) {
+		if (!contractFirst.validate(attribute, new NoopValidationResult())) {
 			result.addError(InvalidContract.toString(), "And @" + contractFirst.getName() + " first has failed in " + name);
 			return false;
 		}
 
-		if (!contractSecond.validate(attribute, NoopValidationResult.NOOP_RESULT)) {
+		if (!contractSecond.validate(attribute, new NoopValidationResult())) {
 			result.addError(InvalidContract.toString(), "And @" + contractSecond.getName() + " second has failed in " + name);
 			return false;
 		}
@@ -88,14 +89,15 @@ public class AndAnnotationFactory extends AbstractBinaryContractFactory
 	{
 		if (!canValidateInstance()) {
 			result.addError(InvalidContract.toString(), "Can not validate instance");
+			return false;
 		}
 
-		if (!contractFirst.validate(instance, NoopValidationResult.NOOP_RESULT)) {
+		if (!contractFirst.validate(instance, new NoopValidationResult())) {
 			result.addError(InvalidContract.toString(), "And @" + contractFirst.getName() + " first has failed in " + name);
 			return false;
 		}
 
-		if (!contractSecond.validate(instance, NoopValidationResult.NOOP_RESULT)) {
+		if (!contractSecond.validate(instance, new NoopValidationResult())) {
 			result.addError(InvalidContract.toString(), "And @" + contractSecond.getName() + " second has failed in " + name);
 			return false;
 		}
@@ -108,14 +110,15 @@ public class AndAnnotationFactory extends AbstractBinaryContractFactory
 	{
 		if (!canValidateType()) {
 			result.addError(InvalidContract.toString(), "Can not validate type");
+			return false;
 		}
 
-		if (!contractFirst.validate(type, NoopValidationResult.NOOP_RESULT)) {
+		if (!contractFirst.validate(type, new NoopValidationResult())) {
 			result.addError(InvalidContract.toString(), "And @" + contractFirst.getName() + " first has failed in " + name);
 			return false;
 		}
 
-		if (!contractSecond.validate(type, NoopValidationResult.NOOP_RESULT)) {
+		if (!contractSecond.validate(type, new NoopValidationResult())) {
 			result.addError(InvalidContract.toString(), "And @" + contractSecond.getName() + " second has failed in " + name);
 			return false;
 		}
@@ -128,14 +131,15 @@ public class AndAnnotationFactory extends AbstractBinaryContractFactory
 	{
 		if (!canValidateTypeRead()) {
 			result.addError(InvalidContract.toString(), "Can not validate type read");
+			return false;
 		}
 
-		if (!contractFirst.validate(type, value, NoopValidationResult.NOOP_RESULT)) {
+		if (!contractFirst.validate(type, value, new NoopValidationResult())) {
 			result.addError(InvalidContract.toString(), "And @" + contractFirst.getName() + " first has failed in " + name);
 			return false;
 		}
 
-		if (!contractSecond.validate(type, value, NoopValidationResult.NOOP_RESULT)) {
+		if (!contractSecond.validate(type, value, new NoopValidationResult())) {
 			result.addError(InvalidContract.toString(), "And @" + contractSecond.getName() + " second has failed in " + name);
 			return false;
 		}

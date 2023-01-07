@@ -1061,6 +1061,7 @@ public class DLHrfParsing extends DLParserBaseListener
 
 			// Parse default value
 			Object defaultValue = null;
+			boolean validate = false;
 			if (ctx.typeAttributeDefinitionDefault() != null) {
 
 				//DLInstance localCurrentInstance = currentInstance;
@@ -1094,6 +1095,7 @@ public class DLHrfParsing extends DLParserBaseListener
 							}
 						}
 					}
+					validate = true;
 				} else {
 					try {
 						defaultValue = type.read(ctx.typeAttributeDefinitionDefault().getText());
@@ -1101,6 +1103,7 @@ public class DLHrfParsing extends DLParserBaseListener
 						throw new InvalidValue(createErrorMessage(module, "Error reading default value for attribute '"
 							+ name + "'", ex, ctx.typeAttributeDefinitionDefault()), ex);
 					}
+					validate = true;
 				}
 			}
 			attribute.setDefaultValue(defaultValue);
@@ -1115,8 +1118,16 @@ public class DLHrfParsing extends DLParserBaseListener
 				}
 			});
 
-			if (!attribute.getType().validate(new ValidationResult())) {
-				throw new InvalidType(createErrorMessage(module, "Attribute type '" + attribute.getType().getCanonicalName() + "' is not valid", ctx));
+			// Validate if not assigned an instance (will be done in exitTypeAttributeDefinition then)
+			if (validate) {
+				ValidationResult result = new ValidationResult();
+				if (!attribute.validate(result)) {
+					throw new InvalidValue(
+						createErrorMessage(
+							module,
+							"Error validating attribute '" + attribute.getName() + "'",
+							ctx));
+				}
 			}
 
 		} catch (RuntimeException | DLException ex) {
@@ -1137,9 +1148,34 @@ public class DLHrfParsing extends DLParserBaseListener
 	@Override
 	public void exitTypeAttributeDefinition(TypeAttributeDefinitionContext ctx)
 	{
-		if (dlInstanceAssignAttribute != null) {
-			dlInstanceAssignAttribute.setDefaultValue(lastInstance);
-			dlInstanceAssignAttribute = null;
+		try {
+			if (dlInstanceAssignAttribute != null) {
+				dlInstanceAssignAttribute.setDefaultValue(lastInstance);
+
+				// Validate if after assigned an instance as default value
+				ValidationResult result = new ValidationResult();
+				if (!dlInstanceAssignAttribute.validate(result)) {
+					throw new InvalidValue(
+						createErrorMessage(
+							module,
+							"Error validating attribute '" + dlInstanceAssignAttribute.getName() + "'",
+							ctx));
+				}
+
+				dlInstanceAssignAttribute = null;
+			}
+		} catch (RuntimeException | DLException ex) {
+
+			if (ex instanceof DLHrfParsingException) {
+				throw (DLHrfParsingException) ex;
+			}
+
+			throw new DLHrfParsingException(
+				"Error defining attribute - " + ex.getMessage(),
+				module,
+				ctx,
+				ex
+			);
 		}
 	}
 
@@ -1218,20 +1254,17 @@ public class DLHrfParsing extends DLParserBaseListener
 				);
 			}
 
-			// Fetch assignables
-			Object[] attributeAssignables = currentAttributeAssignmentList.pop().toArray();
-
 			// Type of the attribute or null if it has no explicit type (dynamic types)
 			DLType attributeType = currentInstance
+				.getType()
 				.getAttribute(attributeName)
 				.map((attribute) -> {
 					return attribute.getType();
 				})
 				.orElse(null);
 
-			// Ensure check if instance allows dynamic attributes
-			if (!currentInstance.getType().isDynamic()
-				&& attributeType == null) {
+			// Ensure check if instance allows dynamic attributes if not given an attribute type
+			if (attributeType == null && !currentInstance.getType().isDynamic()) {
 				throw new InvalidAttribute(
 					createErrorMessage(
 						module,
@@ -1239,7 +1272,7 @@ public class DLHrfParsing extends DLParserBaseListener
 						ctx
 					));
 			}
-
+			
 			// With explicitly given type
 			if (ctx.attributeType() != null) {
 
@@ -1266,9 +1299,14 @@ public class DLHrfParsing extends DLParserBaseListener
 						));
 				}
 
-				// Convert the attribute into the given type
-				attributeType = givenAttributeType;
+				// Use gieven attribute type if none could be retrieved from type (used in dynamic instance situations)
+				if (attributeType == null) {
+					attributeType = givenAttributeType;
+				}
 			}
+
+			// Fetch assignables
+			Object[] attributeAssignables = currentAttributeAssignmentList.pop().toArray();
 
 			// Assign the attribute value with read if given a valid type
 			if (attributeType != null) {
@@ -1296,7 +1334,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					} // Normal single value instance assignments
 					else {
 
-						if (!attributeType.isAssignableFrom(instance.getType())) {
+						if (!instance.getType().isAssignableFrom(attributeType)) {
 							throw new InvalidType(
 								createErrorMessage(
 									module,
@@ -1310,6 +1348,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				} // Otherwise assign the value after converting the assignabled using the types read method
 				else if (attributeType.canRead()) {
 					try {
+						//log.warn("read", DLHelper.describe(attributeType));
 						currentInstance.set(attributeName, attributeType.read(attributeAssignables));
 					} catch (RuntimeException | DLException ex) {
 						throw new InvalidValue(
@@ -1322,7 +1361,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					}
 				} else {
 
-					// Try if the given value is of javatype of the dl type
+					// Try if the given value is of javatype of the dl type -> can be assigned without conversion then
 					if (attributeAssignables.length == 1
 						&& attributeType.getJavaDataType().isAssignableFrom(attributeAssignables[0].getClass())) {
 						currentInstance.set(attributeName, attributeAssignables[0]);
@@ -1335,7 +1374,7 @@ public class DLHrfParsing extends DLParserBaseListener
 								ctx));
 					}
 				}
-			} // Otherwise assign either the unpacked value if it is an array of length 1 or the array if not given a reading type
+			} // Otherwise assign either the raw unpacked value if it is an array of length 1 or the raw array if not given a reading type
 			else {
 				currentInstance.set(
 					attributeName,

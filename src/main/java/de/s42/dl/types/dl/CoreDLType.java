@@ -46,18 +46,12 @@ public class CoreDLType extends SimpleDLType
 	public CoreDLType(DLType parent)
 	{
 		this(DEFAULT_SYMBOL);
-		
+
 		addParent(parent);
 	}
 
 	public CoreDLType(String name)
 	{
-		super(name);
-	}
-
-	@Override
-	public Class getJavaDataType()
-	{
-		return DLCore.class;
+		super(name, DLCore.class);
 	}
 }

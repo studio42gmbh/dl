@@ -25,9 +25,7 @@
 //</editor-fold>
 package de.s42.dl.types.base;
 
-import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLType;
-import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.types.SimpleDLType;
 
 /**
@@ -53,26 +51,6 @@ public class ClassDLType extends SimpleDLType
 
 	public ClassDLType(String name)
 	{
-		super(name);
-	}
-
-	@Override
-	public Object read(Object... sources) throws InvalidValue
-	{
-		assert sources != null;
-
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{String.class});
-
-		try {
-			return Class.forName((String) result[0]);
-		} catch (ClassNotFoundException ex) {
-			throw new InvalidValue("Class " + (String) result[0] + " could not be found");
-		}
-	}
-
-	@Override
-	public Class getJavaDataType()
-	{
-		return Class.class;
+		super(name, Class.class);
 	}
 }

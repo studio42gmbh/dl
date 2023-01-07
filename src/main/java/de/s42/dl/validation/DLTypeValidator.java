@@ -33,8 +33,22 @@ import de.s42.dl.DLType;
  */
 public interface DLTypeValidator
 {
+	default public boolean canValidateType()
+	{
+		return false;
+	}
+
+	default public boolean canValidateTypeRead()
+	{
+		return false;
+	}
 
 	default public boolean validate(DLType type, ValidationResult result)
+	{
+		return true;
+	}
+
+	default public boolean validate(DLType type, Object value, ValidationResult result)
 	{
 		return true;
 	}

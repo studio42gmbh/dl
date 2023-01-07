@@ -25,10 +25,10 @@
 //</editor-fold>
 package de.s42.dl.types.base;
 
-import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLType;
-import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.types.SimpleDLType;
+import static de.s42.dl.validation.DefaultValidationCode.NotMatching;
+import de.s42.dl.validation.ValidationResult;
 import java.util.regex.Pattern;
 
 /**
@@ -55,26 +55,16 @@ public class SymbolDLType extends SimpleDLType
 
 	public SymbolDLType(String name)
 	{
-		super(name);
+		super(name, String.class);
 	}
 
 	@Override
-	public String read(Object... sources) throws InvalidValue
+	public boolean validateRead(Object source, ValidationResult result)
 	{
-		assert sources != null;
-
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{String.class});
-
-		if (!SYMBOL_PATTERN.matcher((String) result[0]).matches()) {
-			throw new InvalidValue("Symbol has to be of form '" + SYMBOL_PATTERN.pattern() + "' but is '" + result[0] + "'");
+		if (!SYMBOL_PATTERN.matcher((String) source).matches()) {
+			result.addError(NotMatching.toString(), "Symbol has to be of form '" + SYMBOL_PATTERN.pattern() + "' but is '" + source + "'");
 		}
 
-		return (String) result[0];
-	}
-
-	@Override
-	public Class getJavaDataType()
-	{
-		return String.class;
+		return super.validateRead(source, result);
 	}
 }

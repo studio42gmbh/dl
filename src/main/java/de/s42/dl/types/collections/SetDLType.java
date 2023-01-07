@@ -72,7 +72,7 @@ public class SetDLType extends SimpleDLType
 
 	public SetDLType(String name, DLType genericType)
 	{
-		super(name);
+		super(name, Set.class);
 
 		init(genericType);
 	}
@@ -131,7 +131,10 @@ public class SetDLType extends SimpleDLType
 		assert sources != null;
 
 		// Validate read
-		validateRead(sources);
+		ValidationResult vResult = new ValidationResult();
+		if (!validateRead(sources, vResult)) {
+			throw new InvalidType("Type '" + getCanonicalName() + "' could not validate read - " + vResult.toMessage());
+		}
 
 		Set result;
 
@@ -180,12 +183,6 @@ public class SetDLType extends SimpleDLType
 		}
 	}
 
-	@Override
-	public Class getJavaDataType()
-	{
-		return Set.class;
-	}
-
 	public Class getSetValueType() throws InvalidType
 	{
 		if (!isGenericType()) {
@@ -210,14 +207,15 @@ public class SetDLType extends SimpleDLType
 	@Override
 	public boolean validate(ValidationResult result)
 	{
-		boolean valid = super.validate(result);
+		assert result != null;
+		
+		super.validate(result);
 
 		int count = getGenericTypes().size();
 		if (count != 0 && count != 1) {
 			result.addError(InvalidGenericParameters.toString(), "May only contain 0 or 1 generic types", this);
-			valid = false;
 		}
 
-		return valid;
+		return result.isValid();
 	}
 }

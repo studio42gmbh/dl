@@ -25,10 +25,12 @@
 //</editor-fold>
 package de.s42.dl.types;
 
+import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLAttribute;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.validation.DLTypeValidator;
 import de.s42.dl.validation.ValidationResult;
 
@@ -41,14 +43,16 @@ public abstract class SimpleDLType extends DefaultDLType
 
 	public final static String ATTRIBUTE_VALUE = "value";
 
-	public SimpleDLType(String name)
+	public SimpleDLType(String name, Class javaType)
 	{
-		super(name);
+		super(name, javaType);
 	}
 
 	@Override
 	public DLInstance fromJavaObject(Object object) throws DLException
 	{
+		assert object != null;
+		
 		DLInstance instance = core.createInstance(this);
 
 		instance.set(ATTRIBUTE_VALUE, read(object));
@@ -77,17 +81,50 @@ public abstract class SimpleDLType extends DefaultDLType
 	@Override
 	public boolean validate(ValidationResult result)
 	{
-		boolean valid = true;
+		assert result != null;
 
-		for (DLTypeValidator validator : validators) {
-			valid &= validator.validate(this, result);
+		for (DLTypeValidator validator : getValidators()) {
+			if (validator.canValidateType()) {
+				validator.validate(this, result);
+			}
 		}
 
-		for (DLType parent : parents) {
-			valid &= parent.validate(result);
+		for (DLType parent : getParents()) {
+			for (DLTypeValidator validator : parent.getValidators()) {
+				if (validator.canValidateType()) {
+					validator.validate(this, result);
+				}
+			}
 		}
 
-		return valid;
+		return result.isValid();
+	}
+
+	@Override
+	public Object read(Object... sources) throws InvalidType
+	{
+		assert sources != null;
+
+		Object[] data;
+		try {
+			data = ConversionHelper.convertArray(sources, new Class[]{getJavaDataType()});
+		} catch (RuntimeException ex) {
+			throw new InvalidType("Type '" + getCanonicalName() + "' could not convert read - " + ex.getMessage(), ex);
+		}
+
+		// Validate read
+		ValidationResult result = new ValidationResult();
+		if (!validateRead(data[0], result)) {
+			throw new InvalidType("Type '" + getCanonicalName() + "' could not validate read - " + result.toMessage());
+		}
+
+		return data[0];
+	}
+
+	@Override
+	public void setJavaType(Class javaType)
+	{
+		throw new UnsupportedOperationException("May not setJavaType");
 	}
 
 	@Override

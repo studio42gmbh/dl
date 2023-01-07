@@ -25,9 +25,7 @@
 //</editor-fold>
 package de.s42.dl.types.primitive;
 
-import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLType;
-import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.types.SimpleDLType;
 
 /**
@@ -53,25 +51,6 @@ public class CharDLType extends SimpleDLType
 
 	public CharDLType(String name)
 	{
-		super(name);
-	}
-
-	@Override
-	public Object read(Object... sources) throws InvalidType
-	{
-		assert sources != null;
-
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{Character.class});
-		
-		// Validate read
-		validateRead(sources);
-
-		return (Character) result[0];
-	}
-
-	@Override
-	public Class getJavaDataType()
-	{
-		return Character.class;
+		super(name, Character.class);
 	}
 }

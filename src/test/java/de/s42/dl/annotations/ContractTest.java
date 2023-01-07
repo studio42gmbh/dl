@@ -30,6 +30,7 @@ import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.util.DLHelper;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import org.testng.annotations.Test;
@@ -62,8 +63,15 @@ public class ContractTest
 		core.parse("invalidSimpleContract",
 			"annotation evenRange42 : @range(min : 0, max : 42);"
 			+ "type Long42 @evenRange42 extends Long;"
-			+ "Long42 i42 : 43;"
+			+ "Long42 i42 : 143;"
 		);
+		/*
+		DLType type = core.getType("Long42").orElseThrow();
+
+		//log.info("invalidSimpleContract", DLHelper.describe(type));
+		assertTrue(type.hasAnnotation("evenRange42"));
+		assertFalse(type.hasAnnotation("range"));
+		*/
 	}
 
 	@Test
@@ -86,6 +94,14 @@ public class ContractTest
 			+ "type Long42 @evenRange42 extends Long;"
 			+ "Long42 i42 : 21;"
 		);
+
+		/*
+		DLType type = core.getType("Long42").orElseThrow();
+
+		//log.info("simpleNotContract", DLHelper.describe(type));
+		assertTrue(type.hasAnnotation("evenRange42"));
+		assertFalse(type.hasAnnotation("range"));
+		*/
 	}
 
 	@Test
@@ -236,7 +252,7 @@ public class ContractTest
 
 		DLType type = core.getType("LongComplicated").orElseThrow();
 
-		//log.info(DLHelper.describe(type));
+		//log.info("complexContract", DLHelper.describe(type));
 		assertTrue(type.hasAnnotation("evenRange42"));
 		assertFalse(type.hasAnnotation("range"));
 		assertFalse(type.hasAnnotation("even"));

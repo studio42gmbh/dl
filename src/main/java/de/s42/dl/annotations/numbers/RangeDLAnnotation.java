@@ -26,9 +26,9 @@
 package de.s42.dl.annotations.numbers;
 
 import de.s42.dl.DLAttribute;
-import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
 import de.s42.dl.annotations.AbstractDLContract;
+import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.annotations.DLAnnotationParameter;
 import de.s42.dl.annotations.DLAnnotationType;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
@@ -67,54 +67,9 @@ public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
 	protected double max = Double.MAX_VALUE;
 
 	@Override
-	public boolean validate(DLAttribute attribute, ValidationResult result)
-	{
-		assert attribute != null;
-		assert result != null;
-
-		return validateValue(attribute.getDefaultValue(), result);
-	}
-
-	@Override
-	public boolean validate(DLInstance instance, String attributeName, ValidationResult result)
-	{
-		assert instance != null;
-		assert attributeName != null;
-		assert result != null;
-
-		return validateValue(instance.get(attributeName), result);
-	}
-
-	@Override
 	public boolean canValidateAttribute()
 	{
 		return true;
-	}
-
-	@Override
-	public boolean validate(DLType type, Object value, ValidationResult result)
-	{
-		assert type != null;
-		assert result != null;
-
-		if (value == null) {
-			return true;
-		}
-
-		if (!value.getClass().isArray()) {
-			result.addError(InvalidValueType.toString(), "Attribute has to be of type Array");
-			return false;
-		}
-
-		boolean valid = true;
-
-		// Validate each val in the array
-		Object[] values = (Object[]) value;
-		for (Object val : values) {
-			valid &= validateValue(val, result);
-		}
-
-		return valid;
 	}
 
 	@Override
@@ -124,41 +79,75 @@ public class RangeDLAnnotation extends AbstractDLContract<RangeDLAnnotation>
 	}
 
 	@Override
-	public boolean canValidateInstance()
+	public boolean validate(DLAttribute attribute, ValidationResult result)
 	{
-		return true;
+		assert attribute != null;
+		assert result != null;
+
+		return validateValue(attribute.getDefaultValue(), result, attribute);
 	}
 
-	protected boolean validateValue(Object val, ValidationResult result)
+	@Override
+	public boolean validate(DLAttribute attribute, Object value, ValidationResult result)
+	{
+		assert attribute != null;
+		assert result != null;
+
+		return validateValue(value, result, attribute);
+	}
+
+	@Override
+	public boolean validate(DLType type, Object value, ValidationResult result)
+	{
+		assert type != null;
+		assert result != null;
+
+		if (value == null) {
+			return result.isValid();
+		}
+
+		if (value.getClass().isArray()) {
+
+			// Validate each val in the array
+			Object[] values = (Object[]) value;
+			for (Object val : values) {
+				validateValue(val, result, type);
+			}
+
+			return result.isValid();
+		}
+
+		return validateValue(value, result, type);
+	}
+
+	protected boolean validateValue(Object val, ValidationResult result, DLAnnotated source)
 	{
 		// allow to have null values
 		if (val == null) {
-			return true;
+			return result.isValid();
 		}
 
 		// make sure its a Number
 		if (!(val instanceof Number)) {
-			result.addError(InvalidValueType.toString(), "Attribute has to be of type Number in @" + getName());
-			return false;
+			result.addError(InvalidValueType.toString(), "Attribute has to be of type Number in @" + getName(), source);
+			return result.isValid();
 		}
 
 		double doubleVal = ((Number) val).doubleValue();
 
 		if (doubleVal < min) {
 			result.addError(InvalidValueType.toString(),
-				"Value has to be min " + min + " but is " + doubleVal + " in @" + getName()
+				"Value has to be min " + min + " but is " + doubleVal + " in @" + getName(),
+				source
 			);
-			return false;
-		}
-
-		if (doubleVal > max) {
+		} else if (doubleVal > max) {
 			result.addError(InvalidValueType.toString(),
-				"Value has to be max " + max + " but is " + doubleVal + " in @" + getName()
+				"Value has to be max " + max + " but is " + doubleVal + " in @" + getName(),
+				source
 			);
-			return false;
 		}
 
-		return true;
+		return result.isValid();
 	}
 
 	public double getMin()

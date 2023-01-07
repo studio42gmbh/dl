@@ -156,7 +156,7 @@ public class JsonWriter implements DLWriter
 	{
 		JSONObject result = new JSONObject();
 
-		if (instance.hasName()) {
+		if (instance.isNamed()) {
 			result.put("name", instance.getName());
 		}
 

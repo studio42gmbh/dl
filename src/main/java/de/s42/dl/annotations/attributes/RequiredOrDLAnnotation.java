@@ -59,8 +59,6 @@ public class RequiredOrDLAnnotation extends AbstractDLAnnotation
 		{
 			assert instance != null;
 
-			boolean valid = false;
-
 			if (parameters != null) {
 
 				for (Object parameter : parameters) {

@@ -29,7 +29,6 @@ import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.validation.DLInstanceValidator;
-import de.s42.dl.validation.DLReadValidator;
 import de.s42.dl.validation.DLTypeValidator;
 import de.s42.dl.validation.DLValidatable;
 import de.s42.dl.validation.ValidationResult;
@@ -53,17 +52,15 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 
 	// VALIDATION
 	public boolean validateInstance(DLInstance instance, ValidationResult result);
-
+	
 	public boolean addValidator(DLTypeValidator validator);
-
-	public boolean addReadValidator(DLReadValidator validator);
 
 	public boolean addInstanceValidator(DLInstanceValidator validator);
 
 	public List<DLTypeValidator> getValidators();
 
 	public List<DLInstanceValidator> getInstanceValidators();
-
+	
 	// DATA ACCESS
 	public Object read(Object... sources) throws DLException;
 

@@ -170,7 +170,10 @@ public class MapDLType extends DefaultDLType
 		assert sources != null;
 
 		// Validate read
-		validateRead(sources);
+		ValidationResult vResult = new ValidationResult();
+		if (!validateRead(sources, vResult)) {
+			throw new InvalidType("Type '" + getCanonicalName() + "' could not validate read - " + vResult.toMessage());
+		}
 
 		// @todo handle reading of maps
 		if (sources.length % 2 != 0) {
@@ -214,7 +217,10 @@ public class MapDLType extends DefaultDLType
 	@Override
 	public boolean validateInstance(DLInstance instance, ValidationResult result)
 	{
-		boolean valid = super.validateInstance(instance, result);
+		assert instance != null;
+		assert result != null;
+		
+		super.validateInstance(instance, result);
 
 		// Validate entries (dynamic atributes) for generic types of map 
 		if (isGenericType() && instance.hasAttributes()) {
@@ -224,7 +230,6 @@ public class MapDLType extends DefaultDLType
 
 				if (!String.class.isAssignableFrom(keyType)) {
 					result.addError(DynamicAttributeNotAllowed.toString(), "Key type " + keyType.getName() + " is not supporting dynamic attributes", this);
-					valid = false;
 				}
 
 				Class valueType = getMapValueType();
@@ -238,7 +243,6 @@ public class MapDLType extends DefaultDLType
 							"Value " + value + " in Map is not of value type "
 							+ valueType.getName() + " but "
 							+ value.getClass().getName(), this);
-						valid = false;
 					}
 				}
 			} catch (InvalidType ex) {
@@ -246,7 +250,7 @@ public class MapDLType extends DefaultDLType
 			}
 		}
 
-		return valid;
+		return result.isValid();
 	}
 
 	@Override
@@ -324,14 +328,15 @@ public class MapDLType extends DefaultDLType
 	@Override
 	public boolean validate(ValidationResult result)
 	{
-		boolean valid = super.validate(result);
+		assert result != null;
+		
+		super.validate(result);
 
 		int count = getGenericTypes().size();
 		if (count != 0 && count != 2) {
 			result.addError(InvalidGenericParameters.toString(), "May only contain 0 or 2 generic types", this);
-			valid = false;
 		}
 
-		return valid;
+		return result.isValid();
 	}
 }

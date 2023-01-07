@@ -163,6 +163,11 @@ public final class DLHelper
 				.append(" ");
 			describe((AbstractBinaryContractFactory)annotation, builder);
 		}
+		else if (annotation instanceof ContractAnnotationFactory) {
+			builder
+				.append(" ");
+			describe((ContractAnnotationFactory)annotation, builder);
+		}
 
 		return builder;		
 	}
@@ -189,6 +194,13 @@ public final class DLHelper
 			builder.append(" dynamic");
 		}
 
+		if (type.isSimpleType()) {
+			builder.append(" simple");
+		}
+		else {
+			builder.append(" complex");
+		}
+				
 		builder
 			.append("\n");
 

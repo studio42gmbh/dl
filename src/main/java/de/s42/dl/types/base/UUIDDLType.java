@@ -25,7 +25,6 @@
 //</editor-fold>
 package de.s42.dl.types.base;
 
-import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLType;
 import de.s42.dl.types.SimpleDLType;
 import java.util.UUID;
@@ -53,22 +52,6 @@ public class UUIDDLType extends SimpleDLType
 
 	public UUIDDLType(String name)
 	{
-		super(name);
-	}
-
-	@Override
-	public Object read(Object... sources)
-	{
-		assert sources != null;
-
-		Object[] result = ConversionHelper.convertArray(sources, new Class[]{UUID.class});
-
-		return (UUID) result[0];
-	}
-
-	@Override
-	public Class getJavaDataType()
-	{
-		return UUID.class;
+		super(name, UUID.class);
 	}
 }

@@ -114,9 +114,9 @@ public abstract class AbstractBinaryContractFactory implements DLContractFactory
 			DLContract proxiedAnnotationSecond = factorySecond.createAnnotation(factorySecond.getName(), this.flatParameters);
 
 			// @todo the way of determining if 2 annotations can be combined has to be improved!
-			if (!proxiedAnnotationFirst.canEqualValidations(proxiedAnnotationSecond)) {
+			/*if (!proxiedAnnotationFirst.canEqualValidations(proxiedAnnotationSecond)) {
 				throw new InvalidAnnotation("@" + factoryFirst.getName() + " and @" + factorySecond.getName() + " can not be combined as they have different can validations in annotation @" + getName() + "");
-			}
+			}*/
 
 			AbstractBinaryContractFactory contract = (AbstractBinaryContractFactory) getClass()
 				.getConstructor(DLContract.class, DLContract.class, String.class, String.class, String.class, Object[].class)
@@ -158,12 +158,8 @@ public abstract class AbstractBinaryContractFactory implements DLContractFactory
 		container = type;
 		type.addAnnotation(this);
 
-		if (canValidateType()) {
+		if (canValidateType() || canValidateTypeRead()) {
 			type.addValidator(this);
-		}
-
-		if (canValidateTypeRead()) {
-			type.addReadValidator(this);
 		}
 
 		if (canValidateInstance()) {
@@ -182,7 +178,6 @@ public abstract class AbstractBinaryContractFactory implements DLContractFactory
 
 		if (canValidateAttribute()) {
 			attribute.addValidator(this);
-			attribute.getContainer().addInstanceValidator(this);
 		}
 	}
 	//</editor-fold>
@@ -205,12 +200,12 @@ public abstract class AbstractBinaryContractFactory implements DLContractFactory
 	{
 		return contractFirst.canValidateType() && contractSecond.canValidateType();
 	}
-
+	
 	@Override
 	public boolean canValidateTypeRead()
 	{
 		return contractFirst.canValidateTypeRead() && contractSecond.canValidateTypeRead();
-	}
+	}	
 	//</editor-fold>
 
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">

@@ -60,8 +60,8 @@ type Identifier extends ASTNode alias idn;
 type Literal extends ValueNode alias val;
 type Define extends ValueNode contains Identifier alias let;
 type AddToLeft extends ValueNode contains Identifier, Literal alias atl;
-type Return @contain(ASTNode, 1, 1) extends ASTNode contains Identifier, Literal alias ret;
-type Statement @contain(ASTNode, 1, 1) extends ASTNode contains Define, AddToLeft, Return alias st;
+type Return @contain(ASTNode, 1, 1) extends ASTNode contains Identifier, Literal, ASTNode alias ret;
+type Statement @contain(ASTNode, 1, 1) extends ASTNode contains Define, AddToLeft, Return, ASTNode alias st;
 type Function @contain(Statement, 1, 1000) extends ASTNode contains Statement alias func;
 
 /*

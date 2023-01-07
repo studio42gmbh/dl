@@ -23,19 +23,46 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.validation;
+package de.s42.dl.annotations.attributes;
 
-import de.s42.dl.DLType;
+import de.s42.dl.DLModule;
+import de.s42.dl.core.DefaultCore;
+import de.s42.dl.exceptions.DLException;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
+import org.testng.annotations.Test;
+import static org.testng.Assert.*;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public interface DLReadValidator
+public class RequiredDLAnnotationTest
 {
 
-	default public boolean validate(DLType type, Object value, ValidationResult result)
+	private final static Logger log = LogManager.getLogger(RequiredDLAnnotationTest.class.getName());
+
+	@Test
+	public void simpleRequireType() throws DLException
 	{
-		return true;
+		DefaultCore core = new DefaultCore();
+
+		DLModule module = core.parse("simpleRequire",
+			"type RInt @required extends Integer;"
+				+ "type T { RInt x; } T t { x  : 42; }"
+		);
+
+		assertEquals(module.getChild("t").orElseThrow().get("x"), 42);
 	}
+/*
+	@Test(expectedExceptions = InvalidValue.class)
+	public void invalidIsDirectoryAsTypeWrongPath() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+
+		core.parse("invalidIsDirectoryAsTypeWrongPath",
+			"type T @isDirectory extends Path; T t : \"wrong/directory/42%$!\";"
+		);
+	}
+*/
 }

@@ -26,13 +26,14 @@
 package de.s42.dl.annotations.files;
 
 import de.s42.base.conversion.ConversionHelper;
-import de.s42.dl.DLInstance;
+import de.s42.dl.DLAttribute;
 import de.s42.dl.DLType;
 import de.s42.dl.annotations.AbstractDLContract;
 import de.s42.dl.annotations.DLAnnotationType;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidFile;
-import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
 import de.s42.dl.validation.ValidationResult;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -46,6 +47,8 @@ import java.nio.file.Path;
  */
 public class IsDirectoryDLAnnotation extends AbstractDLContract<IsDirectoryDLAnnotation>
 {
+
+	private final static Logger log = LogManager.getLogger(IsDirectoryDLAnnotation.class.getName());
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = {ElementType.FIELD})
@@ -61,27 +64,18 @@ public class IsDirectoryDLAnnotation extends AbstractDLContract<IsDirectoryDLAnn
 	}
 
 	@Override
-	public boolean canValidateInstance()
-	{
-		return true;
-	}
-
-	@Override
 	public boolean canValidateTypeRead()
 	{
 		return true;
 	}
 
 	@Override
-	public boolean validate(DLInstance instance, String attributeName, ValidationResult result)
+	public boolean validate(DLAttribute attribute, Object value, ValidationResult result)
 	{
-		assert instance != null;
-		assert attributeName != null;
+		assert attribute != null;
 		assert result != null;
 
-		Object val = instance.get(attributeName);
-
-		return validateValue(val, result, instance);
+		return validateValue(value, result, attribute);
 	}
 
 	@Override
@@ -94,24 +88,25 @@ public class IsDirectoryDLAnnotation extends AbstractDLContract<IsDirectoryDLAnn
 			return true;
 		}
 
-		if (!value.getClass().isArray()) {
-			result.addError(InvalidValueType.toString(), "Value has to be of type Array");
-			return false;
+		if (value.getClass().isArray()) {
+
+			// Validate each val in the array
+			Object[] values = (Object[]) value;
+			for (Object val : values) {
+				validateValue(val, result, type);
+			}
+
+			return result.isValid();
 		}
 
-		boolean valid = true;
-
-		// Validate each val in the array
-		Object[] values = (Object[]) value;
-		for (Object val : values) {
-			valid &= validateValue(val, result, type);
-		}
-
-		return valid;
+		return validateValue(value, result, type);
 	}
 
 	protected boolean validateValue(Object value, ValidationResult result, Object source)
 	{
+		assert result != null;
+		assert source != null;
+
 		if (value == null) {
 			return true;
 		}
@@ -120,9 +115,8 @@ public class IsDirectoryDLAnnotation extends AbstractDLContract<IsDirectoryDLAnn
 
 		if (!Files.isDirectory(path)) {
 			result.addError(InvalidFile.toString(), "Not referencing a valid directory but " + path.toAbsolutePath().normalize().toString(), source);
-			return false;
 		}
 
-		return true;
+		return result.isValid();
 	}
 }

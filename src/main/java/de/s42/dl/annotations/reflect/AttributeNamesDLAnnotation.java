@@ -86,10 +86,8 @@ public class AttributeNamesDLAnnotation extends AbstractDLContract<AttributeName
 	{
 		assert type != null;
 		assert result != null;
-		
-		preparePatterns();
 
-		boolean valid = true;
+		preparePatterns();
 
 		for (DLAttribute attribute : type.getAttributes()) {
 
@@ -101,11 +99,10 @@ public class AttributeNamesDLAnnotation extends AbstractDLContract<AttributeName
 			// If the attribute name does not match pattern -> validation Error
 			if (!patternPattern.matcher(attribute.getName()).matches()) {
 				result.addError(NotMatching.toString(), "Attribute name '" + attribute.getName() + "' in type '" + type + "' does not match pattern '" + pattern + "'");
-				valid = false;
 			}
 		}
 
-		return valid;
+		return result.isValid();
 	}
 
 	@Override
@@ -124,7 +121,7 @@ public class AttributeNamesDLAnnotation extends AbstractDLContract<AttributeName
 		patternPattern = Pattern.compile(pattern);
 		typePatternPattern = Pattern.compile(typePattern);
 	}
-	
+
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
 	public String getPattern()
 	{

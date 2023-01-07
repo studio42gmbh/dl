@@ -25,8 +25,6 @@
 //</editor-fold>
 package de.s42.dl.validation;
 
-import static de.s42.dl.validation.NoopValidationResult.NOOP_RESULT;
-
 /**
  *
  * @author Benjamin Schiller
@@ -36,7 +34,7 @@ public interface DLValidatable
 
 	public default boolean validate()
 	{
-		return validate(NOOP_RESULT);
+		return validate(new NoopValidationResult());
 	}
 
 	public boolean validate(ValidationResult result);

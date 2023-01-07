@@ -25,8 +25,10 @@
 //</editor-fold>
 package de.s42.dl.annotations.attributes;
 
-import de.s42.dl.DLInstance;
+import de.s42.dl.DLAttribute;
+import de.s42.dl.DLType;
 import de.s42.dl.annotations.AbstractDLContract;
+import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.annotations.DLAnnotationType;
 import static de.s42.dl.validation.DefaultValidationCode.RequiredAttribute;
 import de.s42.dl.validation.ValidationResult;
@@ -56,31 +58,38 @@ public class RequiredDLAnnotation extends AbstractDLContract<RequiredDLAnnotatio
 	}
 
 	@Override
-	public boolean canValidateInstance()
-	{
-		return true;
-	}
-
-	@Override
 	public boolean canValidateTypeRead()
 	{
 		return true;
 	}
-	
+
 	@Override
-	public boolean validate(DLInstance instance, String attributeName, ValidationResult result)
+	public boolean validate(DLType type, Object value, ValidationResult result)
 	{
-		assert instance != null;
-		assert attributeName != null;
 		assert result != null;
+		assert type != null;
 
-		Object val = instance.get(attributeName);
+		return validateValue(value, result, type);
+	}
 
-		if (val == null) {
-			result.addError(RequiredAttribute.toString(), "Attribute value '" + attributeName + "' is required and may not be null", instance);
-			return false;
+	@Override
+	public boolean validate(DLAttribute attribute, Object value, ValidationResult result)
+	{
+		assert result != null;
+		assert attribute != null;
+		
+		return validateValue(value, result, attribute);
+	}
+
+	protected boolean validateValue(Object value, ValidationResult result, DLAnnotated source)
+	{
+		assert result != null;
+		assert source != null;
+
+		if (value == null) {
+			result.addError(RequiredAttribute.toString(), "Attribute value '" + value + "' is required and may not be null", source);
 		}
 
-		return true;
+		return result.isValid();
 	}
 }

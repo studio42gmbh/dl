@@ -18,11 +18,11 @@ type MyType
 	RequiredFile path;
 	String display;
 	SpecialLong val;
-	//Long val2 @odd21to42;
+	Long val2 @odd21to42 : 23;
 }
 
 MyType t @export {
 	path : "/home/notes-wsbs2022.txt";
 	val : 41;
-	//val2 : 23;
+	val2 : -120;
 }

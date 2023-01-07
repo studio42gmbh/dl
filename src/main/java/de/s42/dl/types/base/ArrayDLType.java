@@ -61,14 +61,14 @@ public class ArrayDLType extends SimpleDLType
 
 	public ArrayDLType(String name)
 	{
-		super(name);
+		super(name, Object[].class);
 
 		allowGenericTypes = true;
 	}
 
 	public ArrayDLType(String name, String genericTypeName, DLCore core) throws DLException
 	{
-		super(name);
+		super(name, Object[].class);
 
 		init(genericTypeName, core);
 	}
@@ -205,23 +205,19 @@ public class ArrayDLType extends SimpleDLType
 			throw new InvalidType("may only contain 1 generic types");
 		}
 
-		// Set the java type for the type
-		setJavaType(genericType.getJavaDataType());
-
 		super.addGenericType(genericType);
 	}
 
 	@Override
 	public boolean validate(ValidationResult result)
 	{
-		boolean valid = super.validate(result);
+		super.validate(result);
 
 		int count = getGenericTypes().size();
 		if (count != 0 && count != 1) {
 			result.addError(InvalidGenericParameters.toString(), "May only contain 0 or 1 generic types", this);
-			valid = false;
 		}
 
-		return valid;
+		return result.isValid();
 	}
 }

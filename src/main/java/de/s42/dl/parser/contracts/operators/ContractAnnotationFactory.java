@@ -55,6 +55,7 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	protected final DLAnnotationFactory factory;
 	protected final DLContract contract;
 	protected String name;
+	protected final String contractName;
 	protected DLAnnotated container;
 
 	public ContractAnnotationFactory(DLContract contract, String name)
@@ -64,31 +65,33 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 
 		this.contract = contract;
 		this.name = name;
+		this.contractName = null;		
 		this.factory = null;
 		this.flatParameters = null;
 		this.container = null;
 	}
 
-	public ContractAnnotationFactory(String name, DLAnnotationFactory factory, Object[] flatParameters)
+	public ContractAnnotationFactory(String contractName, DLAnnotationFactory factory, Object[] flatParameters)
 	{
-		assert name != null;
+		assert contractName != null;
 		assert factory != null;
 
 		this.factory = factory;
 		this.flatParameters = flatParameters;
 		this.contract = null;
-		this.name = name;
+		this.contractName = contractName;
 		this.container = null;
+		this.name = null;		
 	}
 
 	@Override
 	public DLContract createAnnotation(String ignored, Object[] ignoredParameters) throws DLException
 	{
 		try {
-			DLAnnotation proxiedAnnotation = factory.createAnnotation(this.name, this.flatParameters);
+			DLAnnotation proxiedAnnotation = factory.createAnnotation(this.contractName, this.flatParameters);
 			DLContract newContract = (ContractAnnotationFactory) getClass()
 				.getConstructor(DLContract.class, String.class)
-				.newInstance(proxiedAnnotation, this.name);
+				.newInstance(proxiedAnnotation, getName());
 			return newContract;
 		} catch (DLException | IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
 			throw new DLException("Error creating annotation - " + ex.getMessage(), ex);
@@ -125,12 +128,8 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 		container = type;
 		type.addAnnotation(this);
 
-		if (canValidateType()) {
+		if (canValidateType() || canValidateTypeRead()) {
 			type.addValidator(this);
-		}
-
-		if (canValidateTypeRead()) {
-			type.addReadValidator(this);
 		}
 
 		if (canValidateInstance()) {
@@ -177,7 +176,7 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	public boolean canValidateTypeRead()
 	{
 		return contract.canValidateTypeRead();
-	}
+	}	
 	//</editor-fold>
 
 	// <editor-fold desc="Validators" defaultstate="collapsed">
@@ -186,6 +185,7 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	{
 		if (!canValidateAttribute()) {
 			result.addError(InvalidContract.toString(), "Can not validate attribute");
+			return false;
 		}
 
 		return contract.validate(attribute, result);
@@ -196,6 +196,7 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	{
 		if (!canValidateInstance()) {
 			result.addError(InvalidContract.toString(), "Can not validate instance");
+			return false;
 		}
 
 		return contract.validate(instance, result);
@@ -206,6 +207,7 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	{
 		if (!canValidateType()) {
 			result.addError(InvalidContract.toString(), "Can not validate type");
+			return false;
 		}
 
 		return contract.validate(type, result);
@@ -216,6 +218,7 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	{
 		if (!canValidateTypeRead()) {
 			result.addError(InvalidContract.toString(), "Can not validate type read");
+			return false;
 		}
 
 		return contract.validate(type, value, result);
@@ -237,7 +240,8 @@ public class ContractAnnotationFactory implements DLContractFactory, DLContract
 	@Override
 	public String getName()
 	{
-		return name;
+		// @todo ugly way to manage nesting vs. no nesting and preserving original annotation name ...
+		return (this.name != null) ? this.name : this.contractName;
 	}
 
 	@Override

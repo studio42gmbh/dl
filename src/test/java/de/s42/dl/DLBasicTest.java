@@ -25,7 +25,7 @@
 //</editor-fold>
 package de.s42.dl;
 
-import de.s42.dl.DLAttribute.AttributeDL;
+import de.s42.dl.annotations.attributes.RequiredDLAnnotation.required;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidCore;
@@ -45,10 +45,10 @@ public class DLBasicTest
 
 		protected String name;
 
-		@AttributeDL(required = true)
+		@required
 		protected int id;
 
-		@AttributeDL(required = true)
+		@required
 		protected String login;
 
 		public String getName()
@@ -85,25 +85,28 @@ public class DLBasicTest
 	@Test
 	public void validEmptyModule() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "");
+		DefaultCore core = new DefaultCore();
+		core.parse("validEmptyModule", "");
 	}
 
 	@Test(expectedExceptions = InvalidCore.class)
 	public void invalidDisallowedDefineTypes() throws DLException
 	{
-		DLCore core = new DefaultCore();
+		DefaultCore core = new DefaultCore();
 		core.setAllowDefineTypes(false);
-		core.parse("Anonymous", "type A;");
+		core.parse("invalidDisallowedDefineTypes", "type A;");
 	}
 
 	@Test
 	public void validSimpleDataFromJavaClassType() throws DLException
 	{
-		DLCore core = new DefaultCore();
+		DefaultCore core = new DefaultCore();
 		core.defineType(core.createType(TestData.class));
 
-		DLModule module = core.parse("Anonymous", "de.s42.dl.DLBasicTest$TestData data1 { login: \"TestName\"; id : 14; }");
+		DLModule module = core.parse("validSimpleDataFromJavaClassType", 
+			"de.s42.dl.DLBasicTest$TestData data1 { login: \"TestName\"; id : 14; }"
+		);
+		
 		TestData data1 = (TestData) module.getChildAsJavaObject("data1").get();
 
 		Assert.assertEquals(data1.getName(), "data1");
@@ -114,46 +117,63 @@ public class DLBasicTest
 	@Test(expectedExceptions = InvalidInstance.class)
 	public void invalidSimpleDataFromJavaClassTypeMissingRequiredAttributeLogin() throws DLException
 	{
-		DLCore core = new DefaultCore();
+		DefaultCore core = new DefaultCore();
 		core.defineType(core.createType(TestData.class));
 
 		// attribute login missing
-		core.parse("Anonymous", "de.s42.dl.DLBasicTest$TestData data1 { id : 14; }");
+		core.parse("invalidSimpleDataFromJavaClassTypeMissingRequiredAttributeLogin",
+			"de.s42.dl.DLBasicTest$TestData data1 { id : 14; }"
+		);
 	}
-	
+
 	/**
 	 * See https://github.com/studio42gmbh/dl/issues/26
-	 * @throws DLException 
+	 *
+	 * @throws DLException
 	 */
 	@Test
 	public void validExpressionIntHexadecimal() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "Integer t : 0x35;");
+		DefaultCore core = new DefaultCore();
+		
+		DLModule module = core.parse("validExpressionIntHexadecimal", 
+			"Integer t : 0x35;"
+		);
+		
 		Assert.assertEquals(module.getInt("t"), 0x35);
 	}
-	
+
 	/**
 	 * See https://github.com/studio42gmbh/dl/issues/26
-	 * @throws DLException 
+	 *
+	 * @throws DLException
 	 */
 	@Test
 	public void validExpressionIntOctal() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "Integer t : 035;");
+		DefaultCore core = new DefaultCore();
+		
+		DLModule module = core.parse("validExpressionIntOctal", 
+			"Integer t : 035;"
+		);
+		
 		Assert.assertEquals(module.getInt("t"), 035);
 	}
-	
+
 	/**
 	 * See https://github.com/studio42gmbh/dl/issues/26
-	 * @throws DLException 
+	 *
+	 * @throws DLException
 	 */
 	@Test
 	public void validExpressionIntBinary() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "Integer t : 0b1011010;");
+		DefaultCore core = new DefaultCore();
+		
+		DLModule module = core.parse("validExpressionIntBinary", 
+			"Integer t : 0b1011010;"
+		);
+		
 		Assert.assertEquals(module.getInt("t"), 0b1011010);
 	}
 }

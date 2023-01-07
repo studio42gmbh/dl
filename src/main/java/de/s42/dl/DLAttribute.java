@@ -28,6 +28,7 @@ package de.s42.dl;
 import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.validation.DLAttributeValidator;
 import de.s42.dl.validation.DLValidatable;
+import de.s42.dl.validation.ValidationResult;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -64,6 +65,8 @@ public interface DLAttribute extends DLEntity, DLAnnotated, DLValidatable
 
 	public List<DLAttributeValidator> getValidators();
 
+	public boolean validateValue(Object value, ValidationResult result);
+	
 	// FLAGS
 	public boolean isReadable();
 

@@ -25,8 +25,6 @@
 //</editor-fold>
 package de.s42.dl.parser.contracts;
 
-import de.s42.dl.DLAnnotationFactory;
-import de.s42.dl.annotations.DLContract;
 import de.s42.dl.exceptions.ParserException;
 
 /**

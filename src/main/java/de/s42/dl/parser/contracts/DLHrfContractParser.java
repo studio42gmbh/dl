@@ -62,24 +62,27 @@ public final class DLHrfContractParser
 
 	/**
 	 * Creates a complex contract annotation factory and sets its name from ctx
+	 *
 	 * @param module
 	 * @param name
 	 * @param ctx
+	 *
 	 * @return
-	 * @throws ParserException 
+	 *
+	 * @throws ParserException
 	 */
 	public static DLContractFactory resolveExpression(DLModule module, String name, AnnotationDefinitionExpressionContext ctx) throws ParserException
 	{
 		assert module != null;
 		assert name != null;
 		assert ctx != null;
-		
+
 		ContractExpression expr = buildExpression(module, ctx);
 
 		DLContractFactory value = expr.evaluate();
-		
+
 		value.setName(name);
-		
+
 		return value;
 	}
 
@@ -143,7 +146,7 @@ public final class DLHrfContractParser
 			}
 
 			DLAnnotationFactory factory = core.getAnnotationFactory(annotationName).orElseThrow();
-			
+
 			if (!DLContract.class.isAssignableFrom(factory.getAnnotationType())) {
 				throw new DLHrfParsingException(
 					"Annotation '" + annotationName + "' is not a contract",
@@ -151,7 +154,7 @@ public final class DLHrfContractParser
 					ctx
 				);
 			}
-			
+
 			Object[] parameters = DLHrfParsing.fetchStaticParameters(module, annotationName, ctx.staticParameters());
 			ContractAnnotationFactory contract = new ContractAnnotationFactory(annotationName, factory, parameters);
 

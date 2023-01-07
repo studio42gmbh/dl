@@ -34,12 +34,12 @@ import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.util.DLHelper;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.nio.file.Path;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
-
 
 /**
  *
@@ -74,11 +74,11 @@ public class IsDirectoryDLAnnotationTest
 	public void validIsDirectoryType() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		
-		core.parse("validIsDirectoryType", 
+
+		core.parse("validIsDirectoryType",
 			"type T { Path x @isDirectory; }"
 		);
-		
+
 		DLType T = core.getType("T").orElseThrow();
 		DLAttribute x = T.getAttribute("x").orElseThrow();
 		assertTrue(
@@ -91,8 +91,8 @@ public class IsDirectoryDLAnnotationTest
 	public void validIsDirectoryAttributeInInstance() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		
-		core.parse("validIsDirectoryAttributeInInstance", 
+
+		core.parse("validIsDirectoryAttributeInInstance",
 			"type T { Path x @isDirectory; } T t { x : \"./\"; }"
 		);
 	}
@@ -101,18 +101,22 @@ public class IsDirectoryDLAnnotationTest
 	public void invalidIsDirectoryAttributeInInstance() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		
-		core.parse("invalidIsDirectoryAttributeInInstance", 
+
+		core.parse("invalidIsDirectoryAttributeInInstance",
 			"type T { Path x @isDirectory; } T t { x : \"wrong/directory/42%$!\"; }"
 		);
+
+		DLType T = core.getType("T").orElseThrow();
+		log.warn("invalidIsDirectoryAttributeInInstance", DLHelper.describe(T));
+
 	}
 
 	@Test
 	public void validIsDirectoryNullAttributeInInstance() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		
-		core.parse("invalidIsDirectoryNullAttributeInInstance", 
+
+		core.parse("invalidIsDirectoryNullAttributeInInstance",
 			"type T { Path x @isDirectory; } T t {}"
 		);
 	}
@@ -122,7 +126,7 @@ public class IsDirectoryDLAnnotationTest
 	{
 		DefaultCore core = new DefaultCore();
 
-		core.parse("invalidIsDirectoryWithFlatParameter", 
+		core.parse("invalidIsDirectoryWithFlatParameter",
 			"type T { int x @isDirectory(wrong); }"
 		);
 	}
@@ -132,7 +136,7 @@ public class IsDirectoryDLAnnotationTest
 	{
 		DefaultCore core = new DefaultCore();
 
-		core.parse("invalidIsDirectoryWithNamedParameter", 
+		core.parse("invalidIsDirectoryWithNamedParameter",
 			"type T { int x @isDirectory(wrong : true); }"
 		);
 	}
@@ -141,21 +145,21 @@ public class IsDirectoryDLAnnotationTest
 	public void isDirectoryAsType() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		
-		DLModule module = core.parse("isDirectoryAsType", 
+
+		DLModule module = core.parse("isDirectoryAsType",
 			"type T @isDirectory extends Path; T t : \"./\";"
 		);
-		
+
 		assertEquals(module.get("t"), Path.of("./"));
 	}
-	
+
 	@Test(expectedExceptions = InvalidValue.class)
 	public void invalidIsDirectoryAsTypeWrongPath() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
-		
-		core.parse("invalidIsDirectoryAsTypeWrongPath", 
+
+		core.parse("invalidIsDirectoryAsTypeWrongPath",
 			"type T @isDirectory extends Path; T t : \"wrong/directory/42%$!\";"
 		);
-	}	
+	}
 }

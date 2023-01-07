@@ -61,16 +61,13 @@ public class NoGenericsDLAnnotation extends AbstractDLAnnotation
 		{
 			assert type != null;
 
-			boolean valid = true;
-
 			for (DLAttribute attribute : type.getAttributes()) {
 				if (attribute.getType().isGenericType()) {
 					result.addError(InvalidGenericTypes.toString(), "Type " + type + " may not contain generics, but " + attribute + " has", type);
-					valid = false;
 				}
 			}
 
-			return valid;
+			return result.isValid();
 		}
 	}
 

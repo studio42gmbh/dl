@@ -38,6 +38,8 @@ import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.validation.DLAttributeValidator;
 import de.s42.dl.validation.ValidationResult;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -51,6 +53,8 @@ import java.util.Objects;
  */
 public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribute
 {
+
+	private final static Logger log = LogManager.getLogger(DefaultDLAttribute.class.getName());
 
 	protected Object defaultValue;
 	protected DLType type;
@@ -110,6 +114,8 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 
 	public void setValueToJavaObject(Object object, Object value) throws InvalidAttribute
 	{
+		assert object != null;
+		
 		try {
 			assert object != null;
 
@@ -128,13 +134,26 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 	@Override
 	public boolean validate(ValidationResult result)
 	{
-		boolean valid = true;
-
+		assert result != null;
+		
 		for (DLAttributeValidator validator : validators) {
-			valid &= validator.validate(this, result);
+			validator.validate(this, result);
 		}
 
-		return valid;
+		return result.isValid();
+	}
+
+	@Override
+	public boolean validateValue(Object value, ValidationResult result)
+	{
+		assert result != null;
+		
+		for (DLAttributeValidator validator : validators) {
+
+			validator.validate(this, value, result);
+		}
+
+		return result.isValid();
 	}
 
 	@Override
@@ -210,19 +229,18 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();
-		
+
 		builder.append(type.getCanonicalName());
-		
+
 		if (name != null) {
 			builder.append(" ");
 			builder.append(name);
 		}
-		
+
 		/*for (DLAnnotation annotation : annotations) {
 			builder.append(" ");
 			builder.append(annotation.toString());
 		}*/
-		
 		return builder.toString();
 	}
 
@@ -297,7 +315,7 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 		}
 		return CollectionsHelper.listEqualsIgnoreOrder(this.annotations, other.getAnnotations());
 	}
-	
+
 	@Override
 	public boolean equalOrMoreSpecificDataType(DLAttribute other)
 	{
@@ -307,37 +325,40 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 		if (other == null) {
 			return false;
 		}
-		
+
 		// May not be not readable if it was before
 		if (!this.readable && other.isReadable()) {
 			return false;
 		}
-		
+
 		// May not be not writable if it was before
 		if (!this.writable && other.isWritable()) {
 			return false;
 		}
-		
+
 		if (!this.type.isDerivedTypeOf(other.getType())) {
 			return false;
 		}
 		return annotationsEqualOrMoreSpecific(this.annotations, other.getAnnotations());
 	}
-	
+
 	/**
 	 * This method allows to compare annotations of own are more specific than other
 	 * This is a very specific method but that should to the trick for now
+	 *
 	 * @param own
 	 * @param other
-	 * @return 
+	 *
+	 * @return
 	 */
-	protected boolean annotationsEqualOrMoreSpecific(List<DLAnnotation> own, List<DLAnnotation> other) {
-		
+	protected boolean annotationsEqualOrMoreSpecific(List<DLAnnotation> own, List<DLAnnotation> other)
+	{
+
 		HashSet<DLAnnotation> setOther = new HashSet<>(other);
-		
+
 		// Remove all annotations of this 
 		setOther.removeAll(own);
-		
+
 		Iterator<DLAnnotation> setOtherIt = setOther.iterator();
 		while (setOtherIt.hasNext()) {
 			DLAnnotation ann = setOtherIt.next();
@@ -350,7 +371,7 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 		if (!setOther.isEmpty()) {
 			return false;
 		}
-		
+
 		return true;
-	}		
+	}
 }

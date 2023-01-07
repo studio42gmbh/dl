@@ -44,9 +44,12 @@ import java.util.Set;
 public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 {
 
-	public boolean hasName(String name);
+	public boolean isNamed();
 
-	public boolean hasName();
+	default public boolean isUnnamed()
+	{
+		return !isNamed();
+	}
 
 	public DLType getType();
 
@@ -57,8 +60,8 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 
 	// ATTRIBUTES
 	public Set<String> getAttributeNames();
-	
-	public Optional<DLAttribute> getAttribute(String name);	
+
+	public Optional<DLAttribute> getAttribute(String name);
 
 	public Map<String, Object> getAttributes();
 
@@ -80,11 +83,11 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 	public Number getNumber(String key);
 
 	public short getShort(String key);
-	
+
 	public char getChar(String key);
-	
+
 	public byte getByte(String key);
-	
+
 	public int getInt(String key);
 
 	public long getLong(String key);

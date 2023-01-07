@@ -38,7 +38,6 @@ import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.exceptions.UndefinedType;
 import de.s42.dl.validation.DLInstanceValidator;
-import de.s42.dl.validation.DLReadValidator;
 import de.s42.dl.validation.DLTypeValidator;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidAttributeRedefinition;
 import de.s42.dl.validation.ValidationResult;
@@ -46,7 +45,6 @@ import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,7 +67,6 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	protected final MappedList<String, DLAttribute> attributes = new MappedList<>();
 	protected final List<DLTypeValidator> validators = new ArrayList<>();
 	protected final List<DLInstanceValidator> instanceValidators = new ArrayList<>();
-	protected final List<DLReadValidator> readValidators = new ArrayList<>();
 	protected final List<DLType> parents = new ArrayList<>();
 	protected final List<DLType> genericTypes = new ArrayList<>();
 	protected final List<DLType> containedTypes = new ArrayList<>();
@@ -142,7 +139,6 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 			copy.javaType = javaType;
 			copy.attributes.addAll(attributes);
 			copy.validators.addAll(validators);
-			copy.readValidators.addAll(readValidators);
 			copy.instanceValidators.addAll(instanceValidators);
 			copy.parents.addAll(parents);
 			copy.genericTypes.addAll(genericTypes);
@@ -160,11 +156,9 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	{
 		assert result != null;
 
-		boolean value = true;
-
 		List<DLType> allParents = getParents();
 
-		// Validate all attributes of this and its parent types are consistent
+		// Validate all attributes its parent types are consistent
 		Map<String, DLAttribute> attribs = new HashMap<>(attributes.map());
 		for (DLType par : allParents) {
 
@@ -176,7 +170,6 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 				// If it is redefined it has to have the absolute equal data type
 				if (alreadyContained != null && !alreadyContained.equalOrMoreSpecificDataType(parAttrib)) {
 					result.addError(InvalidAttributeRedefinition.toString(), "Attribute '" + alreadyContained + "' has a different data type than '" + parAttrib + "'");
-					value = false;
 				} // Add this attribute to the list of scanned attributes
 				else {
 					attribs.put(parAttrib.getName(), parAttrib);
@@ -186,20 +179,22 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 		// Validate own attributes
 		for (DLAttribute attribute : getOwnAttributes()) {
-			value &= attribute.validate(result);
+			attribute.validate(result);
 		}
 
 		// Validate type with local validators
 		for (DLTypeValidator validator : getValidators()) {
-			value &= validator.validate(this, result);
+			if (validator.canValidateType()) {
+				validator.validate(this, result);
+			}
 		}
 
 		// This will get all distinct parents (deep)
 		for (DLType parent : allParents) {
-			value &= validateParent(parent, result);
+			validateParentIntern(parent, result);
 		}
 
-		return value;
+		return result.isValid();
 	}
 
 	/**
@@ -210,24 +205,24 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	 *
 	 * @return
 	 */
-	protected boolean validateParent(DLType parent, ValidationResult result)
+	protected boolean validateParentIntern(DLType parent, ValidationResult result)
 	{
 		assert parent != null;
 		assert result != null;
 
-		boolean value = true;
-
 		// Validate attributes of parent
 		for (DLAttribute attribute : parent.getOwnAttributes()) {
-			value &= attribute.validate(result);
+			attribute.validate(result);
 		}
 
 		// Iterate type validators and validate with this type
 		for (DLTypeValidator validator : parent.getValidators()) {
-			value &= validator.validate(this, result);
+			if (validator.canValidateType()) {
+				validator.validate(this, result);
+			}
 		}
 
-		return value;
+		return result.isValid();
 	}
 
 	@Override
@@ -270,18 +265,34 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 		return isSimpleType() && !isAbstract();
 	}
 
-	protected void validateRead(Object... sources) throws InvalidType
+	public boolean validateRead(Object source, ValidationResult result)
 	{
-		if (!readValidators.isEmpty()) {
-			ValidationResult result = new ValidationResult();
-			for (DLReadValidator validator : readValidators) {
-				validator.validate(this, sources, result);
-			}
-
-			if (!result.isValid()) {
-				throw new InvalidType("Type '" + getCanonicalName() + "' could not read valid - " + result.toMessage());
+		for (DLTypeValidator validator : validators) {
+			
+			
+			if (validator.canValidateTypeRead()) {
+				validator.validate(this, source, result);
 			}
 		}
+
+		// Iterate all validators of parents
+		List<DLType> allParents = getParents();		
+		for (DLType parent : allParents) {
+			validateReadParentIntern(parent, source, result);
+		}
+
+		return result.isValid();
+	}
+	
+	public boolean validateReadParentIntern(DLType parent, Object source, ValidationResult result)
+	{
+		for (DLTypeValidator validator : parent.getValidators()) {
+			if (validator.canValidateTypeRead()) {
+				validator.validate(this, source, result);
+			}
+		}
+
+		return result.isValid();
 	}
 
 	@Override
@@ -297,9 +308,6 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 			throw new InvalidType("Type '" + getCanonicalName() + "' is complex and thus can not be used to read input");
 		}
 
-		// Validate read
-		validateRead(sources);
-
 		if (sources != null && sources.length == 1) {
 
 			Object source = sources[0];
@@ -307,8 +315,14 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 			if (source == null) {
 				throw new InvalidType("sources[0] is null");
 			}
-			
+
 			source = ConversionHelper.convert(source, getJavaDataType());
+
+			// Validate read
+			ValidationResult result = new ValidationResult();
+			if (!validateRead(source, result)) {
+				throw new InvalidType("Type '" + getCanonicalName() + "' could not validate read - " + result.toMessage());
+			}
 
 			if (getJavaDataType().isAssignableFrom(source.getClass())) {
 				return source;
@@ -318,6 +332,12 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 				"Type '" + getCanonicalName() + "' java type is '"
 				+ getJavaDataType().getName() + "' but the source is of java type '"
 				+ source.getClass().getName() + "'");
+		} else {
+			// Validate read
+			ValidationResult result = new ValidationResult();
+			if (!validateRead(sources, result)) {
+				throw new InvalidType("Type '" + getCanonicalName() + "' could not read validate read - " + result.toMessage());
+			}
 		}
 
 		return sources;
@@ -560,14 +580,6 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	}
 
 	@Override
-	public boolean addReadValidator(DLReadValidator validator)
-	{
-		assert validator != null;
-
-		return readValidators.add(validator);
-	}
-
-	@Override
 	public boolean addValidator(DLTypeValidator validator)
 	{
 		assert validator != null;
@@ -591,18 +603,25 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	public boolean validateInstance(DLInstance instance, ValidationResult result)
 	{
 		assert instance != null;
-
-		boolean valid = true;
+		assert result != null;
 
 		for (DLInstanceValidator validator : instanceValidators) {
-			valid &= validator.validate(instance, result);
+			validator.validate(instance, result);
+		}
+		
+		// Value validators
+		for (DLAttribute attribute : getAttributes()) {
+
+			Object value = instance.get(attribute.getName());
+			attribute.validateValue(value, result);
 		}
 
+		// Recurse to direct parents
 		for (DLType parent : parents) {
-			valid &= parent.validateInstance(instance, result);
+			parent.validateInstance(instance, result);
 		}
 
-		return valid;
+		return result.isValid();
 	}
 
 	@Override

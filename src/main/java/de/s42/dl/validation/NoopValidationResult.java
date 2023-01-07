@@ -25,14 +25,16 @@
 //</editor-fold>
 package de.s42.dl.validation;
 
+import static de.s42.dl.validation.ValidationElementType.Error;
+import static de.s42.dl.validation.ValidationElementType.Info;
+import static de.s42.dl.validation.ValidationElementType.Warning;
+
 /**
  *
  * @author Benjamin Schiller
  */
 public class NoopValidationResult extends ValidationResult
 {
-
-	public final static NoopValidationResult NOOP_RESULT = new NoopValidationResult();
 
 	public NoopValidationResult()
 	{
@@ -42,7 +44,15 @@ public class NoopValidationResult extends ValidationResult
 	@Override
 	public ValidationElement addElement(ValidationElement element)
 	{
-		// do nothing
+		// do not remember
+		
+		if (element.type.equals(Error)) {
+			errors = true;
+		} else if (element.type.equals(Warning)) {
+			warnings = true;
+		} else if (element.type.equals(Info)) {
+			infos = true;
+		}
 
 		return element;
 	}

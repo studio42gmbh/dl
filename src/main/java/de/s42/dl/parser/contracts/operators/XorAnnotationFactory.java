@@ -68,10 +68,11 @@ public class XorAnnotationFactory extends AbstractBinaryContractFactory
 	{
 		if (!canValidateAttribute()) {
 			result.addError(InvalidContract.toString(), "Can not validate attribute");
+			return false;
 		}
 
-		if (contractFirst.validate(attribute, NoopValidationResult.NOOP_RESULT)
-			== contractSecond.validate(attribute, NoopValidationResult.NOOP_RESULT)) {
+		if (contractFirst.validate(attribute, new NoopValidationResult())
+			== contractSecond.validate(attribute, new NoopValidationResult())) {
 			result.addError(InvalidContract.toString(), "Xor @" + contractFirst.getName() + " are equal in " + name);
 			return false;
 		}
@@ -84,10 +85,11 @@ public class XorAnnotationFactory extends AbstractBinaryContractFactory
 	{
 		if (!canValidateInstance()) {
 			result.addError(InvalidContract.toString(), "Can not validate instance");
+			return false;
 		}
 
-		if (contractFirst.validate(instance, NoopValidationResult.NOOP_RESULT)
-			== contractSecond.validate(instance, NoopValidationResult.NOOP_RESULT)) {
+		if (contractFirst.validate(instance, new NoopValidationResult())
+			== contractSecond.validate(instance, new NoopValidationResult())) {
 			result.addError(InvalidContract.toString(), "Xor @" + contractFirst.getName() + " are equal in " + name);
 			return false;
 		}
@@ -100,10 +102,11 @@ public class XorAnnotationFactory extends AbstractBinaryContractFactory
 	{
 		if (!canValidateType()) {
 			result.addError(InvalidContract.toString(), "Can not validate type");
+			return false;
 		}
 
-		if (contractFirst.validate(type, NoopValidationResult.NOOP_RESULT)
-			== contractSecond.validate(type, NoopValidationResult.NOOP_RESULT)) {
+		if (contractFirst.validate(type, new NoopValidationResult())
+			== contractSecond.validate(type, new NoopValidationResult())) {
 			result.addError(InvalidContract.toString(), "Xor @" + contractFirst.getName() + " are equal in " + name);
 			return false;
 		}
@@ -116,10 +119,11 @@ public class XorAnnotationFactory extends AbstractBinaryContractFactory
 	{
 		if (!canValidateTypeRead()) {
 			result.addError(InvalidContract.toString(), "Can not validate type read");
+			return false;
 		}
 
-		if (contractFirst.validate(type, value, NoopValidationResult.NOOP_RESULT)
-			== contractSecond.validate(type, value, NoopValidationResult.NOOP_RESULT)) {
+		if (contractFirst.validate(type, value, new NoopValidationResult())
+			== contractSecond.validate(type, value, new NoopValidationResult())) {
 			result.addError(InvalidContract.toString(), "Xor @" + contractFirst.getName() + " are equal in " + name);
 			return false;
 		}

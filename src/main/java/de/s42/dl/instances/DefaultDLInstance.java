@@ -119,17 +119,19 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	@Override
 	public boolean validate(ValidationResult result)
 	{
+		assert result != null;
+
+		// Type validator
 		if (getType() != null) {
-			return getType().validateInstance(this, result);
+			getType().validateInstance(this, result);
 		}
 
-		boolean valid = true;
-
+		// Instance validators
 		for (DLInstanceValidator validator : validators) {
-			valid &= validator.validate(this, result);
+			validator.validate(this, result);
 		}
 
-		return valid;
+		return result.isValid();
 	}
 
 	@Override
@@ -507,14 +509,6 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	}
 
 	@Override
-	public boolean hasName(String name)
-	{
-		assert name != null;
-
-		return this.name.equals(name);
-	}
-
-	@Override
 	public boolean hasChildren()
 	{
 		return !children.isEmpty();
@@ -570,7 +564,7 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	}
 
 	@Override
-	public boolean hasName()
+	public boolean isNamed()
 	{
 		return (name != null) && !name.isBlank();
 	}

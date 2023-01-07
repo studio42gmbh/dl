@@ -30,12 +30,8 @@ import de.s42.dl.DLAttribute;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
 import de.s42.dl.validation.DLValidator;
-import static de.s42.dl.validation.DefaultValidationCode.CanNotValidateAttribute;
-import static de.s42.dl.validation.DefaultValidationCode.CanNotValidateInstance;
-import static de.s42.dl.validation.DefaultValidationCode.CanNotValidateType;
-import static de.s42.dl.validation.DefaultValidationCode.CanNotValidateTypeRead;
+import static de.s42.dl.validation.DefaultValidationCode.*;
 import de.s42.dl.validation.ValidationResult;
-import java.util.Optional;
 
 /**
  *
@@ -48,73 +44,52 @@ public interface DLContract extends DLValidator, DLAnnotation
 	default public boolean validate(DLAttribute attribute, ValidationResult result)
 	{
 		assert result != null;
-		
+
 		if (!canValidateAttribute()) {
 			result.addError(CanNotValidateAttribute.toString(), "Can not validate an attribute");
 			return false;
 		}
-		
+
 		return true;
 	}
 
 	@Override
-	default public boolean validate(DLInstance instance, String attributeName, ValidationResult result)
+	default public boolean validate(DLAttribute attribute, Object value, ValidationResult result)
 	{
 		assert result != null;
-		
+
 		if (!canValidateAttribute()) {
-			result.addError(CanNotValidateAttribute.toString(), "Can not validate an attribute");
+			result.addError(CanNotValidateAttribute.toString(), "Can not validate an instance value");
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	@Override
 	default public boolean validate(DLInstance instance, ValidationResult result)
 	{
 		assert instance != null;
 		assert result != null;
-		
+
 		if (!canValidateInstance()) {
 			result.addError(CanNotValidateInstance.toString(), "Can not validate an instance");
 			return false;
 		}
-		
-		boolean valid = true;
-		String cName = getName();
-		
-		// @todo how can we optimize the per attribute validation for contracts?
-		for (String attributeName : instance.getAttributeNames()) {
-			
-			Optional<DLAttribute> optAttribute = instance.getAttribute(attributeName);
-			
-			if (optAttribute.isEmpty()) {
-				continue;
-			}
-			
-			DLAttribute attribute = optAttribute.orElseThrow();
-			
-			if (!attribute.hasAnnotation(cName)) {
-				continue;
-			}
-			
-			valid &= validate(instance, attributeName, result);
-		}
-		
-		return valid;
+
+		return true;
 	}
 
 	@Override
 	default public boolean validate(DLType type, ValidationResult result)
 	{
 		assert result != null;
-		
+
 		if (!canValidateAttribute()) {
 			result.addError(CanNotValidateType.toString(), "Can not validate a type");
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -122,12 +97,12 @@ public interface DLContract extends DLValidator, DLAnnotation
 	default public boolean validate(DLType type, Object value, ValidationResult result)
 	{
 		assert result != null;
-		
-		if (!canValidateTypeRead()) {
-			result.addError(CanNotValidateTypeRead.toString(), "can not validate a type value");
+
+		if (!canValidateAttribute()) {
+			result.addError(CanNotValidateAttribute.toString(), "can not validate a type value");
 			return false;
 		}
-		
+
 		return true;
 	}
 }

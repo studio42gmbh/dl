@@ -63,12 +63,8 @@ public abstract class AbstractDLContract<DLConceptType extends DLContract>
 		container = type;
 		container.addAnnotation(this);
 
-		if (canValidateType()) {
+		if (canValidateType() || canValidateTypeRead()) {
 			type.addValidator(this);
-		}
-
-		if (canValidateTypeRead()) {
-			type.addReadValidator(this);
 		}
 
 		if (canValidateInstance()) {
@@ -90,9 +86,5 @@ public abstract class AbstractDLContract<DLConceptType extends DLContract>
 		if (canValidateAttribute()) {
 			attribute.addValidator(this);
 		}
-		
-		if (canValidateInstance()) {
-			attribute.getContainer().addInstanceValidator(this);
-		}		
 	}	
 }

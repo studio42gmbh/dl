@@ -23,6 +23,7 @@ extern annotation even;
 
 // Combined annotations (concepts) for easier and flexible validation
 annotation evenLong42/*(max)*/ : @even & @range(min : 0, max : 42);
+annotation validNodeName : @typeName(pattern : ".*Node(V[0-9]+)?");
 
 // Constrained types of base types
 type Long42 @evenLong42 extends Long;
@@ -31,7 +32,7 @@ type Long42 @evenLong42 extends Long;
 extern type de.s42.dl.netbeans.editing.api.DLEditor alias DLEditor;
 
 // Abstract base types with rules to enforce sub type constraints (in this example the naming) and composing of parent types
-abstract type Node @typeName(ignoreAbstract : true, pattern : ".*Node(V[0-9]+)?") 
+abstract type Node @validNodeName
 extends DLEntity, DLEditor, State
 {
 	Long42 val : 42;
