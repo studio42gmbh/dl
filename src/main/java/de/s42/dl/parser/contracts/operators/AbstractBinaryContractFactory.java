@@ -113,8 +113,9 @@ public abstract class AbstractBinaryContractFactory implements DLContractFactory
 			DLContract proxiedAnnotationFirst = factoryFirst.createAnnotation(factoryFirst.getName(), this.flatParameters);
 			DLContract proxiedAnnotationSecond = factorySecond.createAnnotation(factorySecond.getName(), this.flatParameters);
 
+			// @todo the way of determining if 2 annotations can be combined has to be improved!
 			if (!proxiedAnnotationFirst.canEqualValidations(proxiedAnnotationSecond)) {
-				throw new InvalidAnnotation("@" + factoryFirst.getName() + " and @" + factorySecond.getName() + " can not be combind as they have different can validations in annotation @" + getName() + "");
+				throw new InvalidAnnotation("@" + factoryFirst.getName() + " and @" + factorySecond.getName() + " can not be combined as they have different can validations in annotation @" + getName() + "");
 			}
 
 			AbstractBinaryContractFactory contract = (AbstractBinaryContractFactory) getClass()

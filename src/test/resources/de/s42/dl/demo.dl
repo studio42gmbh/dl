@@ -9,13 +9,13 @@ annotation requiredFile : @required & @isFile;
 
 type SpecialLong @odd21to42 extends Long;
 
-//type RequiredFile @requiredFile extends Path;
+type RequiredFile @requiredFile extends Path;
 
 SpecialLong val : 21;
 
 type MyType
 {
-	Path path @requiredFile;
+	RequiredFile path;
 	String display;
 	SpecialLong val;
 	//Long val2 @odd21to42;

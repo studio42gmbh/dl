@@ -25,11 +25,16 @@
 //</editor-fold>
 package de.s42.dl.annotations.files;
 
+import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLInstance;
+import de.s42.dl.DLType;
 import de.s42.dl.annotations.AbstractDLContract;
 import de.s42.dl.annotations.DLAnnotationType;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidFile;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
 import de.s42.dl.validation.ValidationResult;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -44,35 +49,13 @@ import java.nio.file.Path;
 public class IsFileDLAnnotation extends AbstractDLContract<IsFileDLAnnotation>
 {
 
+	private final static Logger log = LogManager.getLogger(IsFileDLAnnotation.class.getName());
+
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = {ElementType.FIELD})
 	@DLAnnotationType(IsFileDLAnnotation.class)
 	public static @interface isFile
 	{
-	}
-
-	@Override
-	public boolean validate(DLInstance instance, String attributeName, ValidationResult result)
-	{
-		assert instance != null;
-
-		Object val = instance.get(attributeName);
-
-		if (val == null) {
-			return true;
-		}
-
-		if (!(val instanceof Path)) {
-			result.addError(InvalidFile.toString(), "Attribute value '" + attributeName + "' is not referencing a valid file but is " + val, instance);
-			return false;
-		}
-
-		if (!Files.isRegularFile((Path) val)) {
-			result.addError(InvalidFile.toString(), "Attribute value '" + attributeName + "' is not referencing a regular file but " + ((Path) val).toAbsolutePath().normalize().toString(), instance);
-			return false;
-		}
-
-		return true;
 	}
 
 	@Override
@@ -84,6 +67,66 @@ public class IsFileDLAnnotation extends AbstractDLContract<IsFileDLAnnotation>
 	@Override
 	public boolean canValidateInstance()
 	{
+		return true;
+	}
+
+	@Override
+	public boolean canValidateTypeRead()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean validate(DLInstance instance, String attributeName, ValidationResult result)
+	{
+		assert instance != null;
+		assert attributeName != null;
+		assert result != null;
+
+		Object val = instance.get(attributeName);
+
+		return validateValue(val, result, instance);
+	}
+
+	@Override
+	public boolean validate(DLType type, Object value, ValidationResult result)
+	{
+		assert type != null;
+		assert result != null;
+
+		if (value == null) {
+			return true;
+		}
+
+		if (!value.getClass().isArray()) {
+			result.addError(InvalidValueType.toString(), "Value has to be of type Array");
+			return false;
+		}
+
+		boolean valid = true;
+
+		// Validate each val in the array
+		Object[] values = (Object[]) value;
+		for (Object val : values) {
+			valid &= validateValue(val, result, type);
+		}
+
+		return valid;
+	}
+
+	protected boolean validateValue(Object value, ValidationResult result, Object source)
+	{
+		if (value == null) {
+			return true;
+		}
+
+		Path path = ConversionHelper.convert(value, Path.class);
+
+		if (!Files.isRegularFile(path)) {
+			result.addError(InvalidFile.toString(), "Not referencing a regular file but " + path.toAbsolutePath().normalize().toString(), source);
+			return false;
+		}
+
 		return true;
 	}
 }

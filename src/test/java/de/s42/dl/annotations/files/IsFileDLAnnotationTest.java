@@ -27,17 +27,19 @@ package de.s42.dl.annotations.files;
 
 import de.s42.dl.DLAttribute;
 import de.s42.dl.DLCore;
+import de.s42.dl.DLModule;
 import de.s42.dl.DLType;
 import de.s42.dl.annotations.files.IsFileDLAnnotation.isFile;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.InvalidInstance;
+import de.s42.dl.exceptions.InvalidValue;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.nio.file.Path;
 import org.testng.annotations.Test;
-import org.testng.Assert;
+import static org.testng.Assert.*;
 
 /**
  *
@@ -56,50 +58,63 @@ public class IsFileDLAnnotationTest
 	}
 
 	@Test
-	public void validIsFileJavaType() throws DLException
+	public void isFileJavaType() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
 		DLType type = core.defineType(IsFileClass.class);
 		//log.debug("DLType:\n", DLHelper.describe(type));
 		DLAttribute x = type.getAttribute("x").orElseThrow();
-		Assert.assertTrue(
+		assertTrue(
 			x.hasAnnotation(IsFileDLAnnotation.class),
 			"@isFile should be mapped for attribute x in type from IsFileClass"
 		);
 	}
 
 	@Test
-	public void validIsFileType() throws DLException
+	public void isFileType() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("validIsFileType", "type T { Path x @isFile; }");
+		DefaultCore core = new DefaultCore();
+		
+		core.parse("isFileType", 
+			"type T { Path x @isFile; }"
+		);
+		
 		DLType T = core.getType("T").orElseThrow();
 		DLAttribute x = T.getAttribute("x").orElseThrow();
-		Assert.assertTrue(
+		assertTrue(
 			x.hasAnnotation(IsFileDLAnnotation.class),
 			"@isFile should be mapped for attribute x in type T"
 		);
 	}
 
 	@Test
-	public void validIsFileAttributeInInstance() throws DLException
+	public void isFileAttributeInInstance() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("validIsFileAttributeInInstance", "type T { Path x @isFile; } T t { x : \"pom.xml\"; }");
+		DefaultCore core = new DefaultCore();
+		
+		core.parse("isFileAttributeInInstance", 
+			"type T { Path x @isFile; } T t { x : \"pom.xml\"; }"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidInstance.class)
 	public void invalidIsFileAttributeInInstance() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidIsFileAttributeInInstance", "type T { Path x @isFile; } T t { x : \"wrong/directory/42%$!\"; }");
+		DefaultCore core = new DefaultCore();
+		
+		core.parse("invalidIsFileAttributeInInstance", 
+			"type T { Path x @isFile; } T t { x : \"wrong/directory/42%$!\"; }"
+		);
 	}
 
 	@Test
 	public void validIsFileAttributeNullInInstance() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidIsFileAttributeNullInInstance", "type T { Path x @isFile; } T t {}");
+		DefaultCore core = new DefaultCore();
+		
+		core.parse("invalidIsFileAttributeNullInInstance", 
+			"type T { Path x @isFile; } T t {}"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidAnnotation.class)
@@ -107,14 +122,40 @@ public class IsFileDLAnnotationTest
 	{
 		DLCore core = new DefaultCore();
 
-		core.parse("invalidIsFileWithFlatParameter", "type T { int x @isFile(wrong); }");
+		core.parse("invalidIsFileWithFlatParameter", 
+			"type T { int x @isFile(wrong); }"
+		);
 	}
 
 	@Test(expectedExceptions = InvalidAnnotation.class)
 	public void invalidIsFileWithNamedParameter() throws DLException
 	{
-		DLCore core = new DefaultCore();
+		DefaultCore core = new DefaultCore();
 
-		core.parse("invalidIsFileWithNamedParameter", "type T { int x @isFile(wrong : true); }");
+		core.parse("invalidIsFileWithNamedParameter", 
+			"type T { int x @isFile(wrong : true); }"
+		);
+	}
+	
+	@Test
+	public void isFileAsType() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		
+		DLModule module = core.parse("isFileAsType", 
+			"type T @isFile extends Path; T t : \"pom.xml\";"
+		);
+		
+		assertEquals(module.get("t"), Path.of("pom.xml"));
+	}
+	
+	@Test(expectedExceptions = InvalidValue.class)
+	public void invalidIsFileAsTypeWrongPath() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+		
+		core.parse("invalidIsFileAsTypeWrongPath", 
+			"type T @isFile extends Path; T t : \"wrong/directory/42%$!\";"
+		);
 	}
 }

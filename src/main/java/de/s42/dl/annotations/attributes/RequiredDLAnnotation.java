@@ -50,6 +50,24 @@ public class RequiredDLAnnotation extends AbstractDLContract<RequiredDLAnnotatio
 	}
 
 	@Override
+	public boolean canValidateAttribute()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean canValidateInstance()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean canValidateTypeRead()
+	{
+		return true;
+	}
+	
+	@Override
 	public boolean validate(DLInstance instance, String attributeName, ValidationResult result)
 	{
 		assert instance != null;
@@ -63,18 +81,6 @@ public class RequiredDLAnnotation extends AbstractDLContract<RequiredDLAnnotatio
 			return false;
 		}
 
-		return true;
-	}
-
-	@Override
-	public boolean canValidateAttribute()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean canValidateInstance()
-	{
 		return true;
 	}
 }

@@ -93,7 +93,6 @@ public abstract class AbstractDLContract<DLConceptType extends DLContract>
 		
 		if (canValidateInstance()) {
 			attribute.getContainer().addInstanceValidator(this);
-		}
-		
+		}		
 	}	
 }

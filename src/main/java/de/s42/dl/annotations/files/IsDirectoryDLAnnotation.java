@@ -25,10 +25,13 @@
 //</editor-fold>
 package de.s42.dl.annotations.files;
 
+import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLInstance;
+import de.s42.dl.DLType;
 import de.s42.dl.annotations.AbstractDLContract;
 import de.s42.dl.annotations.DLAnnotationType;
-import static de.s42.dl.validation.DefaultValidationCode.InvalidDirectory;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidFile;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
 import de.s42.dl.validation.ValidationResult;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -52,30 +55,6 @@ public class IsDirectoryDLAnnotation extends AbstractDLContract<IsDirectoryDLAnn
 	}
 
 	@Override
-	public boolean validate(DLInstance instance, String attributeName, ValidationResult result)
-	{
-		assert instance != null;
-
-		Object val = instance.get(attributeName);
-
-		if (val == null) {
-			return true;
-		}
-
-		if (!(val instanceof Path)) {
-			result.addError(InvalidDirectory.toString(), "Attribute value '" + attributeName + "' is not referencing a valid directory but is " + val, instance);
-			return false;
-		}
-
-		if (!Files.isDirectory((Path) val)) {
-			result.addError(InvalidDirectory.toString(), "Attribute value '" + attributeName + "' is not referencing a regular directory but " + ((Path) val).toAbsolutePath().normalize().toString(), instance);
-			return false;
-		}
-
-		return true;
-	}
-
-	@Override
 	public boolean canValidateAttribute()
 	{
 		return true;
@@ -84,6 +63,66 @@ public class IsDirectoryDLAnnotation extends AbstractDLContract<IsDirectoryDLAnn
 	@Override
 	public boolean canValidateInstance()
 	{
+		return true;
+	}
+
+	@Override
+	public boolean canValidateTypeRead()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean validate(DLInstance instance, String attributeName, ValidationResult result)
+	{
+		assert instance != null;
+		assert attributeName != null;
+		assert result != null;
+
+		Object val = instance.get(attributeName);
+
+		return validateValue(val, result, instance);
+	}
+
+	@Override
+	public boolean validate(DLType type, Object value, ValidationResult result)
+	{
+		assert type != null;
+		assert result != null;
+
+		if (value == null) {
+			return true;
+		}
+
+		if (!value.getClass().isArray()) {
+			result.addError(InvalidValueType.toString(), "Value has to be of type Array");
+			return false;
+		}
+
+		boolean valid = true;
+
+		// Validate each val in the array
+		Object[] values = (Object[]) value;
+		for (Object val : values) {
+			valid &= validateValue(val, result, type);
+		}
+
+		return valid;
+	}
+
+	protected boolean validateValue(Object value, ValidationResult result, Object source)
+	{
+		if (value == null) {
+			return true;
+		}
+
+		Path path = ConversionHelper.convert(value, Path.class);
+
+		if (!Files.isDirectory(path)) {
+			result.addError(InvalidFile.toString(), "Not referencing a valid directory but " + path.toAbsolutePath().normalize().toString(), source);
+			return false;
+		}
+
 		return true;
 	}
 }

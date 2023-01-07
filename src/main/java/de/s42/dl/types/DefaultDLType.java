@@ -46,6 +46,7 @@ import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -306,6 +307,8 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 			if (source == null) {
 				throw new InvalidType("sources[0] is null");
 			}
+			
+			source = ConversionHelper.convert(source, getJavaDataType());
 
 			if (getJavaDataType().isAssignableFrom(source.getClass())) {
 				return source;
