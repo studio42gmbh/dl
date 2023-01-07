@@ -24,4 +24,5 @@ type MyType
 MyType t @export {
 	path : "/home/notes-wsbs2022.txt";
 	val : 41;
+	//val2 : 23;
 }

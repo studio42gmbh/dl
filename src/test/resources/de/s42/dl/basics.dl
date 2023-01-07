@@ -8,16 +8,18 @@
 require "dl:standard/base.dl";
 
 annotation odd : !@even;
-annotation evenRange42OrOdd : ( @range(0, 42) & @even ) | ( !@range(0, 42) & @odd );
+annotation range42 : @range(0, 42);
+annotation evenRange42OrOdd : ( @range42 & @even ) | ( !@range42 & @odd );
 
 // Special constrained base types
 final type EvenLong42 @evenRange42OrOdd extends Long;
 
 // Simple tree types
 abstract type Node;
-type Container extends Node contains Node alias Root;
+type Container extends Node contains Node;
+type Root extends Container;
 dynamic type Leaf extends Node;
-type Statistics extends Node
+dynamic type Statistics extends Leaf
 {
 	EvenLong42 l42 @required;
 	String version @required;
@@ -25,11 +27,12 @@ type Statistics extends Node
 
 //^ Root root
 Root root {
-	Statistics {
+	Statistics stats {
 		version : "1.0.0";
-		l42 : 49;
+		l42 : 40;
+		boolean state : false;
 	}
 }
 //^
 
-boolean b : true & !(false & true);
+boolean b : true & !(false | $root.stats.state);

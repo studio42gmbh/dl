@@ -40,7 +40,7 @@ extends DLEntity, DLEditor, State
 }
 
 // Derived types with dynamic attributes (allows to add arbitrary key values to instances of that type)
-type LeafNodeV1 @dynamic 
+dynamic type LeafNodeV1
 extends Node
 alias Leaf;
 
