@@ -35,5 +35,10 @@ import java.util.Optional;
 public interface DLPathResolver
 {
 
-	public Optional<Object> resolve(DLEntity context, String path) throws ParserException;
+	default public Optional<Object> resolve(DLEntity context, String path) throws ParserException
+	{
+		return resolve(context, path, true);
+	}
+
+	public Optional<Object> resolve(DLEntity context, String path, boolean strict) throws ParserException;
 }

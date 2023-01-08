@@ -53,6 +53,7 @@ import de.s42.dl.instances.ComplexTypeDLInstance;
 import de.s42.dl.instances.DefaultDLInstance;
 import de.s42.dl.instances.DefaultDLModule;
 import de.s42.dl.instances.SimpleTypeDLInstance;
+import de.s42.dl.parser.path.DLHrfPathResolver;
 import de.s42.dl.types.DLContainer;
 import de.s42.dl.types.DefaultDLEnum;
 import de.s42.dl.types.DefaultDLType;
@@ -78,6 +79,8 @@ public class BaseDLCore implements DLCore
 
 	private final static Logger log = LogManager.getLogger(BaseDLCore.class.getName());
 
+	protected final static DLPathResolver DEFAULT_RESOLVER = new DLHrfPathResolver();
+	
 	protected final Map<String, WeakReference<Object>> convertedCache = new HashMap<>();
 	protected final List<DLCoreResolver> resolvers = new ArrayList<>();
 	protected final MappedList<String, DLType> types = new MappedList<>();
@@ -87,6 +90,7 @@ public class BaseDLCore implements DLCore
 	protected final MappedList<String, DLInstance> exported = new MappedList<>();
 	protected final Map<String, Object> configs = new HashMap<>();
 	protected Path basePath;
+	protected DLPathResolver resolver;
 	protected boolean allowDefineTypes;
 	protected boolean allowDefineAnnotationFactories;
 	protected boolean allowDefinePragmas;
@@ -115,6 +119,7 @@ public class BaseDLCore implements DLCore
 
 	private void init()
 	{
+		resolver = DEFAULT_RESOLVER;
 		loadModuleType(this);
 	}
 
@@ -167,6 +172,7 @@ public class BaseDLCore implements DLCore
 			copy.allowRequire = allowRequire;
 			copy.allowUseAsserts = allowUseAsserts;
 			copy.name = name;
+			copy.resolver = resolver;
 
 			return copy;
 		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
@@ -1292,8 +1298,8 @@ public class BaseDLCore implements DLCore
 		// Find a suitable resolver
 		DLCoreResolver foundResolver = resolvers
 			.stream()
-			.filter((resolver) -> {
-				return resolver.canParse(this, moduleId, data);
+			.filter((coreResolver) -> {
+				return coreResolver.canParse(this, moduleId, data);
 			})
 			.findFirst()
 			.orElseThrow(() -> {
@@ -1652,5 +1658,16 @@ public class BaseDLCore implements DLCore
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+
+	@Override
+	public DLPathResolver getResolver()
+	{
+		return resolver;
+	}
+
+	public void setResolver(DLPathResolver resolver)
+	{
+		this.resolver = resolver;
 	}
 }

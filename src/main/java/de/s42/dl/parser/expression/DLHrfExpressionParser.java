@@ -26,6 +26,7 @@
 package de.s42.dl.parser.expression;
 
 import de.s42.base.strings.StringHelper;
+import de.s42.dl.DLCore;
 import de.s42.dl.parser.expression.operators.Xor;
 import de.s42.dl.parser.expression.operators.Or;
 import de.s42.dl.parser.expression.operators.Not;
@@ -37,13 +38,13 @@ import de.s42.dl.parser.expression.operators.Atom;
 import de.s42.dl.parser.expression.operators.And;
 import de.s42.dl.parser.expression.operators.Add;
 import de.s42.dl.DLModule;
+import de.s42.dl.DLPathResolver;
 import de.s42.dl.exceptions.ParserException;
 import de.s42.dl.parser.DLHrfParsingException;
 import de.s42.dl.parser.DLParser.AtomContext;
 import de.s42.dl.parser.DLParser.ExpressionContext;
 import de.s42.dl.parser.expression.operators.Like;
 import de.s42.dl.parser.expression.operators.Pow;
-import de.s42.dl.parser.path.DLHrfPathResolver;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.util.Optional;
@@ -59,8 +60,6 @@ public final class DLHrfExpressionParser
 
 	private final static Logger log = LogManager.getLogger(DLHrfExpressionParser.class.getName());
 
-	protected final static DLHrfPathResolver resolver = new DLHrfPathResolver();
-
 	private DLHrfExpressionParser()
 	{
 		// never instantiated
@@ -68,6 +67,9 @@ public final class DLHrfExpressionParser
 
 	public static Object resolveExpression(DLModule module, ExpressionContext ctx) throws ParserException
 	{
+		assert module != null;
+		assert ctx != null;
+
 		Expression expr = buildExpression(module, ctx);
 
 		Object value = expr.evaluate();
@@ -78,6 +80,9 @@ public final class DLHrfExpressionParser
 
 	public static Expression buildExpression(DLModule module, ExpressionContext ctx) throws ParserException
 	{
+		assert module != null;
+		assert ctx != null;
+
 		if (ctx.PLUS() != null) {
 			return new Add(
 				buildExpression(module, ctx.expression(0)),
@@ -228,30 +233,48 @@ public final class DLHrfExpressionParser
 
 	public static String unescapeString(String stringValue)
 	{
+		assert stringValue != null;
+
 		return StringHelper.unescapeJavaString(stringValue.substring(1, stringValue.length() - 1));
 	}
 
 	public static Object resolveReference(DLModule module, String refId, ParserRuleContext ctx) throws ParserException
 	{
+		assert module != null;
+		assert refId != null;
+		assert ctx != null;
+
+		DLCore core = module.getType().getCore();
+
+		assert core != null;
+
+		DLPathResolver resolver = core.getResolver();
+
+		assert resolver != null;
+
 		// First try to find the ref in core
 		// Call the parser in non strict mode to avoid getting exceptions -> will return null then
-		Optional ref = resolver.resolve(module.getType().getCore(), refId, false);
+		Optional ref = resolver.resolve(core, refId, false);
 		if (ref.isPresent()) {
 			return ref.orElseThrow();
 		}
 
 		// Resolve the reference ignoring the first char which is the $ sign
-		ref = resolver.resolve(module, refId);
-
-		// Empty references are treated as errors
-		if (ref.isEmpty()) {
+		try {
+			ref = resolver.resolve(module, refId);			
+			if (ref.isPresent()) {
+				return ref.orElseThrow();
+			}
+		} // Translate the parser exception into ovreall parsing context
+		catch (ParserException ex) {
 			throw new DLHrfParsingException(
-				"Reference " + refId + " is not defined in module",
+				"Reference '" + refId + "' is invalid - " + ex.getMessage(),
 				module,
-				ctx
+				ctx,
+				ex
 			);
 		}
-
-		return ref.orElseThrow();
+		
+		return null;
 	}
 }

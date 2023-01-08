@@ -42,6 +42,8 @@ public interface DLCore extends DLEntity
 	public Path getBasePath();
 
 	public ClassLoader getClassLoader();
+	
+	public DLPathResolver getResolver();
 
 	// MODULES
 	public DLModule parse(String moduleId) throws DLException;

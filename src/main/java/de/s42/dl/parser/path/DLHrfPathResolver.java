@@ -109,19 +109,6 @@ public class DLHrfPathResolver implements DLPathResolver
 	}
 
 	/**
-	 * Tries to resolve the path strictly. Syntax errors will lead to ParserExcpesions.
-	 * @param context
-	 * @param path
-	 * @return
-	 * @throws ParserException 
-	 */
-	@Override
-	public Optional<Object> resolve(DLEntity context, String path) throws ParserException
-	{
-		return resolve(context, path, true);
-	}
-
-	/**
 	 * Tries to resolve the path. If strict is true any invalid syntax will lead to a parser exception otherwise it will just return Optional.empty()
 	 * @param context
 	 * @param path
@@ -129,6 +116,7 @@ public class DLHrfPathResolver implements DLPathResolver
 	 * @return
 	 * @throws ParserException 
 	 */
+	@Override
 	public Optional<Object> resolve(DLEntity context, String path, boolean strict) throws ParserException
 	{
 		assert context != null;

@@ -78,7 +78,7 @@ public class ReferencesTest
 		assertEquals(module.getInt("p"), 42);
 	}
 
-	@Test(enabled = false)
+	@Test
 	public void referencePath() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
@@ -86,10 +86,12 @@ public class ReferencesTest
 		DLModule module = core.parse("referencePath",
 			"type T { Integer val; }"
 			+ "T t { val : 42; }"
-			+ "Integer p : $t.val.?test.t;"
+			+ "Integer p : $t.val;"
+			+ "Integer p2 : $t.val.?test.t2;"
 		);
 
-		assertEquals(module.getInt("p"), 42);
+		assertEquals(module.get("p"), 42);
+		assertEquals(module.get("p2"), null);
 	}
 	
 	@Test

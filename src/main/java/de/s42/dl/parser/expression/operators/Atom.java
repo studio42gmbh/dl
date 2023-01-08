@@ -39,8 +39,6 @@ public class Atom<DataType> implements Expression
 
 	public Atom(DataType value)
 	{
-		assert value != null;
-
 		this.value = value;
 	}
 
