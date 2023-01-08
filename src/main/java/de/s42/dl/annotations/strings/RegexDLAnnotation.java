@@ -25,103 +25,96 @@
 //</editor-fold>
 package de.s42.dl.annotations.strings;
 
-import de.s42.dl.annotations.AbstractDLAnnotation;
+import de.s42.base.validation.IsValidRegex;
+import de.s42.dl.annotations.AbstractValueDLContract;
+import de.s42.dl.annotations.DLAnnotated;
+import de.s42.dl.annotations.DLAnnotationParameter;
+import de.s42.dl.annotations.DLAnnotationType;
+import de.s42.dl.exceptions.InvalidAnnotation;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
+import static de.s42.dl.validation.DefaultValidationCode.NotMatching;
+import de.s42.dl.validation.ValidationResult;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class RegexDLAnnotation extends AbstractDLAnnotation
+public class RegexDLAnnotation extends AbstractValueDLContract<RegexDLAnnotation>
 {
 
-	public final static String DEFAULT_SYMBOL = "regex";
-
-	/*
-	private static class RegexDLInstanceValidator implements DLInstanceValidator, DLAttributeValidator
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = {ElementType.TYPE})
+	@DLAnnotationType(RegexDLAnnotation.class)
+	public static @interface regex
 	{
 
-		private final String name;
-		private final Pattern pattern;
-
-		RegexDLInstanceValidator(String name, Pattern pattern)
-		{
-			assert name != null;
-			assert pattern != null;
-
-			this.name = name;
-			this.pattern = pattern;
-		}
-
-		@Override
-		public void validate(DLAttribute attribute) throws InvalidAttribute
-		{
-			assert attribute != null;
-
-			try {
-				validateValue(attribute.getDefaultValue());
-			} catch (InvalidAnnotation ex) {
-				throw new InvalidAttribute(ex);
-			}
-		}
-
-		@Override
-		public void validate(DLInstance instance) throws InvalidInstance
-		{
-			assert instance != null;
-
-			try {
-				validateValue(instance.get(name));
-			} catch (InvalidAnnotation ex) {
-				throw new InvalidInstance(ex);
-			}
-		}
-
-		protected void validateValue(Object val) throws InvalidAnnotation
-		{
-			// allow to have null values
-			if (val == null) {
-				return;
-			}
-
-			// make sure its a string
-			if (!(val instanceof String)) {
-				throw new InvalidAnnotation("Attribute has to be of type String");
-			}
-
-			String stringVal = (String) val;
-
-			if (!pattern.matcher(stringVal).matches()) {
-				throw new InvalidAnnotation("Attribute value '" + name + "' has to match patttern '" + pattern.pattern() + "' but is " + stringVal);
-			}
-		}
+		public String pattern();
 	}
 
-	public RegexDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
+	@DLAnnotationParameter(ordinal = 0, required = true, validation = IsValidRegex.class)
+	protected String pattern;
 
-	public RegexDLAnnotation(String name)
+	private Pattern patternPattern;
+
+	@Override
+	protected void validateThis() throws InvalidAnnotation
 	{
-		super(name);
+		if (pattern == null) {
+			throw new InvalidAnnotation("Pattern is null");
+		}
+		
+		// Precompile pattern - after binding the pattern may not get changed anymore for consistency
+		try {
+			patternPattern = Pattern.compile(pattern);
+		} catch (PatternSyntaxException ex) {
+			throw new InvalidAnnotation("Pattern syntax  '" + pattern + "' is invalid - " + ex.getMessage(), ex);
+		}
 	}
 
 	@Override
-	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws InvalidAnnotation
+	protected boolean validateValue(Object value, ValidationResult result, DLAnnotated source)
 	{
-		assert type != null;
-		assert attribute != null;
+		assert source != null;
+		assert result != null;
 
-		parameters = validateParameters(parameters, new Class[]{String.class});
-
-		String regex = (String) parameters[0];
-
-		RegexDLInstanceValidator validator = new RegexDLInstanceValidator(attribute.getName(), Pattern.compile(regex));
-		((DefaultDLType) type).addInstanceValidator(validator);
-
-		if (attribute instanceof DefaultDLAttribute) {
-			((DefaultDLAttribute) attribute).addValidator(validator);
+		// Allow to have null values
+		if (value == null) {
+			return result.isValid();
 		}
+		
+		// Make sure its a String
+		if (!(value instanceof String)) {
+			result.addError(InvalidValueType.toString(), "Attribute has to be of type String in @" + getName(), source);
+			return result.isValid();
+		}
+
+		if (!patternPattern.matcher((String) value).matches()) {
+			result.addError(NotMatching.toString(),
+				"Value '" + value + "' does not match pattern '" + pattern + "' in @" + getName()
+			);
+			return result.isValid();
+		}
+
+		return result.isValid();
 	}
-	 */
+
+	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
+	public String getPattern()
+	{
+		return pattern;
+	}
+
+	public void setPattern(String pattern)
+	{
+		assert patternPattern == null;
+
+		this.pattern = pattern;
+	}
+	//</editor-fold>
 }

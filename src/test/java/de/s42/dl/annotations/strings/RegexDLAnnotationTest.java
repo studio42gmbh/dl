@@ -23,11 +23,11 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.strings;
 
-import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.InvalidInstance;
 import org.testng.annotations.Test;
 
@@ -37,18 +37,46 @@ import org.testng.annotations.Test;
  */
 public class RegexDLAnnotationTest
 {
-	
-	@Test(enabled = false)
-	public void validRegexAnnotations() throws DLException
+
+	@Test
+	public void simpleRegexAnnotations() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { String v @regex(\"A.{2}B.*\"); } T t { v : \"ArgBer\"; }");
+		DefaultCore core = new DefaultCore();
+
+		core.parse("simpleRegexAnnotations",
+			"type T { String v @regex(\"A.{2}B.*\"); }"
+			+ "T t { v : \"ArgBer\"; }"
+		);
 	}
 
-	@Test(enabled = false, expectedExceptions = InvalidInstance.class)
-	public void invalidRegexAnnotations() throws DLException
+	@Test(expectedExceptions = InvalidInstance.class)
+	public void invalidRegexAnnotationsValueDoesNotMatch() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { String v @regex(\"A.{2}B.*\"); } T t { v : \"AgBer\"; }");
+		DefaultCore core = new DefaultCore();
+
+		core.parse("invalidRegexAnnotationsValueDoesNotMatch",
+			"type T { String v @regex(\"A.{2}B.*\"); }"
+			+ "T t { v : \"AgBer\"; }"
+		);
+	}
+
+	@Test(expectedExceptions = InvalidAnnotation.class)
+	public void invalidRegexAnnotationMissingParameter() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+
+		core.parse("invalidRegexAnnotations",
+			"type T { String v @regex; }"
+		);
+	}
+
+	@Test(expectedExceptions = InvalidAnnotation.class)
+	public void invalidRegexAnnotationInvalidSyntax() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+
+		core.parse("invalidRegexAnnotations",
+			"type T { String v @regex(\"[.*\"); }"
+		);
 	}
 }

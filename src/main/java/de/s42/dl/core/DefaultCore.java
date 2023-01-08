@@ -46,6 +46,7 @@ import de.s42.dl.annotations.persistence.DontPersistDLAnnotation;
 import de.s42.dl.annotations.reflect.AttributeNamesDLAnnotation;
 import de.s42.dl.annotations.reflect.TypeNameDLAnnotation;
 import de.s42.dl.annotations.strings.LengthDLAnnotation;
+import de.s42.dl.annotations.strings.RegexDLAnnotation;
 import de.s42.dl.annotations.types.GenericDLAnnotation;
 import de.s42.dl.core.resolvers.FileCoreResolver;
 import de.s42.dl.core.resolvers.LibraryCoreResolver;
@@ -178,6 +179,7 @@ public class DefaultCore extends BaseDLCore
 
 		// String annotations
 		core.defineAnnotationFactory(new LengthDLAnnotation(), LengthDLAnnotation.length.class.getSimpleName(), LengthDLAnnotation.class.getName());
+		core.defineAnnotationFactory(new RegexDLAnnotation(), RegexDLAnnotation.regex.class.getSimpleName(), RegexDLAnnotation.class.getName());
 
 		// Comparison annotations
 		core.defineAnnotationFactory(new GreaterDLAnnotation(), GreaterDLAnnotation.greater.class.getSimpleName(), GreaterDLAnnotation.class.getName());

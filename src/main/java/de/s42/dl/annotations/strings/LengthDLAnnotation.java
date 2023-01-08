@@ -30,7 +30,6 @@ import de.s42.dl.annotations.AbstractValueDLContract;
 import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.annotations.DLAnnotationParameter;
 import de.s42.dl.annotations.DLAnnotationType;
-import de.s42.dl.annotations.numbers.RangeDLAnnotation;
 import de.s42.dl.exceptions.InvalidAnnotation;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
 import de.s42.dl.validation.ValidationResult;
@@ -43,7 +42,7 @@ import java.lang.annotation.Target;
  *
  * @author Benjamin Schiller
  */
-public class LengthDLAnnotation extends AbstractValueDLContract<RangeDLAnnotation>
+public class LengthDLAnnotation extends AbstractValueDLContract<LengthDLAnnotation>
 {
 
 	@Retention(RetentionPolicy.RUNTIME)
@@ -76,23 +75,23 @@ public class LengthDLAnnotation extends AbstractValueDLContract<RangeDLAnnotatio
 	}
 
 	@Override
-	protected boolean validateValue(Object val, ValidationResult result, DLAnnotated source)
+	protected boolean validateValue(Object value, ValidationResult result, DLAnnotated source)
 	{
 		assert source != null;
 		assert result != null;
 
 		// Allow to have null values
-		if (val == null) {
+		if (value == null) {
 			return result.isValid();
 		}
 
-		// Make sure its a Number
-		if (!(val instanceof String)) {
+		// Make sure its a String
+		if (!(value instanceof String)) {
 			result.addError(InvalidValueType.toString(), "Attribute has to be of type String in @" + getName(), source);
 			return result.isValid();
 		}
 
-		int length = ((String) val).length();
+		int length = ((String) value).length();
 
 		if (length < min) {
 			result.addError(InvalidValueType.toString(),

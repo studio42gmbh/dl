@@ -123,18 +123,25 @@ public class DLHrfParsing extends DLParserBaseListener
 	{
 		assert module != null;
 		assert annotationName != null;
+		
+		if (ctx == null) {
+			return new Object[0];
+		}
 
 		DLCore core = module.getType().getCore();
 
 		DLAnnotationFactory annotationFactory = core.getAnnotationFactory(annotationName).orElseThrow(() -> {
 			return new InvalidAnnotation(createErrorMessage(module, "Annotation factory @" + annotationName + " is not defined", ctx));
 		});
+		
 
-		if (ctx == null || ctx.staticParameter() == null || ctx.staticParameter().isEmpty()) {
+		if (ctx.staticParameter() == null || ctx.staticParameter().isEmpty()) {
 
-			/*if (!annotationFactory.isValidFlatParameters(new Object[0])) {
-				throw new InvalidAnnotation(createErrorMessage(module, "Flat parameters are not a valid for annotation '" + annotationName + "'", ctx));
-			}*/
+			ValidationResult result = new ValidationResult();
+			if (!annotationFactory.validateFlatParameters(new Object[]{}, result)) {
+				throw new InvalidAnnotation(createErrorMessage(module, "Parameters are not valid for annotation @" + annotationName + " - " + result.toMessage(), ctx));
+			}
+			
 			return new Object[0];
 		}
 
@@ -156,7 +163,14 @@ public class DLHrfParsing extends DLParserBaseListener
 				namedParameters.put(namedParameter.a, namedParameter.b);
 			}
 
-			return annotationFactory.toFlatParameters(namedParameters);
+			Object[] flatParameters = annotationFactory.toFlatParameters(namedParameters);
+			
+			ValidationResult result = new ValidationResult();
+			if (!annotationFactory.validateFlatParameters(flatParameters, result)) {
+				throw new InvalidAnnotation(createErrorMessage(module, "Parameters are not valid for annotation @" + annotationName + " - " + result.toMessage(), ctx));
+			}
+			
+			return flatParameters;
 		}
 
 		// Fill unnamed parameters in order
