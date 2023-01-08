@@ -45,9 +45,16 @@ extends Node;
 
 final dynamic type Statistics extends Leaf
 {
+	// Magic number
 	EvenLong42 l42 @required;
-	String version @required @length(min : 3, max : 10);
-	Node node;
+	
+	// Make sure version is a valid string of form <X>.<X>.<X> i.e. 1.0.0
+	String version 
+	@required 
+	@regex("[0-9]\\.[0-9]\\.[0-9]");
+	
+	// Allows to define an additional node
+	Node additionalNode;
 }
 
 //^ Root root
@@ -56,10 +63,12 @@ Root root {
 		version : "1.0.0";
 		l42 : 40;
 		boolean state : false;
-		node : Statistics {
+		additionalNode : Statistics {
 			version : "0.1.0";
 			l42 : 4;
-			node : Statistics bottom {
+			
+			// Final additional node
+			additionalNode : Statistics bottom {
 				version : "0.2.0";
 				l42 : 8;
 			};
@@ -69,6 +78,8 @@ Root root {
 //^
 
 boolean b : true & !(false | $root.stats.state);
-String stat : $root.stats.node.node.l42 * 2 - 2;
+String stat : $root.stats.additionalNode.additionalNode.l42 * 2 - 2;
 
-assert $root.stats.node.node.version == "0.2.0" : "Expected 0.2.0 but got " + $root.stats.node.node.version;
+// Make sure the version is correct in innermost node
+assert $root.stats.additionalNode.additionalNode.version == "0.2.0" 
+: "Expected 0.2.0 but got " + $root.stats.additionalNode.additionalNode.version;

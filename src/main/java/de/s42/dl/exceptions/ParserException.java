@@ -96,8 +96,10 @@ public class ParserException extends RuntimeException
 		startPosition = startOffset;
 		this.startOffset = startOffset;
 		endLine = 0;
-		endPosition = endOffset;
-		this.endOffset = endOffset;
+		
+		// Corrects for end positions as antlr parser might create end position before start position on parsing errors
+		endPosition = Math.max(startOffset, endOffset);
+		this.endOffset = Math.max(startOffset, endOffset);
 	}
 
 	public ParserException(String msg, int startOffset, int endOffset, Exception cause)
@@ -111,8 +113,10 @@ public class ParserException extends RuntimeException
 		startPosition = startOffset;
 		this.startOffset = startOffset;
 		endLine = 0;
-		endPosition = endOffset;
-		this.endOffset = endOffset;
+		
+		// Corrects for end positions as antlr parser might create end position before start position on parsing errors
+		endPosition = Math.max(startOffset, endOffset);
+		this.endOffset = Math.max(startOffset, endOffset);
 	}
 	
 	public ParserException(String msg, int line, int position, int offset)
@@ -157,16 +161,15 @@ public class ParserException extends RuntimeException
 		assert endLine >= 0;
 		assert endPosition >= 0;
 		assert endOffset >= 0;
-		assert endLine >= startLine;
-		assert endPosition >= startPosition;
-		assert endOffset >= startOffset;
 
 		this.startLine = startLine;
 		this.startPosition = startPosition;
 		this.startOffset = startOffset;
-		this.endLine = endLine;
+		
+		// Corrects for end positions as antlr parser might create end position before start position on parsing errors
+		this.endLine = Math.max(startLine, endLine);
 		this.endPosition = endPosition;
-		this.endOffset = endOffset;
+		this.endOffset = Math.max(startOffset, endOffset);
 	}
 
 	public ParserException(String msg, int startLine, int startPosition, int startOffset, int endLine, int endPosition, int endOffset, Exception cause)
@@ -179,16 +182,15 @@ public class ParserException extends RuntimeException
 		assert endLine >= 0;
 		assert endPosition >= 0;
 		assert endOffset >= 0;
-		assert endLine >= startLine;
-		assert endPosition >= startPosition;
-		assert endOffset >= startOffset;
 
 		this.startLine = startLine;
 		this.startPosition = startPosition;
 		this.startOffset = startOffset;
-		this.endLine = endLine;
+		
+		// Corrects for end positions as antlr parser might create end position before start position on parsing errors
+		this.endLine = Math.max(startLine, endLine);
 		this.endPosition = endPosition;
-		this.endOffset = endOffset;
+		this.endOffset = Math.max(startOffset, endOffset);
 	}
 
 	public int getStartLine()
