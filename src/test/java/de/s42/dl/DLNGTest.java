@@ -26,6 +26,7 @@
 package de.s42.dl;
 
 import de.s42.base.testing.AssertHelper;
+import de.s42.dl.language.DLVersion;
 import org.testng.annotations.Test;
 
 /**
@@ -42,7 +43,7 @@ public class DLNGTest
 	@Test
 	public void validTestVersion()
 	{
-		AssertHelper.assertStartsWith(DL.getVersion(), "0.1");
+		AssertHelper.assertStartsWith(DLVersion.getVersion(), "0.1");
 	}
 
 }

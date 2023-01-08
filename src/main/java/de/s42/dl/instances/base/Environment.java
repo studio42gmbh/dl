@@ -28,7 +28,7 @@ package de.s42.dl.instances.base;
 
 import de.s42.base.files.FilesHelper;
 import de.s42.base.system.SystemHelper;
-import de.s42.dl.DL;
+import de.s42.dl.language.DLVersion;
 
 /**
  *
@@ -44,7 +44,7 @@ public class Environment
 	
 	public String getDlVersion()
 	{
-		return DL.getVersion();
+		return DLVersion.getVersion();
 	}
 	
 	public String getOs()

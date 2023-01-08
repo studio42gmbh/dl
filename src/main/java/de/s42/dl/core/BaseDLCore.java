@@ -617,7 +617,6 @@ public class BaseDLCore implements DLCore
 		return result;
 	}
 
-	@Override
 	public List<DLType> getComplexTypes()
 	{
 		return types
@@ -629,7 +628,6 @@ public class BaseDLCore implements DLCore
 			.collect(Collectors.toUnmodifiableList());
 	}
 
-	@Override
 	public List<DLType> getSimpleTypes()
 	{
 		return types

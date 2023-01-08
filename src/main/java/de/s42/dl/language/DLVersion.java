@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
+package de.s42.dl.language;
 
 import de.s42.base.resources.ResourceHelper;
 import java.io.IOException;
@@ -32,10 +32,10 @@ import java.io.IOException;
  *
  * @author Benjamin Schiller
  */
-public final class DL
+public final class DLVersion
 {
 
-	private DL()
+	private DLVersion()
 	{
 		// never instantiated
 	}
@@ -43,7 +43,7 @@ public final class DL
 	public static String getVersion()
 	{
 		try {
-			return ResourceHelper.getResourceAsString(DL.class, "dl.version").get();
+			return ResourceHelper.getResourceAsString("de/s42/dl/dl.version").get();
 		} catch (IOException ex) {
 			throw new RuntimeException("Version file is missing - " + ex.getMessage(), ex);
 		}

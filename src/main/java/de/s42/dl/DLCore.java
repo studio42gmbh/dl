@@ -88,10 +88,6 @@ public interface DLCore
 
 	public List<DLType> getTypes(Class<? extends DLAnnotation> annotationType);
 
-	public List<DLType> getComplexTypes();
-
-	public List<DLType> getSimpleTypes();
-
 	public boolean isAllowDefineTypes();
 
 	public void setAllowDefineTypes(boolean allowDefineTypes);
