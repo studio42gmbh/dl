@@ -30,8 +30,6 @@ import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.annotations.DLAnnotationType;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
 import de.s42.dl.validation.ValidationResult;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -43,8 +41,6 @@ import java.lang.annotation.Target;
  */
 public class EvenDLAnnotation extends AbstractValueDLContract<EvenDLAnnotation>
 {
-
-	private final static Logger log = LogManager.getLogger(EvenDLAnnotation.class.getName());
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = {ElementType.FIELD})
@@ -58,15 +54,15 @@ public class EvenDLAnnotation extends AbstractValueDLContract<EvenDLAnnotation>
 	{
 		assert source != null;
 		assert result != null;
-		
-		// allow to have null values
+
+		// Allow to have null values
 		if (val == null) {
 			return result.isValid();
 		}
 
-		// make sure its a Number
+		// Make sure its a Number
 		if (!(val instanceof Number)) {
-			result.addError(InvalidValueType.toString(), "Value has to be of type Number", source);
+			result.addError(InvalidValueType.toString(), "Value has to be of type Number in @" + getName(), source);
 			return result.isValid();
 		}
 
@@ -74,7 +70,7 @@ public class EvenDLAnnotation extends AbstractValueDLContract<EvenDLAnnotation>
 
 		if (longVal % 2 != 0) {
 			result.addError(InvalidValueType.toString(),
-				"Value has to be even but is " + longVal,
+				"Value has to be even but is " + longVal + " in @" + getName(),
 				source
 			);
 		}

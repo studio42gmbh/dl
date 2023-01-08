@@ -27,6 +27,8 @@ package de.s42.dl;
 
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAnnotation;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidParameters;
+import de.s42.dl.validation.ValidationResult;
 import java.util.Map;
 
 /**
@@ -59,6 +61,23 @@ public interface DLAnnotationFactory<DLAnnotationType extends DLAnnotation>
 		return false;
 	}
 
+	/**
+	 * Shall provide a qualified validation reporting to help the user (used in parsing).
+	 * @param namedParameters
+	 * @param result
+	 * @return 
+	 */
+	default public boolean validateNamedParameters(Map<String, Object> namedParameters, ValidationResult result)
+	{
+		assert result != null;
+		
+		if (!isValidNamedParameters(namedParameters)) {
+			result.addError(InvalidParameters.toString(), "Named parameters are invalid", this);
+		}
+		
+		return result.isValid();
+	}
+	
 	default public boolean isValidNamedParameter(String name, Object value)
 	{
 		return false;
@@ -67,6 +86,23 @@ public interface DLAnnotationFactory<DLAnnotationType extends DLAnnotation>
 	default public boolean isValidFlatParameters(Object[] flatParameters)
 	{
 		return false;
+	}
+
+	/**
+	 * Shall provide a qualified validation reporting to help the user (used in parsing).
+	 * @param flatParameters
+	 * @param result
+	 * @return 
+	 */
+	default public boolean validateFlatParameters(Object[] flatParameters, ValidationResult result)
+	{
+		assert result != null;
+		
+		if (!isValidFlatParameters(flatParameters)) {
+			result.addError(InvalidParameters.toString(), "Flat parameters are invalid", this);
+		}
+		
+		return result.isValid();
 	}
 
 	default public Object[] toFlatParameters(Map<String, Object> namedParameters) throws DLException

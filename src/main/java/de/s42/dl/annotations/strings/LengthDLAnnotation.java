@@ -25,111 +25,109 @@
 //</editor-fold>
 package de.s42.dl.annotations.strings;
 
-import de.s42.dl.annotations.AbstractDLAnnotation;
+import de.s42.base.validation.IsGreaterEqual0;
+import de.s42.dl.annotations.AbstractValueDLContract;
+import de.s42.dl.annotations.DLAnnotated;
+import de.s42.dl.annotations.DLAnnotationParameter;
+import de.s42.dl.annotations.DLAnnotationType;
+import de.s42.dl.annotations.numbers.RangeDLAnnotation;
+import de.s42.dl.exceptions.InvalidAnnotation;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
+import de.s42.dl.validation.ValidationResult;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class LengthDLAnnotation extends AbstractDLAnnotation
+public class LengthDLAnnotation extends AbstractValueDLContract<RangeDLAnnotation>
 {
 
-	public final static String DEFAULT_SYMBOL = "length";
-
-	/*
-	private static class LengthDLInstanceValidator implements DLInstanceValidator, DLAttributeValidator
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = {ElementType.FIELD})
+	@DLAnnotationType(LengthDLAnnotation.class)
+	public static @interface length
 	{
 
-		private final String name;
-		private final int min;
-		private final int max;
+		public int min() default 0;
 
-		LengthDLInstanceValidator(String name, int min, int max)
-		{
-			assert name != null;
-			assert min >= 0;
-			assert max > min;
-
-			this.name = name;
-			this.min = min;
-			this.max = max;
-		}
-
-		@Override
-		public void validate(DLAttribute attribute) throws InvalidAttribute
-		{
-			assert attribute != null;
-
-			try {
-				validateValue(attribute.getDefaultValue());
-			} catch (InvalidAnnotation ex) {
-				throw new InvalidAttribute(ex);
-			}
-		}
-
-		@Override
-		public void validate(DLInstance instance) throws InvalidInstance
-		{
-			assert instance != null;
-
-			try {
-				validateValue(instance.get(name));
-			} catch (InvalidAnnotation ex) {
-				throw new InvalidInstance(ex);
-			}
-		}
-
-		protected void validateValue(Object val) throws InvalidAnnotation
-		{
-			// allow to have null values
-			if (val == null) {
-				return;
-			}
-
-			// make sure its a string
-			if (!(val instanceof String)) {
-				throw new InvalidAnnotation("Attribute has to be of type String");
-			}
-
-			int length = ((String) val).length();
-
-			if (length < min) {
-				throw new InvalidAnnotation("Attribute value '" + name + "' has to be min length " + min + " but is " + length);
-			}
-
-			if (length > max) {
-				throw new InvalidAnnotation("Attribute value '" + name + "' has to be max length " + max + " but is " + length);
-			}
-		}
+		public int max() default Integer.MAX_VALUE;
 	}
 
-	public LengthDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
+	@DLAnnotationParameter(ordinal = 0, defaultValue = "0", validation = IsGreaterEqual0.class)
+	protected int min = 0;
 
-	public LengthDLAnnotation(String name)
+	@DLAnnotationParameter(ordinal = 1, defaultValue = "2147483647")
+	protected int max = Integer.MAX_VALUE;
+
+	@Override
+	protected void validateThis() throws InvalidAnnotation
 	{
-		super(name);
+		if (min < 0) {
+			throw new InvalidAnnotation("min '" + min + "' < 0");
+		}
+
+		if (min > max) {
+			throw new InvalidAnnotation("min : '" + min + "' > max : '" + max + "'");
+		}
 	}
 
 	@Override
-	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws InvalidAnnotation
+	protected boolean validateValue(Object val, ValidationResult result, DLAnnotated source)
 	{
-		assert type != null;
-		assert attribute != null;
+		assert source != null;
+		assert result != null;
 
-		parameters = validateParameters(parameters, new Class[]{Integer.class, Integer.class});
-
-		int min = (Integer) parameters[0];
-		int max = (Integer) parameters[1];
-
-		LengthDLInstanceValidator validator = new LengthDLInstanceValidator(attribute.getName(), min, max);
-		((DefaultDLType) type).addInstanceValidator(validator);
-
-		if (attribute instanceof DefaultDLAttribute) {
-			((DefaultDLAttribute) attribute).addValidator(validator);
+		// Allow to have null values
+		if (val == null) {
+			return result.isValid();
 		}
+
+		// Make sure its a Number
+		if (!(val instanceof String)) {
+			result.addError(InvalidValueType.toString(), "Attribute has to be of type String in @" + getName(), source);
+			return result.isValid();
+		}
+
+		int length = ((String) val).length();
+
+		if (length < min) {
+			result.addError(InvalidValueType.toString(),
+				"Value has to be min " + min + " chars but is " + length + " in @" + getName(),
+				source
+			);
+		} else if (length > max) {
+			result.addError(InvalidValueType.toString(),
+				"Value has to be max " + max + " chars but is " + length + " in @" + getName(),
+				source
+			);
+		}
+
+		return result.isValid();
 	}
-	 */
+
+	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
+	public int getMin()
+	{
+		return min;
+	}
+
+	public void setMin(int min)
+	{
+		this.min = min;
+	}
+
+	public int getMax()
+	{
+		return max;
+	}
+
+	public void setMax(int max)
+	{
+		this.max = max;
+	}
+	//</editor-fold>	
 }

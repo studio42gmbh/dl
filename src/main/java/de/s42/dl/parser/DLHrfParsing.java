@@ -127,7 +127,7 @@ public class DLHrfParsing extends DLParserBaseListener
 		DLCore core = module.getType().getCore();
 
 		DLAnnotationFactory annotationFactory = core.getAnnotationFactory(annotationName).orElseThrow(() -> {
-			return new InvalidAnnotation(createErrorMessage(module, "Annotation factory '" + annotationName + "' is not defined", ctx));
+			return new InvalidAnnotation(createErrorMessage(module, "Annotation factory @" + annotationName + " is not defined", ctx));
 		});
 
 		if (ctx == null || ctx.staticParameter() == null || ctx.staticParameter().isEmpty()) {
@@ -150,7 +150,7 @@ public class DLHrfParsing extends DLParserBaseListener
 				Pair<String, Object> namedParameter = fetchNamedStaticParameter(module, ctx.staticParameter().get(i));
 
 				if (!annotationFactory.isValidNamedParameter(namedParameter.a, namedParameter.b)) {
-					throw new InvalidAnnotation(createErrorMessage(module, "Parameter " + namedParameter.a + " is not a valid named parameter in annotation '" + annotationName + "' - value " + namedParameter.b, ctx.staticParameter(i)));
+					throw new InvalidAnnotation(createErrorMessage(module, "Parameter " + namedParameter.a + " is not a valid named parameter in annotation @" + annotationName + " - value " + namedParameter.b, ctx.staticParameter(i)));
 				}
 
 				namedParameters.put(namedParameter.a, namedParameter.b);
@@ -166,8 +166,9 @@ public class DLHrfParsing extends DLParserBaseListener
 			parameters[i] = fetchStaticParameter(module, ctx.staticParameter().get(i));
 		}
 
-		if (!annotationFactory.isValidFlatParameters(parameters)) {
-			throw new InvalidAnnotation(createErrorMessage(module, "Flat parameters are not a valid for annotation '" + annotationName + "'", ctx));
+		ValidationResult result = new ValidationResult();
+		if (!annotationFactory.validateFlatParameters(parameters, result)) {
+			throw new InvalidAnnotation(createErrorMessage(module, "Parameters are not valid for annotation @" + annotationName + " - " + result.toMessage(), ctx));
 		}
 
 		return parameters;
@@ -224,9 +225,8 @@ public class DLHrfParsing extends DLParserBaseListener
 		if (ctx == null) {
 			return Collections.EMPTY_LIST;
 		}
-		
-		List<DLType> genericTypes = new ArrayList<>();
 
+		List<DLType> genericTypes = new ArrayList<>();
 
 		for (GenericParameterContext genericParameter : ctx.genericParameter()) {
 
@@ -1133,8 +1133,8 @@ public class DLHrfParsing extends DLParserBaseListener
 				try {
 					core.createAnnotation(annotationName, attribute, parameters);
 				} catch (DLException ex) {
-					throw new InvalidAnnotation(createErrorMessage(module, "Error binding annotation '"
-						+ annotationName + "' to attribute '" + attribute.getName() + "'", ex, aCtx.annotationName()), ex);
+					throw new InvalidAnnotation(createErrorMessage(module, "Error binding annotation @"
+						+ annotationName + " to attribute '" + attribute.getName() + "'", ex, aCtx.annotationName()), ex);
 				}
 			});
 

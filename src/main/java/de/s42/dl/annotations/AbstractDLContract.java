@@ -28,6 +28,7 @@ package de.s42.dl.annotations;
 import de.s42.dl.DLAttribute;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
+import de.s42.dl.exceptions.DLException;
 
 /**
  *
@@ -37,11 +38,22 @@ import de.s42.dl.DLType;
 public abstract class AbstractDLContract<DLConceptType extends DLContract>
 	extends AbstractDLAnnotation<DLConceptType> implements DLContract
 {
+	
+	/**
+	 * Allows this contract to vlaidate its internal values before binding to entities
+	 * @throws DLException 
+	 */
+	protected void validateThis() throws DLException
+	{
+		// Overload to do checking of internal values of this contract (i.e. max >= min, min >= 0 etc.)
+	}
 
 	@Override
-	final public void bindToInstance(DLInstance instance)
+	final public void bindToInstance(DLInstance instance) throws DLException
 	{
 		assert instance != null;
+		
+		validateThis();
 
 		//log.debug("bindToInstance", instance);
 		container = instance;
@@ -53,9 +65,11 @@ public abstract class AbstractDLContract<DLConceptType extends DLContract>
 	}
 
 	@Override
-	final public void bindToType(DLType type)
+	final public void bindToType(DLType type) throws DLException
 	{
 		assert type != null;
+
+		validateThis();
 
 		//log.debug("bindToType", type);
 		container = type;
@@ -71,9 +85,11 @@ public abstract class AbstractDLContract<DLConceptType extends DLContract>
 	}
 
 	@Override
-	final public void bindToAttribute(DLAttribute attribute)
+	final public void bindToAttribute(DLAttribute attribute) throws DLException
 	{
 		assert attribute != null;
+
+		validateThis();
 
 		//log.debug("bindToAttribute", attribute);
 		container = attribute;

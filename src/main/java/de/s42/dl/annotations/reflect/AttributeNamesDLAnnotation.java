@@ -31,8 +31,6 @@ import de.s42.dl.annotations.*;
 import de.s42.dl.DLType;
 import static de.s42.dl.validation.DefaultValidationCode.NotMatching;
 import de.s42.dl.validation.ValidationResult;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -46,8 +44,6 @@ import java.util.regex.Pattern;
  */
 public class AttributeNamesDLAnnotation extends AbstractDLContract<AttributeNamesDLAnnotation>
 {
-
-	private final static Logger log = LogManager.getLogger(AttributeNamesDLAnnotation.class.getName());
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = {ElementType.TYPE})
@@ -82,6 +78,12 @@ public class AttributeNamesDLAnnotation extends AbstractDLContract<AttributeName
 	private Pattern typePatternPattern;
 
 	@Override
+	public boolean canValidateType()
+	{
+		return true;
+	}
+
+	@Override
 	public boolean validate(DLType type, ValidationResult result)
 	{
 		assert type != null;
@@ -98,17 +100,14 @@ public class AttributeNamesDLAnnotation extends AbstractDLContract<AttributeName
 
 			// If the attribute name does not match pattern -> validation Error
 			if (!patternPattern.matcher(attribute.getName()).matches()) {
-				result.addError(NotMatching.toString(), "Attribute name '" + attribute.getName() + "' in type '" + type + "' does not match pattern '" + pattern + "'");
+				result.addError(
+					NotMatching.toString(),
+					"Attribute name '" + attribute.getName() + "' in type '" + type + "' does not match pattern '" + pattern + "' in @" + getName()
+				);
 			}
 		}
 
 		return result.isValid();
-	}
-
-	@Override
-	public boolean canValidateType()
-	{
-		return true;
 	}
 
 	protected synchronized void preparePatterns()

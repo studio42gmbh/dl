@@ -23,11 +23,11 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.annotations;
+package de.s42.dl.annotations.strings;
 
-import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.InvalidInstance;
 import org.testng.annotations.Test;
 
@@ -38,17 +38,49 @@ import org.testng.annotations.Test;
 public class LengthDLAnnotationTest
 {
 
-	@Test(enabled = false)
-	public void validLengthAnnotations() throws DLException
+	@Test
+	public void simpleLengthAnnotations() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("validLengthAnnotations", "type T { String v @length(5, 20); } T t { v : \"LongEnough\"; }");
+		DefaultCore core = new DefaultCore();
+
+		core.parse("simpleLengthAnnotations",
+			"type T { String v @length(max : 20); }"
+			+ "T t { v : \"LongEnough\"; }"
+			+ "type T2 { String v @length(5, 20); }"
+			+ "T2 t2 { v : \"LongEnough\"; }"
+			+ "type T3 { String v @length(max : 20, min : 5); }"
+			+ "T3 t3 { v : \"LongEnough\"; }"
+		);
 	}
 
-	@Test(enabled = false, expectedExceptions = InvalidInstance.class)
+	@Test(expectedExceptions = InvalidInstance.class)
 	public void invalidLengthAnnotations() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("invalidLengthAnnotations", "type T { String v @length(10, 20); } T t { v : \"TooShort\"; }");
+		DefaultCore core = new DefaultCore();
+
+		core.parse("invalidLengthAnnotations",
+			"type T { String v @length(10, 20); }"
+			+ "T t { v : \"TooShort\"; }"
+		);
+	}
+
+	@Test(expectedExceptions = InvalidAnnotation.class)
+	public void invalidLengthAnnotationParametersMinGreaterMax() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+
+		core.parse("invalidLengthAnnotationParametersMinGreaterMax",
+			"type T { String v @length(20, 10); }"
+		);
+	}
+
+	@Test(expectedExceptions = InvalidAnnotation.class)
+	public void invalidLengthAnnotationParametersMinSmaller0() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+
+		core.parse("invalidLengthAnnotationParametersMinSmaller0",
+			"type T { String v @length(-1, 10); }"
+		);
 	}
 }

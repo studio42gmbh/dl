@@ -32,6 +32,7 @@ package de.s42.dl.validation;
 public enum DefaultValidationCode
 {
 	InvalidGenericParameters,
+	InvalidParameters,
 	DynamicAttributeNotAllowed,
 	InvalidValueType,
 	InvalidGenericTypes,

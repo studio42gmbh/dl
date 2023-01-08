@@ -33,6 +33,9 @@ import de.s42.base.conversion.ConversionHelper;
 import de.s42.dl.DLAnnotation;
 import de.s42.dl.annotations.DLAnnotationParameter;
 import de.s42.dl.exceptions.InvalidValue;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidParameters;
+import de.s42.dl.validation.NoopValidationResult;
+import de.s42.dl.validation.ValidationResult;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.lang.reflect.Field;
@@ -112,90 +115,6 @@ public final class NamedParameters
 		}
 	}
 
-	/**
-	 * This allows to synthetizise the parameters from a given annotation.
-	 * THIS FEATURE IS EXPERIMEMTAL!
-	 *
-	 * @ param annotationClass
-	 *
-	 */
-	/*
-	public NamedParameters(Class<? extends Annotation> annotationClass) throws RuntimeException
-	{
-		assert annotationClass != null;
-
-		List<NamedParameter> parametersAsList = new ArrayList();
-
-		// Read values from fixed fields
-		for (Field field : annotationClass.getFields()) {
-
-			if (!DLAnnotationHelper.SUPPRESSED_ANNOTATION_ELEMENT_NAMES.contains(field.getName())) {
-
-				// Just load paraneters with annotation @DLAnnotationParameter
-				DLAnnotationParameter annotationParameter = field.getAnnotation(DLAnnotationParameter.class);
-
-				if (annotationParameter != null) {
-
-					Class type = ConversionHelper.wrapPrimitives(field.getType());
-					NamedParameter namedParameter;
-					try {
-						namedParameter = new NamedParameter(
-							field.getName(),
-							type,
-							null,
-							(Function<Object, Boolean>) annotationParameter.validation().getConstructor().newInstance()
-						);
-					} catch (RuntimeException | IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException ex) {
-						throw new RuntimeException("Error creating named parameters from annotation class '" + annotationClass.getName() + "' - " + ex.getMessage(), ex);
-					}
-					// Set the given ordinal
-					namedParameter.ordinal = annotationParameter.ordinal();
-					// @todo determine ordinal from special annotation to each field/method
-					parametersAsList.add(namedParameter);
-				}
-			}
-		}
-
-		// Read values from methods
-		for (Method method : annotationClass.getMethods()) {
-
-			if (!DLAnnotationHelper.SUPPRESSED_ANNOTATION_ELEMENT_NAMES.contains(method.getName())) {
-
-				// Just load paraneters with annotation @DLAnnotationParameter
-				DLAnnotationParameter annotationParameter = method.getAnnotation(DLAnnotationParameter.class);
-
-				if (annotationParameter != null) {
-
-					Class type = ConversionHelper.wrapPrimitives(method.getReturnType());
-					Object defaultValue = method.getDefaultValue();
-					NamedParameter namedParameter;
-					try {
-						namedParameter = new NamedParameter(
-							method.getName(),
-							type,
-							defaultValue,
-							(Function<Object, Boolean>) annotationParameter.validation().getConstructor().newInstance()
-						);
-					} catch (RuntimeException | IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException ex) {
-						throw new RuntimeException("Error creating named parameters from annotation class '" + annotationClass.getName() + "' - " + ex.getMessage(), ex);
-					}
-					// Set the given ordinal
-					namedParameter.ordinal = annotationParameter.ordinal();
-					// @todo determine ordinal from special annotation to each field/method
-					parametersAsList.add(namedParameter);
-				}
-			}
-		}
-		// Sort all parameters by the given ordinal
-		parametersAsList.sort((o1, o2) -> {
-			return Integer.compare(o1.ordinal, o2.ordinal);
-		});
-
-		this.parameters = parametersAsList.toArray(NamedParameter[]::new);
-
-		init();
-	}
-	 */
 	/**
 	 *
 	 * @param parameters
@@ -411,6 +330,36 @@ public final class NamedParameters
 		return true;
 	}
 
+	public boolean validateFlatParameters(Object[] flatParameters, ValidationResult result)
+	{
+		assert result != null;
+		
+		// If both are null we are always good
+		if (flatParameters == null && parameters.length == 0) {
+			return result.isValid();
+		}
+
+		// The flatparameters may never be longer than the parameters
+		if (flatParameters != null && flatParameters.length > parameters.length) {
+			result.addError(InvalidParameters.toString(), "Length of flat parameters differs", this);
+			return result.isValid();
+		}
+
+		for (int i = 0; i < parameters.length; ++i) {
+			NamedParameter parameter = parameters[i];
+
+			Object flatParameter = null;
+
+			if (flatParameters != null && flatParameters.length > i) {
+				flatParameter = flatParameters[i];
+			}
+
+			parameter.validate(flatParameter, result);
+		}
+
+		return result.isValid();
+	}
+	
 	public boolean isValidNamedParameters(Map<String, Object> namedParameters)
 	{
 		try {

@@ -62,6 +62,16 @@ public class TypeNameDLAnnotation extends AbstractDLContract<TypeNameDLAnnotatio
 
 	private Pattern patternPattern;
 
+	protected synchronized void preparePatterns()
+	{
+		if (patternPattern != null) {
+			return;
+		}
+
+		// Precompile pattern - after binding the pattern and typepattern may not get changed anymore for consistency
+		patternPattern = Pattern.compile(pattern);
+	}
+
 	@Override
 	public boolean validate(DLType type, ValidationResult result)
 	{
@@ -75,7 +85,10 @@ public class TypeNameDLAnnotation extends AbstractDLContract<TypeNameDLAnnotatio
 		preparePatterns();
 
 		if (!patternPattern.matcher(type.getName()).matches()) {
-			result.addError(NotMatching.toString(), "Type name '" + type.getName() + "' does not match pattern '" + pattern + "'");
+			result.addError(
+				NotMatching.toString(),
+				"Type name '" + type.getName() + "' does not match pattern '" + pattern + "' in @" + getName()
+			);
 			return false;
 		}
 
@@ -86,16 +99,6 @@ public class TypeNameDLAnnotation extends AbstractDLContract<TypeNameDLAnnotatio
 	public boolean canValidateType()
 	{
 		return true;
-	}
-
-	protected synchronized void preparePatterns()
-	{
-		if (patternPattern != null) {
-			return;
-		}
-
-		// Precompile pattern - after binding the pattern and typepattern may not get changed anymore for consistency
-		patternPattern = Pattern.compile(pattern);
 	}
 
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">

@@ -29,10 +29,9 @@ import de.s42.dl.annotations.AbstractValueDLContract;
 import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.annotations.DLAnnotationParameter;
 import de.s42.dl.annotations.DLAnnotationType;
+import de.s42.dl.exceptions.InvalidAnnotation;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidValueType;
 import de.s42.dl.validation.ValidationResult;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -44,8 +43,6 @@ import java.lang.annotation.Target;
  */
 public class RangeDLAnnotation extends AbstractValueDLContract<RangeDLAnnotation>
 {
-
-	private final static Logger log = LogManager.getLogger(RangeDLAnnotation.class.getName());
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = {ElementType.FIELD})
@@ -65,17 +62,25 @@ public class RangeDLAnnotation extends AbstractValueDLContract<RangeDLAnnotation
 	protected double max = Double.MAX_VALUE;
 
 	@Override
+	protected void validateThis() throws InvalidAnnotation
+	{
+		if (min > max) {
+			throw new InvalidAnnotation("min '" + min + "' > max '" + min + "' in @" + getName());
+		}
+	}
+
+	@Override
 	protected boolean validateValue(Object val, ValidationResult result, DLAnnotated source)
 	{
 		assert source != null;
 		assert result != null;
-		
-		// allow to have null values
+
+		// Allow to have null values
 		if (val == null) {
 			return result.isValid();
 		}
 
-		// make sure its a Number
+		// Make sure its a Number
 		if (!(val instanceof Number)) {
 			result.addError(InvalidValueType.toString(), "Attribute has to be of type Number in @" + getName(), source);
 			return result.isValid();
@@ -97,7 +102,7 @@ public class RangeDLAnnotation extends AbstractValueDLContract<RangeDLAnnotation
 
 		return result.isValid();
 	}
-	
+
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
 	public double getMin()
 	{

@@ -35,6 +35,7 @@ import de.s42.dl.exceptions.InvalidAnnotation;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.parameters.NamedParameter;
 import de.s42.dl.parameters.NamedParameters;
+import de.s42.dl.validation.ValidationResult;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.lang.reflect.InvocationTargetException;
@@ -162,6 +163,14 @@ public abstract class AbstractDLAnnotation<DLAnnotationType extends DLAnnotation
 		return parameters.isValidFlatParameters(flatParameters);
 	}
 
+	@Override
+	public boolean validateFlatParameters(Object[] flatParameters, ValidationResult result)
+	{
+		assert result != null;
+		
+		return parameters.validateFlatParameters(flatParameters, result);
+	}
+	
 	public <ObjectType> ObjectType getNamedParameter(String parameterName, Object[] flatParameters) throws InvalidAnnotation
 	{
 		return parameters.get(parameterName, flatParameters);

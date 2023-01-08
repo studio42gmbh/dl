@@ -26,6 +26,8 @@
 package de.s42.dl.parameters;
 
 import de.s42.base.strings.StringHelper;
+import static de.s42.dl.validation.DefaultValidationCode.InvalidParameters;
+import de.s42.dl.validation.ValidationResult;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
@@ -86,6 +88,24 @@ public final class NamedParameter
 		}
 
 		return true;
+	}
+	
+	public boolean validate(Object value, ValidationResult result)
+	{
+		assert result != null;
+		
+		if (required && value == null) {
+			result.addError(InvalidParameters.toString(), "Parameter '" + name + "' is required", this);
+			return result.isValid();
+		}
+		
+		if (validate != null) {
+			if (!validate.apply(value)) {
+				result.addError(InvalidParameters.toString(), "Parameter '" + name + "' validation " + validate.getClass().getSimpleName() + " failed", this);
+			}
+		}
+
+		return result.isValid();
 	}
 
 	public <ObjectType> ObjectType get(Object[] flatParameters)
