@@ -36,7 +36,7 @@ import java.util.*;
  * A core is not intended to be used to parse in multiple threads!
  * @author Benjamin Schiller
  */
-public interface DLCore
+public interface DLCore extends DLEntity
 {
 
 	public Path getBasePath();
@@ -139,8 +139,6 @@ public interface DLCore
 	public Optional<DLInstance> getExported(String name);
 
 	public List<DLInstance> getExported(Class<? extends DLAnnotation> annotationType);
-
-	public Object resolveExportedPath(String path);
 
 	// PRAGMAS
 	public DLPragma definePragma(DLPragma pragma, String... aliases) throws DLException;

@@ -518,56 +518,6 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 		return !children.isEmpty();
 	}
 
-	protected Object resolveChildOrAttribute(DLInstance instance, String name)
-	{
-		assert instance != null;
-		assert name != null;
-		
-		Optional<DLInstance> child = instance.getChild(name);
-
-		if (child.isPresent()) {
-			return child.get();
-		}
-
-		return instance.get(name);
-	}
-
-	@Override
-	public Optional resolvePath(String path)
-	{
-		assert path != null;
-
-		String[] pathSegments = path.split("\\.");
-		DefaultDLInstance current = this;
-
-		for (int i = 0; i < pathSegments.length; ++i) {
-			String pathSegment = pathSegments[i];
-			Object child = resolveChildOrAttribute(current, pathSegment);
-
-			if (child == null) {
-				//throw new InvalidValue("Path " + path + " could not get resolved for " + pathSegment);
-				return Optional.empty();
-			}
-
-			if (child instanceof DefaultDLInstance) {
-				current = (DefaultDLInstance) child;
-			} else if (i < pathSegments.length - 1) {
-				//throw new InvalidValue("Path " + path + " could not get resolved for " + pathSegment);
-				return Optional.empty();
-			} else {
-				return Optional.of(child);
-			}
-		}
-
-		// https://github.com/studio42gmbh/dl/issues/13 Unwrap simple instances
-		// @improvement this unwrapping should be done more generic if possible
-		if (current instanceof SimpleTypeDLInstance) {
-			return Optional.ofNullable(((SimpleTypeDLInstance) current).getData());
-		}
-
-		return Optional.of(current);
-	}
-
 	@Override
 	public boolean isNamed()
 	{

@@ -23,54 +23,51 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl;
-
-import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.InvalidAnnotation;
-import java.util.Map;
+package de.s42.dl.language;
 
 /**
  *
  * @author Benjamin Schiller
- * @param <DLAnnotationType>
  */
-public interface DLAnnotationFactory<DLAnnotationType extends DLAnnotation>
+public enum DLOperator
 {
-	public Class<DLAnnotationType> getAnnotationType();
+	And("&"),
+	Or("|"),
+	Not("!"),
+	Xor("!="),
+	Equals("=="),
+	Like("!="),
+	Plus("+"),
+	Minus("-"),
+	Pow("^"),
+	Multiply("*"),
+	Divide("/"),
+	Comma(",");
 
-	public DLAnnotationType createAnnotation(String name, Object[] flatParameters) throws DLException;
+	public final String operator;
 
-	default public DLAnnotationType createAnnotation(String name) throws DLException
-	{
-		assert name != null;
-		
-		return createAnnotation(name, new Object[]{});
+	public final static String[] OPERATORS;
+
+	static {
+		OPERATORS = new String[DLOperator.values().length];
+
+		for (int i = 0; i < DLOperator.values().length; ++i) {
+			OPERATORS[i] = DLOperator.values()[i].operator;
+		}
 	}
 
-	default public DLAnnotationType createAnnotation(String name, Map<String, Object> namedParameters) throws DLException
+	private DLOperator(String operator)
 	{
-		assert name != null;
-		
-		return createAnnotation(name, toFlatParameters(namedParameters));
-	}
-	
-	default public boolean isValidNamedParameters(Map<String, Object> namedParameters)
-	{
-		return false;
+		this.operator = operator;
 	}
 
-	default public boolean isValidNamedParameter(String name, Object value)
+	public static String[] getOperators()
 	{
-		return false;
+		return OPERATORS;
 	}
 
-	default public boolean isValidFlatParameters(Object[] flatParameters)
+	public boolean equals(String other)
 	{
-		return false;
-	}
-
-	default public Object[] toFlatParameters(Map<String, Object> namedParameters) throws DLException
-	{
-		throw new InvalidAnnotation("Can not flatten parameters");
+		return operator.equalsIgnoreCase(other);
 	}
 }

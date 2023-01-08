@@ -2,7 +2,7 @@
 /*
  * The MIT License
  * 
- * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
+ * Copyright 2023 Studio 42 GmbH ( https://www.s42m.de ).
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,22 +25,15 @@
 //</editor-fold>
 package de.s42.dl;
 
-import java.util.List;
+import de.s42.dl.exceptions.ParserException;
 import java.util.Optional;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public interface DLModule extends DLInstance
+public interface DLPathResolver
 {
 
-	public String getShortName();
-
-	public List<DLType> getDefinedTypes();
-
-	// TYPES
-	public boolean addDefinedType(DLType type);
-
-	public Optional<DLType> getDefinedType(String tpyeName);
+	public Optional<Object> resolve(DLEntity context, String path) throws ParserException;
 }

@@ -78,22 +78,6 @@ public class DefaultDLModule extends DefaultDLInstance implements DLModule
 	}
 
 	@Override
-	public Optional<?> resolveReference(String path)
-	{
-		assert path != null;
-
-		DLCore core = getCore();
-
-		Object exportedOpt = core.resolveExportedPath(path);
-
-		if (exportedOpt != null) {
-			return Optional.of(exportedOpt);
-		}
-
-		return resolvePath(path);
-	}
-
-	@Override
 	public List<DLType> getDefinedTypes()
 	{
 		return Collections.unmodifiableList(definedTypes);
@@ -110,6 +94,8 @@ public class DefaultDLModule extends DefaultDLInstance implements DLModule
 	@Override
 	public Optional<DLType> getDefinedType(String typeName)
 	{
+		assert typeName != null;
+
 		return definedTypes
 			.stream()
 			.filter((filterType) -> {

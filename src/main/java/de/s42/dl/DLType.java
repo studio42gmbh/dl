@@ -105,12 +105,10 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 
 	public boolean hasContainedTypes();
 
-	public boolean mayContainSpecificType(DLType type);
-
 	public boolean mayContainType(DLType type);
 
 	// ATTRIBUTES
-	public void addAttribute(DLAttribute attribue) throws InvalidType;
+	public void addAttribute(DLAttribute attribute) throws InvalidType;
 
 	public Set<DLAttribute> getOwnAttributes();
 

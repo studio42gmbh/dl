@@ -83,7 +83,6 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 	public DefaultDLType()
 	{
-
 	}
 
 	public DefaultDLType(DLCore core)
@@ -259,7 +258,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	{
 		assert instance != null;
 		assert result != null;
-		
+
 		// Make sure you compare an instance of this type
 		if (!this.equals(instance.getType())) {
 			result.addError(InvalidType.toString(), "Instance does have an assignable type '" + instance.getType() + "' to this '" + this + "'", this);
@@ -270,7 +269,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 		for (DLInstanceValidator validator : getInstanceValidators()) {
 			validator.validate(instance, result);
 		}
-		
+
 		// Value validators
 		for (DLAttribute attribute : getOwnAttributes()) {
 			Object value = instance.get(attribute.getName());
@@ -284,27 +283,27 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 		return result.isValid();
 	}
-	
+
 	protected boolean validateInstanceParentIntern(DLType parent, DLInstance instance, ValidationResult result)
 	{
 		assert parent != null;
 		assert instance != null;
 		assert result != null;
-		
+
 		for (DLInstanceValidator validator : parent.getInstanceValidators()) {
 			validator.validate(instance, result);
 		}
-		
+
 		// Value validators
 		for (DLAttribute attribute : parent.getOwnAttributes()) {
 
 			Object value = instance.get(attribute.getName());
 			attribute.validateValue(value, result);
-		}		
-		
+		}
+
 		return result.isValid();
 	}
-		
+
 	@Override
 	public boolean isDerivedTypeOf(DLType other)
 	{
@@ -348,22 +347,21 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	public boolean validateRead(Object source, ValidationResult result)
 	{
 		for (DLTypeValidator validator : validators) {
-			
-			
+
 			if (validator.canValidateTypeRead()) {
 				validator.validate(this, source, result);
 			}
 		}
 
 		// Iterate all validators of parents
-		List<DLType> allParents = getParents();		
+		List<DLType> allParents = getParents();
 		for (DLType parent : allParents) {
 			validateReadParentIntern(parent, source, result);
 		}
 
 		return result.isValid();
 	}
-	
+
 	public boolean validateReadParentIntern(DLType parent, Object source, ValidationResult result)
 	{
 		for (DLTypeValidator validator : parent.getValidators()) {
@@ -615,8 +613,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 		containedTypes.add(containedType);
 	}
 
-	@Override
-	public boolean mayContainSpecificType(DLType type)
+	protected boolean mayContainSpecificType(DLType type)
 	{
 		assert type != null;
 
@@ -650,7 +647,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 
 		return false;
 	}
-	
+
 	@Override
 	public void addAttribute(DLAttribute attribute) throws InvalidType
 	{

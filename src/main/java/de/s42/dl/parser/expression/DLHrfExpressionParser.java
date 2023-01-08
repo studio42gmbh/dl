@@ -43,6 +43,7 @@ import de.s42.dl.parser.DLParser.AtomContext;
 import de.s42.dl.parser.DLParser.ExpressionContext;
 import de.s42.dl.parser.expression.operators.Like;
 import de.s42.dl.parser.expression.operators.Pow;
+import de.s42.dl.parser.path.DLHrfPathResolver;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.util.Optional;
@@ -57,6 +58,8 @@ public final class DLHrfExpressionParser
 {
 
 	private final static Logger log = LogManager.getLogger(DLHrfExpressionParser.class.getName());
+
+	protected final static DLHrfPathResolver resolver = new DLHrfPathResolver();
 
 	private DLHrfExpressionParser()
 	{
@@ -230,8 +233,15 @@ public final class DLHrfExpressionParser
 
 	public static Object resolveReference(DLModule module, String refId, ParserRuleContext ctx) throws ParserException
 	{
+		// First try to find the ref in core
+		// Call the parser in non strict mode to avoid getting exceptions -> will return null then
+		Optional ref = resolver.resolve(module.getType().getCore(), refId, false);
+		if (ref.isPresent()) {
+			return ref.orElseThrow();
+		}
+
 		// Resolve the reference ignoring the first char which is the $ sign
-		Optional ref = module.resolveReference(refId.substring(1));
+		ref = resolver.resolve(module, refId);
 
 		// Empty references are treated as errors
 		if (ref.isEmpty()) {

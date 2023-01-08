@@ -94,6 +94,7 @@ public class BaseDLCore implements DLCore
 	protected boolean allowUseAsserts;
 	protected boolean allowRequire;
 	protected ClassLoader classLoader;
+	protected String name;
 
 	public BaseDLCore()
 	{
@@ -165,6 +166,7 @@ public class BaseDLCore implements DLCore
 			copy.allowUsePragmas = allowUsePragmas;
 			copy.allowRequire = allowRequire;
 			copy.allowUseAsserts = allowUseAsserts;
+			copy.name = name;
 
 			return copy;
 		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
@@ -523,69 +525,6 @@ public class BaseDLCore implements DLCore
 	public Object getExportedAsJavaObject(String name)
 	{
 		return getExported(name).orElseThrow().toJavaObject();
-	}
-
-	protected Object resolveChildOrAttribute(Object instance, String name)
-	{
-		assert instance != null;
-
-		if (instance instanceof DLInstance) {
-
-			Optional<DLInstance> child = ((DLInstance) instance).getChild(name);
-
-			if (child.isPresent()) {
-				return child.get();
-			}
-
-			return ((DLInstance) instance).get(name);
-		} else {
-
-			try {
-				BeanInfo info = BeanHelper.getBeanInfo(instance.getClass());
-
-				return info.read(instance, name);
-			} catch (InvalidBean | RuntimeException ex) {
-				throw new RuntimeException("Error resolving child " + name + " - " + ex.getMessage(), ex);
-			}
-		}
-	}
-
-	@Override
-	public Object resolveExportedPath(String path)
-	{
-		assert path != null;
-
-		String[] pathSegments = path.split("\\.");
-
-		Optional<DLInstance> currentRef = getExported(pathSegments[0]);
-
-		if (currentRef.isEmpty()) {
-			return null;
-		}
-
-		Object current = currentRef.get();
-
-		for (int i = 1; i < pathSegments.length; ++i) {
-			String pathSegment = pathSegments[i];
-			Object child = resolveChildOrAttribute(current, pathSegment);
-
-			if (child == null) {
-				//throw new InvalidValue("Path " + path + " could not get resolved for " + pathSegment);
-				return null;
-			}
-
-			current = child;
-		}
-
-		// https://github.com/studio42gmbh/dl/issues/13 Unwrap simple instances
-		// @improvement this unwrapping should be done more generic if possible
-		if (current instanceof SimpleTypeDLInstance) {
-			return ((SimpleTypeDLInstance) current).getData();
-		} else if (current instanceof ComplexTypeDLInstance) {
-			return ((ComplexTypeDLInstance) current).getData();
-		}
-
-		return current;
 	}
 
 	public boolean removeExported(String key)
@@ -1702,5 +1641,16 @@ public class BaseDLCore implements DLCore
 	public Set<String> getConfigKeys()
 	{
 		return Collections.unmodifiableSet(configs.keySet());
+	}
+
+	@Override
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
 	}
 }

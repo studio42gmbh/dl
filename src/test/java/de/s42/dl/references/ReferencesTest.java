@@ -28,7 +28,9 @@ package de.s42.dl.references;
 import de.s42.dl.*;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import org.testng.Assert;
+import de.s42.dl.parser.path.DLHrfPathResolver;
+import java.util.Optional;
+import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
 /**
@@ -39,45 +41,102 @@ import org.testng.annotations.Test;
  */
 public class ReferencesTest
 {
-	public static class Data {
+
+	public static class Data
+	{
+
 		public int x;
 		public String y;
 		public Object z;
 	}
-	
 
 	@Test
-	public void validSimpleReference() throws DLException
+	public void simpleReference() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		DLModule module = core.parse("validSimpleReference",
+		DefaultCore core = new DefaultCore();
+
+		DLModule module = core.parse("simpleReference",
 			"type T { Integer val; }"
 			+ "T t { val : 42; }"
-			+ "T tr : $t;");
-		Assert.assertEquals(module.getInstance("tr").getType().getName(), "T");
+			+ "T tr : $t;"
+		);
+
+		assertEquals(module.getInstance("tr").getType().getName(), "T");
 	}
-	
+
 	@Test
-	public void validSimpleReferencePath() throws DLException
+	public void simpleReferencePath() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		DLModule module = core.parse("validSimpleReferencePath",
+		DefaultCore core = new DefaultCore();
+
+		DLModule module = core.parse("simpleReferencePath",
 			"type T { Integer val; }"
 			+ "T t { val : 42; }"
-			+ "Integer p : $t.val;");
-		Assert.assertEquals(module.getInt("p"), 42);
+			+ "Integer p : $t.val;"
+		);
+
+		assertEquals(module.getInt("p"), 42);
 	}
-	
-	
 
 	@Test(enabled = false)
-	public void validReferencePath() throws DLException
+	public void referencePath() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		DLModule module = core.parse("validReferencePath",
+		DefaultCore core = new DefaultCore();
+
+		DLModule module = core.parse("referencePath",
 			"type T { Integer val; }"
 			+ "T t { val : 42; }"
-			+ "Integer p : $t.val?.test.t;");
-		Assert.assertEquals(module.getInt("p"), 42);
+			+ "Integer p : $t.val.?test.t;"
+		);
+
+		assertEquals(module.getInt("p"), 42);
 	}
+	
+	@Test
+	public void pathResolver() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+
+		DLModule module = core.parse("referencePath",
+			"type T contains T { Integer val; }"
+			+ "T t { val : 42; }"
+			+ "T deep { val : 1; T deeper  { val : 2; T bottom { val : 3; } } }"
+		);
+		
+		DLPathResolver resolver = new DLHrfPathResolver();
+
+		// Variations of ? optional
+		Object val = resolver.resolve(module, "$t.val").orElse(null);				
+		assertEquals(val, 42);
+
+		val = resolver.resolve(module, "$?t.val").orElse(null);				
+		assertEquals(val, 42);
+		
+		val = resolver.resolve(module, "$t.?val").orElse(null);				
+		assertEquals(val, 42);
+		
+		val = resolver.resolve(module, "$?t.?val").orElse(null);				
+		assertEquals(val, 42);
+
+		// Resolve bean property
+		val = resolver.resolve(module, "$t.val.class").orElse(null);				
+		assertEquals(val, Integer.class);
+
+		val = resolver.resolve(module, "$deep.val").orElse(null);				
+		assertEquals(val, 1);
+		val = resolver.resolve(module, "$deep.deeper.val").orElse(null);				
+		assertEquals(val, 2);
+		val = resolver.resolve(module, "$deep.deeper.bottom.val").orElse(null);				
+		assertEquals(val, 3);
+		val = resolver.resolve(module, "$deep.deeper.bottom.val.class").orElse(null);				
+		assertEquals(val, Integer.class);
+
+		// Undefined optional
+		val = resolver.resolve(module, "$t.?undefined").orElse(null);				
+		assertEquals(val, null);
+		val = resolver.resolve(module, "$deep.deeper.bottom.?undefined").orElse(null);				
+		assertEquals(val, null);
+
+	}
+	
 }

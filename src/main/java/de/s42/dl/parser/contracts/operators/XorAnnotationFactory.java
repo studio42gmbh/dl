@@ -29,7 +29,7 @@ import de.s42.dl.DLAttribute;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLType;
 import de.s42.dl.annotations.DLContract;
-import de.s42.dl.language.DLOperators;
+import de.s42.dl.language.DLOperator;
 import de.s42.dl.parser.contracts.DLContractFactory;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidContract;
 import de.s42.dl.validation.NoopValidationResult;
@@ -59,7 +59,7 @@ public class XorAnnotationFactory extends AbstractBinaryContractFactory
 	@Override
 	public String getOperatorAsString()
 	{
-		return DLOperators.Xor.operator;
+		return DLOperator.Xor.operator;
 	}
 
 	// <editor-fold desc="Validators" defaultstate="collapsed">

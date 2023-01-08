@@ -85,6 +85,36 @@ public class ParserException extends RuntimeException
 		endOffset = 0;
 	}
 
+	public ParserException(String msg, int startOffset, int endOffset)
+	{
+		super(msg + " (" + startOffset + ":" + endOffset + ")");
+
+		assert startOffset >= 0;
+		assert endOffset >= 0;
+
+		startLine = 0;
+		startPosition = startOffset;
+		this.startOffset = startOffset;
+		endLine = 0;
+		endPosition = endOffset;
+		this.endOffset = endOffset;
+	}
+
+	public ParserException(String msg, int startOffset, int endOffset, Exception cause)
+	{
+		super(msg+ " (" + startOffset + ":" + endOffset + ")", cause);
+
+		assert startOffset >= 0;
+		assert endOffset >= 0;
+
+		startLine = 0;
+		startPosition = startOffset;
+		this.startOffset = startOffset;
+		endLine = 0;
+		endPosition = endOffset;
+		this.endOffset = endOffset;
+	}
+	
 	public ParserException(String msg, int line, int position, int offset)
 	{
 		super(msg);

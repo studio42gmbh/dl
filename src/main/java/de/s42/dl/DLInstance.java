@@ -98,8 +98,6 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 
 	public boolean getBoolean(String key);
 
-	public Object resolvePath(String path);
-
 	// CONTAIN
 	public DLInstance getChild(int index);
 

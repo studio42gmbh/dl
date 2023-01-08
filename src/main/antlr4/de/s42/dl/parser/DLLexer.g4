@@ -188,8 +188,8 @@ FLOAT_LITERAL :			'-'? [0-9]+ '.' [0-9]+ ('E' [-+]? [0-9]+)? ;
 INTEGER_LITERAL :		'-'? [0-9] [xXbB]? [0-9]* ;
 
 // rather restrictive - but ref symbols should be well readable anyways not some special sign party
-fragment REF_PART :		[a-zA-Z_#] [a-zA-Z0-9\-_#$]* '?'? ;
-REF :					'$' REF_PART ( '.' REF_PART )* ;	
+fragment REF_PART :		[a-zA-Z_#] [a-zA-Z0-9\-_#$]* ;
+REF :					'$' '?'? REF_PART ( '.' '?'? REF_PART )* ;	
 
 // rather restrictive - but symbols should be well readable anyways not some special sign party
 SYMBOL :				[a-zA-Z_#] [a-zA-Z0-9\-_.#$]* ;	

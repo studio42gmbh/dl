@@ -23,51 +23,42 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.language;
+package de.s42.dl.types;
+
+import de.s42.dl.*;
+import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidType;
+import de.s42.dl.validation.DLInstanceValidator;
+import de.s42.dl.validation.DLTypeValidator;
+import java.util.List;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public enum DLOperators
+public interface DLMutableType extends DLType
 {
-	And("&"),
-	Or("|"),
-	Not("!"),
-	Xor("!="),
-	Equals("=="),
-	Like("!="),
-	Plus("+"),
-	Minus("-"),
-	Pow("^"),
-	Multiply("*"),
-	Divide("/"),
-	Comma(",");
 
-	public final String operator;
+	// VALIDATION
+	public boolean addValidator(DLTypeValidator validator);
 
-	public final static String[] OPERATORS;
+	public boolean addInstanceValidator(DLInstanceValidator validator);
 
-	static {
-		OPERATORS = new String[DLOperators.values().length];
+	public List<DLTypeValidator> getValidators();
 
-		for (int i = 0; i < DLOperators.values().length; ++i) {
-			OPERATORS[i] = DLOperators.values()[i].operator;
-		}
-	}
+	public List<DLInstanceValidator> getInstanceValidators();
 
-	private DLOperators(String operator)
-	{
-		this.operator = operator;
-	}
+	// DATA ACCESS
+	public void setAttributeFromValue(DLInstance instance, String name, Object value) throws DLException;
+	
+	// PARENTS
+	
+	// CONTAINED
 
-	public static String[] getOperators()
-	{
-		return OPERATORS;
-	}
+	// ATTRIBUTES
+	public void addAttribute(DLAttribute attribute) throws InvalidType;
 
-	public boolean equals(String other)
-	{
-		return operator.equalsIgnoreCase(other);
-	}
+	// GENERIC
+
+	// FLAGS
 }
