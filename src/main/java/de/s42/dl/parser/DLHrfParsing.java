@@ -1391,7 +1391,8 @@ public class DLHrfParsing extends DLParserBaseListener
 
 					// Try if the given value is of javatype of the dl type -> can be assigned without conversion then
 					if (attributeAssignables.length == 1
-						&& attributeType.getJavaDataType().isAssignableFrom(attributeAssignables[0].getClass())) {
+						&& (attributeAssignables[0] == null
+						|| attributeType.getJavaDataType().isAssignableFrom(attributeAssignables[0].getClass()))) {
 						currentInstance.set(attributeName, attributeAssignables[0]);
 					} // Otherwise throw an error
 					else {

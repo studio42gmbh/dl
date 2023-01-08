@@ -90,4 +90,4 @@ Root configTree @export {
 }
 
 // Resolve deep paths for a reference
-Node configData : $configTree.folder.data;
+Node configData : $?configTree.?folder.?data;
