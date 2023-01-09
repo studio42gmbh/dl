@@ -50,23 +50,23 @@ public class EvenDLAnnotation extends AbstractValueDLContract<EvenDLAnnotation>
 	}
 
 	@Override
-	protected boolean validateValue(Object val, ValidationResult result, DLAnnotated source)
+	protected boolean validateValue(Object value, ValidationResult result, DLAnnotated source)
 	{
 		assert source != null;
 		assert result != null;
 
 		// Allow to have null values
-		if (val == null) {
+		if (value == null) {
 			return result.isValid();
 		}
 
 		// Make sure its a Number
-		if (!(val instanceof Number)) {
+		if (!(value instanceof Number)) {
 			result.addError(InvalidValueType.toString(), "Value has to be of type Number in @" + getName(), source);
 			return result.isValid();
 		}
 
-		long longVal = ((Number) val).longValue();
+		long longVal = ((Number) value).longValue();
 
 		if (longVal % 2 != 0) {
 			result.addError(InvalidValueType.toString(),

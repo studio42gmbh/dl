@@ -1042,6 +1042,7 @@ public class BaseDLCore implements DLCore
 			return getType(javaClass);
 		}
 
+		// Retrieve  list of the generic types
 		List<DLType> genericDLTypes = new ArrayList<>();
 		for (Class javaGenericTypeClass : genericTypes) {
 
@@ -1176,43 +1177,45 @@ public class BaseDLCore implements DLCore
 	{
 		assert name != null;
 		assert genericTypes != null;
-
-		String canonicalName = getTypeName(name, genericTypes);
-
-		Optional<DLType> optType = types.get(canonicalName);
-
-		if (optType.isPresent()) {
-			return optType;
+		
+		// Try to retrieve the not generic base type -> If this is not mapped or no further specific type given -> nothing to do here 
+		Optional<DLType> optBaseType = types.get(name);		
+		if (optBaseType.isEmpty() || genericTypes.isEmpty()) {
+			return optBaseType;
 		}
 
-		if (!types.contains(name)) {
+		DLType baseType = optBaseType.orElseThrow();
+
+		// If the base type does not allow for specific types -> nothing to do here
+		if (!baseType.isAllowGenericTypes()) {
 			return Optional.empty();
 		}
 
-		if (genericTypes.isEmpty()) {
+		// We dont know how to make not DefaultDLTypes more specific atm
+		// @todo Is there a generic way of makeing types specific?
+		if (!(baseType instanceof DefaultDLType)) {
 			return Optional.empty();
 		}
 
+		// Create the new projected name of the specific type
+		String canonicalName = getTypeName(baseType.getCanonicalName(), genericTypes);
+		
+		//log.info("Getting specific type " + canonicalName);
+
+		Optional<DLType> optSpecificType = types.get(canonicalName);
+
+		// If specific type is already mapped -> just use that one
+		if (optSpecificType.isPresent()) {
+			return optSpecificType;
+		}
+
+		// If we can not create a spcific version -> nothing to do here
 		if (!allowDefineTypes) {
 			return Optional.empty();
 		}
-
-		// add generic version
-		optType = types.get(name);
-
-		DLType type = optType.orElseThrow();
-
-		if (!type.isAllowGenericTypes()) {
-			return Optional.empty();
-		}
-
-		if (!(type instanceof DefaultDLType)) {
-			return Optional.empty();
-		}
-
-		// generate specific typed version
-		DefaultDLType specificType = ((DefaultDLType) type).copy();
-
+		
+		// Generate specific typed version by copy and adding generics
+		DefaultDLType specificType = ((DefaultDLType) baseType).copy();
 		try {
 			specificType.addGenericTypes(genericTypes);
 		} catch (InvalidType ex) {
@@ -1224,6 +1227,7 @@ public class BaseDLCore implements DLCore
 		try {
 			defineType(specificType);
 		} catch (DLException ex) {
+			//log.error(ex);
 			return Optional.empty();
 		}
 

@@ -110,6 +110,7 @@ public class DefaultCore extends BaseDLCore
 	{
 		// Allow definitions and require by default
 		super(true);
+		
 		init();
 	}
 

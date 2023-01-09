@@ -18,6 +18,7 @@ type MyType
 	SpecialLong val;
 	Long val2 @odd21to42 : 23;
 	UUID id @generateUUID;
+	int evenVal @even;
 }
 
 MyType t @export {
@@ -25,6 +26,7 @@ MyType t @export {
 	val : 41;
 	val2 : 25;
 	//id : "fd5a44e4-0158-4cfa-ba65-3064660891dc";
+	evenVal : 4;
 }
 
 UUID id : $t.id;

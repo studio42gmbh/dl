@@ -70,23 +70,23 @@ public class RangeDLAnnotation extends AbstractValueDLContract<RangeDLAnnotation
 	}
 
 	@Override
-	protected boolean validateValue(Object val, ValidationResult result, DLAnnotated source)
+	protected boolean validateValue(Object value, ValidationResult result, DLAnnotated source)
 	{
 		assert source != null;
 		assert result != null;
 
 		// Allow to have null values
-		if (val == null) {
+		if (value == null) {
 			return result.isValid();
 		}
 
 		// Make sure its a Number
-		if (!(val instanceof Number)) {
+		if (!(value instanceof Number)) {
 			result.addError(InvalidValueType.toString(), "Attribute has to be of type Number in @" + getName(), source);
 			return result.isValid();
 		}
 
-		double doubleVal = ((Number) val).doubleValue();
+		double doubleVal = ((Number) value).doubleValue();
 
 		if (doubleVal < min) {
 			result.addError(InvalidValueType.toString(),
