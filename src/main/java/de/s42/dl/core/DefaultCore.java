@@ -32,6 +32,7 @@ import de.s42.dl.annotations.attributes.ReadOnlyDLAnnotation;
 import de.s42.dl.annotations.types.JavaDLAnnotation;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLEntity;
+import de.s42.dl.DLPragma;
 import de.s42.dl.DLType;
 import de.s42.dl.annotations.*;
 import de.s42.dl.annotations.attributes.GenerateUUIDDLAnnotation;
@@ -56,6 +57,7 @@ import de.s42.dl.core.resolvers.StringCoreResolver;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.instances.base.Environment;
 import de.s42.dl.pragmas.*;
+import de.s42.dl.pragmas.debug.LogPragma;
 import de.s42.dl.types.*;
 import de.s42.dl.types.base.ArrayDLType;
 import de.s42.dl.types.base.ClassDLType;
@@ -93,6 +95,16 @@ public class DefaultCore extends BaseDLCore
 	public final static DLCoreResolver STRING_RESOLVER = new StringCoreResolver();
 	public final static DLCoreResolver FILE_RESOLVER = new FileCoreResolver();
 	public final static DLCoreResolver LIBRARY_RESOLVER = new LibraryCoreResolver();
+
+	public final static DLPragma BASE_PATH_PRAGMA = new BasePathPragma();
+	public final static DLPragma DEFINE_PRAGMA_PRAGMA = new DefinePragmaPragma();
+	public final static DLPragma DISABLE_DEFINE_PRAGMAS_PRAGMA = new DisableDefinePragmasPragma();
+	public final static DLPragma DISABLE_USE_PRAGMAS_PRAGMA = new DisableUsePragmasPragma();
+	public final static DLPragma DISABLE_DEFINE_TYPES_PRAGMA = new DisableDefineTypesPragma();
+	public final static DLPragma DISABLE_DEFINE_ANNOTATIONS_PRAGMA = new DisableDefineAnnotationsPragma();
+	public final static DLPragma DISABLE_REQUIRE_PRAGMA = new DisableRequirePragma();
+	public final static DLPragma DISABLE_USE_ASSERTS_PRAGMA = new DisableUseAssertsPragma();
+	public final static DLPragma LOG_PRAGMA = new LogPragma();
 
 	public DefaultCore()
 	{
@@ -196,14 +208,15 @@ public class DefaultCore extends BaseDLCore
 		assert core != null;
 
 		// Define basic pragmas
-		core.definePragma(new BasePathPragma());
-		core.definePragma(new DefinePragmaPragma());
-		core.definePragma(new DisableDefinePragmasPragma());
-		core.definePragma(new DisableUsePragmasPragma());
-		core.definePragma(new DisableDefineTypesPragma());
-		core.definePragma(new DisableDefineAnnotationsPragma());
-		core.definePragma(new DisableRequirePragma());
-		core.definePragma(new DisableUseAssertsPragma());
+		core.definePragma(BASE_PATH_PRAGMA);
+		core.definePragma(DEFINE_PRAGMA_PRAGMA);
+		core.definePragma(DISABLE_DEFINE_PRAGMAS_PRAGMA);
+		core.definePragma(DISABLE_USE_PRAGMAS_PRAGMA);
+		core.definePragma(DISABLE_DEFINE_TYPES_PRAGMA);
+		core.definePragma(DISABLE_DEFINE_ANNOTATIONS_PRAGMA);
+		core.definePragma(DISABLE_REQUIRE_PRAGMA);
+		core.definePragma(DISABLE_USE_ASSERTS_PRAGMA);
+		core.definePragma(LOG_PRAGMA);
 	}
 
 	public static void loadTypes(BaseDLCore core) throws DLException

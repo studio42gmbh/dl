@@ -5,17 +5,15 @@ annotation odd : !@even;
 annotation odd42 : @odd & @range(0, 42);
 annotation odd21to42 : @odd42 & @range(21);
 
-annotation requiredFile : @required & @isFile;
-
 type SpecialLong @odd21to42 extends Long;
 
-type RequiredFile @requiredFile extends Path;
+type ValidFile @isFile extends Path;
 
 SpecialLong val : 21;
 
 type MyType
 {
-	RequiredFile path;
+	ValidFile path @required;
 	String display;
 	SpecialLong val;
 	Long val2 @odd21to42 : 23;
@@ -26,5 +24,9 @@ MyType t @export {
 	path : "/home/notes-wsbs2022.txt";
 	val : 41;
 	val2 : 25;
-	id : "fd5a44e4-0158-4cfa-ba65-3064660891dc";
+	//id : "fd5a44e4-0158-4cfa-ba65-3064660891dc";
 }
+
+UUID id : $t.id;
+
+pragma log(INFO, "Hallo " + $t.id);
