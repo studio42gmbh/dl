@@ -44,7 +44,7 @@ import java.lang.annotation.Target;
  * @author Benjamin Schiller
  * @todo Provide a way to change the class loader for plugins etc.
  */
-public class JavaDLAnnotation extends AbstractDLAnnotation
+public class JavaDLAnnotation extends AbstractDLAnnotation<JavaDLAnnotation>
 {
 
 	private final static Logger log = LogManager.getLogger(JavaDLAnnotation.class.getName());
