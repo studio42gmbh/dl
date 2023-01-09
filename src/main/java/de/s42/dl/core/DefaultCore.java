@@ -34,6 +34,7 @@ import de.s42.dl.DLCore;
 import de.s42.dl.DLEntity;
 import de.s42.dl.DLType;
 import de.s42.dl.annotations.*;
+import de.s42.dl.annotations.attributes.GenerateUUIDDLAnnotation;
 import de.s42.dl.annotations.attributes.GreaterDLAnnotation;
 import de.s42.dl.annotations.attributes.GreaterEqualDLAnnotation;
 import de.s42.dl.annotations.attributes.NoDefaultValueDLAnnotation;
@@ -184,6 +185,10 @@ public class DefaultCore extends BaseDLCore
 		// Comparison annotations
 		core.defineAnnotationFactory(new GreaterDLAnnotation(), GreaterDLAnnotation.greater.class.getSimpleName(), GreaterDLAnnotation.class.getName());
 		core.defineAnnotationFactory(new GreaterEqualDLAnnotation(), GreaterEqualDLAnnotation.DEFAULT_SYMBOL, GreaterEqualDLAnnotation.class.getName());
+
+		// Mutating annotations
+		core.defineAnnotationFactory(new GenerateUUIDDLAnnotation(), GenerateUUIDDLAnnotation.generateUUID.class.getSimpleName(), GenerateUUIDDLAnnotation.class.getName());
+
 	}
 
 	public static void loadPragmas(DLCore core) throws DLException

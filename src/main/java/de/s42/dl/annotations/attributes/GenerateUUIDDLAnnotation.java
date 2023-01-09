@@ -25,63 +25,68 @@
 //</editor-fold>
 package de.s42.dl.annotations.attributes;
 
-import de.s42.dl.annotations.AbstractDLAnnotation;
+import de.s42.dl.DLAttribute;
+import de.s42.dl.DLInstance;
+import de.s42.dl.annotations.AbstractDLContract;
+import de.s42.dl.annotations.DLAnnotationType;
+import de.s42.dl.exceptions.DLException;
+import de.s42.dl.validation.ValidationResult;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.UUID;
 
 /**
+ * ATTENTION: This annotation is experimental and currently sneaking into the validation phase.
+ * I am considering to give such mutating annotations a special phase
  *
  * @author Benjamin Schiller
  */
-public class GenerateUUIDDLAnnotation extends AbstractDLAnnotation
+public class GenerateUUIDDLAnnotation extends AbstractDLContract<GenerateUUIDDLAnnotation>
 {
 
-	public final static String DEFAULT_SYMBOL = "generateUUID";
-
-	/*
-	private static class GenerateUUIDDLInstanceValidator implements DLInstanceValidator
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = {ElementType.FIELD})
+	@DLAnnotationType(GenerateUUIDDLAnnotation.class)
+	public static @interface generateUUID
 	{
-
-		private final DLAttribute attribute;
-
-		GenerateUUIDDLInstanceValidator(DLAttribute attribute)
-		{
-			assert attribute != null;
-
-			this.attribute = attribute;
-		}
-
-		@Override
-		public void validate(DLInstance instance)
-		{
-			assert instance != null;
-
-			Object val = instance.get(attribute.getName());
-
-			if (val == null) {
-				instance.set(attribute.getName(), UUID.randomUUID());
-			}
-		}
-	}
-
-
-	public GenerateUUIDDLAnnotation()
-	{
-		this(DEFAULT_SYMBOL);
-	}
-
-	public GenerateUUIDDLAnnotation(String name)
-	{
-		super(name);
 	}
 
 	@Override
-	public void bindToAttribute(DLCore core, DLType type, DLAttribute attribute, Object... parameters) throws InvalidAnnotation
+	public boolean canValidateAttribute()
 	{
-		assert type != null;
+		return true;
+	}
+
+	@Override
+	public void bindToAttribute(DLAttribute attribute) throws DLException
+	{
 		assert attribute != null;
 
-		validateParameters(parameters, null);
+		validateThis();
 
-		((DefaultDLType) type).addInstanceValidator(new GenerateUUIDDLInstanceValidator(attribute));
+		//log.debug("bindToAttribute", attribute);
+		container = attribute;
+		container.addAnnotation(this);
+
+		attribute.getContainer().addInstanceValidator(this);
 	}
-	 */
+
+	@Override
+	public boolean validate(DLInstance instance, ValidationResult result)
+	{
+		assert result != null;
+
+		String attributeName = container.getName();
+
+		Object value = instance.get(attributeName);
+
+		// ATTENTION: Tis is mutating the container! Experimental!
+		if (value == null) {
+			instance.set(attributeName, UUID.randomUUID());
+		}
+
+		return result.isValid();
+	}
 }

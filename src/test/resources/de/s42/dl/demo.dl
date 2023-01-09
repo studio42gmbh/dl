@@ -19,10 +19,12 @@ type MyType
 	String display;
 	SpecialLong val;
 	Long val2 @odd21to42 : 23;
+	UUID id @generateUUID;
 }
 
 MyType t @export {
 	path : "/home/notes-wsbs2022.txt";
 	val : 41;
 	val2 : 25;
+	id : "fd5a44e4-0158-4cfa-ba65-3064660891dc";
 }

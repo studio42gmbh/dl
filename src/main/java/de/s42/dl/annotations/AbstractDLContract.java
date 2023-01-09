@@ -49,7 +49,7 @@ public abstract class AbstractDLContract<DLConceptType extends DLContract>
 	}
 
 	@Override
-	final public void bindToInstance(DLInstance instance) throws DLException
+	public void bindToInstance(DLInstance instance) throws DLException
 	{
 		assert instance != null;
 		
@@ -65,7 +65,7 @@ public abstract class AbstractDLContract<DLConceptType extends DLContract>
 	}
 
 	@Override
-	final public void bindToType(DLType type) throws DLException
+	public void bindToType(DLType type) throws DLException
 	{
 		assert type != null;
 
@@ -85,7 +85,7 @@ public abstract class AbstractDLContract<DLConceptType extends DLContract>
 	}
 
 	@Override
-	final public void bindToAttribute(DLAttribute attribute) throws DLException
+	public void bindToAttribute(DLAttribute attribute) throws DLException
 	{
 		assert attribute != null;
 

@@ -35,8 +35,9 @@ extern type de.s42.dl.netbeans.editing.api.DLEditor alias DLEditor;
 abstract type Node @validNodeName
 extends DLEntity, DLEditor, State
 {
+	// Experimental mutating annotations
+	UUID id @generateUUID;
 	Long42 val : 42;
-	Integer val2 : 2;
 	State state @required;
 }
 
