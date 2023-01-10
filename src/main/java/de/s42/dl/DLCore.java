@@ -29,21 +29,30 @@ import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidPragma;
 import de.s42.dl.exceptions.InvalidInstance;
-import java.nio.file.Path;
 import java.util.*;
 
 /**
  * A core is not intended to be used to parse in multiple threads!
+ *
  * @author Benjamin Schiller
  */
 public interface DLCore extends DLEntity
 {
 
-	public Path getBasePath();
-
+	// CLASLOADING
 	public ClassLoader getClassLoader();
-	
-	public DLPathResolver getResolver();
+
+	public void setClassLoader(ClassLoader classLoader);
+
+	//PATHS
+	public DLPathResolver getPathResolver();
+
+	public void setPathResolver(DLPathResolver resolver);
+
+	//REFERENCES
+	public DLReferenceResolver getReferenceResolver();
+
+	public void setReferenceResolver(DLReferenceResolver resolver);
 
 	// MODULES
 	public DLModule parse(String moduleId) throws DLException;
@@ -167,18 +176,18 @@ public interface DLCore extends DLEntity
 	public boolean isAllowUseAsserts();
 
 	public void setAllowUseAsserts(boolean allowUseAsserts);
-	
+
 	// REQUIRE
 	public boolean isAllowRequire();
 
 	public void setAllowRequire(boolean allowRequire);
-	
+
 	// CONFIG (intended for tools using cores not inside of DL)
 	public Object getConfig(String key);
-	
-	public Object getConfig(String key, Object defaultValue);	
-	
+
+	public Object getConfig(String key, Object defaultValue);
+
 	public Object setConfig(String key, Object value);
-	
+
 	public Set<String> getConfigKeys();
 }

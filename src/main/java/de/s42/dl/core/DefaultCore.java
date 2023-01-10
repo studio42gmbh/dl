@@ -58,6 +58,7 @@ import de.s42.dl.exceptions.DLException;
 import de.s42.dl.instances.base.Environment;
 import de.s42.dl.pragmas.*;
 import de.s42.dl.pragmas.debug.LogPragma;
+import de.s42.dl.pragmas.integration.LinkPragma;
 import de.s42.dl.types.*;
 import de.s42.dl.types.base.ArrayDLType;
 import de.s42.dl.types.base.ClassDLType;
@@ -105,6 +106,7 @@ public class DefaultCore extends BaseDLCore
 	public final static DLPragma DISABLE_REQUIRE_PRAGMA = new DisableRequirePragma();
 	public final static DLPragma DISABLE_USE_ASSERTS_PRAGMA = new DisableUseAssertsPragma();
 	public final static DLPragma LOG_PRAGMA = new LogPragma();
+	public final static DLPragma LINK_PRAGMA = new LinkPragma();
 
 	public DefaultCore()
 	{
@@ -148,7 +150,7 @@ public class DefaultCore extends BaseDLCore
 
 		// Define type for Environment and map an instance in $env
 		core.defineType(Environment.class);
-		core.addExported("env", new Environment());
+		core.addExported("env", new Environment(core));
 	}
 
 	public static void loadResolvers(BaseDLCore core)
@@ -218,6 +220,7 @@ public class DefaultCore extends BaseDLCore
 		core.definePragma(DISABLE_REQUIRE_PRAGMA);
 		core.definePragma(DISABLE_USE_ASSERTS_PRAGMA);
 		core.definePragma(LOG_PRAGMA);
+		core.definePragma(LINK_PRAGMA);
 	}
 
 	public static void loadTypes(BaseDLCore core) throws DLException

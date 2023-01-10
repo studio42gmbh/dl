@@ -28,7 +28,7 @@ package de.s42.dl.references;
 import de.s42.dl.*;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.parser.path.DLHrfPathResolver;
+import de.s42.dl.parser.DLHrfReferenceResolver;
 import java.util.Optional;
 import static org.testng.Assert.*;
 import org.testng.annotations.Test;
@@ -105,7 +105,7 @@ public class ReferencesTest
 			+ "T deep { val : 1; T deeper  { val : 2; T bottom { val : 3; } } }"
 		);
 		
-		DLPathResolver resolver = new DLHrfPathResolver();
+		DLReferenceResolver resolver = new DLHrfReferenceResolver();
 
 		// Variations of ? optional
 		Object val = resolver.resolve(module, "$t.val").orElse(null);				

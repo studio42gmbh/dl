@@ -52,6 +52,8 @@ public final class CoreHelper
 	@SuppressWarnings("UseSpecificCatch")
 	public static void validateCoreJavaTypes(DLCore core) throws InvalidType, InvalidAttribute
 	{
+		assert core != null;
+
 		int validatedTypes = 0;
 		int validatedAttributes = 0;
 
@@ -63,14 +65,13 @@ public final class CoreHelper
 
 				if (className != null) {
 					try {
-						typeInstanceClass = Class.forName(className);
+						typeInstanceClass = Class.forName(className, true, core.getClassLoader());
 
 						// instantiate an instance of that type if it is not abstract and not an enum
 						if (!type.isAbstract() && !(type instanceof DLEnum)) {
-							
+
 							// @todo this may cause wild side effects
 							//Object instance = typeInstanceClass.getConstructor().newInstance();
-
 							//log.debug("Validated type " + type.getCanonicalName() + " is java class " + instance.getClass().getName());
 						} else {
 							//log.debug("Validated abstract type " + type.getCanonicalName() + " is java class " + typeInstanceClass.getName());
@@ -84,7 +85,7 @@ public final class CoreHelper
 								String parentClassName = ((DefaultDLType) type).getJavaDataType().getName();
 
 								try {
-									Class typeParentClass = Class.forName(parentClassName);
+									Class typeParentClass = Class.forName(parentClassName, true, core.getClassLoader());
 
 									if (!typeParentClass.isAssignableFrom(fTypeInstanceClass)) {
 										throw new RuntimeException("Error validating type "
@@ -133,7 +134,7 @@ public final class CoreHelper
 											+ " has an invalid read type in java object - is " + property.getPropertyClass().getName()
 											+ " but should be " + attributeType.getName());
 									}
-									*/
+									 */
 								}
 
 								if (attribute.isWritable()) {
@@ -149,7 +150,7 @@ public final class CoreHelper
 											+ " has an invalid write type in java object - is " + property.getPropertyClass().getName()
 											+ " but should be " + attributeType.getName());
 									}
-									*/
+									 */
 								}
 
 								validatedAttributes++;

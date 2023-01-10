@@ -41,6 +41,7 @@ import de.s42.dl.DLAnnotation.AnnotationDLContainer;
 import de.s42.dl.DLAttribute.AttributeDL;
 import de.s42.dl.annotations.*;
 import de.s42.dl.attributes.DefaultDLAttribute;
+import de.s42.dl.core.resolvers.DefaultDLPathResolver;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.UndefinedType;
 import de.s42.dl.exceptions.InvalidPragma;
@@ -53,7 +54,7 @@ import de.s42.dl.instances.ComplexTypeDLInstance;
 import de.s42.dl.instances.DefaultDLInstance;
 import de.s42.dl.instances.DefaultDLModule;
 import de.s42.dl.instances.SimpleTypeDLInstance;
-import de.s42.dl.parser.path.DLHrfPathResolver;
+import de.s42.dl.parser.DLHrfReferenceResolver;
 import de.s42.dl.types.DLContainer;
 import de.s42.dl.types.DefaultDLEnum;
 import de.s42.dl.types.DefaultDLType;
@@ -66,7 +67,6 @@ import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.*;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -79,8 +79,9 @@ public class BaseDLCore implements DLCore
 
 	private final static Logger log = LogManager.getLogger(BaseDLCore.class.getName());
 
-	protected final static DLPathResolver DEFAULT_RESOLVER = new DLHrfPathResolver();
-	
+	protected final static DLReferenceResolver DEFAULT_REFERENCE_RESOLVER = new DLHrfReferenceResolver();
+	protected final static DLPathResolver DEFAULT_PATH_RESOLVER = new DefaultDLPathResolver();
+
 	protected final Map<String, WeakReference<Object>> convertedCache = new HashMap<>();
 	protected final List<DLCoreResolver> resolvers = new ArrayList<>();
 	protected final MappedList<String, DLType> types = new MappedList<>();
@@ -89,8 +90,8 @@ public class BaseDLCore implements DLCore
 	protected final Map<String, DLModule> requiredModules = new HashMap<>();
 	protected final MappedList<String, DLInstance> exported = new MappedList<>();
 	protected final Map<String, Object> configs = new HashMap<>();
-	protected Path basePath;
-	protected DLPathResolver resolver;
+	protected DLReferenceResolver referenceResolver;
+	protected DLPathResolver pathResolver;
 	protected boolean allowDefineTypes;
 	protected boolean allowDefineAnnotationFactories;
 	protected boolean allowDefinePragmas;
@@ -119,7 +120,8 @@ public class BaseDLCore implements DLCore
 
 	private void init()
 	{
-		resolver = DEFAULT_RESOLVER;
+		referenceResolver = DEFAULT_REFERENCE_RESOLVER;
+		pathResolver = DEFAULT_PATH_RESOLVER;
 		loadModuleType(this);
 	}
 
@@ -164,7 +166,6 @@ public class BaseDLCore implements DLCore
 			copy.exported.clear();
 			copy.exported.addAll(exported);
 
-			copy.basePath = basePath;
 			copy.allowDefineTypes = allowDefineTypes;
 			copy.allowDefineAnnotationFactories = allowDefineAnnotationFactories;
 			copy.allowDefinePragmas = allowDefinePragmas;
@@ -172,7 +173,8 @@ public class BaseDLCore implements DLCore
 			copy.allowRequire = allowRequire;
 			copy.allowUseAsserts = allowUseAsserts;
 			copy.name = name;
-			copy.resolver = resolver;
+			copy.referenceResolver = referenceResolver;
+			copy.pathResolver = pathResolver;
 
 			return copy;
 		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {
@@ -261,7 +263,7 @@ public class BaseDLCore implements DLCore
 			annotation.bindToInstance((DLInstance) container);
 		} else if (container instanceof DLType) {
 
-			if (annotation instanceof DLValidator 
+			if (annotation instanceof DLValidator
 				&& !(((DLValidator) annotation).canValidateType()
 				|| ((DLValidator) annotation).canValidateTypeRead())) {
 				throw new InvalidAnnotation("Annotation '" + annotation + "' can not validate types");
@@ -1177,9 +1179,9 @@ public class BaseDLCore implements DLCore
 	{
 		assert name != null;
 		assert genericTypes != null;
-		
+
 		// Try to retrieve the not generic base type -> If this is not mapped or no further specific type given -> nothing to do here 
-		Optional<DLType> optBaseType = types.get(name);		
+		Optional<DLType> optBaseType = types.get(name);
 		if (optBaseType.isEmpty() || genericTypes.isEmpty()) {
 			return optBaseType;
 		}
@@ -1199,9 +1201,8 @@ public class BaseDLCore implements DLCore
 
 		// Create the new projected name of the specific type
 		String canonicalName = getTypeName(baseType.getCanonicalName(), genericTypes);
-		
-		//log.info("Getting specific type " + canonicalName);
 
+		//log.info("Getting specific type " + canonicalName);
 		Optional<DLType> optSpecificType = types.get(canonicalName);
 
 		// If specific type is already mapped -> just use that one
@@ -1213,7 +1214,7 @@ public class BaseDLCore implements DLCore
 		if (!allowDefineTypes) {
 			return Optional.empty();
 		}
-		
+
 		// Generate specific typed version by copy and adding generics
 		DefaultDLType specificType = ((DefaultDLType) baseType).copy();
 		try {
@@ -1223,7 +1224,7 @@ public class BaseDLCore implements DLCore
 		}
 
 		specificType.setCore(this);
-		
+
 		try {
 			defineType(specificType);
 		} catch (DLException ex) {
@@ -1373,17 +1374,6 @@ public class BaseDLCore implements DLCore
 		DLType type = optType.orElseThrow();
 
 		return (DLInstance) type.fromJavaObject(object);
-	}
-
-	@Override
-	public Path getBasePath()
-	{
-		return basePath;
-	}
-
-	public void setBasePath(Path basePath)
-	{
-		this.basePath = basePath;
 	}
 
 	@Override
@@ -1600,6 +1590,7 @@ public class BaseDLCore implements DLCore
 		return getClass().getClassLoader();
 	}
 
+	@Override
 	public void setClassLoader(ClassLoader classLoader)
 	{
 		this.classLoader = classLoader;
@@ -1665,13 +1656,26 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public DLPathResolver getResolver()
+	public DLReferenceResolver getReferenceResolver()
 	{
-		return resolver;
+		return referenceResolver;
 	}
 
-	public void setResolver(DLPathResolver resolver)
+	@Override
+	public void setReferenceResolver(DLReferenceResolver referenceResolver)
 	{
-		this.resolver = resolver;
+		this.referenceResolver = referenceResolver;
+	}
+
+	@Override
+	public DLPathResolver getPathResolver()
+	{
+		return pathResolver;
+	}
+
+	@Override
+	public void setPathResolver(DLPathResolver pathResolver)
+	{
+		this.pathResolver = pathResolver;
 	}
 }

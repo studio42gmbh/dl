@@ -533,7 +533,7 @@ public class DLHrfParsing extends DLParserBaseListener
 
 				try {
 
-					Class enumClass = Class.forName(enumName);
+					Class enumClass = Class.forName(enumName, true, core.getClassLoader());
 
 					if (!enumClass.isEnum()) {
 						throw new InvalidType(createErrorMessage(module, "Extern enum '" + enumName + "' has to be a valid Enum class", ctx));
@@ -719,7 +719,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					if (!core.hasAnnotationFactory(annotationName)) {
 
 						// Assume the annotation factory is the given name
-						DLAnnotationFactory annotationFactory = ((Class<DLAnnotationFactory>) Class.forName(annotationName)).getConstructor().newInstance();
+						DLAnnotationFactory annotationFactory = ((Class<DLAnnotationFactory>) Class.forName(annotationName, true, core.getClassLoader())).getConstructor().newInstance();
 
 						// map the annotation as defined
 						core.defineAnnotationFactory(annotationFactory, annotationName);
@@ -864,7 +864,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					// Define type from extern definition
 					try {
 
-						Class typeClass = Class.forName(typeName);
+						Class typeClass = Class.forName(typeName, true, core.getClassLoader());
 
 						if (typeClass.isEnum()) {
 							throw new InvalidType(createErrorMessage(module, "Extern type '" + typeClass + "' may not be an Enum class (use keyword enum)", ctx));

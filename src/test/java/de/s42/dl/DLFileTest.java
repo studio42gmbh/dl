@@ -94,7 +94,7 @@ public class DLFileTest
 	public void validTestAnnotations() throws IOException, URISyntaxException, DLException
 	{
 		DefaultCore core = new DefaultCore();
-		core.setBasePath(Path.of("./"));
+		core.getPathResolver().addResolveDirectory(Path.of("./"));
 
 		core.parse("de/s42/dl/annotation.dl");
 

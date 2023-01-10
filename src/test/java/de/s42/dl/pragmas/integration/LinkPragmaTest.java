@@ -2,7 +2,7 @@
 /*
  * The MIT License
  * 
- * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
+ * Copyright 2023 Studio 42 GmbH ( https://www.s42m.de ).
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,50 +23,49 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.instances.base;
+package de.s42.dl.pragmas.integration;
 
-import de.s42.base.files.FilesHelper;
-import de.s42.base.system.SystemHelper;
-import de.s42.dl.DLCore;
-import de.s42.dl.language.DLVersion;
-import java.nio.file.Path;
+import de.s42.dl.DLType;
+import de.s42.dl.core.DefaultCore;
+import de.s42.dl.util.DLHelper;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
+import org.testng.annotations.Test;
+import static org.testng.Assert.*;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class Environment
+public class LinkPragmaTest
 {
 
-	protected DLCore core;
+	private final static Logger log = LogManager.getLogger(LinkPragmaTest.class.getName());
 
-	public Environment(DLCore core)
+	@Test(enabled = false)
+	public void simpleLinkPragma() throws Exception
 	{
-		this.core = core;
-	}
+		
+		for (int i = 0;i<10;++i) {
+		
+			log.start("simpleLinkPragma");
+			
+			DefaultCore core = new DefaultCore();
 
-	public String getDlVersion()
-	{
-		return DLVersion.getVersion();
-	}
+			core.parse("simpleLinkPragma",
+				"pragma link(\"../../../../jenomics/development/ag/ag-lib/target/ag-lib-0.1.jar\");"
+				+ "extern type java.awt.Insets alias Insets;"
+				+ "extern type de.jenomics.ag.nodes.editor.EditorCell alias EditorCell;"
+			);
 
-	public String getOs()
-	{
-		return SystemHelper.getOSName();
-	}
+			log.stopInfo("simpleLinkPragma");
 
-	public String getOsVersion()
-	{
-		return SystemHelper.getOSVersion();
-	}
+			DLType type = core.getType("EditorCell").orElseThrow();
 
-	public Path getWorkingDirectory()
-	{
-		return FilesHelper.getWorkingDirectory().toAbsolutePath();
-	}
+			log.info(DLHelper.describe(type));
 
-	public Path[] getResolveDirectories()
-	{
-		return core.getPathResolver().getResolveDirectories().toArray(Path[]::new);
+			assertEquals(type.getCanonicalName(), "de.jenomics.ag.nodes.editor.EditorCell");
+		}
+
 	}
 }

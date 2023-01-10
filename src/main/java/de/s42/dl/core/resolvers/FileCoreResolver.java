@@ -39,8 +39,6 @@ import static de.s42.dl.util.DLHelper.recognizeFileType;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -51,29 +49,7 @@ import java.util.Optional;
 public class FileCoreResolver implements DLCoreResolver
 {
 
-	public final static String LOCAL_PATH_CONFIG_KEY = "de.s42.dl.core.resolvers.FileCoreResolver.localPath";
-
 	private final static Logger log = LogManager.getLogger(FileCoreResolver.class.getName());
-
-	public static Path getLocalPathInCore(DLCore core)
-	{
-		assert core != null;
-
-		return (Path) core.getConfig(LOCAL_PATH_CONFIG_KEY, null);
-	}
-
-	/**
-	 * This method allows to preapre the core so that the local path lookup can use this path
-	 *
-	 * @param core
-	 * @param path
-	 */
-	public static void setLocalPathInCore(DLCore core, Path path)
-	{
-		assert core != null;
-
-		core.setConfig(LOCAL_PATH_CONFIG_KEY, path);
-	}
 
 	@Override
 	public String getContent(DLCore core, String resolvedModuleId, String data) throws InvalidModule, IOException
@@ -90,39 +66,7 @@ public class FileCoreResolver implements DLCoreResolver
 		assert core != null;
 		assert moduleId != null;
 
-		try {
-
-			Path filePath = Path.of(moduleId);
-
-			// Look relative to current path
-			Path localPath = getLocalPathInCore(core);
-			if (localPath != null) {
-				Path modulePath = localPath.resolve(filePath);
-
-				if (Files.isRegularFile(modulePath)) {
-					return Optional.of(modulePath);
-				}
-			}
-
-			// Look relative to core base path
-			Path basePath = core.getBasePath();
-			if (basePath != null) {
-				Path modulePath = basePath.resolve(filePath);
-
-				if (Files.isRegularFile(modulePath)) {
-					return Optional.of(modulePath);
-				}
-			}
-
-			// Look relative to working dir
-			if (Files.isRegularFile(filePath)) {
-				return Optional.of(filePath);
-			}
-		} catch (InvalidPathException ex) {
-			log.error(ex.getMessage());
-		}
-
-		return Optional.empty();
+		return core.getPathResolver().resolveFile(Path.of(moduleId));
 	}
 
 	@Override
@@ -160,11 +104,8 @@ public class FileCoreResolver implements DLCoreResolver
 
 		Path modulePath = Path.of(resolvedModuleId);
 
-		// Get the old path
-		Path oldLocalPath = getLocalPathInCore(core);
-
 		// Change config path to be relative to the new parsed file
-		setLocalPathInCore(core, modulePath.getParent());
+		core.getPathResolver().addResolveDirectory(modulePath.getParent());
 
 		try {
 
@@ -193,7 +134,7 @@ public class FileCoreResolver implements DLCoreResolver
 			throw new InvalidModule("Error loading module from file '" + modulePath + "' - " + ex.getMessage(), ex);
 		} finally {
 			// Set config back to old path
-			setLocalPathInCore(core, oldLocalPath);
+			core.getPathResolver().removeResolveDirectory(modulePath.getParent());
 		}
 	}
 }

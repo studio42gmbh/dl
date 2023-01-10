@@ -29,29 +29,61 @@ import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidPragma;
-import java.nio.file.Path;
+import static org.testng.Assert.*;
 import org.testng.annotations.Test;
-import org.testng.Assert;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class BasePathPragmaNGTest
+public class DefinePragmaPragmaTest
 {
 
-	@Test
-	public void validBasePathPragma() throws DLException
+	public static class TestPragma extends AbstractDLPragma
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "pragma basePath(\".\");");
-		Assert.assertEquals(core.getBasePath(), Path.of("."));
+
+		public int called;
+
+		public TestPragma()
+		{
+			super("test");
+		}
+
+		@Override
+		public void doPragma(DLCore core, Object... parameters) throws InvalidPragma
+		{
+			assert core != null;
+			assert parameters != null;
+
+			parameters = validateParameters(parameters, new Class[]{int.class});
+
+			called += (int) parameters[0];
+		}
+	}
+
+	@Test
+	public void definePragma() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
+
+		core.parse("definePragma",
+			"pragma definePragma(de.s42.dl.pragmas.DefinePragmaPragmaTest$TestPragma); "
+			+ "pragma test(3);"
+			+ "pragma de.s42.dl.pragmas.DefinePragmaPragmaTest$TestPragma(39);"
+		);
+
+		TestPragma pragma = (TestPragma) core.getPragma("de.s42.dl.pragmas.DefinePragmaPragmaTest$TestPragma").orElseThrow();
+
+		assertEquals(pragma.called, 42);
 	}
 
 	@Test(expectedExceptions = InvalidPragma.class)
-	public void invalidBasePathPragmaNotADirectory() throws DLException
+	public void invalidDisallowedDefineTypes() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "pragma basePath(\".\\FileNotThere\");");
+
+		core.parse("invalidDisallowedDefineTypes",
+			"pragma definePragma(notDefined);"
+		);
 	}
 }

@@ -2,7 +2,7 @@
 /*
  * The MIT License
  * 
- * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
+ * Copyright 2023 Studio 42 GmbH ( https://www.s42m.de ).
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,50 +23,22 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.instances.base;
+package de.s42.dl;
 
-import de.s42.base.files.FilesHelper;
-import de.s42.base.system.SystemHelper;
-import de.s42.dl.DLCore;
-import de.s42.dl.language.DLVersion;
-import java.nio.file.Path;
+import de.s42.dl.exceptions.ParserException;
+import java.util.Optional;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class Environment
+public interface DLReferenceResolver
 {
 
-	protected DLCore core;
-
-	public Environment(DLCore core)
+	default public Optional<Object> resolve(DLEntity context, String path) throws ParserException
 	{
-		this.core = core;
+		return resolve(context, path, true);
 	}
 
-	public String getDlVersion()
-	{
-		return DLVersion.getVersion();
-	}
-
-	public String getOs()
-	{
-		return SystemHelper.getOSName();
-	}
-
-	public String getOsVersion()
-	{
-		return SystemHelper.getOSVersion();
-	}
-
-	public Path getWorkingDirectory()
-	{
-		return FilesHelper.getWorkingDirectory().toAbsolutePath();
-	}
-
-	public Path[] getResolveDirectories()
-	{
-		return core.getPathResolver().getResolveDirectories().toArray(Path[]::new);
-	}
+	public Optional<Object> resolve(DLEntity context, String path, boolean strict) throws ParserException;
 }

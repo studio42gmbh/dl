@@ -26,11 +26,10 @@
 package de.s42.dl.pragmas;
 
 import de.s42.dl.DLCore;
-import de.s42.dl.core.BaseDLCore;
 import de.s42.dl.exceptions.InvalidPragma;
+import de.s42.dl.exceptions.InvalidValue;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -63,12 +62,10 @@ public class BasePathPragma extends AbstractDLPragma
 
 		Path basePath = (Path) parameters[0];
 
-		if (!Files.isDirectory(basePath)) {
-			throw new InvalidPragma("Given base path is not a valid directory '" + basePath.toAbsolutePath().toString() + "'");
+		try {
+			core.getPathResolver().addResolveDirectory(basePath);
+		} catch (InvalidValue ex) {
+			throw new InvalidPragma("Error add resolve directory - " + ex.getMessage(), ex);
 		}
-
-		((BaseDLCore) core).setBasePath(basePath);
-
-		//log.debug("Set core base path to '" + basePath.toAbsolutePath().toString() + "'");
 	}
 }

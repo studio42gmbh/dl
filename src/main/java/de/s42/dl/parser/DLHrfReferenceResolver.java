@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.parser.path;
+package de.s42.dl.parser;
 
 import de.s42.base.beans.BeanHelper;
 import de.s42.base.beans.BeanInfo;
@@ -32,7 +32,7 @@ import de.s42.base.beans.InvalidBean;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLEntity;
 import de.s42.dl.DLInstance;
-import de.s42.dl.DLPathResolver;
+import de.s42.dl.DLReferenceResolver;
 import de.s42.dl.exceptions.ParserException;
 import de.s42.dl.instances.ComplexTypeDLInstance;
 import de.s42.dl.instances.SimpleTypeDLInstance;
@@ -44,10 +44,10 @@ import java.util.Optional;
  *
  * @author Benjamin Schiller
  */
-public class DLHrfPathResolver implements DLPathResolver
+public class DLHrfReferenceResolver implements DLReferenceResolver
 {
 
-	private final static Logger log = LogManager.getLogger(DLHrfPathResolver.class.getName());
+	private final static Logger log = LogManager.getLogger(DLHrfReferenceResolver.class.getName());
 
 	protected Object resolveElement(Object element, String path)
 	{

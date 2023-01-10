@@ -61,9 +61,10 @@ module de.sft.dl
 	exports de.s42.dl.parser.contracts.operators;
 	exports de.s42.dl.parser.expression;
 	exports de.s42.dl.parser.expression.operators;
-	exports de.s42.dl.parser.path;
 	exports de.s42.dl.parser2;
 	exports de.s42.dl.pragmas;
+	exports de.s42.dl.pragmas.debug;
+	exports de.s42.dl.pragmas.integration;
 	exports de.s42.dl.types;
 	exports de.s42.dl.types.primitive;
 	exports de.s42.dl.types.collections;

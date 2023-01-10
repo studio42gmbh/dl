@@ -25,8 +25,12 @@
 //</editor-fold>
 package de.s42.dl;
 
-import de.s42.dl.exceptions.ParserException;
+import de.s42.dl.exceptions.InvalidValue;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  *
@@ -35,10 +39,38 @@ import java.util.Optional;
 public interface DLPathResolver
 {
 
-	default public Optional<Object> resolve(DLEntity context, String path) throws ParserException
+	public Optional<Path> resolve(Path path, Predicate<Path> predicate);
+
+	default public Optional<Path> resolveExists(Path path)
 	{
-		return resolve(context, path, true);
+		return resolve(path, (resolved) -> (Files.isRegularFile(resolved) || Files.isDirectory(resolved)));
 	}
 
-	public Optional<Object> resolve(DLEntity context, String path, boolean strict) throws ParserException;
+	default public Optional<Path> resolveDirectory(Path path)
+	{
+		return resolve(path, (resolved) -> Files.isDirectory(resolved));
+	}
+
+	default public Optional<Path> resolveFile(Path path)
+	{
+		return resolve(path, (resolved) -> Files.isRegularFile(resolved));
+	}
+
+	default public Optional<Path> resolveReadableFile(Path path)
+	{
+		return resolve(path, (resolved) -> Files.isReadable(resolved));
+	}
+
+	default public Optional<Path> resolveWritableFile(Path path)
+	{
+		return resolve(path, (resolved) -> Files.isWritable(resolved));
+	}
+
+	public boolean addResolveDirectory(Path directory) throws InvalidValue;
+
+	public boolean removeResolveDirectory(Path directory);
+
+	public List<Path> getResolveDirectories();
+
+	public void clearResolveDirectories();
 }

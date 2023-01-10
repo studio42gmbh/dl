@@ -38,7 +38,7 @@ import de.s42.dl.parser.expression.operators.Atom;
 import de.s42.dl.parser.expression.operators.And;
 import de.s42.dl.parser.expression.operators.Add;
 import de.s42.dl.DLModule;
-import de.s42.dl.DLPathResolver;
+import de.s42.dl.DLReferenceResolver;
 import de.s42.dl.exceptions.ParserException;
 import de.s42.dl.parser.DLHrfParsingException;
 import de.s42.dl.parser.DLParser.AtomContext;
@@ -248,7 +248,7 @@ public final class DLHrfExpressionParser
 
 		assert core != null;
 
-		DLPathResolver resolver = core.getResolver();
+		DLReferenceResolver resolver = core.getReferenceResolver();
 
 		assert resolver != null;
 

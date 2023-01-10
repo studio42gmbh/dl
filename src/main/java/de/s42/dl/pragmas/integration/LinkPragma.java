@@ -23,50 +23,56 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.instances.base;
+package de.s42.dl.pragmas.integration;
 
-import de.s42.base.files.FilesHelper;
-import de.s42.base.system.SystemHelper;
+import de.s42.dl.pragmas.*;
 import de.s42.dl.DLCore;
-import de.s42.dl.language.DLVersion;
+import de.s42.dl.exceptions.InvalidPragma;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class Environment
+public class LinkPragma extends AbstractDLPragma
 {
 
-	protected DLCore core;
+	private final static Logger log = LogManager.getLogger(LinkPragma.class.getName());
 
-	public Environment(DLCore core)
+	public final static String DEFAULT_IDENTIFIER = "link";
+
+	public LinkPragma()
 	{
-		this.core = core;
+		super(DEFAULT_IDENTIFIER);
 	}
 
-	public String getDlVersion()
+	public LinkPragma(String identifier)
 	{
-		return DLVersion.getVersion();
+		super(identifier);
 	}
 
-	public String getOs()
+	@Override
+	public void doPragma(DLCore core, Object... parameters) throws InvalidPragma
 	{
-		return SystemHelper.getOSName();
-	}
+		assert core != null;
 
-	public String getOsVersion()
-	{
-		return SystemHelper.getOSVersion();
-	}
+		parameters = validateParameters(parameters, new Class[]{Path.class});
 
-	public Path getWorkingDirectory()
-	{
-		return FilesHelper.getWorkingDirectory().toAbsolutePath();
-	}
+		final Path linkPath = (Path) parameters[0];
+		Path resolvedLinkPath = core.getPathResolver().resolveExists(linkPath).orElseThrow(() -> {
+			return new InvalidPragma("Could not resolve path '" + linkPath + "'");
+		}).toAbsolutePath().normalize();
 
-	public Path[] getResolveDirectories()
-	{
-		return core.getPathResolver().getResolveDirectories().toArray(Path[]::new);
+		try {
+			URLClassLoader classLoader = new URLClassLoader(new URL[]{resolvedLinkPath.toUri().toURL()}, core.getClassLoader());
+			core.setClassLoader(classLoader);
+		} catch (MalformedURLException ex) {
+			throw new InvalidPragma("Error loading lib '" + linkPath + "' - " + ex.getMessage(), ex);
+		}
 	}
 }

@@ -25,56 +25,39 @@
 //</editor-fold>
 package de.s42.dl.pragmas;
 
-import de.s42.dl.DLCore;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidPragma;
-import org.testng.Assert;
+import java.nio.file.Path;
 import org.testng.annotations.Test;
+import static org.testng.Assert.*;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DefinePragmaPragmaNGTest
+public class BasePathPragmaTest
 {
-	public static class TestPragma extends AbstractDLPragma
-	{
-		public int called;
-		
-		public TestPragma()
-		{
-			super("test");
-		}
-
-		@Override
-		public void doPragma(DLCore core, Object... parameters) throws InvalidPragma
-		{
-			assert core != null;
-			assert parameters != null;
-			
-			parameters = validateParameters(parameters, new Class[] { int.class });
-			
-			called+= (int)parameters[0];
-		}	
-	}	
 
 	@Test
-	public void validDefinePragma() throws DLException
+	public void basePathPragma() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "pragma definePragma(de.s42.dl.pragmas.DefinePragmaPragmaNGTest$TestPragma);");
-		core.parse("Anonymous2", "pragma test(3);");
-		core.parse("Anonymous3", "pragma de.s42.dl.pragmas.DefinePragmaPragmaNGTest$TestPragma(39);");
-		TestPragma pragma = (TestPragma)core.getPragma("de.s42.dl.pragmas.DefinePragmaPragmaNGTest$TestPragma").orElseThrow();
-		
-		Assert.assertEquals(pragma.called, 42);
+		DefaultCore core = new DefaultCore();
+
+		core.parse("basePathPragma",
+			"pragma basePath(\".\");"
+		);
+
+		assertEquals(core.getPathResolver().getResolveDirectories().get(0), Path.of("."));
 	}
 
 	@Test(expectedExceptions = InvalidPragma.class)
-	public void invalidDisallowedDefineTypes() throws DLException
+	public void invalidBasePathPragmaNotADirectory() throws DLException
 	{
-		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "pragma definePragma(notDefined);");
+		DefaultCore core = new DefaultCore();
+
+		core.parse("invalidBasePathPragmaNotADirectory",
+			"pragma basePath(\".\\FileNotThere\");"
+		);
 	}
 }
