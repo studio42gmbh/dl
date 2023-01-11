@@ -1,3 +1,4 @@
+
 // Resolvment of other modules can be extended easily
 require "dl:standard/base.dl";
 
@@ -28,6 +29,9 @@ MyType t @export {
 	//id : "fd5a44e4-0158-4cfa-ba65-3064660891dc";
 	evenVal : 4;
 }
+
+Long y : 6 + 5;
+Long x : $t.?val;
 
 UUID id : $t.id;
 

@@ -3,7 +3,7 @@
  */
 
 // Assert environment
-assert $env.os ~= ".*Windows.*" : "Needs Windows to work properly but OS is " + $env.os;
+assert $?env.?os ~= ".*Windows.*" : "Needs Windows to work properly but OS is " + $?env.?os;
 
 // Resolvment of other modules can be extended easily
 require "dl:standard/base.dl";

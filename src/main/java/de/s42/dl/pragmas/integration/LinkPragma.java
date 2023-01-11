@@ -30,7 +30,7 @@ import de.s42.dl.DLCore;
 import de.s42.dl.exceptions.InvalidPragma;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -71,7 +71,7 @@ public class LinkPragma extends AbstractDLPragma
 		try {
 			URLClassLoader classLoader = new URLClassLoader(new URL[]{resolvedLinkPath.toUri().toURL()}, core.getClassLoader());
 			core.setClassLoader(classLoader);
-		} catch (MalformedURLException ex) {
+		} catch (IOException ex) {
 			throw new InvalidPragma("Error loading lib '" + linkPath + "' - " + ex.getMessage(), ex);
 		}
 	}

@@ -94,49 +94,47 @@ public final class DLHelper
 		assert builder != null;
 
 		builder.append(factory.getOperatorAsString());
-		
+
 		DLContract contract = factory.getContract();
 		if (contract instanceof ContractAnnotationFactory) {
-			describe((ContractAnnotationFactory)contract, builder);
+			describe((ContractAnnotationFactory) contract, builder);
 		} else if (contract != null) {
 			builder
 				.append("@")
 				.append(contract.getName())
 				.append(Arrays.toString(contract.getFlatParameters()));
-		}		
-		
+		}
+
 		return builder;
 	}
-			
+
 	public static StringBuilder describe(AbstractBinaryContractFactory factory, StringBuilder builder)
 	{
 		assert factory != null;
 		assert builder != null;
-		
+
 		builder.append("(");
-		
+
 		// First 
 		DLContract first = factory.getContractFirst();
 		if (first instanceof AbstractBinaryContractFactory) {
-			describe((AbstractBinaryContractFactory)first, builder);
+			describe((AbstractBinaryContractFactory) first, builder);
+		} else if (first instanceof ContractAnnotationFactory) {
+			describe((ContractAnnotationFactory) first, builder);
 		}
-		else if (first instanceof ContractAnnotationFactory) {
-			describe((ContractAnnotationFactory)first, builder);
-		}
-		
+
 		builder.append(factory.getOperatorAsString());
-		
+
 		// Second
 		DLContract second = factory.getContractSecond();
 		if (second instanceof AbstractBinaryContractFactory) {
-			describe((AbstractBinaryContractFactory)second, builder);
+			describe((AbstractBinaryContractFactory) second, builder);
+		} else if (second instanceof ContractAnnotationFactory) {
+			describe((ContractAnnotationFactory) second, builder);
 		}
-		else if (second instanceof ContractAnnotationFactory) {
-			describe((ContractAnnotationFactory)second, builder);
-		}
-		
+
 		builder.append(")");
-		
+
 		return builder;
 	}
 
@@ -144,34 +142,32 @@ public final class DLHelper
 	{
 		return describe(annotation, new StringBuilder()).toString();
 	}
-	
+
 	public static StringBuilder describe(DLAnnotation annotation, StringBuilder builder)
 	{
 		assert annotation != null;
 		assert builder != null;
-		
+
 		builder
 			.append("Annotation ")
 			.append(annotation.getName())
 			.append(" ")
 			.append(Arrays.toString(annotation.getFlatParameters()));
-		
-		
+
 		// Special handling for contracts -> reconstruct expression
 		if (annotation instanceof AbstractBinaryContractFactory) {
 			builder
 				.append(" ");
-			describe((AbstractBinaryContractFactory)annotation, builder);
-		}
-		else if (annotation instanceof ContractAnnotationFactory) {
+			describe((AbstractBinaryContractFactory) annotation, builder);
+		} else if (annotation instanceof ContractAnnotationFactory) {
 			builder
 				.append(" ");
-			describe((ContractAnnotationFactory)annotation, builder);
+			describe((ContractAnnotationFactory) annotation, builder);
 		}
 
-		return builder;		
+		return builder;
 	}
-	
+
 	public static String describe(DLType type)
 	{
 		assert type != null;
@@ -196,21 +192,20 @@ public final class DLHelper
 
 		if (type.isSimpleType()) {
 			builder.append(" simple");
-		}
-		else {
+		} else {
 			builder.append(" complex");
 		}
-				
+
 		builder
 			.append("\n");
 
 		for (DLAnnotation annotation : type.getAnnotations()) {
-			
+
 			builder
 				.append("\t");
-			
+
 			describe(annotation, builder);
-			
+
 			builder
 				.append("\n");
 		}
@@ -281,6 +276,12 @@ public final class DLHelper
 				.append(" ")
 				.append(String.valueOf(instance.get(attribute.getName())))
 				.append("\n");
+		}
+
+		for (DLInstance child : instance.getChildren()) {
+			builder
+				.append("  Child ")
+				.append(describe(child).indent(2));
 		}
 
 		return builder.toString();

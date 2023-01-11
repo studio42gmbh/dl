@@ -9,7 +9,7 @@ pragma basePath("/home/s42/dl/development/dl/src/test/resources");
 
 require "dl:standard/base.dl";
 require "simple.dl";
-require "annotation.dl";
+//require "annotation.dl";
 
 //pragma disableUseAsserts;
 

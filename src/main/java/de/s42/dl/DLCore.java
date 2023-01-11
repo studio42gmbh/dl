@@ -181,13 +181,4 @@ public interface DLCore extends DLEntity
 	public boolean isAllowRequire();
 
 	public void setAllowRequire(boolean allowRequire);
-
-	// CONFIG (intended for tools using cores not inside of DL)
-	public Object getConfig(String key);
-
-	public Object getConfig(String key, Object defaultValue);
-
-	public Object setConfig(String key, Object value);
-
-	public Set<String> getConfigKeys();
 }

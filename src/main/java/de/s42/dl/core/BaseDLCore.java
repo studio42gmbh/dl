@@ -89,7 +89,6 @@ public class BaseDLCore implements DLCore
 	protected final MappedList<String, DLAnnotationFactory> annotationFactories = new MappedList<>();
 	protected final Map<String, DLModule> requiredModules = new HashMap<>();
 	protected final MappedList<String, DLInstance> exported = new MappedList<>();
-	protected final Map<String, Object> configs = new HashMap<>();
 	protected DLReferenceResolver referenceResolver;
 	protected DLPathResolver pathResolver;
 	protected boolean allowDefineTypes;
@@ -1620,29 +1619,6 @@ public class BaseDLCore implements DLCore
 		this.allowUseAsserts = allowUseAsserts;
 	}
 
-	@Override
-	public Optional<Object> getConfig(String key)
-	{
-		return Optional.ofNullable(configs.get(key));
-	}
-
-	@Override
-	public Object getConfig(String key, Object defaultValue)
-	{
-		return configs.getOrDefault(key, defaultValue);
-	}
-
-	@Override
-	public Object setConfig(String key, Object value)
-	{
-		return configs.put(key, value);
-	}
-
-	@Override
-	public Set<String> getConfigKeys()
-	{
-		return Collections.unmodifiableSet(configs.keySet());
-	}
 
 	@Override
 	public String getName()

@@ -138,7 +138,7 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	public Optional<DLAttribute> getAttribute(String name)
 	{
 		assert name != null;
-		
+
 		return type.getAttribute(name);
 	}
 
@@ -200,7 +200,7 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	public boolean hasAttribute(String key)
 	{
 		assert key != null;
-		
+
 		return attributes.contains(key);
 	}
 
@@ -555,16 +555,16 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	public List getChildrenAsJavaType(Class<?> javaType)
 	{
 		assert javaType != null;
-		
+
+		DLType instanceType = getCore().getType(javaType).orElseThrow();
+
 		List result = new ArrayList<>(children.size());
 
-		for (DLInstance child : children.list()) {
+		for (DLInstance child : getChildren(instanceType)) {
 
 			Object childJavaObject = child.toJavaObject();
 
-			if (javaType.isAssignableFrom(childJavaObject.getClass())) {
-				result.add(childJavaObject);
-			}
+			result.add(childJavaObject);
 		}
 
 		return result;

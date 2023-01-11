@@ -26,6 +26,7 @@
 package de.s42.dl.annotations;
 
 import de.s42.dl.DLAnnotation;
+import de.s42.dl.DLAnnotationFactory;
 import de.s42.dl.DLCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.log.LogManager;
@@ -125,12 +126,20 @@ public final class DLAnnotationHelper
 					namedParameters.put(method.getName(), method.invoke(javaAnnotation));
 				}
 			}
+			
+			Optional<DLAnnotationFactory> optAnnotationFactory = core.getAnnotationFactory(annotationName);
+			
+			if (optAnnotationFactory.isPresent()) {
+				
+				Object[] flatParameters = optAnnotationFactory.orElseThrow().toFlatParameters(namedParameters);
 
-			Object[] flatParameters = core.getAnnotationFactory(annotationName).orElseThrow().toFlatParameters(namedParameters);
+				DLAnnotation dlAnnotation = core.createAnnotation(annotationName, container, flatParameters);
 
-			DLAnnotation dlAnnotation = core.createAnnotation(annotationName, container, flatParameters);
-
-			return Optional.of(dlAnnotation);
+				return Optional.of(dlAnnotation);
+			}
+			else {
+				throw new DLException("Annotationfactory '" + annotationName + "' not found");
+			}
 		} catch (DLException | IllegalAccessException | IllegalArgumentException | SecurityException | InvocationTargetException ex) {
 			throw new DLException("Error getting dl annotation - " + ex.getMessage(), ex);
 		}
