@@ -298,10 +298,6 @@ public final class DLHelper
 
 		StringBuilder result = new StringBuilder();
 
-		if (prettyPrint) {
-			result.append("/**\n * Created at ").append(new Date()).append("\n **/\n");
-		}
-
 		for (DLInstance instance : module.getChildren()) {
 
 			if (prettyPrint) {
