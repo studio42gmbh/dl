@@ -65,6 +65,7 @@ import de.s42.dl.types.base.ClassDLType;
 import de.s42.dl.types.base.DateDLType;
 import de.s42.dl.types.base.PathDLType;
 import de.s42.dl.types.base.SymbolDLType;
+import de.s42.dl.types.base.URLDLType;
 import de.s42.dl.types.base.UUIDDLType;
 import de.s42.dl.types.collections.ListDLType;
 import de.s42.dl.types.collections.MapDLType;
@@ -311,6 +312,11 @@ public class DefaultCore extends BaseDLCore
 			"java.util.UUID",
 			"uuid",
 			UUIDDLType.class.getName());
+
+		core.defineType(new URLDLType(objectType),
+			"java.net.URL",
+			"url",
+			URLDLType.class.getName());
 
 		core.defineType(new DateDLType(objectType),
 			"java.util.Date",
