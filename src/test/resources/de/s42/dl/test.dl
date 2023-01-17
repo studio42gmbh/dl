@@ -2,7 +2,7 @@
  * Showcase all DL Features in a nutshell
  */
 
-// Assert environment
+// Assert environment is Windows
 assert $?env.?os ~= ".*Windows.*" : "Needs Windows to work properly but OS is " + $?env.?os;
 
 // Resolvment of other modules can be extended easily
@@ -21,7 +21,7 @@ extern enum de.s42.dl.language.DLKeyword alias DLKeyword;
 extern annotation range/*(min, max)*/;
 extern annotation even;
 
-// Combined annotations (concepts) for easier and flexible validation
+// Combined annotations (contracts) for easier and flexible validation
 annotation evenLong42/*(max)*/ : @even & @range(min : 0, max : 42);
 annotation validNodeName : @typeName(pattern : ".*Node(V[0-9]+)?");
 

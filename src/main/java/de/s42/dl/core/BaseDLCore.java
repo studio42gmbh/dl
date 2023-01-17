@@ -80,7 +80,6 @@ public class BaseDLCore implements DLCore
 	private final static Logger log = LogManager.getLogger(BaseDLCore.class.getName());
 
 	protected final static DLReferenceResolver DEFAULT_REFERENCE_RESOLVER = new DLHrfReferenceResolver();
-	protected final static DLPathResolver DEFAULT_PATH_RESOLVER = new DefaultDLPathResolver();
 
 	protected final Map<String, WeakReference<Object>> convertedCache = new HashMap<>();
 	protected final List<DLCoreResolver> resolvers = new ArrayList<>();
@@ -107,20 +106,20 @@ public class BaseDLCore implements DLCore
 
 	public BaseDLCore(boolean allowAll)
 	{
+		init(allowAll);
+	}
+
+	private void init(boolean allowAll)
+	{
 		allowDefineTypes = allowAll;
 		allowDefineAnnotationFactories = allowAll;
 		allowDefinePragmas = allowAll;
 		allowUsePragmas = allowAll;
 		allowRequire = allowAll;
 		allowUseAsserts = allowAll;
-
-		init();
-	}
-
-	private void init()
-	{
+		
 		referenceResolver = DEFAULT_REFERENCE_RESOLVER;
-		pathResolver = DEFAULT_PATH_RESOLVER;
+		pathResolver = new DefaultDLPathResolver();
 		loadModuleType(this);
 	}
 
@@ -173,7 +172,7 @@ public class BaseDLCore implements DLCore
 			copy.allowUseAsserts = allowUseAsserts;
 			copy.name = name;
 			copy.referenceResolver = referenceResolver;
-			copy.pathResolver = pathResolver;
+			copy.pathResolver = new DefaultDLPathResolver();
 
 			return copy;
 		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | SecurityException | InvocationTargetException ex) {

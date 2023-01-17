@@ -52,6 +52,7 @@ import java.util.zip.ZipOutputStream;
  * @author Benjamin Schiller
  */
 // @todo https://github.com/studio42gmbh/dl/issues/15 BinaryDLWriter finish first complete version (types, pragmas, requires, annotations, ...)
+// @todo see https://www.happycoders.eu/java/how-to-write-files-quickly-and-easily/
 public class BinaryDLWriter implements DLWriter
 {
 
