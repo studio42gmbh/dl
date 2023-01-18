@@ -53,7 +53,10 @@ public class LengthDLAnnotationTest
 		);
 	}
 
-	@Test(expectedExceptions = InvalidInstance.class)
+	@Test(
+		expectedExceptions = InvalidInstance.class,
+		expectedExceptionsMessageRegExp = "Error validating instance.*Value has to be min 10 chars but is 8 in @length.*"
+	)
 	public void invalidLengthAnnotations() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
@@ -64,7 +67,10 @@ public class LengthDLAnnotationTest
 		);
 	}
 
-	@Test(expectedExceptions = InvalidAnnotation.class)
+	@Test(
+		expectedExceptions = InvalidAnnotation.class,
+		expectedExceptionsMessageRegExp = "Error binding annotation @length to attribute 'v' - min : '20' > max : '10'.*"
+	)
 	public void invalidLengthAnnotationParametersMinGreaterMax() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
@@ -74,7 +80,10 @@ public class LengthDLAnnotationTest
 		);
 	}
 
-	@Test(expectedExceptions = InvalidAnnotation.class)
+	@Test(
+		expectedExceptions = InvalidAnnotation.class,
+		expectedExceptionsMessageRegExp = "Parameters are not valid for annotation @length.*Parameter 'min' validation IsGreaterEqual0 failed.*"
+	)
 	public void invalidLengthAnnotationParametersMinSmaller0() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
