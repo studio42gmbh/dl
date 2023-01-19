@@ -244,7 +244,7 @@ public final class DLHrfExpressionParser
 		assert refId != null;
 		assert ctx != null;
 
-		DLCore core = module.getType().getCore();
+		DLCore core = module.getCore();
 
 		assert core != null;
 

@@ -56,6 +56,11 @@ public interface DLAttribute extends DLEntity, DLAnnotated, DLValidatable
 
 	public DLType getContainer();
 
+	default public DLCore getCore()
+	{
+		return getContainer().getCore();
+	}
+
 	public Object getDefaultValue();
 
 	public DLType getType();
@@ -66,19 +71,22 @@ public interface DLAttribute extends DLEntity, DLAnnotated, DLValidatable
 	public List<DLAttributeValidator> getValidators();
 
 	public boolean validateValue(Object value, ValidationResult result);
-	
+
 	// FLAGS
 	public boolean isReadable();
 
 	public boolean isWritable();
 
 	/**
-	 * This method shall return true if the data represented by this attribute is equal (same type, same annnotations, ... but not same container)
+	 * This method shall return true if the data represented by this attribute is equal (same type, same annnotations,
+	 * ... but not same container)
+	 *
 	 * @param other
-	 * @return 
+	 *
+	 * @return
 	 */
 	public boolean equalDataType(DLAttribute other);
-	
+
 	public boolean equalOrMoreSpecificDataType(DLAttribute other);
-	
+
 }

@@ -46,6 +46,6 @@ public class ExportDLAnnotation extends AbstractDLAnnotation<ExportDLAnnotation>
 		container = instance;
 		container.addAnnotation(this);
 		
-		instance.getType().getCore().addExported(instance);
+		instance.getCore().addExported(instance);
 	}
 }

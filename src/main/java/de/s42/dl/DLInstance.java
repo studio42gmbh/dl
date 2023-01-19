@@ -52,6 +52,11 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 	}
 
 	public DLType getType();
+	
+	default public DLCore getCore()
+	{
+		return getType().getCore();
+	}
 
 	// VALIDATION
 	public boolean addValidator(DLInstanceValidator validator);

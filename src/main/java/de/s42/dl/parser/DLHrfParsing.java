@@ -128,7 +128,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			return new Object[0];
 		}
 
-		DLCore core = module.getType().getCore();
+		DLCore core = module.getCore();
 
 		DLAnnotationFactory annotationFactory = core.getAnnotationFactory(annotationName).orElseThrow(() -> {
 			return new InvalidAnnotation(createErrorMessage(module, "Annotation factory @" + annotationName + " is not defined", ctx));

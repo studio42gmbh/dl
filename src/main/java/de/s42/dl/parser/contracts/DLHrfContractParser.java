@@ -135,7 +135,7 @@ public final class DLHrfContractParser
 		try {
 			String annotationName = ctx.annotationName().getText();
 
-			DLCore core = module.getType().getCore();
+			DLCore core = module.getCore();
 
 			if (!core.hasAnnotationFactory(annotationName)) {
 				throw new DLHrfParsingException(
