@@ -96,8 +96,8 @@ public final class DLHelper
 		builder.append(factory.getOperatorAsString());
 
 		DLContract contract = factory.getContract();
-		if (contract instanceof ContractAnnotationFactory) {
-			describe((ContractAnnotationFactory) contract, builder);
+		if (contract instanceof ContractAnnotationFactory contractAnnotationFactory) {
+			describe(contractAnnotationFactory, builder);
 		} else if (contract != null) {
 			builder
 				.append("@")
@@ -117,20 +117,20 @@ public final class DLHelper
 
 		// First 
 		DLContract first = factory.getContractFirst();
-		if (first instanceof AbstractBinaryContractFactory) {
-			describe((AbstractBinaryContractFactory) first, builder);
-		} else if (first instanceof ContractAnnotationFactory) {
-			describe((ContractAnnotationFactory) first, builder);
+		if (first instanceof AbstractBinaryContractFactory abstractBinaryContractFactory) {
+			describe(abstractBinaryContractFactory, builder);
+		} else if (first instanceof ContractAnnotationFactory contractAnnotationFactory) {
+			describe(contractAnnotationFactory, builder);
 		}
 
 		builder.append(factory.getOperatorAsString());
 
 		// Second
 		DLContract second = factory.getContractSecond();
-		if (second instanceof AbstractBinaryContractFactory) {
-			describe((AbstractBinaryContractFactory) second, builder);
-		} else if (second instanceof ContractAnnotationFactory) {
-			describe((ContractAnnotationFactory) second, builder);
+		if (second instanceof AbstractBinaryContractFactory abstractBinaryContractFactory) {
+			describe(abstractBinaryContractFactory, builder);
+		} else if (second instanceof ContractAnnotationFactory contractAnnotationFactory) {
+			describe(contractAnnotationFactory, builder);
 		}
 
 		builder.append(")");
@@ -155,14 +155,14 @@ public final class DLHelper
 			.append(Arrays.toString(annotation.getFlatParameters()));
 
 		// Special handling for contracts -> reconstruct expression
-		if (annotation instanceof AbstractBinaryContractFactory) {
+		if (annotation instanceof AbstractBinaryContractFactory abstractBinaryContractFactory) {
 			builder
 				.append(" ");
-			describe((AbstractBinaryContractFactory) annotation, builder);
-		} else if (annotation instanceof ContractAnnotationFactory) {
+			describe(abstractBinaryContractFactory, builder);
+		} else if (annotation instanceof ContractAnnotationFactory contractAnnotationFactory) {
 			builder
 				.append(" ");
-			describe((ContractAnnotationFactory) annotation, builder);
+			describe(contractAnnotationFactory, builder);
 		}
 
 		return builder;
@@ -479,10 +479,11 @@ public final class DLHelper
 	{
 		if (value == null) {
 			return "";
-		} else if (value instanceof DLInstance) {
-			return toString((DLInstance) value, prettyPrint, indent + 1);
-		} else if (value instanceof Date) {
-			return "\"" + ConversionHelper.DATE_FORMAT.format(value) + "\"";
+		} else if (value instanceof DLInstance dLInstance) {
+			return toString(dLInstance, prettyPrint, indent + 1);
+		} else if (value instanceof Date date) {
+			return "" + date.getTime();
+			//return "\"" + ConversionHelper.DATE_FORMAT.format(value) + "\"";
 		} else if (value.getClass().isArray()) {
 
 			StringBuilder builder = new StringBuilder();
@@ -516,7 +517,7 @@ public final class DLHelper
 	public static String toString(DLInstance instance, boolean prettyPrint, int indent)
 	{
 		assert instance != null;
-
+		
 		StringBuilder result = new StringBuilder();
 
 		result.append(instance.getType().getCanonicalName());
@@ -540,10 +541,10 @@ public final class DLHelper
 		DLType type = instance.getType();
 		for (String attributeName : attributeNames) {
 
-			DLAttribute attribute = type.getAttribute(attributeName).orElseThrow();
+			DLAttribute attribute = type.getAttribute(attributeName).orElse(null);
 
-			// Ignore attribute that shall not be persisted
-			if (attribute.hasAnnotation(DontPersistDLAnnotation.class)) {
+			// Ignore attribute that shall not be persisted (may be null on special types like maps)
+			if ((attribute != null) && attribute.hasAnnotation(DontPersistDLAnnotation.class)) {
 				continue;
 			}
 

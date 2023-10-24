@@ -85,6 +85,7 @@ import de.s42.dl.types.primitive.StringDLType;
 import de.s42.log.LogLevel;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
+import java.util.Optional;
 
 /**
  *
@@ -360,5 +361,8 @@ public class DefaultCore extends BaseDLCore
 			"java.util.Collections$UnmodifiableSet",
 			"java.util.ImmutableCollections$SetN",
 			SetDLType.class.getName());
+		
+		// Define type for Optional<>
+		core.defineType(Optional.class);
 	}
 }

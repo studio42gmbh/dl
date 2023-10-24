@@ -39,17 +39,17 @@ public interface DLAnnotated extends DLEntity
 
 	public List<DLAnnotation> getAnnotations();
 
-	public List<DLAnnotation> getAnnotations(Class<? extends DLAnnotation> type);
+	public <AnnotationType extends DLAnnotation> List<AnnotationType> getAnnotations(Class<AnnotationType> type);
 	
 	public List<DLAnnotation> getAnnotations(String name);
 	
-	public Optional<DLAnnotation> getAnnotation(Class<? extends DLAnnotation> type);
+	public <AnnotationType extends DLAnnotation> Optional<AnnotationType> getAnnotation(Class<AnnotationType> type);
 	
 	public Optional<DLAnnotation> getAnnotation(String name);
 	
 	public boolean hasAnnotations();
 	
-	public boolean hasAnnotation(Class<? extends DLAnnotation> type);
+	public <AnnotationType extends DLAnnotation> boolean hasAnnotation(Class<AnnotationType> type);
 
 	public boolean hasAnnotation(String name);
 	

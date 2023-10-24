@@ -145,6 +145,10 @@ public class JsonReader implements DLReader
 			else if (value instanceof JSONArray) {
 				value = ((JSONArray) value).toList().toArray();
 			}
+			
+			if (value instanceof String && ((String)value).isBlank()) {
+				value = null;
+			}
 
 			// Set the attribute and make sure it is converted accordingly
 			type.setAttributeFromValue(result, key, value);

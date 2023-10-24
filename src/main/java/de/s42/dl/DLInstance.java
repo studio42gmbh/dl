@@ -137,7 +137,9 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 
 	public Optional<?> getChildAsJavaObject(DLType type);
 
-	public List getChildrenAsJavaType(Class<?> javaType);
+	public <ObjectType extends Object> Optional<ObjectType> getChildAsJavaObject(Class<ObjectType> javaType);
+	
+	public <ObjectType extends Object> List<ObjectType> getChildrenAsJavaType(Class<ObjectType> javaType);
 
 	public List getChildrenAsJavaType();
 }

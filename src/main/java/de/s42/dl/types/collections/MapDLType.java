@@ -108,6 +108,8 @@ public class MapDLType extends DefaultDLType
 	@Override
 	public boolean mayContainType(DLType type)
 	{
+		assert type != null;
+		
 		if (!isGenericType()) {
 			return true;
 		}
@@ -118,6 +120,8 @@ public class MapDLType extends DefaultDLType
 	@Override
 	public DLInstance fromJavaObject(Object object) throws DLException
 	{
+		assert object != null;
+		
 		if (!(object instanceof Map)) {
 			throw new InvalidInstance("object is required to be of class Map");
 		}
@@ -148,6 +152,10 @@ public class MapDLType extends DefaultDLType
 	@Override
 	public void setAttributeFromValue(DLInstance instance, String name, Object value) throws DLException
 	{
+		assert instance != null;
+		assert name != null;		
+		
+		
 		if (isGenericType()) {
 
 			Class valueType = getMapValueType();

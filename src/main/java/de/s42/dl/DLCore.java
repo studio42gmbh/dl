@@ -29,6 +29,7 @@ import de.s42.dl.annotations.DLAnnotated;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidPragma;
 import de.s42.dl.exceptions.InvalidInstance;
+import de.s42.dl.exceptions.InvalidType;
 import java.util.*;
 
 /**
@@ -97,7 +98,7 @@ public interface DLCore extends DLEntity
 
 	public List<DLType> getTypes();
 
-	public List<DLType> getTypes(Class<? extends DLAnnotation> annotationType);
+	public <AnnotationType extends DLAnnotation> List<DLType> getTypes(Class<AnnotationType> annotationType);
 
 	public boolean isAllowDefineTypes();
 
@@ -148,8 +149,10 @@ public interface DLCore extends DLEntity
 	public List<DLInstance> getExported();
 
 	public Optional<DLInstance> getExported(String name);
+	
+	public <JavaType> List<DLInstance> getExportedByJavaType(Class<JavaType> annotationType) throws InvalidType;
 
-	public List<DLInstance> getExported(Class<? extends DLAnnotation> annotationType);
+	public <AnnotationType extends DLAnnotation> List<DLInstance> getExported(Class<AnnotationType> annotationType);
 
 	// PRAGMAS
 	public DLPragma definePragma(DLPragma pragma, String... aliases) throws DLException;

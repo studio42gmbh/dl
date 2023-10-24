@@ -97,6 +97,7 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 		this.type = type;
 	}
 
+	@Override
 	public DLCore getCore()
 	{
 		return type.getCore();
@@ -486,8 +487,8 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 		assert callback != null;
 
 		current.getChildren().forEach((child) -> {
-			traverseChildren(child, callback);
-			callback.accept(child);
+			traverseChildren((DLInstance) child, callback);
+			callback.accept((DLInstance) child);
 		});
 	}
 
@@ -552,19 +553,34 @@ public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 	}
 
 	@Override
-	public List getChildrenAsJavaType(Class<?> javaType)
+	public <ObjectType extends Object> Optional<ObjectType> getChildAsJavaObject(Class<ObjectType> javaType)
 	{
 		assert javaType != null;
 
 		DLType instanceType = getCore().getType(javaType).orElseThrow();
 
-		List result = new ArrayList<>(children.size());
+		for (DLInstance child : getChildren(instanceType)) {
+
+			return Optional.of((ObjectType) child.toJavaObject());
+		}
+
+		return Optional.empty();
+	}
+
+	@Override
+	public <ObjectType extends Object> List<ObjectType> getChildrenAsJavaType(Class<ObjectType> javaType)
+	{
+		assert javaType != null;
+
+		DLType instanceType = getCore().getType(javaType).orElseThrow();
+
+		List<ObjectType> result = new ArrayList<>(children.size());
 
 		for (DLInstance child : getChildren(instanceType)) {
 
 			Object childJavaObject = child.toJavaObject();
 
-			result.add(childJavaObject);
+			result.add((ObjectType) childJavaObject);
 		}
 
 		return result;

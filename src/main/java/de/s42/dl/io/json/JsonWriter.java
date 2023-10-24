@@ -28,12 +28,16 @@ package de.s42.dl.io.json;
 import de.s42.base.conversion.ConversionHelper;
 import de.s42.base.files.FilesHelper;
 import de.s42.dl.DLAnnotation;
+import de.s42.dl.DLAttribute;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
 import de.s42.dl.DLPragma;
 import de.s42.dl.DLType;
+import de.s42.dl.annotations.persistence.DontPersistDLAnnotation;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.io.DLWriter;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -53,6 +57,8 @@ import org.json.JSONObject;
 public class JsonWriter implements DLWriter
 {
 
+	private final static Logger log = LogManager.getLogger(JsonWriter.class.getName());
+	
 	protected final Path file;
 	protected final DLCore core;
 	protected final List<JSONObject> json = new ArrayList<>();
@@ -110,6 +116,15 @@ public class JsonWriter implements DLWriter
 			return null;
 		} else if (value instanceof DLInstance) {
 			return toJSON(core, (DLInstance) value);
+		} else if (value.getClass().isArray()) {
+			List list = new ArrayList();
+
+			for (Object el : (Object[]) value) {
+
+				list.add(convert(core, el));
+			}
+
+			return list;
 		} else if (value instanceof Collection) {
 
 			List list = new ArrayList();
@@ -124,15 +139,8 @@ public class JsonWriter implements DLWriter
 			return ((Date) value).getTime();
 		} else if (value instanceof Boolean) {
 			return value;
-		} else if (value instanceof Float) {
-			return value;
-		} else if (value instanceof Double) {
-			return value;
-		} else if (value instanceof Long) {
-			return value;
-		} else if (value instanceof Integer) {
-			return value;
-		} else if (value instanceof Short) {
+			// This also catches BigDecimal and BigInteger (which may be present when retrieved from JSON Objects etc.)
+		} else if (value instanceof Number) {
 			return value;
 		} else if (value instanceof String) {
 			return value;
@@ -162,10 +170,18 @@ public class JsonWriter implements DLWriter
 
 		result.put("type", instance.getType().getCanonicalName());
 
-		// write attributes
+		// Write attributes
+		// HINT: if the object contains an attribute "type" it can overwrite the internal type doing that (with its pros and cons)
 		for (String attributeName : instance.getAttributeNames()) {
 
 			Object val = instance.get(attributeName);
+			
+			DLAttribute attribute = instance.getType().getAttribute(attributeName).orElse(null);
+
+			// Ignore attribute that shall not be persisted (may be null on special types like maps)
+			if ((attribute != null) && attribute.hasAnnotation(DontPersistDLAnnotation.class)) {
+				continue;
+			}
 
 			result.put(
 				attributeName,
@@ -174,7 +190,7 @@ public class JsonWriter implements DLWriter
 		}
 
 		// @todo write dynamic attributes with types
-		// write annotations
+		// Write annotations
 		if (instance.hasAnnotations()) {
 			JSONArray annotations = new JSONArray();
 			result.put("annotations", annotations);
@@ -202,7 +218,7 @@ public class JsonWriter implements DLWriter
 			}
 		}
 
-		// write children
+		// Write children
 		if (instance.hasChildren()) {
 
 			JSONArray children = new JSONArray();
@@ -240,6 +256,6 @@ public class JsonWriter implements DLWriter
 	@Override
 	public void flush() throws IOException
 	{
-		// do nothing
+		// Do nothing
 	}
 }

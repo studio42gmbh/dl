@@ -117,7 +117,7 @@ public class BaseDLCore implements DLCore
 		allowUsePragmas = allowAll;
 		allowRequire = allowAll;
 		allowUseAsserts = allowAll;
-		
+
 		referenceResolver = DEFAULT_REFERENCE_RESOLVER;
 		pathResolver = new DefaultDLPathResolver();
 		loadModuleType(this);
@@ -245,21 +245,21 @@ public class BaseDLCore implements DLCore
 		assert annotation != null;
 		assert container != null;
 
-		if (container instanceof DLAttribute) {
+		if (container instanceof DLAttribute dLAttribute) {
 
 			if (annotation instanceof DLValidator && !((DLValidator) annotation).canValidateAttribute()) {
 				throw new InvalidAnnotation("Annotation '" + annotation + "' can not validate attributes");
 			}
 
-			annotation.bindToAttribute((DLAttribute) container);
-		} else if (container instanceof DLInstance) {
+			annotation.bindToAttribute(dLAttribute);
+		} else if (container instanceof DLInstance dLInstance) {
 
 			if (annotation instanceof DLValidator && !((DLValidator) annotation).canValidateInstance()) {
 				throw new InvalidAnnotation("Annotation '" + annotation + "' can not validate instances");
 			}
 
-			annotation.bindToInstance((DLInstance) container);
-		} else if (container instanceof DLType) {
+			annotation.bindToInstance(dLInstance);
+		} else if (container instanceof DLType dLType) {
 
 			if (annotation instanceof DLValidator
 				&& !(((DLValidator) annotation).canValidateType()
@@ -267,7 +267,7 @@ public class BaseDLCore implements DLCore
 				throw new InvalidAnnotation("Annotation '" + annotation + "' can not validate types");
 			}
 
-			annotation.bindToType((DLType) container);
+			annotation.bindToType(dLType);
 		}
 	}
 
@@ -511,14 +511,38 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public List<DLInstance> getExported(Class<? extends DLAnnotation> annotationType)
+	public <JavaType> List<DLInstance> getExportedByJavaType(Class<JavaType> javaType) throws InvalidType
+	{
+		assert javaType != null;
+
+		List<DLInstance> result = new ArrayList<>();
+		
+		Optional<DLType> optDlType = getType(javaType);
+		
+		if (optDlType.isEmpty()) {
+			throw new InvalidType("No type mapped for " + javaType);
+		}
+		
+		DLType dlType = optDlType.orElseThrow();
+
+		for (DLInstance instance : exported.values()) {
+			if (dlType.isAssignableFrom(instance.getType())) {
+				result.add(instance);
+			}
+		}
+
+		return result;
+	}
+	
+	@Override
+	public <AnnotationType extends DLAnnotation> List<DLInstance> getExported(Class<AnnotationType> annotationType)
 	{
 		assert annotationType != null;
 
 		List<DLInstance> result = new ArrayList<>();
 
 		for (DLInstance instance : exported.values()) {
-			Optional<DLAnnotation> optEventAnnotation = instance.getAnnotation(annotationType);
+			Optional<AnnotationType> optEventAnnotation = instance.getAnnotation(annotationType);
 
 			if (optEventAnnotation.isPresent()) {
 				result.add(instance);
@@ -545,14 +569,14 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
-	public List<DLType> getTypes(Class<? extends DLAnnotation> annotationType)
+	public <AnnotationType extends DLAnnotation> List<DLType> getTypes(Class<AnnotationType> annotationType)
 	{
 		assert annotationType != null;
 
 		List<DLType> result = new ArrayList<>();
 
 		for (DLType type : types.values()) {
-			Optional<DLAnnotation> optEventAnnotation = type.getAnnotation(annotationType);
+			Optional<AnnotationType> optEventAnnotation = type.getAnnotation(annotationType);
 
 			if (optEventAnnotation.isPresent()) {
 				result.add(type);
@@ -658,8 +682,8 @@ public class BaseDLCore implements DLCore
 		}
 
 		// Default types get this core set as core
-		if (type instanceof DefaultDLType) {
-			((DefaultDLType) type).setCore(this);
+		if (type instanceof DefaultDLType defaultDLType) {
+			defaultDLType.setCore(this);
 		}
 
 		// Make sure the type is valid
@@ -919,15 +943,15 @@ public class BaseDLCore implements DLCore
 
 		// Handle contains with searching for DLContainer<?>
 		for (Type interfaceType : typeClass.getGenericInterfaces()) {
-			if (interfaceType instanceof ParameterizedType) {
+			if (interfaceType instanceof ParameterizedType parameterizedType) {
 
-				ParameterizedType paramType = ((ParameterizedType) interfaceType);
+				ParameterizedType paramType = parameterizedType;
 
 				// validate if the type is a DLContainer
 				if (DLContainer.class.isAssignableFrom((Class) paramType.getRawType())) {
 
 					// check and add its types in diamond operator as contained types
-					for (Type type : ((ParameterizedType) interfaceType).getActualTypeArguments()) {
+					for (Type type : parameterizedType.getActualTypeArguments()) {
 
 						// container uses the current type - use the new type
 						if ((type instanceof Class) && ((Class) type).equals(typeClass)) {
@@ -1444,34 +1468,34 @@ public class BaseDLCore implements DLCore
 			convertInstance = type.createJavaInstance();
 
 			//allow maps to be set by that
-			if (convertInstance instanceof Map) {
+			if (convertInstance instanceof Map map) {
 
 				//write properties of the instance
 				for (String attributeName : instance.getAttributeNames()) {
 
 					Object value = instance.get(attributeName);
 
-					if (value instanceof Object[]) {
+					if (value instanceof Object[] objects) {
 
-						Object[] convValue = new Object[((Object[]) value).length];
+						Object[] convValue = new Object[objects.length];
 
-						for (int i = 0; i < ((Object[]) ((Object[]) value)).length; ++i) {
+						for (int i = 0; i < ((Object[]) objects).length; ++i) {
 
-							Object val = ((Object[]) value)[i];
+							Object val = objects[i];
 
-							if (val instanceof DLInstance) {
-								convValue[i] = ((DLInstance) val).toJavaObject();
+							if (val instanceof DLInstance dLInstance) {
+								convValue[i] = dLInstance.toJavaObject();
 							} else {
 								convValue[i] = val;
 							}
 						}
 
 						value = convValue;
-					} else if (value instanceof DLInstance) {
-						value = ((DLInstance) value).toJavaObject();
+					} else if (value instanceof DLInstance dLInstance) {
+						value = dLInstance.toJavaObject();
 					}
 
-					((Map) convertInstance).put(attributeName, value);
+					map.put(attributeName, value);
 				}
 
 				for (DLInstance child : instance.getChildren()) {
@@ -1480,7 +1504,7 @@ public class BaseDLCore implements DLCore
 
 						Object convertChild = convertFromInstance(child);
 
-						((Map) convertInstance).put(child.getName(), convertChild);
+						map.put(child.getName(), convertChild);
 					}
 				}
 			} //default to assume its a bean
@@ -1494,26 +1518,26 @@ public class BaseDLCore implements DLCore
 
 					Object value = instance.get(attributeName);
 
-					if (value instanceof Object[]) {
+					if (value instanceof Object[] objects) {
 
-						Object[] convValue = new Object[((Object[]) value).length];
+						Object[] convValue = new Object[objects.length];
 
-						for (int i = 0; i < ((Object[]) ((Object[]) value)).length; ++i) {
+						for (int i = 0; i < ((Object[]) objects).length; ++i) {
 
-							Object val = ((Object[]) value)[i];
+							Object val = objects[i];
 
-							if (val instanceof DLInstance) {
-								convValue[i] = ((DLInstance) val).toJavaObject();
+							if (val instanceof DLInstance dLInstance) {
+								convValue[i] = dLInstance.toJavaObject();
 							} else {
 								convValue[i] = val;
 							}
 						}
 
 						value = convValue;
-					} else if (value instanceof DLInstance) {
+					} else if (value instanceof DLInstance dLInstance) {
 
 						try {
-							value = ((DLInstance) value).toJavaObject();
+							value = dLInstance.toJavaObject();
 						} catch (AssertionError ex) {
 							throw new AssertionError("Error converting value '" + attributeName + "' to JavaObject in instance '" + instance.getName() + "'", ex);
 						}
@@ -1617,7 +1641,6 @@ public class BaseDLCore implements DLCore
 	{
 		this.allowUseAsserts = allowUseAsserts;
 	}
-
 
 	@Override
 	public String getName()

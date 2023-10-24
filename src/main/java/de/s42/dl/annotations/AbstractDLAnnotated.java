@@ -50,13 +50,13 @@ public abstract class AbstractDLAnnotated implements DLAnnotated
 	}
 
 	@Override
-	public Optional<DLAnnotation> getAnnotation(Class<? extends DLAnnotation> type)
+	public  <AnnotationType extends DLAnnotation> Optional<AnnotationType> getAnnotation(Class<AnnotationType> type)
 	{
 		assert type != null;
 
 		for (DLAnnotation annotation : annotations) {
 			if (type.isAssignableFrom(annotation.getClass())) {
-				return Optional.of(annotation);
+				return Optional.of((AnnotationType)annotation);
 			}
 		}
 
@@ -78,15 +78,15 @@ public abstract class AbstractDLAnnotated implements DLAnnotated
 	}
 
 	@Override
-	public List<DLAnnotation> getAnnotations(Class<? extends DLAnnotation> type)
+	public <AnnotationType extends DLAnnotation> List<AnnotationType> getAnnotations(Class<AnnotationType> type)
 	{
 		assert type != null;
 
-		List<DLAnnotation> result = new ArrayList<>();
+		List<AnnotationType> result = new ArrayList<>();
 
 		for (DLAnnotation annotation : annotations) {
 			if (type.isAssignableFrom(annotation.getClass())) {
-				result.add(annotation);
+				result.add((AnnotationType)annotation);
 			}
 		}
 
@@ -110,7 +110,7 @@ public abstract class AbstractDLAnnotated implements DLAnnotated
 	}
 
 	@Override
-	public boolean hasAnnotation(Class<? extends DLAnnotation> type)
+	public <AnnotationType extends DLAnnotation> boolean hasAnnotation(Class<AnnotationType> type)
 	{
 		assert type != null;
 
