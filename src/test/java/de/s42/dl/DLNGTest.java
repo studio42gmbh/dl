@@ -43,7 +43,7 @@ public class DLNGTest
 	@Test
 	public void validTestVersion()
 	{
-		AssertHelper.assertStartsWith(DLVersion.getVersion(), "0.1");
+		AssertHelper.assertStartsWith(DLVersion.getVersion(), "1.0");
 	}
 
 }
