@@ -4,7 +4,7 @@
 ![GitHub issues](https://img.shields.io/github/issues/studio42gmbh/dl)
 <!-- ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/studio42gmbh/dl/Java%20CI%20with%20Maven) -->
 
-# Data Language (ALPHA)
+# Data Language
 
 ![DL Logo](https://github.com/studio42gmbh/dl/blob/master/resources/images/logo/dl-logo-200.png)
 
