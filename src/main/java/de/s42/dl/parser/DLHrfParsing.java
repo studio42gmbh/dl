@@ -1477,7 +1477,7 @@ public class DLHrfParsing extends DLParserBaseListener
 		assert moduleId != null;
 		assert data != null;
 
-		return parse(core, moduleId, CharStreams.fromStream(data));
+			return parse(core, moduleId, CharStreams.fromStream(data));
 	}
 
 	@SuppressWarnings("deprecation")

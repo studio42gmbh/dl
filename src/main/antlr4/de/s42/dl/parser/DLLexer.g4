@@ -187,8 +187,8 @@ FLOAT_LITERAL :			'-'? DIGIT+ '.' DIGIT+ ( E [-+]? DIGIT+)? ;
 INTEGER_LITERAL :		'-'? ( 
     ( '0' X [0-9a-fA-F]+ ) |	// Hex
     ( '0' B [0-1]+ ) |			// Binary
-    ( '0' DIGIT+ ) |			// Octal
-    DIGIT+ )					// Decimal
+    ( '0' [1-7]+ ) |			// Octal	
+	'0' | ( [1-9] DIGIT* ) )	// Decimal
 ;
 
 // Rather restrictive - but ref symbols should be well readable anyways not some special sign party

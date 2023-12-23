@@ -68,6 +68,12 @@ public class DLHrfParsingErrorHandler extends BaseErrorListener
 					line, position + token.getStopIndex() - token.getStartIndex(), token.getStopIndex()
 				);
 			}
+			
+			throw new ParserException(
+				createErrorMessage(module, message, line, position),
+				line, position, token.getStartIndex(),
+				line, position + token.getStopIndex() - token.getStartIndex(), token.getStopIndex()
+			);
 		}
 		
 		throw new ParserException(

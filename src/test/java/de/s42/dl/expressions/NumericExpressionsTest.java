@@ -28,8 +28,9 @@ package de.s42.dl.expressions;
 import de.s42.dl.*;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.ParserException;
 import java.util.List;
-import org.testng.Assert;
+import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
 /**
@@ -42,60 +43,118 @@ public class NumericExpressionsTest
 {
 
 	@Test
-	public void validExpressionInteger() throws DLException
+	public void integerHex() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "Integer t : (6 * (7 + 3) - 5 * (5 - 3)) / 3;");
-		Assert.assertEquals(module.getInt("t"), (6 * (7 + 3) - 5 * (5 - 3)) / 3);
+		DLModule module = core.parse("integerHex", "Integer t : 0xA1;");
+		assertEquals(module.getInt("t"), 0xA1);
 	}
 
 	@Test
-	public void validExpressionDouble() throws DLException
+	public void integerBinary() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "Double t : (6.5 * (7.12 + -3) - 5.3E2 * (5 - 3)) / 3.0;");
-		Assert.assertEquals(module.getDouble("t"), (6.5 * (7.12 + -3) - 5.3E2 * (5 - 3)) / 3.0);
+		DLModule module = core.parse("integerBinary", "Integer t : 0b110101;");
+		assertEquals(module.getInt("t"), 0b110101);
 	}
 
 	@Test
-	public void validExpressionDoubleRef() throws DLException
+	public void integerOctal() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "Double v : 1.33; Double t : (6.5 * (7.12 + -$v) - 5.3E2 * (5 - 3)) / 3.0;");
-		double v = 1.33;
-		Assert.assertEquals(module.getDouble("t"), (6.5 * (7.12 + -v) - 5.3E2 * (5 - 3)) / 3.0);
+		DLModule module = core.parse("integerOctal", "Integer t : 01425;");
+		assertEquals(module.getInt("t"), 01425);
 	}
-	
-	@Test
-	public void validExpressionIntBitwiseAndOr() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "Integer t : 0b1000101 & 4 | 0x35;");
-		Assert.assertEquals(module.getInt("t"), 0b1000101 & 4 | 0x35);
-	}	
 
 	@Test
-	public void validExpressionIntPow() throws DLException
+	public void expressionInteger() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "Integer t : 5 ^ 4;");
-		Assert.assertEquals(module.getInt("t"), (int)Math.pow(5, 4));
-	}	
+		DLModule module = core.parse("expressionInteger", "Integer t : (6 * (7 + 3) - 5 * (5 - 3)) / 3;");
+		assertEquals(module.getInt("t"), (6 * (7 + 3) - 5 * (5 - 3)) / 3);
+	}
 
 	@Test
-	public void validExpressionDoublePow() throws DLException
+	public void expressionDouble() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "Double t : 5.123 ^ 4.234;");
-		Assert.assertEquals(module.getDouble("t"), Math.pow(5.123, 4.234));
-	}	
-	
+		DLModule module = core.parse("expressionDouble", "Double t : (6.5 * (7.12 + -3) - 5.3E2 * (5 - 3)) / 3.0;");
+		assertEquals(module.getDouble("t"), (6.5 * (7.12 + -3) - 5.3E2 * (5 - 3)) / 3.0);
+	}
+
 	@Test
-	public void validExpressionExpressionsInMultiAssignment() throws DLException
+	public void expressionDoubleRef() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous", "List<Integer> t : 3 * 2, 3 + 2, 3 - 2, 3 / 2, 3 ^ 2, 3 & 2, 3 | 2;");
-		Assert.assertEquals(module.get("t"), List.of(3 * 2, 3 + 2, 3 - 2, 3 / 2, (int)Math.pow(3, 2), 3 & 2, 3 | 2));
-	}	
-	
+		DLModule module = core.parse("expressionDoubleRef", "Double v : 1.33; Double t : (6.5 * (7.12 + -$v) - 5.3E2 * (5 - 3)) / 3.0;");
+		assertEquals(module.getDouble("t"), (6.5 * (7.12 + (-1.33)) - 5.3E2 * (5 - 3)) / 3.0);
+	}
+
+	@Test
+	public void expressionIntBitwiseAndOr() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("expressionIntBitwiseAndOr", "Integer t : 0b1000101 & 4 | 0x35;");
+		assertEquals(module.getInt("t"), 0b1000101 & 4 | 0x35);
+	}
+
+	@Test
+	public void expressionIntPow() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("expressionIntPow", "Integer t : 5 ^ 4;");
+		assertEquals(module.getInt("t"), (int) Math.pow(5, 4));
+	}
+
+	@Test
+	public void expressionDoublePow() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("expressionDoublePow", "Double t : 5.123 ^ 4.234;");
+		assertEquals(module.getDouble("t"), Math.pow(5.123, 4.234));
+	}
+
+	@Test
+	public void expressionExpressionsInMultiAssignment() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("expressionExpressionsInMultiAssignment", "List<Integer> t : 3 * 2, 3 + 2, 3 - 2, 3 / 2, 3 ^ 2, 3 & 2, 3 | 2;");
+		assertEquals(module.get("t"), List.of(3 * 2, 3 + 2, 3 - 2, 3 / 2, (int) Math.pow(3, 2), 3 & 2, 3 | 2));
+	}
+
+	@Test
+	public void invalidIntegerHex() throws DLException
+	{
+		try {
+			DLCore core = new DefaultCore();
+			core.parse("invalidIntegerHex", "Integer t : 0x1G;");
+		} catch (ParserException ex) {
+			assertEquals(ex.getStartOffset(), 15);
+			assertEquals(ex.getEndOffset(), 15);
+		}
+	}
+
+	@Test
+	public void invalidIntegerBinary() throws DLException
+	{
+		try {
+			DLCore core = new DefaultCore();
+			core.parse("invalidIntegerBinary", "Integer t : 0b112;");
+		} catch (ParserException ex) {
+			assertEquals(ex.getStartOffset(), 16);
+			assertEquals(ex.getEndOffset(), 16);
+		}
+	}
+
+	@Test
+	public void invalidIntegerOctal() throws DLException
+	{
+		try {
+			DLCore core = new DefaultCore();
+			core.parse("invalidIntegerOctal", "Integer t : 015268;");
+		} catch (ParserException ex) {
+			assertEquals(ex.getStartOffset(), 17);
+			assertEquals(ex.getEndOffset(), 17);
+		}
+	}
 }
