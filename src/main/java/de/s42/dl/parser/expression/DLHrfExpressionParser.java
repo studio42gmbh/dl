@@ -43,6 +43,10 @@ import de.s42.dl.exceptions.ParserException;
 import de.s42.dl.parser.DLHrfParsingException;
 import de.s42.dl.parser.DLParser.AtomContext;
 import de.s42.dl.parser.DLParser.ExpressionContext;
+import de.s42.dl.parser.expression.operators.Greater;
+import de.s42.dl.parser.expression.operators.GreaterEquals;
+import de.s42.dl.parser.expression.operators.Lesser;
+import de.s42.dl.parser.expression.operators.LesserEquals;
 import de.s42.dl.parser.expression.operators.Like;
 import de.s42.dl.parser.expression.operators.Pow;
 import de.s42.log.LogManager;
@@ -154,6 +158,30 @@ public final class DLHrfExpressionParser
 				buildExpression(module, ctx.expression(0)),
 				ctx, module
 			);
+		} else if (ctx.LESSER() != null) {
+			return new Lesser(
+				buildExpression(module, ctx.expression(0)),
+				buildExpression(module, ctx.expression(1)),
+				ctx, module
+			);
+		} else if (ctx.LESSER_EQUALS() != null) {
+			return new LesserEquals(
+				buildExpression(module, ctx.expression(0)),
+				buildExpression(module, ctx.expression(1)),
+				ctx, module
+			);
+		} else if (ctx.GREATER() != null) {
+			return new Greater(
+				buildExpression(module, ctx.expression(0)),
+				buildExpression(module, ctx.expression(1)),
+				ctx, module
+			);
+		} else if (ctx.GREATER_EQUALS() != null) {
+			return new GreaterEquals(
+				buildExpression(module, ctx.expression(0)),
+				buildExpression(module, ctx.expression(1)),
+				ctx, module
+			);
 		} else if (ctx.PARENTHESES_OPEN() != null) {
 			return buildExpression(module, ctx.expression(0));
 		} else if (ctx.atom() != null) {
@@ -261,7 +289,7 @@ public final class DLHrfExpressionParser
 
 		// Resolve the reference ignoring the first char which is the $ sign
 		try {
-			ref = resolver.resolve(module, refId);			
+			ref = resolver.resolve(module, refId);
 			if (ref.isPresent()) {
 				return ref.orElseThrow();
 			}
@@ -274,7 +302,7 @@ public final class DLHrfExpressionParser
 				ex
 			);
 		}
-		
+
 		return null;
 	}
 }

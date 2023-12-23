@@ -55,7 +55,7 @@ staticParameters : PARENTHESES_OPEN ( staticParameter ( COMMA staticParameter )*
 staticParameter : ( staticParameterName COLON )? ( expression ) ;
 staticParameterName : identifier ;
 
-genericParameters : GENERIC_OPEN genericParameter ( COMMA genericParameter )* COMMA? GENERIC_CLOSE ;
+genericParameters : LESSER genericParameter ( COMMA genericParameter )* COMMA? GREATER ;
 genericParameter : identifier ;
 
 aliases : KEYWORD_ALIAS aliasName ( COMMA aliasName )* ;
@@ -80,7 +80,7 @@ expression :
 	| expression ( MUL | DIV ) expression
 	| expression ( PLUS | MINUS ) expression
 	| expression ( AND | OR ) expression
-	| expression ( XOR | EQUALS | LIKE ) expression
+	| expression ( XOR | EQUALS | LIKE | LESSER | LESSER_EQUALS | GREATER | GREATER_EQUALS ) expression
 	| MINUS? atom ;
 
 atom : FLOAT_LITERAL | INTEGER_LITERAL | BOOLEAN_LITERAL | STRING_LITERAL | SYMBOL | REF ;

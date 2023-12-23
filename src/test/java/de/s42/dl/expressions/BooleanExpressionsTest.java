@@ -41,10 +41,91 @@ public class BooleanExpressionsTest
 {
 
 	@Test
-	public void validExpressionBoolean() throws DLException
+	public void simpleEquals() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous",
+		DLModule module = core.parse("simpleEquals",
+			"boolean t : 7 == 3 + 4 ;"
+			+ "boolean t2 : 7 == 13 - 4 ;");
+		Assert.assertTrue(module.getBoolean("t"));
+		Assert.assertFalse(module.getBoolean("t2"));
+	}
+
+	@Test
+	public void simpleNotEquals() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("simpleNotEquals",
+			"boolean t : 1.34 != 1.42 ;"
+			+ "boolean t2 : 1.42 != 1.42 ;");
+		Assert.assertTrue(module.getBoolean("t"));
+		Assert.assertFalse(module.getBoolean("t2"));
+	}
+
+	@Test
+	public void simpleLike() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("simpleLike",
+			"boolean t : \"Star\" ~= \"^S.*r$\" ;"
+			+ "boolean t2 : \"Star\" ~= \"^T$\" ;");
+		Assert.assertTrue(module.getBoolean("t"));
+		Assert.assertFalse(module.getBoolean("t2"));
+	}
+
+	@Test
+	public void simpleLesser() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("simpleLesser",
+			"boolean t : 9 < 11 ;"
+			+ "boolean t2 : 19 < 11 ;");
+		Assert.assertTrue(module.getBoolean("t"));
+		Assert.assertFalse(module.getBoolean("t2"));
+	}
+
+	@Test
+	public void simpleLesserEquals() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("simpleLesserEquals",
+			"boolean t : 9 <= 11 ;"
+			+ "boolean t2 : 11 <= 11 ;"
+			+ "boolean t3 : 13 <= 11 ;");
+		Assert.assertTrue(module.getBoolean("t"));
+		Assert.assertTrue(module.getBoolean("t2"));
+		Assert.assertFalse(module.getBoolean("t3"));
+	}
+
+	@Test
+	public void simpleGreater() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("simpleGreater",
+			"boolean t : 19 > 11 ;"
+			+ "boolean t2 : 9 > 11 ;");
+		Assert.assertTrue(module.getBoolean("t"));
+		Assert.assertFalse(module.getBoolean("t2"));
+	}
+
+	@Test
+	public void simpleGreaterEquals() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("simpleGreaterEquals",
+			"boolean t : 19 >= 11 ;"
+			+ "boolean t2 : 11 >= 11 ;"
+			+ "boolean t3 : 8 >= 11 ;");
+		Assert.assertTrue(module.getBoolean("t"));
+		Assert.assertTrue(module.getBoolean("t2"));
+		Assert.assertFalse(module.getBoolean("t3"));
+	}
+
+	@Test
+	public void expressionBoolean() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		DLModule module = core.parse("expressionBoolean",
 			"boolean t : true; "
 			+ "boolean t2 : ( true & $t ) | ( $t == false ) ;");
 		boolean t = false;
@@ -52,30 +133,30 @@ public class BooleanExpressionsTest
 	}
 
 	@Test
-	public void validExpressionStringCompareEqual() throws DLException
+	public void expressionStringCompareEqual() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous",
+		DLModule module = core.parse("expressionStringCompareEqual",
 			"String t : apple; "
 			+ "boolean t2 : $t == apple ;");
 		Assert.assertTrue(module.getBoolean("t2"));
 	}
 
 	@Test
-	public void validExpressionStringCompareTypeNotEqual() throws DLException
+	public void expressionStringCompareTypeNotEqual() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous",
+		DLModule module = core.parse("expressionStringCompareTypeNotEqual",
 			"String t : apple; "
 			+ "boolean t2 : $t != 7.345 ;");
 		Assert.assertTrue(module.getBoolean("t2"));
 	}
 
 	@Test
-	public void validExpressionStringCompareTwoRefs() throws DLException
+	public void expressionStringCompareTwoRefs() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Anonymous",
+		DLModule module = core.parse("expressionStringCompareTwoRefs",
 			"String t : apple; "
 			+ "String t2 : orange; "
 			+ "boolean t3 : $t != $t2 ;");
