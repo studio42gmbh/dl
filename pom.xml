@@ -13,12 +13,14 @@
 	</properties>
 	<dependencies>
 		<dependency>
+			<!-- https://github.com/studio42gmbh/base42 -->
 			<groupId>de.s42</groupId>
 			<artifactId>base42</artifactId>
 			<version>1.0.4-DEV</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<!-- https://github.com/studio42gmbh/log42 -->
 			<groupId>de.s42</groupId>
 			<artifactId>log42</artifactId>
 			<version>1.0.1-DEV</version>

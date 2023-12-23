@@ -179,15 +179,19 @@ BOOLEAN_LITERAL :		'true' | 'false' ;
 
 // string literal which strips the leading and trailing quotes 
 // and also removes escaping \ already at lexer level
-fragment ESCAPED_QUOTE :'\\"' ;
 STRING_LITERAL :		'"' ( ESCAPED_QUOTE | ~('\n'|'\r') )*? '"' ;
 
-FLOAT_LITERAL :			'-'? [0-9]+ '.' [0-9]+ ('E' [-+]? [0-9]+)? ;
+FLOAT_LITERAL :			'-'? DIGIT+ '.' DIGIT+ ( E [-+]? DIGIT+)? ;
 
 // DLHrfParsing Allow hexadecimal numbers ad basic format in HRF DL 0x00... (#26)
-INTEGER_LITERAL :		'-'? [0-9] [xXbB]? [0-9]* ;
+INTEGER_LITERAL :		'-'? ( 
+    ( '0' X [0-9a-fA-F]+ ) |	// Hex
+    ( '0' B [0-1]+ ) |			// Binary
+    ( '0' DIGIT+ ) |			// Octal
+    DIGIT+ )					// Decimal
+;
 
-// rather restrictive - but ref symbols should be well readable anyways not some special sign party
+// Rather restrictive - but ref symbols should be well readable anyways not some special sign party
 fragment REF_PART :		[a-zA-Z_#] [a-zA-Z0-9\-_#$]* ;
 REF :					'$' '?'? REF_PART ( '.' '?'? REF_PART )* ;	
 
@@ -231,5 +235,36 @@ NEWLINE :				[\n] -> channel(HIDDEN) ;
 // it can not end in a partial state like STRING which annoys the parsers
 
 UNKNOWN :				. ;
+
+fragment ESCAPED_QUOTE : '\\"' ;
+
+fragment DIGIT : [0-9] ;
+
+fragment A : [aA] ;
+fragment B : [bB] ;
+fragment C : [cC] ;
+fragment D : [dD] ;
+fragment E : [eE] ;
+fragment F : [fF] ;
+fragment G : [gG] ;
+fragment H : [hH] ;
+fragment I : [iI] ;
+fragment J : [jJ] ;
+fragment K : [kK] ;
+fragment L : [lL] ;
+fragment M : [mM] ;
+fragment N : [nN] ;
+fragment O : [oO] ;
+fragment P : [pP] ;
+fragment Q : [qQ] ;
+fragment R : [rR] ;
+fragment S : [sS] ;
+fragment T : [tT] ;
+fragment U : [uU] ;
+fragment V : [vV] ;
+fragment W : [wW] ;
+fragment X : [xX] ;
+fragment Y : [yY] ;
+fragment Z : [zZ] ;
 
 // END
