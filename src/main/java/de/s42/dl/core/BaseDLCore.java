@@ -511,18 +511,40 @@ public class BaseDLCore implements DLCore
 	}
 
 	@Override
+	public <JavaType> Optional<JavaType> getExportedAsJavaObject(Class<JavaType> javaType) throws InvalidType
+	{
+		assert javaType != null;
+
+		Optional<DLType> optDlType = getType(javaType);
+
+		if (optDlType.isEmpty()) {
+			throw new InvalidType("No type mapped for " + javaType);
+		}
+
+		DLType dlType = optDlType.orElseThrow();
+
+		for (DLInstance instance : exported.values()) {
+			if (dlType.isAssignableFrom(instance.getType())) {
+				return Optional.of((JavaType) instance.toJavaObject());
+			}
+		}
+
+		return Optional.empty();
+	}
+
+	@Override
 	public <JavaType> List<DLInstance> getExportedByJavaType(Class<JavaType> javaType) throws InvalidType
 	{
 		assert javaType != null;
 
 		List<DLInstance> result = new ArrayList<>();
-		
+
 		Optional<DLType> optDlType = getType(javaType);
-		
+
 		if (optDlType.isEmpty()) {
 			throw new InvalidType("No type mapped for " + javaType);
 		}
-		
+
 		DLType dlType = optDlType.orElseThrow();
 
 		for (DLInstance instance : exported.values()) {
@@ -533,7 +555,7 @@ public class BaseDLCore implements DLCore
 
 		return result;
 	}
-	
+
 	@Override
 	public <AnnotationType extends DLAnnotation> List<DLInstance> getExported(Class<AnnotationType> annotationType)
 	{
@@ -552,11 +574,34 @@ public class BaseDLCore implements DLCore
 		return result;
 	}
 
-	public Object getExportedAsJavaObject(String name)
+	@Override
+	public Optional<Object> getExportedAsJavaObject(String name)
 	{
-		return getExported(name).orElseThrow().toJavaObject();
+		return getExported(name).map((instance) -> instance.toJavaObject());
 	}
 
+	@Override
+	public <JavaType> Optional<JavaType> getExportedAsJavaObject(String name, Class<JavaType> javaType) throws InvalidType
+	{
+		assert javaType != null;
+
+		Optional<DLType> optDlType = getType(javaType);
+
+		if (optDlType.isEmpty()) {
+			throw new InvalidType("No type mapped for " + javaType);
+		}
+
+		DLType dlType = optDlType.orElseThrow();
+
+		for (DLInstance instance : exported.values()) {
+			if (instance.getName().equals(name) && dlType.isAssignableFrom(instance.getType())) {
+				return Optional.of((JavaType) instance.toJavaObject());
+			}
+		}
+
+		return Optional.empty();
+	}	
+	
 	public boolean removeExported(String key)
 	{
 		return exported.remove(key);

@@ -123,7 +123,7 @@ public class DLHrfParsing extends DLParserBaseListener
 	{
 		assert module != null;
 		assert annotationName != null;
-		
+
 		if (ctx == null) {
 			return new Object[0];
 		}
@@ -133,7 +133,6 @@ public class DLHrfParsing extends DLParserBaseListener
 		DLAnnotationFactory annotationFactory = core.getAnnotationFactory(annotationName).orElseThrow(() -> {
 			return new InvalidAnnotation(createErrorMessage(module, "Annotation factory @" + annotationName + " is not defined", ctx));
 		});
-		
 
 		if (ctx.staticParameter() == null || ctx.staticParameter().isEmpty()) {
 
@@ -141,7 +140,7 @@ public class DLHrfParsing extends DLParserBaseListener
 			if (!annotationFactory.validateFlatParameters(new Object[]{}, result)) {
 				throw new InvalidAnnotation(createErrorMessage(module, "Parameters are not valid for annotation @" + annotationName + " - " + result.toMessage(), ctx));
 			}
-			
+
 			return new Object[0];
 		}
 
@@ -164,12 +163,12 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 
 			Object[] flatParameters = annotationFactory.toFlatParameters(namedParameters);
-			
+
 			ValidationResult result = new ValidationResult();
 			if (!annotationFactory.validateFlatParameters(flatParameters, result)) {
 				throw new InvalidAnnotation(createErrorMessage(module, "Parameters are not valid for annotation @" + annotationName + " - " + result.toMessage(), ctx));
 			}
-			
+
 			return flatParameters;
 		}
 
@@ -325,8 +324,8 @@ public class DLHrfParsing extends DLParserBaseListener
 				throw new DLHrfParsingException(message, module, ctx);
 			}
 		} catch (RuntimeException | DLException ex) {
-			if (ex instanceof DLHrfParsingException) {
-				throw (DLHrfParsingException) ex;
+			if (ex instanceof DLHrfParsingException dLHrfParsingException) {
+				throw dLHrfParsingException;
 			}
 
 			throw new DLHrfParsingException(
@@ -394,8 +393,8 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 
 		} catch (DLException | ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException | RuntimeException | InvocationTargetException ex) {
-			if (ex instanceof DLHrfParsingException) {
-				throw (DLHrfParsingException) ex;
+			if (ex instanceof DLHrfParsingException dLHrfParsingException) {
+				throw dLHrfParsingException;
 			}
 
 			throw new DLHrfParsingException(
@@ -487,7 +486,6 @@ public class DLHrfParsing extends DLParserBaseListener
 				return new InvalidModule("Required module name is empty");
 			});
 
-			// If it is a string unsecape it
 			try {
 
 				DLModule requiredModule = core.parse(requiredModuleId);
@@ -497,7 +495,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					module.addChild(requiredModule);
 				}
 
-			} catch (RuntimeException ex) {
+			} catch (DLException | RuntimeException ex) {
 				throw new InvalidModule(
 					createErrorMessage(
 						module,
@@ -1114,8 +1112,8 @@ public class DLHrfParsing extends DLParserBaseListener
 							defaultValue = type.read(defaultValue);
 						}
 
-						if (defaultValue instanceof DLInstance) {
-							DLType refType = ((DLInstance) defaultValue).getType();
+						if (defaultValue instanceof DLInstance dLInstance) {
+							DLType refType = dLInstance.getType();
 
 							if (refType == null) {
 								throw new InvalidType(createErrorMessage(module,
@@ -1168,8 +1166,8 @@ public class DLHrfParsing extends DLParserBaseListener
 
 		} catch (RuntimeException | DLException ex) {
 
-			if (ex instanceof DLHrfParsingException) {
-				throw (DLHrfParsingException) ex;
+			if (ex instanceof DLHrfParsingException dLHrfParsingException) {
+				throw dLHrfParsingException;
 			}
 
 			throw new DLHrfParsingException(
@@ -1204,8 +1202,8 @@ public class DLHrfParsing extends DLParserBaseListener
 			}
 		} catch (RuntimeException | DLException ex) {
 
-			if (ex instanceof DLHrfParsingException) {
-				throw (DLHrfParsingException) ex;
+			if (ex instanceof DLHrfParsingException dLHrfParsingException) {
+				throw dLHrfParsingException;
 			}
 
 			throw new DLHrfParsingException(
@@ -1262,8 +1260,8 @@ public class DLHrfParsing extends DLParserBaseListener
 				);
 			}
 		} catch (RuntimeException | DLException ex) {
-			if (ex instanceof DLHrfParsingException) {
-				throw (DLHrfParsingException) ex;
+			if (ex instanceof DLHrfParsingException dLHrfParsingException) {
+				throw dLHrfParsingException;
 			}
 
 			throw new DLHrfParsingException(
@@ -1362,9 +1360,7 @@ public class DLHrfParsing extends DLParserBaseListener
 					DLInstance instance = (DLInstance) attributeAssignables[0];
 
 					// Special handling for array type to allow single assignments
-					if (attributeType instanceof ArrayDLType) {
-
-						ArrayDLType arrayType = (ArrayDLType) attributeType;
+					if (attributeType instanceof ArrayDLType arrayType) {
 
 						if (!arrayType.isComponenTypeAssignableOf(instance.getType())) {
 							throw new InvalidValue(
@@ -1375,8 +1371,7 @@ public class DLHrfParsing extends DLParserBaseListener
 						}
 
 						currentInstance.set(attributeName, arrayType.read(instance));
-					} // Normal single value instance assignments
-					else {
+					} else {
 
 						if (!attributeType.isAssignableFrom(instance.getType())) {
 							throw new InvalidType(
@@ -1388,6 +1383,7 @@ public class DLHrfParsing extends DLParserBaseListener
 
 						currentInstance.set(attributeName, instance);
 					}
+					// Normal single value instance assignments
 
 				} // Otherwise assign the value after converting the assignabled using the types read method
 				else if (attributeType.canRead()) {
@@ -1427,8 +1423,8 @@ public class DLHrfParsing extends DLParserBaseListener
 				);
 			}
 		} catch (RuntimeException | DLException ex) {
-			if (ex instanceof DLHrfParsingException) {
-				throw (DLHrfParsingException) ex;
+			if (ex instanceof DLHrfParsingException dLHrfParsingException) {
+				throw dLHrfParsingException;
 			}
 
 			throw new DLHrfParsingException(
@@ -1477,7 +1473,7 @@ public class DLHrfParsing extends DLParserBaseListener
 		assert moduleId != null;
 		assert data != null;
 
-			return parse(core, moduleId, CharStreams.fromStream(data));
+		return parse(core, moduleId, CharStreams.fromStream(data));
 	}
 
 	@SuppressWarnings("deprecation")
@@ -1492,9 +1488,7 @@ public class DLHrfParsing extends DLParserBaseListener
 		} catch (RuntimeException ex) {
 
 			// @todo this whole block is ugly compatibility code - remove soon
-			if (ex.getCause() instanceof DLException) {
-
-				DLException dlEx = (DLException) ex.getCause();
+			if (ex.getCause() instanceof DLException dlEx) {
 
 				if (ex instanceof ParserException && dlEx instanceof DLParserException) {
 

@@ -51,6 +51,7 @@ import de.s42.dl.annotations.strings.LengthDLAnnotation;
 import de.s42.dl.annotations.strings.RegexDLAnnotation;
 import de.s42.dl.annotations.types.GenericDLAnnotation;
 import de.s42.dl.core.resolvers.FileCoreResolver;
+import de.s42.dl.core.resolvers.JavaModuleCoreResolver;
 import de.s42.dl.core.resolvers.LibraryCoreResolver;
 import de.s42.dl.core.resolvers.ResourceCoreResolver;
 import de.s42.dl.core.resolvers.StringCoreResolver;
@@ -98,6 +99,7 @@ public class DefaultCore extends BaseDLCore
 	public final static DLCoreResolver STRING_RESOLVER = new StringCoreResolver();
 	public final static DLCoreResolver FILE_RESOLVER = new FileCoreResolver();
 	public final static DLCoreResolver LIBRARY_RESOLVER = new LibraryCoreResolver();
+	public final static DLCoreResolver JAVA_RESOLVER = new JavaModuleCoreResolver();
 
 	public final static DLPragma BASE_PATH_PRAGMA = new BasePathPragma();
 	public final static DLPragma DEFINE_PRAGMA_PRAGMA = new DefinePragmaPragma();
@@ -160,6 +162,7 @@ public class DefaultCore extends BaseDLCore
 		assert core != null;
 
 		// Add file and resource resolver
+		core.addResolver(JAVA_RESOLVER);
 		core.addResolver(LIBRARY_RESOLVER);
 		core.addResolver(FILE_RESOLVER);
 		core.addResolver(RESOURCE_RESOLVER);
