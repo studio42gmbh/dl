@@ -72,6 +72,8 @@ public class JavaModuleCoreResolver implements DLCoreResolver
 	@Override
 	public DLModule parse(DLCore core, String resolvedModuleId, String data) throws DLException
 	{
+		assert core != null;
+		assert resolvedModuleId != null;
 
 		try {
 			AbstractJavaDLModule javaModule = (AbstractJavaDLModule) Class.forName(resolvedModuleId).getConstructor().newInstance();

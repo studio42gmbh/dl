@@ -48,7 +48,7 @@ public abstract class AbstractJavaDLModule extends DefaultDLModule
 		// Create and define the type in the core
 		DLType newType = core.defineType(core.createType(javaClass), aliases);
 
-		// Add to thismodule
+		// Add to this module
 		addDefinedType(newType);
 
 		return newType;
