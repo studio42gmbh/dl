@@ -53,4 +53,15 @@ public abstract class AbstractJavaDLModule extends DefaultDLModule
 
 		return newType;
 	}
+
+	protected DLType createEnum(DLCore core, Class<? extends Enum> javaEnumClass, String... aliases) throws DLException
+	{
+		// Create and define the type in the core
+		DLType newType = core.defineType(core.createEnum(javaEnumClass), aliases);
+
+		// Add to this module
+		addDefinedType(newType);
+
+		return newType;
+	}
 }
