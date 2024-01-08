@@ -446,15 +446,20 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 					DLType valueType = attribute.getType();
 
 					// @todo why did i put the raw value conversion in? it seems to break generic types like maps Map<String, Object> to be reduced to Map
-					/*if (rawValue != null) {
+					if (rawValue != null) {
 						Optional<DLType> optType = core.getType(rawValue.getClass());
-						
+
 						if (optType.isEmpty()) {
 							throw new InvalidType("Type " + rawValue.getClass().getName() + " of attribute " + attribute.getName() + " is not mapped");
 						}
-						
-						valueType = optType.orElseThrow();
-					}*/
+
+						DLType valueRawType = optType.orElseThrow();
+
+						// Prevents to replace defined type (might be generic if the value raw type is not different in the main name)
+						if (!Objects.equals(valueType.getName(), valueRawType.getName())) {
+							valueType = valueRawType;
+						}
+					}
 					Object value;
 
 					if (valueType.isSimpleType()) {
@@ -717,11 +722,7 @@ public class DefaultDLType extends AbstractDLAnnotated implements DLType
 	@Override
 	public boolean hasOwnAttributes()
 	{
-		if (!attributes.isEmpty()) {
-			return true;
-		}
-
-		return false;
+		return !attributes.isEmpty();
 	}
 
 	@Override
