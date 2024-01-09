@@ -116,7 +116,7 @@ public class DefaultCore extends BaseDLCore
 	{
 		// Allow definitions and require by default
 		super(true);
-		
+
 		init();
 	}
 
@@ -342,6 +342,12 @@ public class DefaultCore extends BaseDLCore
 			"java.util.ArrayList",
 			"java.util.LinkedList",
 			"java.util.Collections$UnmodifiableList",
+			"java.util.Collections$UnmodifiableRandomAccessList",
+			"java.util.Collections$CheckedRandomAccessList",
+			"java.util.Collections$CopiesList",
+			"java.util.Collections$EmptyList",
+			"java.util.Collections$SingletonList",
+			"java.util.Collections$SynchronizedList",
 			ListDLType.class.getName()
 		);
 
@@ -364,7 +370,7 @@ public class DefaultCore extends BaseDLCore
 			"java.util.Collections$UnmodifiableSet",
 			"java.util.ImmutableCollections$SetN",
 			SetDLType.class.getName());
-		
+
 		// Define type for Optional<>
 		core.defineType(Optional.class);
 	}
