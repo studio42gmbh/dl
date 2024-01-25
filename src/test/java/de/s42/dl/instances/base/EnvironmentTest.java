@@ -2,7 +2,7 @@
 /*
  * The MIT License
  * 
- * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
+ * Copyright 2024 Studio 42 GmbH ( https://www.s42m.de ).
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,59 +25,51 @@
 //</editor-fold>
 package de.s42.dl.instances.base;
 
-import de.s42.base.files.FilesHelper;
-import de.s42.base.system.SystemHelper;
-import de.s42.dl.DLCore;
-import de.s42.dl.language.DLVersion;
-import java.nio.file.Path;
-import java.util.HashMap;
+import de.s42.dl.DLModule;
+import de.s42.dl.core.DefaultCore;
+import de.s42.dl.exceptions.DLException;
+import de.s42.dl.exceptions.InvalidValue;
+import de.s42.dl.exceptions.ParserException;
 import java.util.Map;
+import org.testng.annotations.Test;
+import static org.testng.Assert.*;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class Environment
+public class EnvironmentTest
 {
+	//private final static Logger log = LogManager.getLogger(EnvironmentTest.class.getName());
 
-	protected DLCore core;
+	@Test
+	public void retrievePropsFromEnv() throws DLException
+	{
+		DefaultCore core = new DefaultCore();
 
-	public Environment(DLCore core)
-	{
-		this.core = core;
-	}
-	
-	/**
-	 * Allows to access environment properties within DL i.e. $env.props.MY_PROP
-	 * @return 
-	 */
-	public Map<String, String> getProps()
-	{
-		return new HashMap<>(System.getenv());
-	}
+		DLModule module = core.parse("retrievePropsFromEnv",
+			"Object t1 : $env.props;"
+		);
 
-	public String getDlVersion()
-	{
-		return DLVersion.getVersion();
+		Object t1 = module.get("t1");
+
+		assertTrue(t1 instanceof Map);
 	}
 
-	public String getOs()
+	@Test
+	public void invalidRetrieveUnsetEnvVariable() throws DLException
 	{
-		return SystemHelper.getOSName();
-	}
+		DefaultCore core = new DefaultCore();
 
-	public String getOsVersion()
-	{
-		return SystemHelper.getOSVersion();
-	}
-
-	public Path getWorkingDirectory()
-	{
-		return FilesHelper.getWorkingDirectory().toAbsolutePath();
-	}
-
-	public Path[] getResolveDirectories()
-	{
-		return core.getPathResolver().getResolveDirectories().toArray(Path[]::new);
+		try {
+			core.parse("invalidRetrieveUnsetEnvVariable",
+				"String t1 : $env.props.NOT_SET_1234;"
+			);
+		} catch (InvalidValue ex) {
+			assertTrue(ex.getCause() instanceof ParserException);
+			ParserException pEx = (ParserException) ex.getCause();
+			assertEquals(pEx.getStartOffset(), 11);
+			assertEquals(pEx.getEndOffset(), 23);
+		}
 	}
 }

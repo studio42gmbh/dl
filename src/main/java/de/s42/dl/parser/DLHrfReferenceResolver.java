@@ -38,6 +38,7 @@ import de.s42.dl.instances.ComplexTypeDLInstance;
 import de.s42.dl.instances.SimpleTypeDLInstance;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -55,22 +56,27 @@ public class DLHrfReferenceResolver implements DLReferenceResolver
 		assert path != null;
 
 		// Resolve children or attribute of instances
-		if (element instanceof DLInstance) {
+		if (element instanceof DLInstance dLInstance) {
 
 			// Resolve path as child in instance
-			DLInstance child = ((DLInstance) element).getChild(path).orElse(null);
+			DLInstance child = dLInstance.getChild(path).orElse(null);
 			if (child != null) {
 				return child;
 			}
 
 			// Otherwise resolve path as value in instance
-			return ((DLInstance) element).get(path);
+			return dLInstance.get(path);
+		}
+
+		// Resolve a map
+		if (element instanceof Map map) {
+			return map.get(path);
 		}
 
 		// A core will be checked for exported instances
-		if (element instanceof DLCore) {
+		if (element instanceof DLCore dLCore) {
 
-			return ((DLCore) element).getExported(path).orElse(null);
+			return dLCore.getExported(path).orElse(null);
 		}
 
 		// Resolve bean properties of anything else
@@ -92,53 +98,53 @@ public class DLHrfReferenceResolver implements DLReferenceResolver
 
 	/**
 	 * Does some necessary unwrapping for return values
+	 *
 	 * @param resolved
-	 * @return 
+	 *
+	 * @return
 	 */
 	protected Optional<Object> finalizeReturn(Object resolved)
 	{
 		// https://github.com/studio42gmbh/dl/issues/13 Unwrap simple instances
 		// @improvement this unwrapping should be done more generic if possible
-		if (resolved instanceof SimpleTypeDLInstance) {
-			return Optional.of(((SimpleTypeDLInstance) resolved).getData());
-		} else if (resolved instanceof ComplexTypeDLInstance) {
-			return Optional.of(((ComplexTypeDLInstance) resolved).getData());
+		if (resolved instanceof SimpleTypeDLInstance simpleTypeDLInstance) {
+			return Optional.of(simpleTypeDLInstance.getData());
+		} else if (resolved instanceof ComplexTypeDLInstance complexTypeDLInstance) {
+			return Optional.of(complexTypeDLInstance.getData());
 		}
 
 		return Optional.ofNullable(resolved);
 	}
 
 	/**
-	 * Tries to resolve the path. If strict is true any invalid syntax will lead to a parser exception otherwise it will just return Optional.empty()
+	 * Tries to resolve the path. If strict is true any invalid syntax will lead to a parser exception otherwise it will
+	 * just return Optional.empty()
+	 *
 	 * @param context
 	 * @param path
-	 * @param strict
+	 * @param strictOnFirstPathElement
+	 *
 	 * @return
-	 * @throws ParserException 
+	 *
+	 * @throws ParserException
 	 */
 	@Override
-	public Optional<Object> resolve(DLEntity context, String path, boolean strict) throws ParserException
+	public Optional<Object> resolve(DLEntity context, String path, boolean strictOnFirstPathElement) throws ParserException
 	{
 		assert context != null;
 		assert path != null;
 
+		boolean strict = strictOnFirstPathElement;
+
 		// Make sure the path is at least $ + <char>
 		int length = path.length();
 		if (length < 2) {
-			if (strict) {
-				throw new ParserException("Path has to be at least 2 signs long: $ + <char> but is '" + path + "'", 0, length);
-			} else {
-				return Optional.empty();
-			}
+			throw new ParserException("Path has to be at least 2 signs long: $ + <char> but is '" + path + "'", 0, length);
 		}
 
 		// Make sure the expression starts with $
 		if (path.charAt(0) != '$') {
-			if (strict) {
-				throw new ParserException("Missing $ at start in '" + path + "'", 0, length);
-			} else {
-				return Optional.empty();
-			}
+			throw new ParserException("Missing $ at start in '" + path + "'", 0, length);
 		}
 
 		// Iterate along the path
@@ -198,6 +204,8 @@ public class DLHrfReferenceResolver implements DLReferenceResolver
 			// Proceed to next path element (fixing also the last path part)
 			indexFrom = indexTo + 1;
 			indexTo = path.indexOf('.', indexFrom);
+			// Make sure sub paths are always treated strict
+			strict = true;
 			if (indexTo == -1 && indexFrom < length) {
 				indexTo = length;
 			}

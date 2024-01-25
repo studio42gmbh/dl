@@ -40,5 +40,5 @@ public interface DLReferenceResolver
 		return resolve(context, path, true);
 	}
 
-	public Optional<Object> resolve(DLEntity context, String path, boolean strict) throws ParserException;
+	public Optional<Object> resolve(DLEntity context, String path, boolean strictOnFirstPathElement) throws ParserException;
 }

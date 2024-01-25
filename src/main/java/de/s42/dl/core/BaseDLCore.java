@@ -600,8 +600,8 @@ public class BaseDLCore implements DLCore
 		}
 
 		return Optional.empty();
-	}	
-	
+	}
+
 	public boolean removeExported(String key)
 	{
 		return exported.remove(key);

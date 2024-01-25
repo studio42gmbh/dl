@@ -223,11 +223,7 @@ public final class DLHrfExpressionParser
 		} else if (ctx.FLOAT_LITERAL() != null) {
 			value = Double.valueOf(ctx.FLOAT_LITERAL().getText());
 		} else if (ctx.BOOLEAN_LITERAL() != null) {
-			if ("true".equals(ctx.BOOLEAN_LITERAL().getText())) {
-				value = true;
-			} else {
-				value = false;
-			}
+			value = "true".equals(ctx.BOOLEAN_LITERAL().getText());
 		} else if (ctx.REF() != null) {
 			value = resolveReference(module, ctx.REF().getText(), ctx);
 		} else {
@@ -240,8 +236,8 @@ public final class DLHrfExpressionParser
 
 		if (negate) {
 
-			if (value instanceof Number) {
-				return new Atom(-((Number) value).doubleValue());
+			if (value instanceof Number number) {
+				return new Atom(-number.doubleValue());
 			} else {
 				throw new DLHrfParsingException(
 					"Can just negate number types, but "
@@ -281,13 +277,13 @@ public final class DLHrfExpressionParser
 		assert resolver != null;
 
 		// First try to find the ref in core
-		// Call the parser in non strict mode to avoid getting exceptions -> will return null then
+		// Call the parser in non strict mode to avoid getting exceptions on the first path -> will return null then
 		Optional ref = resolver.resolve(core, refId, false);
 		if (ref.isPresent()) {
 			return ref.orElseThrow();
 		}
 
-		// Resolve the reference ignoring the first char which is the $ sign
+		// Resolve the reference
 		try {
 			ref = resolver.resolve(module, refId);
 			if (ref.isPresent()) {
