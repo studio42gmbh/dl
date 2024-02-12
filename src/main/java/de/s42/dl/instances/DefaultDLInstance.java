@@ -50,7 +50,6 @@ import java.util.function.Consumer;
  *
  * @author Benjamin Schiller
  */
-// @todo https://github.com/studio42gmbh/dl/issues/21 DLInstance rethink interface and implementation of getters - Optional? Performance, Security, Convenience
 public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 {
 
