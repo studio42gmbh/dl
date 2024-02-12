@@ -244,7 +244,6 @@ public class DLTypesTest
 		);
 	}
 
-	// @todo https://github.com/studio42gmbh/dl/issues/12 raise exception when trying to assign into a complex type
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidComplexTypeAssignedInModule() throws DLException
 	{
@@ -468,7 +467,6 @@ public class DLTypesTest
 		);
 	}
 
-	// @todo
 	@Test
 	public void invalidAliasRedefineExternTypeAndAliasesLocalDuplicate() throws DLException
 	{
