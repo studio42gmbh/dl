@@ -25,6 +25,12 @@
 //</editor-fold>
 package de.s42.dl.annotations.attributes;
 
+import de.s42.dl.annotations.DLAnnotationType;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  *
  * @author Benjamin Schiller
@@ -32,14 +38,21 @@ package de.s42.dl.annotations.attributes;
 public class EqualDLAnnotation extends AbstractComparisonDLAnnotation<Object, EqualDLAnnotation>
 {
 
-	public final static String DEFAULT_SYMBOL = "equal";
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = {ElementType.FIELD})
+	@DLAnnotationType(EqualDLAnnotation.class)
+	public static @interface equal
+	{
+
+		public String other();
+	}
 
 	@Override
 	protected String errorMessage(Object val, Object refVal)
 	{
 		assert val != null;
 		assert refVal != null;
-		
+
 		return "val '" + val + "' must be equal to refval '" + refVal + "'";
 	}
 

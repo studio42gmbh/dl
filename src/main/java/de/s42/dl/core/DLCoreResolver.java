@@ -37,41 +37,53 @@ import java.io.IOException;
  */
 public interface DLCoreResolver
 {
+
 	/**
 	 * Checks if this resolver could parse the given moduleId and data in the core
+	 *
 	 * @param core
 	 * @param moduleId
 	 * @param data
-	 * @return 
+	 *
+	 * @return
 	 */
 	public boolean canParse(DLCore core, String moduleId, String data);
 
 	/**
-	 * Resolves the given moduleId to a normalized resolved module id for thisresolver (allows for better caching and avoiding duplicates)
+	 * Resolves the given moduleId to a normalized resolved module id for thisresolver (allows for better caching and
+	 * avoiding duplicates)
+	 *
 	 * @param core
 	 * @param moduleId
-	 * @return 
+	 *
+	 * @return
 	 */
 	public String resolveModuleId(DLCore core, String moduleId);
 
 	/**
 	 * Retrieves the referenced content by the resolved module id as string
+	 *
 	 * @param core
 	 * @param resolvedModuleId
 	 * @param data
+	 *
 	 * @return
+	 *
 	 * @throws InvalidModule
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public String getContent(DLCore core, String resolvedModuleId, String data) throws InvalidModule, IOException;
-	
+
 	/**
 	 * Parses the referenced content
+	 *
 	 * @param core
 	 * @param resolvedModuleId
 	 * @param data
+	 *
 	 * @return
-	 * @throws DLException 
+	 *
+	 * @throws DLException
 	 */
 	public DLModule parse(DLCore core, String resolvedModuleId, String data) throws DLException;
 }

@@ -38,6 +38,7 @@ import java.util.Map;
  */
 public interface DLAnnotationFactory<DLAnnotationType extends DLAnnotation>
 {
+
 	public Class<DLAnnotationType> getAnnotationType();
 
 	public DLAnnotationType createAnnotation(String name, Object[] flatParameters) throws DLException;
@@ -45,17 +46,17 @@ public interface DLAnnotationFactory<DLAnnotationType extends DLAnnotation>
 	default public DLAnnotationType createAnnotation(String name) throws DLException
 	{
 		assert name != null;
-		
+
 		return createAnnotation(name, new Object[]{});
 	}
 
 	default public DLAnnotationType createAnnotation(String name, Map<String, Object> namedParameters) throws DLException
 	{
 		assert name != null;
-		
+
 		return createAnnotation(name, toFlatParameters(namedParameters));
 	}
-	
+
 	default public boolean isValidNamedParameters(Map<String, Object> namedParameters)
 	{
 		return false;
@@ -63,21 +64,23 @@ public interface DLAnnotationFactory<DLAnnotationType extends DLAnnotation>
 
 	/**
 	 * Shall provide a qualified validation reporting to help the user (used in parsing).
+	 *
 	 * @param namedParameters
 	 * @param result
-	 * @return 
+	 *
+	 * @return
 	 */
 	default public boolean validateNamedParameters(Map<String, Object> namedParameters, ValidationResult result)
 	{
 		assert result != null;
-		
+
 		if (!isValidNamedParameters(namedParameters)) {
 			result.addError(InvalidParameters.toString(), "Named parameters are invalid", this);
 		}
-		
+
 		return result.isValid();
 	}
-	
+
 	default public boolean isValidNamedParameter(String name, Object value)
 	{
 		return false;
@@ -90,18 +93,20 @@ public interface DLAnnotationFactory<DLAnnotationType extends DLAnnotation>
 
 	/**
 	 * Shall provide a qualified validation reporting to help the user (used in parsing).
+	 *
 	 * @param flatParameters
 	 * @param result
-	 * @return 
+	 *
+	 * @return
 	 */
 	default public boolean validateFlatParameters(Object[] flatParameters, ValidationResult result)
 	{
 		assert result != null;
-		
+
 		if (!isValidFlatParameters(flatParameters)) {
 			result.addError(InvalidParameters.toString(), "Flat parameters are invalid", this);
 		}
-		
+
 		return result.isValid();
 	}
 

@@ -189,6 +189,8 @@ public class BaseDLCore implements DLCore
 	@Override
 	public DLType createType(String typeName)
 	{
+		assert typeName != null;
+
 		return new DefaultDLType(this, typeName);
 	}
 
@@ -201,18 +203,25 @@ public class BaseDLCore implements DLCore
 	@Override
 	public DLEnum createEnum(String name)
 	{
+		assert name != null;
+
 		return new DefaultDLEnum(this, name);
 	}
 
 	@Override
 	public DLEnum createEnum(String name, Class<? extends Enum> enumImpl)
 	{
+		assert name != null;
+		assert enumImpl != null;
+
 		return new DefaultDLEnum(this, name, enumImpl);
 	}
 
 	@Override
 	public DLEnum createEnum(Class<? extends Enum> enumImpl)
 	{
+		assert enumImpl != null;
+
 		return new DefaultDLEnum(this, enumImpl);
 	}
 
@@ -577,6 +586,8 @@ public class BaseDLCore implements DLCore
 	@Override
 	public Optional<Object> getExportedAsJavaObject(String name)
 	{
+		assert name != null;
+		
 		return getExported(name).map((instance) -> instance.toJavaObject());
 	}
 
@@ -604,6 +615,8 @@ public class BaseDLCore implements DLCore
 
 	public boolean removeExported(String key)
 	{
+		assert key != null;
+		
 		return exported.remove(key);
 	}
 
@@ -768,6 +781,9 @@ public class BaseDLCore implements DLCore
 
 	protected void attachAnnotations(Class typeClass, DLType type) throws DLException
 	{
+		assert typeClass != null;
+		assert type != null;
+		
 		//Attach single type annotation
 		if (typeClass.isAnnotationPresent(AnnotationDL.class)) {
 			AnnotationDL javaAnnotation = (AnnotationDL) typeClass.getAnnotation(AnnotationDL.class);
@@ -1158,6 +1174,8 @@ public class BaseDLCore implements DLCore
 
 	protected String getRawTypeName(String name)
 	{
+		assert name != null;
+		
 		int index = name.indexOf('<');
 
 		if (index < 0) {
@@ -1170,6 +1188,8 @@ public class BaseDLCore implements DLCore
 	// @todo Add support for nested generic types
 	protected List<DLType> getGenericsFromTypeName(String name)
 	{
+		assert name != null;
+		
 		List<DLType> result = new ArrayList<>();
 
 		int index = name.indexOf('<');
@@ -1201,6 +1221,8 @@ public class BaseDLCore implements DLCore
 
 	protected String getTypeName(String name, List<DLType> genericTypes)
 	{
+		assert name != null;
+		
 		if (genericTypes == null || genericTypes.isEmpty()) {
 			return name;
 		}
@@ -1348,6 +1370,8 @@ public class BaseDLCore implements DLCore
 
 	public boolean removeFromRequiredModules(String moduleId)
 	{
+		assert moduleId != null;
+		
 		return requiredModules.remove(moduleId) != null;
 	}
 
@@ -1359,6 +1383,8 @@ public class BaseDLCore implements DLCore
 	@Override
 	public DLModule parse(String moduleId) throws DLException
 	{
+		assert moduleId != null;
+		
 		return parse(moduleId, null);
 	}
 
@@ -1422,6 +1448,8 @@ public class BaseDLCore implements DLCore
 	@Override
 	public DLModule createModule(String name) throws InvalidType
 	{
+		assert name != null;
+		
 		return new DefaultDLModule(getType(DLModule.class).orElseThrow(() -> {
 			return new InvalidType("Could not resolve type for module");
 		}), name);

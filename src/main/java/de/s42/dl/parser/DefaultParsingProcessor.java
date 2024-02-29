@@ -31,8 +31,6 @@ import de.s42.dl.DLModule;
 import de.s42.dl.DLType;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -45,8 +43,7 @@ import java.util.Map;
 public class DefaultParsingProcessor implements DLParsingProcessor
 {
 
-	private final static Logger log = LogManager.getLogger(DefaultParsingProcessor.class.getName());
-
+	//private final static Logger log = LogManager.getLogger(DefaultParsingProcessor.class.getName());
 	protected final DLCore core;
 
 	protected DLModule module;

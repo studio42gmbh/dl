@@ -52,7 +52,7 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 
 	// VALIDATION
 	public boolean validateInstance(DLInstance instance, ValidationResult result);
-	
+
 	public boolean addValidator(DLTypeValidator validator);
 
 	public boolean addInstanceValidator(DLInstanceValidator validator);
@@ -60,7 +60,7 @@ public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 	public List<DLTypeValidator> getValidators();
 
 	public List<DLInstanceValidator> getInstanceValidators();
-	
+
 	// DATA ACCESS
 	public Object read(Object... sources) throws DLException;
 

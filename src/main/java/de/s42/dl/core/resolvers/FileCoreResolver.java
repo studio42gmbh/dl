@@ -36,8 +36,6 @@ import de.s42.dl.io.binary.BinaryDLReader;
 import de.s42.dl.io.hrf.HrfDLReader;
 import de.s42.dl.language.DLFileType;
 import static de.s42.dl.util.DLHelper.recognizeFileType;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -49,8 +47,7 @@ import java.util.Optional;
 public class FileCoreResolver implements DLCoreResolver
 {
 
-	private final static Logger log = LogManager.getLogger(FileCoreResolver.class.getName());
-
+	//private final static Logger log = LogManager.getLogger(FileCoreResolver.class.getName());
 	@Override
 	public String getContent(DLCore core, String resolvedModuleId, String data) throws InvalidModule, IOException
 	{

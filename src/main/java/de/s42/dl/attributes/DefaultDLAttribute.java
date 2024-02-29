@@ -38,8 +38,6 @@ import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.validation.DLAttributeValidator;
 import de.s42.dl.validation.ValidationResult;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -54,8 +52,7 @@ import java.util.Objects;
 public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribute
 {
 
-	private final static Logger log = LogManager.getLogger(DefaultDLAttribute.class.getName());
-
+	//private final static Logger log = LogManager.getLogger(DefaultDLAttribute.class.getName());
 	protected Object defaultValue;
 	protected DLType type;
 	protected DLType container;
@@ -98,7 +95,7 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 	public <ReturnType> ReturnType getValueFromJavaObject(Object object) throws InvalidAttribute
 	{
 		assert object != null;
-		
+
 		try {
 			BeanInfo<?> info = BeanHelper.getBeanInfo(object.getClass());
 
@@ -352,7 +349,7 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 	{
 		assert own != null;
 		assert other != null;
-		
+
 		HashSet<DLAnnotation> setOther = new HashSet<>(other);
 
 		// Remove all annotations of this 
@@ -367,10 +364,6 @@ public class DefaultDLAttribute extends AbstractDLAnnotated implements DLAttribu
 		}
 
 		// Now the other set has to be empty
-		if (!setOther.isEmpty()) {
-			return false;
-		}
-
-		return true;
+		return setOther.isEmpty();
 	}
 }

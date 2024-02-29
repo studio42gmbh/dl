@@ -40,16 +40,19 @@ import java.util.Map;
 public class Environment
 {
 
-	protected DLCore core;
+	protected final DLCore core;
 
 	public Environment(DLCore core)
 	{
+		assert core != null;
+		
 		this.core = core;
 	}
-	
+
 	/**
 	 * Allows to access environment properties within DL i.e. $env.props.MY_PROP
-	 * @return 
+	 *
+	 * @return
 	 */
 	public Map<String, String> getProps()
 	{

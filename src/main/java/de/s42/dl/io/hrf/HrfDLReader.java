@@ -74,14 +74,13 @@ public class HrfDLReader implements DLReader
 			file
 		);
 	}
-	
+
 	protected synchronized void readInternIterator() throws IOException, DLException
 	{
 		readIntern();
-		
+
 		instances = module.getChildren().iterator();
 	}
-	
 
 	@Override
 	public Object readObject() throws IOException, DLException
@@ -122,7 +121,7 @@ public class HrfDLReader implements DLReader
 	public DLModule readModule() throws IOException, DLException
 	{
 		readIntern();
-		
+
 		return module;
 	}
 }

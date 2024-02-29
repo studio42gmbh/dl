@@ -35,29 +35,26 @@ public enum DLFileType
 	 * Human Readable Format
 	 */
 	HRF("dl"),
-	
 	/**
 	 * Minified Human Readable Format
 	 */
 	HRFMIN("dl"),
-	
 	/**
 	 * Binary Format
 	 */
 	BIN("dlb"),
-	
 	/**
 	 * Compressed Binary Format (Zip Container for BIN)
 	 */
 	BINCOMPRESSED("dla");
-	
+
 	public final static String HRF_EXTENSION = "dl";
 	public final static String HRFMIN_EXTENSION = "dl";
 	public final static String BIN_EXTENSION = "dlb";
 	public final static String BINCOMPRESSED_EXTENION = "dla";
-	
+
 	public final String defaultExtension;
-	
+
 	private DLFileType(String defaultExtension)
 	{
 		this.defaultExtension = defaultExtension;

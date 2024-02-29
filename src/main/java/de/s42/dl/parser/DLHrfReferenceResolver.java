@@ -36,8 +36,6 @@ import de.s42.dl.DLReferenceResolver;
 import de.s42.dl.exceptions.ParserException;
 import de.s42.dl.instances.ComplexTypeDLInstance;
 import de.s42.dl.instances.SimpleTypeDLInstance;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.util.Map;
 import java.util.Optional;
 
@@ -48,8 +46,7 @@ import java.util.Optional;
 public class DLHrfReferenceResolver implements DLReferenceResolver
 {
 
-	private final static Logger log = LogManager.getLogger(DLHrfReferenceResolver.class.getName());
-
+	//private final static Logger log = LogManager.getLogger(DLHrfReferenceResolver.class.getName());
 	protected Object resolveElement(Object element, String path)
 	{
 		assert element != null;

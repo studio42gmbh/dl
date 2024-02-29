@@ -353,11 +353,7 @@ public class BinaryDLReader implements DLReader
 			instance = processor.getLastInstance();
 		}
 
-		if (instance != null) {
-			return true;
-		}
-
-		return false;
+		return instance != null;
 	}
 
 	@Override

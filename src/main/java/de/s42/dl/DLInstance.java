@@ -51,7 +51,7 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 	}
 
 	public DLType getType();
-	
+
 	default public DLCore getCore()
 	{
 		return getType().getCore();
@@ -137,7 +137,7 @@ public interface DLInstance extends DLEntity, DLAnnotated, DLValidatable
 	public Optional<?> getChildAsJavaObject(DLType type);
 
 	public <ObjectType extends Object> Optional<ObjectType> getChildAsJavaObject(Class<ObjectType> javaType);
-	
+
 	public <ObjectType extends Object> List<ObjectType> getChildrenAsJavaType(Class<ObjectType> javaType);
 
 	public List getChildrenAsJavaType();

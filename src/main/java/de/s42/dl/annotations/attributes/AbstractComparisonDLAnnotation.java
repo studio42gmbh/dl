@@ -50,7 +50,7 @@ public abstract class AbstractComparisonDLAnnotation<DataType, DLAnnotationType 
 
 	@DLAnnotationParameter(ordinal = 0, required = true, validation = IsSymbol.class)
 	protected String other;
-	
+
 	private class ComparisonDLInstanceValidator implements DLInstanceValidator, DLAttributeValidator
 	{
 
@@ -101,7 +101,7 @@ public abstract class AbstractComparisonDLAnnotation<DataType, DLAnnotationType 
 				result.addError(InvalidComparison.toString(), errorMessage.apply((DataType) val, (DataType) valRef), source);
 				return false;
 			}
-			
+
 			return true;
 		}
 	}
@@ -114,7 +114,7 @@ public abstract class AbstractComparisonDLAnnotation<DataType, DLAnnotationType 
 	public void bindToAttribute(DLAttribute attribute) throws InvalidAnnotation
 	{
 		assert attribute != null;
-		
+
 		container = attribute;
 		container.addAnnotation(this);
 
@@ -128,8 +128,8 @@ public abstract class AbstractComparisonDLAnnotation<DataType, DLAnnotationType 
 			});
 		((DefaultDLType) attribute.getContainer()).addInstanceValidator(validator);
 
-		if (attribute instanceof DefaultDLAttribute) {
-			((DefaultDLAttribute) attribute).addValidator(validator);
+		if (attribute instanceof DefaultDLAttribute defaultDLAttribute) {
+			defaultDLAttribute.addValidator(validator);
 		}
 	}
 
@@ -162,13 +162,11 @@ public abstract class AbstractComparisonDLAnnotation<DataType, DLAnnotationType 
 		}
 		if (getClass() != obj.getClass()) {
 			return false;
-		}		
+		}
 		if (!super.equals(obj)) {
 			return false;
-		}		
+		}
 		final AbstractComparisonDLAnnotation<?, ?> otherObj = (AbstractComparisonDLAnnotation<?, ?>) obj;
 		return Objects.equals(this.other, otherObj.other);
 	}
-	
-	
 }

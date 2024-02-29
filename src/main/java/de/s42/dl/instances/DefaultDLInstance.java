@@ -32,8 +32,6 @@ import de.s42.dl.exceptions.InvalidAttribute;
 import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.validation.DLInstanceValidator;
 import de.s42.dl.validation.ValidationResult;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,8 +51,7 @@ import java.util.function.Consumer;
 public class DefaultDLInstance extends AbstractDLAnnotated implements DLInstance
 {
 
-	private final static Logger log = LogManager.getLogger(DefaultDLInstance.class.getName());
-
+	//private final static Logger log = LogManager.getLogger(DefaultDLInstance.class.getName());
 	// one DLInstance can just have one Java Object representation
 	protected Object javaObject;
 	protected DLType type;

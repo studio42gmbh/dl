@@ -68,7 +68,7 @@ public final class NamedParameter
 		this.required = required;
 		this.validate = validate;
 		this.ordinal = ordinal;
-		
+
 		// Validate default value
 		if (this.defaultValue != null) {
 			if (!isValid(this.defaultValue)) {
@@ -82,23 +82,23 @@ public final class NamedParameter
 		if (required && value == null) {
 			return false;
 		}
-		
+
 		if (validate != null) {
 			return validate.apply(value);
 		}
 
 		return true;
 	}
-	
+
 	public boolean validate(Object value, ValidationResult result)
 	{
 		assert result != null;
-		
+
 		if (required && value == null) {
 			result.addError(InvalidParameters.toString(), "Parameter '" + name + "' is required", this);
 			return result.isValid();
 		}
-		
+
 		if (validate != null) {
 			if (!validate.apply(value)) {
 				result.addError(InvalidParameters.toString(), "Parameter '" + name + "' validation " + validate.getClass().getSimpleName() + " failed", this);
@@ -110,6 +110,8 @@ public final class NamedParameter
 
 	public <ObjectType> ObjectType get(Object[] flatParameters)
 	{
+		assert flatParameters != null;
+		
 		return (ObjectType) flatParameters[ordinal];
 	}
 

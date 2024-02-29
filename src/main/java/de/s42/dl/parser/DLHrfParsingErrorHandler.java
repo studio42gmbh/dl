@@ -53,29 +53,28 @@ public class DLHrfParsingErrorHandler extends BaseErrorListener
 
 	@Override
 	public void syntaxError(Recognizer<?, ?> rcgnzr, Object offendingElement, int line, int position, String message, RecognitionException re)
-	{		
-		if (offendingElement instanceof Token) {
-			
-			Token token = (Token)offendingElement;
-	
+	{
+		if (offendingElement instanceof Token token) {
+
+
 			// Special case for invalid usage of reserved keywords
 			if (token.getType() == DLLexer.RESERVED_KEYWORD) {
-				
+
 				throw new ReservedKeyword(
 					createErrorMessage(module, "Reserved keyword '" + token.getText() + "' was used", line, position),
-					token.getText(), 
+					token.getText(),
 					line, position, token.getStartIndex(),
 					line, position + token.getStopIndex() - token.getStartIndex(), token.getStopIndex()
 				);
 			}
-			
+
 			throw new ParserException(
 				createErrorMessage(module, message, line, position),
 				line, position, token.getStartIndex(),
 				line, position + token.getStopIndex() - token.getStartIndex(), token.getStopIndex()
 			);
 		}
-		
+
 		throw new ParserException(
 			createErrorMessage(module, message, line, position), line, position, 0);
 	}

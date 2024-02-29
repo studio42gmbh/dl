@@ -62,7 +62,7 @@ public enum DLKeyword
 	{
 		this.keyword = keyword;
 	}
-	
+
 	public static String[] getKeywords()
 	{
 		return KEYWORDS;

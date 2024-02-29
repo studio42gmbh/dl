@@ -32,8 +32,6 @@ import de.s42.dl.core.DLCoreResolver;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidModule;
 import de.s42.dl.parser.DLHrfParsing;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -44,8 +42,7 @@ import java.util.Optional;
 public class ResourceCoreResolver implements DLCoreResolver
 {
 
-	private final static Logger log = LogManager.getLogger(ResourceCoreResolver.class.getName());
-
+	//private final static Logger log = LogManager.getLogger(ResourceCoreResolver.class.getName());
 	@Override
 	public String getContent(DLCore core, String resolvedModuleId, String data) throws InvalidModule, IOException
 	{
@@ -60,12 +57,12 @@ public class ResourceCoreResolver implements DLCoreResolver
 
 		return res.orElseThrow();
 	}
-	
+
 	@Override
 	public String resolveModuleId(DLCore core, String moduleId)
 	{
 		assert moduleId != null;
-		
+
 		return moduleId;
 	}
 
@@ -96,7 +93,6 @@ public class ResourceCoreResolver implements DLCoreResolver
 		try {
 
 			//log.debug("Parsing resource " + resolvedModuleId);
-
 			Optional<String> res = ResourceHelper.getResourceAsString(resolvedModuleId);
 
 			if (res.isEmpty()) {

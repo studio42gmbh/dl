@@ -36,8 +36,6 @@ import de.s42.dl.DLType;
 import de.s42.dl.annotations.persistence.DontPersistDLAnnotation;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.io.DLWriter;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -57,8 +55,7 @@ import org.json.JSONObject;
 public class JsonWriter implements DLWriter
 {
 
-	private final static Logger log = LogManager.getLogger(JsonWriter.class.getName());
-	
+	//private final static Logger log = LogManager.getLogger(JsonWriter.class.getName());	
 	protected final Path file;
 	protected final DLCore core;
 	protected final List<JSONObject> json = new ArrayList<>();
@@ -75,12 +72,18 @@ public class JsonWriter implements DLWriter
 	@Override
 	public void write(DLPragma pragma) throws IOException
 	{
+		assert pragma != null;
+
+		//@todo
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
 	public void write(DLType type) throws IOException
 	{
+		assert type != null;
+
+		//@todo
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
@@ -114,8 +117,8 @@ public class JsonWriter implements DLWriter
 
 		if (value == null) {
 			return null;
-		} else if (value instanceof DLInstance) {
-			return toJSON(core, (DLInstance) value);
+		} else if (value instanceof DLInstance dLInstance) {
+			return toJSON(core, dLInstance);
 		} else if (value.getClass().isArray()) {
 			List list = new ArrayList();
 
@@ -125,18 +128,18 @@ public class JsonWriter implements DLWriter
 			}
 
 			return list;
-		} else if (value instanceof Collection) {
+		} else if (value instanceof Collection collection) {
 
 			List list = new ArrayList();
 
-			for (Object el : (Collection) value) {
+			for (Object el : collection) {
 
 				list.add(convert(core, el));
 			}
 
 			return list;
-		} else if (value instanceof Date) {
-			return ((Date) value).getTime();
+		} else if (value instanceof Date date) {
+			return date.getTime();
 		} else if (value instanceof Boolean) {
 			return value;
 			// This also catches BigDecimal and BigInteger (which may be present when retrieved from JSON Objects etc.)
@@ -157,11 +160,17 @@ public class JsonWriter implements DLWriter
 
 	public static JSONObject toJSON(DLCore core, Object object) throws DLException
 	{
+		assert core != null;
+		assert object != null;
+
 		return toJSON(core, core.convertFromJavaObject(object));
 	}
 
 	public static JSONObject toJSON(DLCore core, DLInstance instance) throws DLException
 	{
+		assert core != null;
+		assert instance != null;
+
 		JSONObject result = new JSONObject();
 
 		if (instance.isNamed()) {
@@ -175,7 +184,7 @@ public class JsonWriter implements DLWriter
 		for (String attributeName : instance.getAttributeNames()) {
 
 			Object val = instance.get(attributeName);
-			
+
 			DLAttribute attribute = instance.getType().getAttribute(attributeName).orElse(null);
 
 			// Ignore attribute that shall not be persisted (may be null on special types like maps)

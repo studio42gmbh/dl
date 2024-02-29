@@ -62,7 +62,7 @@ public interface DLAnnotation extends DLEntity
 	}
 
 	public DLAnnotated getContainer();
-	
+
 	public boolean hasParameters();
 
 	public Object[] getFlatParameters();

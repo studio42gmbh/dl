@@ -29,8 +29,6 @@ import de.s42.dl.*;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.io.DLWriter;
 import de.s42.dl.util.DLHelper;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -44,8 +42,7 @@ import java.nio.file.Path;
 public class HrfDLWriter implements DLWriter
 {
 
-	private final static Logger log = LogManager.getLogger(HrfDLWriter.class.getName());
-
+	//private final static Logger log = LogManager.getLogger(HrfDLWriter.class.getName());
 	//protected final Writer file;
 	protected final OutputStream out;
 	protected final DLCore core;
@@ -73,6 +70,9 @@ public class HrfDLWriter implements DLWriter
 	public void write(DLPragma pragma) throws IOException
 	{
 		assert pragma != null;
+
+		// @todo
+		throw new UnsupportedOperationException("Not implemented yet");
 	}
 
 	@Override

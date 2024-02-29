@@ -39,7 +39,7 @@ public interface DLEnum<DataType> extends DLType
 	public List<DataType> getValues();
 
 	public boolean contains(String name);
-	
+
 	public void addValue(String value) throws InvalidValue;
 
 	public DataType valueOf(String name) throws InvalidValue;

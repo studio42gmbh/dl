@@ -34,10 +34,7 @@ import de.s42.dl.DLAnnotation;
 import de.s42.dl.annotations.DLAnnotationParameter;
 import de.s42.dl.exceptions.InvalidValue;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidParameters;
-import de.s42.dl.validation.NoopValidationResult;
 import de.s42.dl.validation.ValidationResult;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -55,13 +52,14 @@ import java.util.function.Function;
 public final class NamedParameters
 {
 
-	private final static Logger log = LogManager.getLogger(NamedParameters.class.getName());
-
+	//private final static Logger log = LogManager.getLogger(NamedParameters.class.getName());
 	protected final NamedParameter[] parameters;
 	protected final Map<String, NamedParameter> parametersByName = new HashMap<>();
 
 	public NamedParameters(Class<? extends DLAnnotation> annotationClass)
 	{
+		assert annotationClass != null;
+
 		try {
 			List<NamedParameter> parametersAsList = new ArrayList();
 
@@ -140,6 +138,9 @@ public final class NamedParameters
 
 	public void applyNamedParameters(Map<String, Object> namedParameters, Object object) throws InvalidValue, InvalidBean
 	{
+		assert namedParameters != null;
+		assert object != null;
+		
 		applyFlatParameters(toFlatParameters(namedParameters), object);
 	}
 
@@ -154,6 +155,9 @@ public final class NamedParameters
 	 */
 	public void applyFlatParameters(Object[] flatParameters, Object object) throws InvalidValue, InvalidBean
 	{
+		assert flatParameters != null;
+		assert object != null;
+		
 		if (!isValidFlatParameters(flatParameters)) {
 			throw new InvalidValue("Invalid flat parameters can not get applied");
 		}
@@ -186,16 +190,22 @@ public final class NamedParameters
 
 	public boolean contains(String parameterName)
 	{
+		assert parameterName != null;
+		
 		return parametersByName.containsKey(parameterName);
 	}
 
 	public boolean contains(NamedParameter parameter)
 	{
+		assert parameter != null;
+		
 		return indexOf(parameter) > -1;
 	}
 
 	public Optional<NamedParameter> fromName(String parameterName)
 	{
+		assert parameterName != null;
+		
 		return Optional.ofNullable(parametersByName.get(parameterName));
 	}
 
@@ -210,11 +220,15 @@ public final class NamedParameters
 
 	public int indexOf(String parameterName)
 	{
+		assert parameterName != null;
+		
 		return indexOf(parametersByName.get(parameterName));
 	}
 
 	public int indexOf(NamedParameter parameter)
 	{
+		assert parameter != null;
+		
 		if (parameter == null) {
 			return -1;
 		}
@@ -224,6 +238,8 @@ public final class NamedParameters
 
 	public Map<String, Object> getNamedParameters(Object object) throws InvalidBean
 	{
+		assert object != null;
+		
 		Map<String, Object> result = new HashMap<>();
 
 		BeanInfo<?> info = BeanHelper.getBeanInfo(object.getClass());
@@ -242,11 +258,15 @@ public final class NamedParameters
 
 	public Object[] getFlatParameters(Object object) throws InvalidBean, InvalidValue
 	{
+		assert object != null;
+		
 		return toFlatParameters(getNamedParameters(object));
 	}
 
 	public Object[] toFlatParameters(Map<String, Object> namedParameters) throws InvalidValue
 	{
+		assert namedParameters != null;
+		
 		Object[] flatParameters = new Object[parameters.length];
 
 		for (int i = 0; i < parameters.length; ++i) {
@@ -264,6 +284,9 @@ public final class NamedParameters
 
 	public <ObjectType> ObjectType get(NamedParameter parameter, Object[] flatParameters)
 	{
+		assert parameter != null;
+		assert flatParameters != null;
+		
 		int index = indexOf(parameter);
 
 		if (index >= -1) {
@@ -275,6 +298,9 @@ public final class NamedParameters
 
 	public <ObjectType> ObjectType get(String parameterName, Object[] flatParameters)
 	{
+		assert parameterName != null;
+		assert flatParameters != null;
+		
 		int index = indexOf(parameterName);
 
 		if (index >= -1) {
@@ -287,6 +313,9 @@ public final class NamedParameters
 
 	public <ObjectType> ObjectType getOrDefault(String parameterName, Map<String, Object> namedParameters)
 	{
+		assert parameterName != null;
+		assert namedParameters != null;
+		
 		Optional<NamedParameter> optParameter = fromName(parameterName);
 
 		if (optParameter.isEmpty()) {
@@ -298,6 +327,9 @@ public final class NamedParameters
 
 	public <ObjectType> ObjectType getOrDefault(NamedParameter parameter, Map<String, Object> namedParameters)
 	{
+		assert parameter != null;
+		assert namedParameters != null;
+		
 		return (ObjectType) ConversionHelper.convert(namedParameters.getOrDefault(parameter.name, parameter.defaultValue), parameter.type);
 	}
 
@@ -333,7 +365,7 @@ public final class NamedParameters
 	public boolean validateFlatParameters(Object[] flatParameters, ValidationResult result)
 	{
 		assert result != null;
-		
+
 		// If both are null we are always good
 		if (flatParameters == null && parameters.length == 0) {
 			return result.isValid();
@@ -359,7 +391,7 @@ public final class NamedParameters
 
 		return result.isValid();
 	}
-	
+
 	public boolean isValidNamedParameters(Map<String, Object> namedParameters)
 	{
 		try {

@@ -45,6 +45,9 @@ public abstract class AbstractJavaDLModule extends DefaultDLModule
 
 	protected DLType createType(DLCore core, Class javaClass, String... aliases) throws DLException
 	{
+		assert core != null;
+		assert javaClass != null;
+		
 		// Create and define the type in the core
 		DLType newType = core.defineType(core.createType(javaClass), aliases);
 
@@ -56,6 +59,9 @@ public abstract class AbstractJavaDLModule extends DefaultDLModule
 
 	protected DLType createEnum(DLCore core, Class<? extends Enum> javaEnumClass, String... aliases) throws DLException
 	{
+		assert core != null;
+		assert javaEnumClass != null;
+		
 		// Create and define the type in the core
 		DLType newType = core.defineType(core.createEnum(javaEnumClass), aliases);
 

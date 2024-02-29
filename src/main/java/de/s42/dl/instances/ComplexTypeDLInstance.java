@@ -56,7 +56,7 @@ public class ComplexTypeDLInstance<DataType> extends DefaultDLInstance
 
 		assert data != null;
 
-		this.data = data;		
+		this.data = data;
 		info = BeanHelper.getBeanInfo((Class<DataType>) data.getClass());
 	}
 
@@ -69,6 +69,8 @@ public class ComplexTypeDLInstance<DataType> extends DefaultDLInstance
 	@Override
 	public Object get(String key)
 	{
+		assert key != null;
+
 		Optional<BeanProperty<DataType, Object>> property = info.getProperty(key);
 
 		if (property.isPresent()) {

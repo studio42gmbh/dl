@@ -39,7 +39,7 @@ import java.util.UUID;
 
 /**
  * ATTENTION: This annotation is experimental and currently sneaking into the validation phase.
- * I am considering to give such mutating annotations a special phase
+ * @todo I am considering to give such mutating annotations a special phase
  *
  * @author Benjamin Schiller
  */
@@ -66,7 +66,6 @@ public class GenerateUUIDDLAnnotation extends AbstractDLContract<GenerateUUIDDLA
 
 		validateThis();
 
-		//log.debug("bindToAttribute", attribute);
 		container = attribute;
 		container.addAnnotation(this);
 
@@ -82,7 +81,7 @@ public class GenerateUUIDDLAnnotation extends AbstractDLContract<GenerateUUIDDLA
 
 		Object value = instance.get(attributeName);
 
-		// ATTENTION: Tis is mutating the container! Experimental!
+		// ATTENTION: This is mutating the container! Experimental!
 		if (value == null) {
 			instance.set(attributeName, UUID.randomUUID());
 		}

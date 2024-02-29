@@ -33,8 +33,6 @@ import de.s42.dl.DLType;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.io.DLWriter;
 import de.s42.dl.util.DLHelper;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -55,8 +53,7 @@ import java.util.zip.ZipOutputStream;
 public class BinaryDLWriter implements DLWriter
 {
 
-	private final static Logger log = LogManager.getLogger(BinaryDLWriter.class.getName());
-
+	//private final static Logger log = LogManager.getLogger(BinaryDLWriter.class.getName());
 	protected final OutputStream out;
 	protected final DLCore core;
 	protected final BinaryParsingProcessorV1 processor;
@@ -71,28 +68,25 @@ public class BinaryDLWriter implements DLWriter
 
 	public BinaryDLWriter(Path file, DLCore core, boolean compress) throws IOException
 	{
-		{
-			assert file != null;
-			assert core != null;
+		assert file != null;
+		assert core != null;
 
-			this.core = core;
+		this.core = core;
 
-			if (compress) {
-				out = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(file)));
-				((ZipOutputStream) out).putNextEntry(new ZipEntry("data.dlb"));
-				// @improvement do we need to allow setting the compression level?
-				// https://docs.oracle.com/javase/8/docs/api/java/util/zip/Deflater.html
-				//((ZipOutputStream)out).setLevel(compressionLevel);
-			} else {
-				out = new BufferedOutputStream(Files.newOutputStream(file));
-			}
-
-			writeSignature(out);
-
-			processor = new BinaryParsingProcessorV1(out);
-			processor.beginModule();
-
+		if (compress) {
+			out = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(file)));
+			((ZipOutputStream) out).putNextEntry(new ZipEntry("data.dlb"));
+			// @improvement do we need to allow setting the compression level?
+			// https://docs.oracle.com/javase/8/docs/api/java/util/zip/Deflater.html
+			//((ZipOutputStream)out).setLevel(compressionLevel);
+		} else {
+			out = new BufferedOutputStream(Files.newOutputStream(file));
 		}
+
+		writeSignature(out);
+
+		processor = new BinaryParsingProcessorV1(out);
+		processor.beginModule();
 	}
 
 	public BinaryDLWriter(OutputStream out, DLCore core) throws IOException
@@ -112,7 +106,7 @@ public class BinaryDLWriter implements DLWriter
 	private void writeSignature(OutputStream out) throws IOException
 	{
 		assert out != null;
-		
+
 		//write file header
 		ByteBuffer buf = ByteBuffer.wrap(new byte[4]);
 		buf.putInt(DLHelper.BIN_SIGNATURE);
@@ -123,12 +117,18 @@ public class BinaryDLWriter implements DLWriter
 	public void write(DLPragma pragma) throws IOException
 	{
 		assert pragma != null;
+		
+		// @todo
+		throw new UnsupportedOperationException("Not implemented yet");
 	}
 
 	@Override
 	public void write(DLType type) throws IOException
 	{
 		assert type != null;
+		
+		// @todo
+		throw new UnsupportedOperationException("Not implemented yet");
 	}
 
 	@Override
@@ -146,7 +146,7 @@ public class BinaryDLWriter implements DLWriter
 	protected int getOrMapSymbol(String symbol) throws IOException
 	{
 		assert symbol != null;
-		
+
 		Integer symbolId = symbols.get(symbol);
 
 		// symbol is mapped - just return
@@ -185,18 +185,18 @@ public class BinaryDLWriter implements DLWriter
 
 			if (value != null) {
 
-				if (value instanceof Float) {
-					processor.setFloatAttribute(attributeNameId, (Float) value);
-				} else if (value instanceof Double) {
-					processor.setDoubleAttribute(attributeNameId, (Double) value);
-				} else if (value instanceof Integer) {
-					processor.setIntAttribute(attributeNameId, (Integer) value);
-				} else if (value instanceof Long) {
-					processor.setLongAttribute(attributeNameId, (Long) value);
-				} else if (value instanceof Boolean) {
-					processor.setBooleanAttribute(attributeNameId, (Boolean) value);
-				} else if (value instanceof UUID) {
-					processor.setBinaryAttribute(attributeNameId, UUIDHelper.toBytes((UUID) value));
+				if (value instanceof Float float1) {
+					processor.setFloatAttribute(attributeNameId, float1);
+				} else if (value instanceof Double double1) {
+					processor.setDoubleAttribute(attributeNameId, double1);
+				} else if (value instanceof Integer integer) {
+					processor.setIntAttribute(attributeNameId, integer);
+				} else if (value instanceof Long long1) {
+					processor.setLongAttribute(attributeNameId, long1);
+				} else if (value instanceof Boolean boolean1) {
+					processor.setBooleanAttribute(attributeNameId, boolean1);
+				} else if (value instanceof UUID uuid) {
+					processor.setBinaryAttribute(attributeNameId, UUIDHelper.toBytes(uuid));
 				} else {
 					processor.setStringAttribute(attributeNameId, "" + value);
 				}

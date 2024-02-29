@@ -44,15 +44,15 @@ public class StringCoreResolver implements DLCoreResolver
 	public String getContent(DLCore core, String moduleId, String data) throws InvalidModule, IOException
 	{
 		assert data != null;
-		
+
 		return data;
 	}
-	
+
 	@Override
 	public String resolveModuleId(DLCore core, String moduleId)
 	{
 		assert moduleId != null;
-		
+
 		return moduleId;
 	}
 

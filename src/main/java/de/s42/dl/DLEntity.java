@@ -31,5 +31,6 @@ package de.s42.dl;
  */
 public interface DLEntity
 {
-	public String getName();	
+
+	public String getName();
 }

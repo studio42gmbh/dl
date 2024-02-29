@@ -13,8 +13,8 @@ de.s42.dl.core
 de.s42.dl.core.resolvers
 de.s42.dl
 de.s42.dl.exceptions
-de.s42.dl.instances.base
 de.s42.dl.instances
+de.s42.dl.instances.base
 de.s42.dl.io.binary
 de.s42.dl.io
 de.s42.dl.io.hrf
@@ -28,6 +28,8 @@ de.s42.dl.parser.expression
 de.s42.dl.parser.expression.operators
 de.s42.dl.parser2
 de.s42.dl.pragmas
+de.s42.dl.pragmas.debug
+de.s42.dl.pragmas.integration
 de.s42.dl.types.base
 de.s42.dl.types.collections
 de.s42.dl.types

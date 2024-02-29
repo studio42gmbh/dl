@@ -30,8 +30,6 @@ import de.s42.dl.*;
 import de.s42.dl.exceptions.*;
 import de.s42.dl.attributes.DefaultDLAttribute;
 import de.s42.dl.types.DefaultDLType;
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
 import java.util.*;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -57,8 +55,7 @@ import org.antlr.v4.runtime.CharStream;
 public class DLHrfParsing extends DLParserBaseListener
 {
 
-	private final static Logger log = LogManager.getLogger(DLHrfParsing.class.getName());
-
+	//private final static Logger log = LogManager.getLogger(DLHrfParsing.class.getName());
 	/**
 	 * Defines the minimal initial capacity size of assignable lists (aligned to ArrayList.DEFAULT_CAPACITY) - should
 	 * allow java to reuse the lists better
@@ -85,6 +82,9 @@ public class DLHrfParsing extends DLParserBaseListener
 
 	public DLHrfParsing(DLCore core, DLModule module)
 	{
+		assert core != null;
+		assert module != null;
+		
 		this.core = core;
 		this.module = module;
 		currentInstance = module;

@@ -149,13 +149,13 @@ public interface DLCore extends DLEntity
 	public List<DLInstance> getExported();
 
 	public Optional<DLInstance> getExported(String name);
-	
+
 	public Optional<Object> getExportedAsJavaObject(String name);
-	
+
 	public <JavaType> Optional<JavaType> getExportedAsJavaObject(String name, Class<JavaType> javaType) throws InvalidType;
-	
+
 	public <JavaType> Optional<JavaType> getExportedAsJavaObject(Class<JavaType> javaType) throws InvalidType;
-	
+
 	public <JavaType> List<DLInstance> getExportedByJavaType(Class<JavaType> javaType) throws InvalidType;
 
 	public <AnnotationType extends DLAnnotation> List<DLInstance> getExported(Class<AnnotationType> annotationType);

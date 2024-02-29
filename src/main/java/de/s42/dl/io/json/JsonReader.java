@@ -99,8 +99,8 @@ public class JsonReader implements DLReader
 
 				DLInstance instance = fromJSON(core, new JSONObject(json));
 
-				if (instance instanceof DLModule) {
-					module = (DLModule) instance;
+				if (instance instanceof DLModule dLModule) {
+					module = dLModule;
 				} else {
 					module = core.createModule();
 					module.addChild(instance);
@@ -139,14 +139,14 @@ public class JsonReader implements DLReader
 			Object value = json.get(key);
 
 			// Handle sub objects
-			if (value instanceof JSONObject) {
-				value = fromJSON(core, (JSONObject) value);
+			if (value instanceof JSONObject jSONObject) {
+				value = fromJSON(core, jSONObject);
 			} // Handle arrays
-			else if (value instanceof JSONArray) {
-				value = ((JSONArray) value).toList().toArray();
+			else if (value instanceof JSONArray jSONArray) {
+				value = jSONArray.toList().toArray();
 			}
-			
-			if (value instanceof String && ((String)value).isBlank()) {
+
+			if (value instanceof String && ((String) value).isBlank()) {
 				value = null;
 			}
 

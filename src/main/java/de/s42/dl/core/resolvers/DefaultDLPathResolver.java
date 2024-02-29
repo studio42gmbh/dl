@@ -79,7 +79,7 @@ public class DefaultDLPathResolver implements DLPathResolver
 	public boolean addResolveDirectory(Path directory) throws InvalidValue
 	{
 		assert directory != null;
-		
+
 		if (directories.contains(directory)) {
 			return false;
 		}
@@ -87,7 +87,7 @@ public class DefaultDLPathResolver implements DLPathResolver
 		if (!Files.isDirectory(directory)) {
 			throw new InvalidValue("Path '" + directory + "' is not a valid directory");
 		}
-		
+
 		return directories.add(directory);
 	}
 

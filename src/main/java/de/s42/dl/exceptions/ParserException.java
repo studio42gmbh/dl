@@ -96,7 +96,7 @@ public class ParserException extends RuntimeException
 		startPosition = startOffset;
 		this.startOffset = startOffset;
 		endLine = 0;
-		
+
 		// Corrects for end positions as antlr parser might create end position before start position on parsing errors
 		endPosition = Math.max(startOffset, endOffset);
 		this.endOffset = Math.max(startOffset, endOffset);
@@ -104,7 +104,7 @@ public class ParserException extends RuntimeException
 
 	public ParserException(String msg, int startOffset, int endOffset, Exception cause)
 	{
-		super(msg+ " (" + startOffset + ":" + endOffset + ")", cause);
+		super(msg + " (" + startOffset + ":" + endOffset + ")", cause);
 
 		assert startOffset >= 0;
 		assert endOffset >= 0;
@@ -113,12 +113,12 @@ public class ParserException extends RuntimeException
 		startPosition = startOffset;
 		this.startOffset = startOffset;
 		endLine = 0;
-		
+
 		// Corrects for end positions as antlr parser might create end position before start position on parsing errors
 		endPosition = Math.max(startOffset, endOffset);
 		this.endOffset = Math.max(startOffset, endOffset);
 	}
-	
+
 	public ParserException(String msg, int line, int position, int offset)
 	{
 		super(msg);
@@ -165,7 +165,7 @@ public class ParserException extends RuntimeException
 		this.startLine = startLine;
 		this.startPosition = startPosition;
 		this.startOffset = startOffset;
-		
+
 		// Corrects for end positions as antlr parser might create end position before start position on parsing errors
 		this.endLine = Math.max(startLine, endLine);
 		this.endPosition = endPosition;
@@ -186,7 +186,7 @@ public class ParserException extends RuntimeException
 		this.startLine = startLine;
 		this.startPosition = startPosition;
 		this.startOffset = startOffset;
-		
+
 		// Corrects for end positions as antlr parser might create end position before start position on parsing errors
 		this.endLine = Math.max(startLine, endLine);
 		this.endPosition = endPosition;
