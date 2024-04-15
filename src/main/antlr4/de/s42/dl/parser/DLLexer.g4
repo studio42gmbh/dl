@@ -175,7 +175,7 @@ RESERVED_KEYWORD : (
 
 // LITERALS
 
-BOOLEAN_LITERAL :		'true' | 'false' ;
+BOOLEAN_LITERAL :		( T R U E ) | ( F A L S E ) ;
 
 // string literal which strips the leading and trailing quotes 
 // and also removes escaping \ already at lexer level
