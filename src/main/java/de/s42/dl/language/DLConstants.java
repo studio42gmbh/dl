@@ -25,6 +25,8 @@
 //</editor-fold>
 package de.s42.dl.language;
 
+import java.nio.charset.Charset;
+
 /**
  *
  * @author Benjamin Schiller
@@ -37,6 +39,8 @@ public final class DLConstants
 	public final static String LANGUAGE_NAME = "Data Language";
 
 	public final static String LANGUAGE_SHORT_NAME = "DL";
+
+	public final static Charset LANGUAGE_CHARSET = Charset.forName("UTF-8");
 
 	private DLConstants()
 	{

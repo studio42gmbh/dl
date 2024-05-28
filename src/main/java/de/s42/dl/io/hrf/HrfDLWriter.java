@@ -28,9 +28,9 @@ package de.s42.dl.io.hrf;
 import de.s42.dl.*;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.io.DLWriter;
+import static de.s42.dl.language.DLConstants.LANGUAGE_CHARSET;
 import de.s42.dl.util.DLHelper;
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -47,8 +47,6 @@ public class HrfDLWriter implements DLWriter
 	protected final OutputStream out;
 	protected final DLCore core;
 	protected final boolean prettyPrint;
-
-	public final static Charset UTF8 = Charset.forName("UTF-8");
 
 	public HrfDLWriter(Path file, DLCore core) throws IOException
 	{
@@ -84,11 +82,11 @@ public class HrfDLWriter implements DLWriter
 		String instStr = DLHelper.toString(type, prettyPrint);
 
 		if (prettyPrint) {
-			out.write("\n".getBytes(UTF8));
-			out.write(instStr.getBytes(UTF8));
-			out.write("\n".getBytes(UTF8));
+			out.write("\n".getBytes(LANGUAGE_CHARSET));
+			out.write(instStr.getBytes(LANGUAGE_CHARSET));
+			out.write("\n".getBytes(LANGUAGE_CHARSET));
 		} else {
-			out.write(instStr.getBytes(UTF8));
+			out.write(instStr.getBytes(LANGUAGE_CHARSET));
 		}
 
 	}
@@ -113,11 +111,11 @@ public class HrfDLWriter implements DLWriter
 		String instStr = DLHelper.toString(instance, prettyPrint);
 
 		if (prettyPrint) {
-			out.write("\n".getBytes(UTF8));
-			out.write(instStr.getBytes(UTF8));
-			out.write("\n".getBytes(UTF8));
+			out.write("\n".getBytes(LANGUAGE_CHARSET));
+			out.write(instStr.getBytes(LANGUAGE_CHARSET));
+			out.write("\n".getBytes(LANGUAGE_CHARSET));
 		} else {
-			out.write(instStr.getBytes(UTF8));
+			out.write(instStr.getBytes(LANGUAGE_CHARSET));
 		}
 	}
 

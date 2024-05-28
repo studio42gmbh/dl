@@ -75,6 +75,9 @@ public class ArrayDLType extends SimpleDLType
 
 	private void init(String genericTypeName, DLCore core) throws DLException
 	{
+		assert genericTypeName != null : "genericTypeName != null";
+		assert core != null : "core != null";
+
 		setAllowGenericTypes(true);
 		addGenericType(core.getType(genericTypeName).orElseThrow());
 	}
@@ -121,9 +124,8 @@ public class ArrayDLType extends SimpleDLType
 
 			Object source = sources[i];
 
-			if (source instanceof DLInstance) {
+			if (source instanceof DLInstance instance) {
 
-				DLInstance instance = (DLInstance) source;
 				boolean foundType = false;
 
 				//check all generic types
@@ -165,20 +167,22 @@ public class ArrayDLType extends SimpleDLType
 
 	public boolean isComponenTypeAssignableOf(DLType other)
 	{
+		assert other != null : "other != null";
+
 		// A non generic array can take any type of component
 		if (!isGenericType()) {
 			return true;
 		}
-		
-		return getComponentType().orElseThrow().isAssignableFrom(other);		
+
+		return getComponentType().orElseThrow().isAssignableFrom(other);
 	}
-	
-	public Optional<DLType> getComponentType() 
+
+	public Optional<DLType> getComponentType()
 	{
-		if (!isGenericType())  {
+		if (!isGenericType()) {
 			return Optional.empty();
 		}
-		
+
 		return Optional.of(getGenericTypes().get(0));
 	}
 
@@ -199,7 +203,7 @@ public class ArrayDLType extends SimpleDLType
 	@Override
 	public void addGenericType(DLType genericType) throws InvalidType
 	{
-		assert genericType != null;
+		assert genericType != null : "genericType != null";
 
 		if (getGenericTypes().size() >= 1) {
 			throw new InvalidType("may only contain 1 generic types");
@@ -211,6 +215,8 @@ public class ArrayDLType extends SimpleDLType
 	@Override
 	public boolean validate(ValidationResult result)
 	{
+		assert result != null : "result != null";
+
 		super.validate(result);
 
 		int count = getGenericTypes().size();

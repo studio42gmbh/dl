@@ -35,6 +35,7 @@ import de.s42.dl.exceptions.InvalidInstance;
 import de.s42.dl.types.DLContainer;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
+import java.util.List;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
@@ -55,6 +56,12 @@ public class ContainDLAnnotationTest
 		public void addChild(String name, Object child)
 		{
 			// do nothing
+		}
+
+		@Override
+		public List getChildren()
+		{
+			return List.of();
 		}
 	}
 
@@ -163,7 +170,7 @@ public class ContainDLAnnotationTest
 		DLCore core = new DefaultCore();
 		core.parse("invalidEmptyContain", "type T @contain;");
 	}
-	
+
 	@Test(expectedExceptions = InvalidAnnotation.class)
 	public void invalidContainedTypeAttribute() throws DLException
 	{

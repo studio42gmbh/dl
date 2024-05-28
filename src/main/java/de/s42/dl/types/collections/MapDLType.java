@@ -120,7 +120,7 @@ public class MapDLType extends DefaultDLType
 	@Override
 	public DLInstance fromJavaObject(Object object) throws DLException
 	{
-		assert object != null;
+		assert object != null : "object != null";
 		
 		if (!(object instanceof Map)) {
 			throw new InvalidInstance("object is required to be of class Map");

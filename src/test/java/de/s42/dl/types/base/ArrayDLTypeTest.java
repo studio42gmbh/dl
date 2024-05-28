@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.base;
 
 import de.s42.dl.DLInstance;
 import de.s42.dl.core.DefaultCore;
@@ -40,10 +40,10 @@ import org.testng.annotations.Test;
  *
  * @author Benjamin Schiller
  */
-public class ArrayDLTypeNGTest
+public class ArrayDLTypeTest
 {
 
-	private final static Logger log = LogManager.getLogger(ArrayDLTypeNGTest.class.getName());
+	private final static Logger log = LogManager.getLogger(ArrayDLTypeTest.class.getName());
 
 	public static enum State
 	{

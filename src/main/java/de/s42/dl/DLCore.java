@@ -41,153 +41,162 @@ public interface DLCore extends DLEntity
 {
 
 	// CLASLOADING
-	public ClassLoader getClassLoader();
+	ClassLoader getClassLoader();
 
-	public void setClassLoader(ClassLoader classLoader);
+	void setClassLoader(ClassLoader classLoader);
 
 	//PATHS
-	public DLPathResolver getPathResolver();
+	DLPathResolver getPathResolver();
 
-	public void setPathResolver(DLPathResolver resolver);
+	void setPathResolver(DLPathResolver resolver);
 
 	//REFERENCES
-	public DLReferenceResolver getReferenceResolver();
+	DLReferenceResolver getReferenceResolver();
 
-	public void setReferenceResolver(DLReferenceResolver resolver);
+	void setReferenceResolver(DLReferenceResolver resolver);
 
 	// MODULES
-	public DLModule parse(String moduleId) throws DLException;
+	DLModule parse(String moduleId) throws DLException;
 
-	public DLModule parse(String moduleId, String data) throws DLException;
+	DLModule parse(String moduleId, String data) throws DLException;
 
-	public DLModule createModule() throws DLException;
+	DLModule createModule() throws DLException;
 
-	public DLModule createModule(String name) throws DLException;
+	DLModule createModule(String name) throws DLException;
 
 	// INSTANCES
-	public DLInstance createInstance(DLType type);
+	DLInstance createInstance(DLType type);
 
-	public DLInstance createInstance(DLType type, String name);
+	DLInstance createInstance(DLType type, String name);
 
-	public DLInstance convertFromJavaObject(Object object) throws DLException;
+	DLInstance convertFromJavaObject(Object object) throws DLException;
 
-	public Object convertFromInstance(DLInstance instance) throws InvalidInstance;
+	Object convertFromInstance(DLInstance instance) throws InvalidInstance;
 
 	// TYPES
-	public DLType createType();
+	DLType createType();
 
-	public DLType createType(String typeName);
+	DLType createType(String typeName);
 
-	public DLType createType(Class<?> typeClass) throws DLException;
+	DLType createType(Class<?> typeClass) throws DLException;
 
-	public DLType defineAliasForType(String alias, DLType type) throws DLException;
+	DLType defineAliasForType(String alias, DLType type) throws DLException;
 
-	public DLType declareType(String typeName) throws DLException;
+	DLType declareType(String typeName) throws DLException;
 
-	public DLType defineType(DLType type, String... aliases) throws DLException;
+	DLType defineType(DLType type, String... aliases) throws DLException;
 
-	public boolean hasType(String name);
+	boolean hasType(String name);
 
-	public boolean hasType(Class javaType);
+	boolean hasType(Class javaType);
 
-	public Optional<DLType> getType(Class javaType);
+	Optional<DLType> getType(Class javaType);
 
-	public Optional<DLType> getType(String name);
+	Optional<DLType> getType(String name);
 
-	public Optional<DLType> getType(String name, List<DLType> genericTypes);
+	Optional<DLType> getType(String name, List<DLType> genericTypes);
 
-	public List<DLType> getTypes();
+	List<DLType> getTypes();
 
-	public <AnnotationType extends DLAnnotation> List<DLType> getTypes(Class<AnnotationType> annotationType);
+	<AnnotationType extends DLAnnotation> List<DLType> getTypes(Class<AnnotationType> annotationType);
 
-	public boolean isAllowDefineTypes();
+	boolean isAllowDefineTypes();
 
-	public void setAllowDefineTypes(boolean allowDefineTypes);
+	void setAllowDefineTypes(boolean allowDefineTypes);
+
+	/**
+	 * Returns the shortest mapped alias or its own name
+	 *
+	 * @param type
+	 *
+	 * @return
+	 */
+	String getShortestName(DLType type);
 
 	// ENUMS
-	public DLEnum createEnum();
+	DLEnum createEnum();
 
-	public DLEnum createEnum(String name);
+	DLEnum createEnum(String name);
 
-	public DLEnum createEnum(String name, Class<? extends Enum> enumImpl);
+	DLEnum createEnum(String name, Class<? extends Enum> enumImpl);
 
-	public DLEnum createEnum(Class<? extends Enum> enumImpl);
+	DLEnum createEnum(Class<? extends Enum> enumImpl);
 
-	public List<DLEnum> getEnums();
+	List<DLEnum> getEnums();
 
-	public boolean hasEnum(String name);
+	boolean hasEnum(String name);
 
 	// ATTRIBUTES
-	public DLAttribute createAttribute(String attributeName, String typeName, DLType container) throws DLException;
+	DLAttribute createAttribute(String attributeName, String typeName, DLType container) throws DLException;
 
-	public DLAttribute createAttribute(String attributeName, DLType type, DLType container) throws DLException;
+	DLAttribute createAttribute(String attributeName, DLType type, DLType container) throws DLException;
 
 	// ANNOTATIONS
-	public DLAnnotation createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException;
+	DLAnnotation createAnnotation(String name, DLAnnotated container, Object[] flatParameters) throws DLException;
 
-	public DLAnnotationFactory defineAnnotationFactory(DLAnnotationFactory factory, String name, String... aliases) throws DLException;
+	DLAnnotationFactory defineAnnotationFactory(DLAnnotationFactory factory, String name, String... aliases) throws DLException;
 
-	public DLAnnotationFactory defineAliasForAnnotationFactory(String alias, String name) throws DLException;
+	DLAnnotationFactory defineAliasForAnnotationFactory(String alias, String name) throws DLException;
 
-	public boolean hasAnnotationFactory(String name);
+	boolean hasAnnotationFactory(String name);
 
-	public Optional<DLAnnotationFactory> getAnnotationFactory(String name);
+	Optional<DLAnnotationFactory> getAnnotationFactory(String name);
 
-	public List<DLAnnotationFactory> getAnnotationFactories();
+	List<DLAnnotationFactory> getAnnotationFactories();
 
-	public boolean isAllowDefineAnnotationFactories();
+	boolean isAllowDefineAnnotationFactories();
 
-	public void setAllowDefineAnnotationsFactories(boolean allowDefineAnnotationFactories);
+	void setAllowDefineAnnotationsFactories(boolean allowDefineAnnotationFactories);
 
 	// EXPORTS
-	public void addExported(DLInstance instance) throws InvalidInstance;
+	void addExported(DLInstance instance) throws InvalidInstance;
 
-	public void addExported(Collection<DLInstance> instances) throws InvalidInstance;
+	void addExported(Collection<DLInstance> instances) throws InvalidInstance;
 
-	public boolean hasExported(String name);
+	boolean hasExported(String name);
 
-	public List<DLInstance> getExported();
+	List<DLInstance> getExported();
 
-	public Optional<DLInstance> getExported(String name);
+	Optional<DLInstance> getExported(String name);
 
-	public Optional<Object> getExportedAsJavaObject(String name);
+	Optional<Object> getExportedAsJavaObject(String name);
 
-	public <JavaType> Optional<JavaType> getExportedAsJavaObject(String name, Class<JavaType> javaType) throws InvalidType;
+	<JavaType> Optional<JavaType> getExportedAsJavaObject(String name, Class<JavaType> javaType) throws InvalidType;
 
-	public <JavaType> Optional<JavaType> getExportedAsJavaObject(Class<JavaType> javaType) throws InvalidType;
+	<JavaType> Optional<JavaType> getExportedAsJavaObject(Class<JavaType> javaType) throws InvalidType;
 
-	public <JavaType> List<DLInstance> getExportedByJavaType(Class<JavaType> javaType) throws InvalidType;
+	<JavaType> List<DLInstance> getExportedByJavaType(Class<JavaType> javaType) throws InvalidType;
 
-	public <AnnotationType extends DLAnnotation> List<DLInstance> getExported(Class<AnnotationType> annotationType);
+	<AnnotationType extends DLAnnotation> List<DLInstance> getExported(Class<AnnotationType> annotationType);
 
 	// PRAGMAS
-	public DLPragma definePragma(DLPragma pragma, String... aliases) throws DLException;
+	DLPragma definePragma(DLPragma pragma, String... aliases) throws DLException;
 
-	public DLPragma defineAliasForPragma(String alias, DLPragma pragma) throws DLException;
+	DLPragma defineAliasForPragma(String alias, DLPragma pragma) throws DLException;
 
-	public boolean hasPragma(String name);
+	boolean hasPragma(String name);
 
-	public Optional<DLPragma> getPragma(String name);
+	Optional<DLPragma> getPragma(String name);
 
-	public List<DLPragma> getPragmas();
+	List<DLPragma> getPragmas();
 
-	public void doPragma(String pragmaName, Object... parameters) throws InvalidPragma;
+	void doPragma(String pragmaName, Object... parameters) throws InvalidPragma;
 
-	public boolean isAllowDefinePragmas();
+	boolean isAllowDefinePragmas();
 
-	public void setAllowDefinePragmas(boolean allowDefinePragmas);
+	void setAllowDefinePragmas(boolean allowDefinePragmas);
 
-	public boolean isAllowUsePragmas();
+	boolean isAllowUsePragmas();
 
-	public void setAllowUsePragmas(boolean allowUsePragmas);
+	void setAllowUsePragmas(boolean allowUsePragmas);
 
 	// ASSERTS
-	public boolean isAllowUseAsserts();
+	boolean isAllowUseAsserts();
 
-	public void setAllowUseAsserts(boolean allowUseAsserts);
+	void setAllowUseAsserts(boolean allowUseAsserts);
 
 	// REQUIRE
-	public boolean isAllowRequire();
+	boolean isAllowRequire();
 
-	public void setAllowRequire(boolean allowRequire);
+	void setAllowRequire(boolean allowRequire);
 }

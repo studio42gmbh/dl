@@ -23,55 +23,28 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.primitive;
 
-import de.s42.base.testing.AssertHelper;
 import de.s42.dl.DLCore;
 import de.s42.dl.DLModule;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class DoubleDLNGTest
+public class ShortDLTypeTest
 {
 
-	public static class TestType
-	{
-
-		protected double doubleValue;
-
-		public double getDoubleValue()
-		{
-			return doubleValue;
-		}
-
-		public void setDoubleValue(double doubleValue)
-		{
-			this.doubleValue = doubleValue;
-		}
-	}
-
 	@Test
-	public void validDoubleNormalNotation() throws DLException
+	public void validShort() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.defineType(core.createType(TestType.class), "TestType");
-		DLModule module = core.parse("Anonymous", "TestType { doubleValue : 103455.2346634; }");
-		TestType instance = (TestType)module.getChild(0).toJavaObject();
-		AssertHelper.assertEpsilonEquals(instance.getDoubleValue(), 103455.2346634, "Double is not matching");
-	}
-
-	@Test
-	public void validDoubleScientificNotation() throws DLException
-	{
-		DLCore core = new DefaultCore();
-		core.defineType(core.createType(TestType.class), "TestType");
-		DLModule module = core.parse("Anonymous", "TestType { doubleValue : 1.43E-4; }");
-		TestType instance = (TestType)module.getChild(0).toJavaObject();
-		AssertHelper.assertEpsilonEquals(instance.getDoubleValue(), 1.43E-4, "Double is not matching");
+		DLModule module = core.parse("Test", "short s : 1234;");
+		short s = module.getShort("s");
+		Assert.assertEquals(s, 1234);
 	}
 }

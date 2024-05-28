@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.primitive;
 
 import de.s42.dl.DLCore;
 import de.s42.dl.DLModule;
@@ -36,15 +36,33 @@ import org.testng.annotations.Test;
  *
  * @author Benjamin Schiller
  */
-public class ShortDLTypeTest
+public class StringDLTypeTest
 {
 
+	//private final static Logger log = LogManager.getLogger(StringDLTypeTest.class.getName());
 	@Test
-	public void validShort() throws DLException
+	public void readStringFromModule() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Test", "short s : 1234;");
-		short s = module.getShort("s");
-		Assert.assertEquals(s, 1234);
+
+		DLModule module = core.parse("readStringFromModule",
+			"String s : \"Test 42\";");
+
+		Assert.assertEquals(module.getString("s"), "Test 42");
 	}
+
+	// @todo might want to allow single instance simple types
+	@Test(enabled = false)
+	public void readStringInstance() throws DLException
+	{
+		DLCore core = new DefaultCore();
+
+		core.parse("readStringInstance",
+			"String s @export { value : \"Test 42\"; }");
+
+		//DLInstance val = core.convertFromJavaObject("Test 42");
+		//log.info(DLHelper.describe(core.getType(String.class).orElseThrow()));
+		Assert.assertEquals(core.getExported("s").orElseThrow().getString("value"), "Test 42");
+	}
+
 }

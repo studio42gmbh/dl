@@ -62,8 +62,8 @@ public class JsonWriter implements DLWriter
 
 	public JsonWriter(Path file, DLCore core)
 	{
-		assert file != null;
-		assert core != null;
+		assert file != null : "file != null";
+		assert core != null : "core != null";
 
 		this.file = file;
 		this.core = core;
@@ -72,7 +72,7 @@ public class JsonWriter implements DLWriter
 	@Override
 	public void write(DLPragma pragma) throws IOException
 	{
-		assert pragma != null;
+		assert pragma != null : "pragma != null";
 
 		//@todo
 		throw new UnsupportedOperationException("Not supported yet.");
@@ -81,7 +81,7 @@ public class JsonWriter implements DLWriter
 	@Override
 	public void write(DLType type) throws IOException
 	{
-		assert type != null;
+		assert type != null : "type != null";
 
 		//@todo
 		throw new UnsupportedOperationException("Not supported yet.");
@@ -90,7 +90,7 @@ public class JsonWriter implements DLWriter
 	@Override
 	public void write(DLInstance instance) throws IOException
 	{
-		assert instance != null;
+		assert instance != null : "instance != null";
 
 		try {
 			json.add(toJSON(core, instance));
@@ -102,7 +102,7 @@ public class JsonWriter implements DLWriter
 	@Override
 	public void write(Object instance) throws IOException
 	{
-		assert instance != null;
+		assert instance != null : "instance != null";
 
 		try {
 			write(core.convertFromJavaObject(instance));
@@ -113,7 +113,7 @@ public class JsonWriter implements DLWriter
 
 	protected static Object convert(DLCore core, Object value) throws DLException
 	{
-		assert core != null;
+		assert core != null : "core != null";
 
 		if (value == null) {
 			return null;
@@ -160,16 +160,32 @@ public class JsonWriter implements DLWriter
 
 	public static JSONObject toJSON(DLCore core, Object object) throws DLException
 	{
-		assert core != null;
-		assert object != null;
+		assert core != null : "core != null";
+		assert object != null : "object != null";
 
-		return toJSON(core, core.convertFromJavaObject(object));
+		return toJSON(core, object, true);
+	}
+
+	public static JSONObject toJSON(DLCore core, Object object, boolean useCanonicalNames) throws DLException
+	{
+		assert core != null : "core != null";
+		assert object != null : "object != null";
+
+		return toJSON(core, core.convertFromJavaObject(object), useCanonicalNames);
 	}
 
 	public static JSONObject toJSON(DLCore core, DLInstance instance) throws DLException
 	{
-		assert core != null;
-		assert instance != null;
+		assert core != null : "core != null";
+		assert instance != null : "instance != null";
+
+		return toJSON(core, instance, true);
+	}
+
+	public static JSONObject toJSON(DLCore core, DLInstance instance, boolean useCanonicalNames) throws DLException
+	{
+		assert core != null : "core != null";
+		assert instance != null : "instance != null";
 
 		JSONObject result = new JSONObject();
 
@@ -177,7 +193,11 @@ public class JsonWriter implements DLWriter
 			result.put("name", instance.getName());
 		}
 
-		result.put("type", instance.getType().getCanonicalName());
+		if (useCanonicalNames) {
+			result.put("type", instance.getType().getCanonicalName());
+		} else {
+			result.put("type", instance.getType().getShortestName());
+		}
 
 		// Write attributes
 		// HINT: if the object contains an attribute "type" it can overwrite the internal type doing that (with its pros and cons)
@@ -234,7 +254,7 @@ public class JsonWriter implements DLWriter
 			result.put("children", children);
 
 			for (DLInstance child : instance.getChildren()) {
-				children.put(toJSON(core, child));
+				children.put(toJSON(core, child, useCanonicalNames));
 			}
 		}
 

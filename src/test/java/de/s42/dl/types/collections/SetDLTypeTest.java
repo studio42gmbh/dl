@@ -2,7 +2,7 @@
 /*
  * The MIT License
  * 
- * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
+ * Copyright 2024 Studio 42 GmbH ( https://www.s42m.de ).
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,77 +23,122 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.collections;
 
 import de.s42.dl.DLCore;
 import de.s42.dl.DLInstance;
+import de.s42.dl.DLModule;
 import de.s42.dl.core.DefaultCore;
 import de.s42.dl.exceptions.DLException;
 import de.s42.dl.exceptions.InvalidType;
 import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.exceptions.UndefinedType;
-import de.s42.dl.instances.ComplexTypeDLInstance;
+import de.s42.dl.util.DLHelper;
 import java.util.HashSet;
 import java.util.Set;
-import org.testng.Assert;
 import org.testng.annotations.Test;
+import static org.testng.Assert.*;
 
 /**
  *
- * @author Benjamin Schiller
+ * @author Benjamin.Schiller
  */
-public class SetDLTypeNGTest
+public class SetDLTypeTest
 {
 
 	@Test
-	public void validSetInDL() throws DLException
+	public void setInDL() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { Set data; } T t @export { data : 1, a, true; }");
+
+		core.parse("setInDL",
+			"type T { Set data; } T t @export { data : 1, a, true; }");
+
 		DLInstance instance = core.getExported("t").orElseThrow();
-		Set data = (Set)instance.get("data");
-		Assert.assertEquals(data, Set.of(1L, "a", true));
+		Set data = (Set) instance.get("data");
+		assertEquals(data, Set.of(1L, "a", true));
 	}
 
 	@Test
-	public void validSetGenericsInDL() throws DLException
+	public void setGenericsInDL() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { Set<Integer> data; } T t @export { data : 1, 2, 3; }");
+
+		core.parse("setGenericsInDL",
+			"type T { Set<Integer> data; } T t @export { data : 1, 2, 3; }");
+
 		DLInstance instance = core.getExported("t").orElseThrow();
-		Set<Integer> data = (Set<Integer>)instance.get("data");
-		Assert.assertEquals(data, Set.of(1, 2, 3));
+		Set<Integer> data = (Set<Integer>) instance.get("data");
+		assertEquals(data, Set.of(1, 2, 3));
 	}
 
 	@Test
-	public void validSetGenericsInJava() throws DLException
+	public void setGenericsInJava() throws DLException
 	{
 		DefaultCore core = new DefaultCore();
 		core.addExported("setData", new HashSet<>(Set.of(1, 2, 3)));
-		core.parse("validSetGenericsInJava", "type T { Set data; } T t @export { data : $setData; }");
+
+		core.parse("setGenericsInJava",
+			"type T { Set data; } T t @export { data : $setData; }");
+
 		DLInstance instance = core.getExported("t").orElseThrow();
-		Set<Integer> data = (Set)instance.get("data");
-		Assert.assertEquals(data, Set.of(1, 2, 3));
+		Set<Integer> data = (Set) instance.get("data");
+		assertEquals(data, Set.of(1, 2, 3));
 	}
 
 	@Test(expectedExceptions = InvalidValue.class)
 	public void invalidSetWrongData() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { Set<Integer> data; } T t @export { data : a, b, c; }");
+
+		core.parse("invalidSetWrongData",
+			"type T { Set<Integer> data; } T t @export { data : a, b, c; }");
 	}
 
 	@Test(expectedExceptions = UndefinedType.class)
 	public void invalidListUndefinedGenericType() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { Set<NotDefined> data; }");
+
+		core.parse("invalidListUndefinedGenericType",
+			"type T { Set<NotDefined> data; }");
 	}
 
 	@Test(expectedExceptions = InvalidType.class)
 	public void invalidListWrongNumberOfGenericTypes() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		core.parse("Anonymous", "type T { Set<Integer, Integer> data; }");
+
+		core.parse("invalidListWrongNumberOfGenericTypes",
+			"type T { Set<Integer, Integer> data; }");
+	}
+
+	public static class Data
+	{
+
+		public Set<String> data;
+	}
+
+	@Test
+	public void persistSetFromObject() throws DLException
+	{
+		DLCore core = new DefaultCore();
+		core.defineType(core.createType(Data.class), "Data");
+
+		Data data = new Data();
+		Set<String> set = new HashSet<>();
+		set.add("T1");
+		set.add("T2");
+		set.add("T3");
+		data.data = set;
+
+		String persistedData = DLHelper.toString(core.convertFromJavaObject(data), true, 1, false);
+
+		DLModule module = core.parse("persistSetFromObject", persistedData);
+
+		Data restoredData = module.getChildAsJavaObject(Data.class)
+			.orElseThrow(() -> new DLException("Invalid test data"));
+
+		assertEquals(data.data, restoredData.data);
 	}
 }

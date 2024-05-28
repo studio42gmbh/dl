@@ -25,6 +25,8 @@
 //</editor-fold>
 package de.s42.dl.types;
 
+import java.util.List;
+
 /**
  *
  * @author Benjamin Schiller
@@ -34,4 +36,9 @@ public interface DLContainer<ChildType extends Object>
 {
 
 	public void addChild(String name, ChildType child);
+
+	/**
+	 * If you want to support serialization of containers children simply add the method getChildren
+	 */
+	public List<ChildType> getChildren();
 }

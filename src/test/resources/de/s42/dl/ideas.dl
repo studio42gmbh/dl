@@ -1,4 +1,36 @@
 
+// https://github.com/studio42gmbh/dl/issues/33
+// Transform types
+
+type A {
+	String name;
+	long coins;
+}
+
+type B {
+	String description;
+	int amount;
+}
+
+type C {
+	String log;
+}
+
+transform A to B {
+	assert $A.name != null;
+	assert $A.coins >= 0;	
+	description : $A.name + " " + $A.coins;
+	amount : $A.coins * 1000;
+}
+
+transform B to C {
+	log : "description: " + $B.description + ", amount: " + $A.amount;
+}
+
+// can this be infered automatically?
+transform A -> C : A->B, B->C;
+
+
 // TRANSFORM DATA
 // see also https://github.com/antlr/antlr4/blob/master/doc/tree-matching.md
 // and https://github.com/antlr/antlr4/blob/master/tool-testsuite/test/org/antlr/v4/test/tool/TestXPath.java

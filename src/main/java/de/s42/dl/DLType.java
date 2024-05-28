@@ -44,103 +44,105 @@ import java.util.Set;
 public interface DLType extends DLEntity, DLAnnotated, DLValidatable
 {
 
-	public DLCore getCore();
+	DLCore getCore();
 
-	public String getCanonicalName();
+	String getCanonicalName();
 
-	public Class getJavaDataType();
+	String getShortestName();
+	
+	Class getJavaDataType();
 
 	// VALIDATION
-	public boolean validateInstance(DLInstance instance, ValidationResult result);
+	boolean validateInstance(DLInstance instance, ValidationResult result);
 
-	public boolean addValidator(DLTypeValidator validator);
+	boolean addValidator(DLTypeValidator validator);
 
-	public boolean addInstanceValidator(DLInstanceValidator validator);
+	boolean addInstanceValidator(DLInstanceValidator validator);
 
-	public List<DLTypeValidator> getValidators();
+	List<DLTypeValidator> getValidators();
 
-	public List<DLInstanceValidator> getInstanceValidators();
+	List<DLInstanceValidator> getInstanceValidators();
 
 	// DATA ACCESS
-	public Object read(Object... sources) throws DLException;
+	Object read(Object... sources) throws DLException;
 
-	public Object write(Object data) throws DLException;
+	Object write(Object data) throws DLException;
 
-	public void setAttributeFromValue(DLInstance instance, String name, Object value) throws DLException;
+	void setAttributeFromValue(DLInstance instance, String name, Object value) throws DLException;
 
-	public boolean canRead();
+	boolean canRead();
 
 	// CONVERSION
-	public DLInstance fromJavaObject(Object object) throws DLException;
+	DLInstance fromJavaObject(Object object) throws DLException;
 
-	public Object createJavaInstance() throws DLException;
+	Object createJavaInstance() throws DLException;
 
 	// IDENTITY
-	public boolean isDerivedTypeOf(DLType other);
+	boolean isDerivedTypeOf(DLType other);
 
-	public boolean isAssignableFrom(DLType other);
+	boolean isAssignableFrom(DLType other);
 
 	// PARENTS
-	public List<DLType> getOwnParents();
+	List<DLType> getOwnParents();
 
 	/**
 	 * Shall return all distinct parents (deep)
 	 *
 	 * @return
 	 */
-	public List<DLType> getParents();
+	List<DLType> getParents();
 
-	public boolean hasParents();
+	boolean hasParents();
 
-	public boolean hasParent(DLType parent);
+	boolean hasParent(DLType parent);
 
-	public boolean hasOwnParent(DLType parent);
+	boolean hasOwnParent(DLType parent);
 
 	// CONTAINED
-	public List<DLType> getOwnContainedTypes();
+	List<DLType> getOwnContainedTypes();
 
-	public List<DLType> getContainedTypes();
+	List<DLType> getContainedTypes();
 
-	public boolean hasOwnContainedTypes();
+	boolean hasOwnContainedTypes();
 
-	public boolean hasContainedTypes();
+	boolean hasContainedTypes();
 
-	public boolean mayContainType(DLType type);
+	boolean mayContainType(DLType type);
 
 	// ATTRIBUTES
-	public void addAttribute(DLAttribute attribute) throws InvalidType;
+	void addAttribute(DLAttribute attribute) throws InvalidType;
 
-	public Set<DLAttribute> getOwnAttributes();
+	Set<DLAttribute> getOwnAttributes();
 
-	public Set<DLAttribute> getAttributes();
+	Set<DLAttribute> getAttributes();
 
-	public Set<String> getAttributeNames();
+	Set<String> getAttributeNames();
 
-	public boolean hasAttribute(String name);
+	boolean hasAttribute(String name);
 
-	public Optional<DLAttribute> getAttribute(String name);
+	Optional<DLAttribute> getAttribute(String name);
 
-	public boolean hasOwnAttributes();
+	boolean hasOwnAttributes();
 
-	public boolean hasAttributes();
+	boolean hasAttributes();
 
-	public boolean isDynamic();
+	boolean isDynamic();
 
 	// GENERIC
-	public List<DLType> getGenericTypes();
+	List<DLType> getGenericTypes();
 
-	public boolean isGenericType();
+	boolean isGenericType();
 
-	public boolean isAllowGenericTypes();
+	boolean isAllowGenericTypes();
 
 	// FLAGS
-	public boolean isComplexType();
+	boolean isComplexType();
 
-	public boolean isSimpleType();
+	boolean isSimpleType();
 
-	public boolean isAbstract();
+	boolean isAbstract();
 
-	public boolean isFinal();
+	boolean isFinal();
 
-	public boolean isDeclaration();
+	boolean isDeclaration();
 }

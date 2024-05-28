@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package de.s42.dl.types;
+package de.s42.dl.types.primitive;
 
 import de.s42.dl.DLCore;
 import de.s42.dl.DLModule;
@@ -36,15 +36,14 @@ import org.testng.annotations.Test;
  *
  * @author Benjamin Schiller
  */
-public class CharDLTypeTest
+public class ByteDLTypeTest
 {
-
 	@Test
-	public void validCharacter() throws DLException
+	public void validByte() throws DLException
 	{
 		DLCore core = new DefaultCore();
-		DLModule module = core.parse("Test", "char c : X;");
-		char c = module.getChar("c");
-		Assert.assertEquals(c, 'X');
+		DLModule module = core.parse("Test", "byte b : 12;");
+		byte b = module.getByte("b");
+		Assert.assertEquals(b, 12);		
 	}
 }

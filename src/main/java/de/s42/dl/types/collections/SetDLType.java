@@ -34,6 +34,8 @@ import de.s42.dl.exceptions.InvalidValue;
 import de.s42.dl.types.SimpleDLType;
 import static de.s42.dl.validation.DefaultValidationCode.InvalidGenericParameters;
 import de.s42.dl.validation.ValidationResult;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -49,6 +51,8 @@ import java.util.Set;
 public class SetDLType extends SimpleDLType
 {
 
+	private final static Logger log = LogManager.getLogger(SetDLType.class.getName());
+
 	public final static String DEFAULT_SYMBOL = "Set";
 
 	public SetDLType()
@@ -60,12 +64,16 @@ public class SetDLType extends SimpleDLType
 	{
 		this(DEFAULT_SYMBOL, null);
 
+		assert parent != null : "parent != null";
+
 		addParent(parent);
 	}
 
 	public SetDLType(DLType parent, DLType genericType)
 	{
 		this(DEFAULT_SYMBOL, genericType);
+
+		assert parent != null : "parent != null";
 
 		addParent(parent);
 	}
@@ -80,7 +88,6 @@ public class SetDLType extends SimpleDLType
 	private void init(DLType genericType)
 	{
 		setAllowGenericTypes(true);
-		//setComplexType(true);
 
 		if (genericType != null) {
 			try {
@@ -92,9 +99,19 @@ public class SetDLType extends SimpleDLType
 	}
 
 	@Override
-	public DLInstance fromJavaObject(Object value) throws DLException
+	public boolean canRead()
 	{
-		if (!(value instanceof Set)) {
+		return true;
+	}
+
+	@Override
+	public DLInstance fromJavaObject(Object object) throws DLException
+	{
+		assert object != null : "object != null";
+
+		log.debug("fromJavaObject", object);
+
+		if (!(object instanceof Set)) {
 			throw new InvalidValue("value has to be instanceof Set");
 		}
 
@@ -103,7 +120,7 @@ public class SetDLType extends SimpleDLType
 		// @todo properly handle generic and complex elements
 		Set converted = new HashSet<>();
 
-		for (Object el : (Set) value) {
+		for (Object el : (Set) object) {
 
 			Optional<DLType> optElType = core.getType(el.getClass());
 
@@ -128,8 +145,9 @@ public class SetDLType extends SimpleDLType
 	@Override
 	public Object read(Object... sources) throws InvalidType
 	{
-		assert sources != null;
+		assert sources != null : "sources != null";
 
+		//log.debug("read", sources);
 		// Validate read
 		ValidationResult vResult = new ValidationResult();
 		if (!validateRead(sources, vResult)) {
@@ -148,9 +166,12 @@ public class SetDLType extends SimpleDLType
 			Class type = getSetValueType();
 
 			if (sources.length == 1 && Set.class.isAssignableFrom(sources[0].getClass())) {
+
 				// Ensure the list contains only allowed data
-				Set data = Collections.checkedSet(new HashSet(), type);
+				Set data = Collections.checkedSet(new HashSet<>(), type);
 				data.addAll((Set) sources[0]);
+
+				//log.debug("read:type:sources.length", data);
 				return data;
 			}
 
@@ -168,7 +189,7 @@ public class SetDLType extends SimpleDLType
 	}
 
 	@Override
-	public Object createJavaInstance() throws InvalidType
+	public Set<?> createJavaInstance() throws InvalidType
 	{
 		if (isGenericType()) {
 
@@ -183,6 +204,12 @@ public class SetDLType extends SimpleDLType
 		}
 	}
 
+	@Override
+	public Class getJavaDataType()
+	{
+		return Set.class;
+	}
+
 	public Class getSetValueType() throws InvalidType
 	{
 		if (!isGenericType()) {
@@ -195,7 +222,7 @@ public class SetDLType extends SimpleDLType
 	@Override
 	public void addGenericType(DLType genericType) throws InvalidType
 	{
-		assert genericType != null;
+		assert genericType != null : "genericType != null";
 
 		if (getGenericTypes().size() >= 1) {
 			throw new InvalidType("may only contain 1 generic types");
@@ -207,8 +234,8 @@ public class SetDLType extends SimpleDLType
 	@Override
 	public boolean validate(ValidationResult result)
 	{
-		assert result != null;
-		
+		assert result != null : "result != null";
+
 		super.validate(result);
 
 		int count = getGenericTypes().size();

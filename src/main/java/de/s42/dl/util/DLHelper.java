@@ -465,25 +465,35 @@ public final class DLHelper
 		return result.toString();
 	}
 
-	public static String toString(DLInstance instance)
-	{
-		return toString(instance, false, 1);
-	}
-
-	public static String toString(DLInstance instance, boolean prettyPrint)
-	{
-		return toString(instance, prettyPrint, 1);
-	}
-
-	protected static String singleValueToString(Object value, boolean prettyPrint, int indent)
+	protected static String singleValueToString(Object value, boolean prettyPrint, int indent, boolean useCanonicalTypeNames)
 	{
 		if (value == null) {
 			return "";
 		} else if (value instanceof DLInstance dLInstance) {
-			return toString(dLInstance, prettyPrint, indent + 1);
+			return toString(dLInstance, prettyPrint, indent + 1, useCanonicalTypeNames);
 		} else if (value instanceof Date date) {
-			return "" + date.getTime();
-			//return "\"" + ConversionHelper.DATE_FORMAT.format(value) + "\"";
+			return Long.toString(date.getTime());
+		} else if (value instanceof Set set) {
+
+			StringBuilder builder = new StringBuilder();
+
+			boolean first = true;
+			for (Object val : set) {
+
+				if (!first) {
+					if (prettyPrint) {
+						builder.append(", ");
+					} else {
+						builder.append(",");
+					}
+				}
+
+				builder.append(singleValueToString(val, prettyPrint, indent + 1, useCanonicalTypeNames));
+
+				first = false;
+			}
+
+			return builder.toString();
 		} else if (value.getClass().isArray()) {
 
 			StringBuilder builder = new StringBuilder();
@@ -499,7 +509,7 @@ public final class DLHelper
 					}
 				}
 
-				builder.append(singleValueToString(val, prettyPrint, indent + 1));
+				builder.append(singleValueToString(val, prettyPrint, indent + 1, useCanonicalTypeNames));
 
 				first = false;
 			}
@@ -514,13 +524,40 @@ public final class DLHelper
 		throw new RuntimeException("Unknown single value");
 	}
 
+	public static String toString(DLInstance instance)
+	{
+		assert instance != null : "instance != null";
+
+		return toString(instance, false, 1, true);
+	}
+
+	public static String toString(DLInstance instance, boolean prettyPrint)
+	{
+		assert instance != null : "instance != null";
+
+		return toString(instance, prettyPrint, 1, true);
+	}
+
 	public static String toString(DLInstance instance, boolean prettyPrint, int indent)
 	{
-		assert instance != null;
-		
+		assert indent >= 0 : "indent >= 0";
+		assert instance != null : "instance != null";
+
+		return toString(instance, prettyPrint, indent, true);
+	}
+
+	public static String toString(DLInstance instance, boolean prettyPrint, int indent, boolean useCanonicalTypeNames)
+	{
+		assert indent >= 0 : "indent >= 0";
+		assert instance != null : "instance != null";
+
 		StringBuilder result = new StringBuilder();
 
-		result.append(instance.getType().getCanonicalName());
+		if (useCanonicalTypeNames) {
+			result.append(instance.getType().getCanonicalName());
+		} else {
+			result.append(instance.getType().getShortestName());
+		}
 
 		if (instance.getName() != null) {
 			result.append(" ");
@@ -552,14 +589,12 @@ public final class DLHelper
 
 			// @todo https://github.com/studio42gmbh/dl/issues/19 Deal in a more generic manner with string conversion of values
 			// -> Use DLType.write, Use Stringhelper
-			value = singleValueToString(value, prettyPrint, indent);
+			value = singleValueToString(value, prettyPrint, indent, useCanonicalTypeNames);
 
 			if (value != null && !((String) value).isBlank()) {
 
 				if (prettyPrint) {
-					for (int i = 0; i < indent; ++i) {
-						result.append("\t");
-					}
+					result.append("\t".repeat(indent));
 				}
 
 				result.append(attributeName);
@@ -586,12 +621,10 @@ public final class DLHelper
 			for (DLInstance child : instance.getChildren()) {
 				if (prettyPrint) {
 					result.append("\n");
-					for (int i = 0; i < indent; ++i) {
-						result.append("\t");
-					}
+					result.append("\t".repeat(indent));
 				}
 
-				result.append(toString(child, prettyPrint, indent + 1));
+				result.append(toString(child, prettyPrint, indent + 1, useCanonicalTypeNames));
 
 				if (prettyPrint) {
 					result.append("\n");
@@ -600,9 +633,7 @@ public final class DLHelper
 		}
 
 		if (prettyPrint) {
-			for (int i = 0; i < indent - 1; ++i) {
-				result.append("\t");
-			}
+			result.append("\t".repeat(indent - 1));
 		}
 		result.append("}");
 

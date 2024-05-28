@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.s42</groupId>
 	<artifactId>dl</artifactId>
-	<version>1.0.2</version>
+	<version>1.0.3-DEV</version>
 	<packaging>jar</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -13,29 +13,35 @@
 	</properties>
 	<dependencies>
 		<dependency>
+			<!-- Base helpers and utils -->
 			<!-- https://github.com/studio42gmbh/base42 -->
 			<groupId>de.s42</groupId>
 			<artifactId>base42</artifactId>
-			<version>1.0.5</version>
+			<version>1.0.6-DEV</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<!-- Logging -->
 			<!-- https://github.com/studio42gmbh/log42 -->
 			<groupId>de.s42</groupId>
 			<artifactId>log42</artifactId>
-			<version>1.0.2</version>
+			<version>1.0.3-DEV</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<!-- ANTLR is a powerful parser generator for reading, processing, executing, or translating structured text or binary files. -->
+			<!-- https://github.com/antlr/antlr4/blob/master/doc/index.md -->
 			<groupId>org.antlr</groupId>
 			<artifactId>antlr4-runtime</artifactId>
 			<version>4.13.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<!-- Unit testing -->
+			<!-- https://testng.org/ -->
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-			<version>7.9.0</version>
+			<version>7.10.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -105,7 +111,7 @@
 				<!-- https://maven.apache.org/plugins/maven-compiler-plugin/ -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.12.1</version>
+				<version>3.13.0</version>
 				<configuration>
 					<!--showDeprecation>true</showDeprecation//-->
 					<compilerArgs>
@@ -139,7 +145,7 @@
 				<!-- https://maven.apache.org/plugins/maven-jar-plugin/ -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.3.0</version>
+				<version>3.4.1</version>
 				<configuration>
 					<archive>
 						<manifestEntries>
@@ -164,7 +170,7 @@
 				<!-- https://maven.apache.org/plugins/maven-install-plugin/ -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
-				<version>3.1.1</version>
+				<version>3.1.2</version>
 			</plugin>
 		</plugins>		
 	</build>
