@@ -71,7 +71,7 @@ public class RequiredDLAnnotation extends AbstractValueDLContract<RequiredDLAnno
 		assert source != null;
 
 		if (value == null) {
-			result.addError(RequiredAttribute.toString(), "Attribute value '" + value + "' is required and may not be null", source);
+			result.addError(RequiredAttribute.toString(), "Attribute value '" + source.getName() + "' is required and may not be null", source);
 		}
 
 		return result.isValid();
