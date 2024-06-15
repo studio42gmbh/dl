@@ -33,10 +33,10 @@ import org.testng.annotations.Test;
  *
  * @author Benjamin Schiller
  */
-public class DLNGTest
+public class DLTest
 {
 
-	public DLNGTest()
+	public DLTest()
 	{
 	}
 
