@@ -25,7 +25,6 @@
 //</editor-fold>
 package de.s42.dl.io;
 
-import de.s42.base.strings.StringHelper;
 import de.s42.dl.DLAttribute.AttributeDL;
 import de.s42.dl.DLModule;
 import de.s42.dl.core.DefaultCore;
@@ -306,8 +305,7 @@ public class DLPersistenceTest
 		{
 			assert mapValue != null : "mapValue != null";
 
-			log.warn(mapValue);
-
+			//log.warn(mapValue);
 			this.mapValue.clear();
 			this.mapValue.putAll(mapValue);
 		}
@@ -400,9 +398,8 @@ public class DLPersistenceTest
 		core.defineType(TestData.class);
 
 		// Thats how you can find out about what DL understood of a type mapping
-		log.info("TestData:\n" + DLHelper.describe(core.getType(TestData.class).orElseThrow()));
-		log.info("TestChildData:\n" + DLHelper.describe(core.getType(TestChildData.class).orElseThrow()));
-
+		//log.info("TestData:\n" + DLHelper.describe(core.getType(TestData.class).orElseThrow()));
+		//log.info("TestChildData:\n" + DLHelper.describe(core.getType(TestChildData.class).orElseThrow()));
 		TestData data = new TestData();
 		data.setDateValue(new Date());
 		data.setDoubleValue(1.3567);
@@ -444,17 +441,14 @@ public class DLPersistenceTest
 
 		// Writing the DL to a file now is easy
 		// FilesHelper.writeStringToFile(path, persistedData);
-		log.info("TestData serialized:\n" + persistedData);
-
+		//log.info("TestData serialized:\n" + persistedData);
 		DLModule module = core.parse("serializeObjectWithDL", persistedData);
 
 		// Describes but not too well - will be improved
-		log.info("TestData module deserialized:\n" + DLHelper.describe(module));
-
+		//log.info("TestData module deserialized:\n" + DLHelper.describe(module));
 		TestData dataRestored = module.getChildAsJavaObject(TestData.class).orElseThrow();
 
-		log.info("TestData deserialized:\n" + StringHelper.toString(dataRestored));
-
+		//log.info("TestData deserialized:\n" + StringHelper.toString(dataRestored));
 		assertEquals(data, dataRestored);
 	}
 }
