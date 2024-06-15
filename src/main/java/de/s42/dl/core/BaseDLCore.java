@@ -1,19 +1,19 @@
 // <editor-fold desc="The MIT License" defaultstate="collapsed">
 /*
  * The MIT License
- * 
+ *
  * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,31 +25,31 @@
 //</editor-fold>
 package de.s42.dl.core;
 
-import de.s42.dl.annotations.attributes.WriteOnlyDLAnnotation;
-import de.s42.dl.annotations.attributes.RequiredDLAnnotation;
-import de.s42.dl.annotations.attributes.ReadOnlyDLAnnotation;
-import de.s42.dl.annotations.types.JavaDLAnnotation;
-import de.s42.dl.*;
 import de.s42.base.beans.BeanHelper;
 import de.s42.base.beans.BeanInfo;
 import de.s42.base.beans.BeanProperty;
 import de.s42.base.beans.InvalidBean;
 import de.s42.base.collections.MappedList;
 import de.s42.base.conversion.ConversionHelper;
+import de.s42.dl.*;
 import de.s42.dl.DLAnnotation.AnnotationDL;
 import de.s42.dl.DLAnnotation.AnnotationDLContainer;
 import de.s42.dl.DLAttribute.AttributeDL;
 import de.s42.dl.annotations.*;
+import de.s42.dl.annotations.attributes.ReadOnlyDLAnnotation;
+import de.s42.dl.annotations.attributes.RequiredDLAnnotation;
+import de.s42.dl.annotations.attributes.WriteOnlyDLAnnotation;
+import de.s42.dl.annotations.types.JavaDLAnnotation;
 import de.s42.dl.attributes.DefaultDLAttribute;
 import de.s42.dl.core.resolvers.DefaultDLPathResolver;
 import de.s42.dl.exceptions.DLException;
-import de.s42.dl.exceptions.UndefinedType;
+import de.s42.dl.exceptions.InvalidAnnotation;
+import de.s42.dl.exceptions.InvalidCore;
+import de.s42.dl.exceptions.InvalidInstance;
+import de.s42.dl.exceptions.InvalidModule;
 import de.s42.dl.exceptions.InvalidPragma;
 import de.s42.dl.exceptions.InvalidType;
-import de.s42.dl.exceptions.InvalidModule;
-import de.s42.dl.exceptions.InvalidInstance;
-import de.s42.dl.exceptions.InvalidCore;
-import de.s42.dl.exceptions.InvalidAnnotation;
+import de.s42.dl.exceptions.UndefinedType;
 import de.s42.dl.instances.ComplexTypeDLInstance;
 import de.s42.dl.instances.DefaultDLInstance;
 import de.s42.dl.instances.DefaultDLModule;
@@ -144,13 +144,13 @@ public class BaseDLCore implements DLCore
 
 	public BaseDLCore copy() throws InvalidCore
 	{
-		// @todo ATTENTION: this copy is partially broken - types, resolvers etc might need to be copied as well to be consistent
+		// @todo ATTENTION: this copy might be partially broken
 		try {
 			BaseDLCore copy = getClass().getConstructor().newInstance();
 
 			copy.shortestNames.clear();
 			copy.shortestNames.putAll(shortestNames);
-			
+
 			copy.convertedCache.clear();
 			copy.convertedCache.putAll(convertedCache);
 
@@ -833,7 +833,7 @@ public class BaseDLCore implements DLCore
 			throw new InvalidCore("May not define types");
 		}
 
-		// https://github.com/studio42gmbh/dl/issues/3 special handling implementations of DLType 
+		// https://github.com/studio42gmbh/dl/issues/3 special handling implementations of DLType
 		if (DLType.class.isAssignableFrom(typeClass)) {
 
 			try {
@@ -1292,7 +1292,7 @@ public class BaseDLCore implements DLCore
 		assert name != null;
 		assert genericTypes != null;
 
-		// Try to retrieve the not generic base type -> If this is not mapped or no further specific type given -> nothing to do here 
+		// Try to retrieve the not generic base type -> If this is not mapped or no further specific type given -> nothing to do here
 		Optional<DLType> optBaseType = types.get(name);
 		if (optBaseType.isEmpty() || genericTypes.isEmpty()) {
 			return optBaseType;
@@ -1441,7 +1441,7 @@ public class BaseDLCore implements DLCore
 		DLModule resolvedModule = foundResolver.parse(this, resolvedModuleId, data);
 
 		// Add the resolved module to the cache
-		// USE the resolvedModuleId to make sure different unresolved 
+		// USE the resolvedModuleId to make sure different unresolved
 		// ids which resolve to the same module will not cause multiple loads!
 		requiredModules.put(resolvedModuleId, resolvedModule);
 
