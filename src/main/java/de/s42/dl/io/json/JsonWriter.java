@@ -1,19 +1,19 @@
 // <editor-fold desc="The MIT License" defaultstate="collapsed">
 /*
  * The MIT License
- * 
+ *
  * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -55,7 +55,7 @@ import org.json.JSONObject;
 public class JsonWriter implements DLWriter
 {
 
-	//private final static Logger log = LogManager.getLogger(JsonWriter.class.getName());	
+	//private final static Logger log = LogManager.getLogger(JsonWriter.class.getName());
 	protected final Path file;
 	protected final DLCore core;
 	protected final List<JSONObject> json = new ArrayList<>();
@@ -111,20 +111,20 @@ public class JsonWriter implements DLWriter
 		}
 	}
 
-	protected static Object convert(DLCore core, Object value) throws DLException
+	protected static Object convert(DLCore core, Object value, boolean useCanonicalNames) throws DLException
 	{
 		assert core != null : "core != null";
 
 		if (value == null) {
 			return null;
 		} else if (value instanceof DLInstance dLInstance) {
-			return toJSON(core, dLInstance);
+			return toJSON(core, dLInstance, useCanonicalNames);
 		} else if (value.getClass().isArray()) {
 			List list = new ArrayList();
 
 			for (Object el : (Object[]) value) {
 
-				list.add(convert(core, el));
+				list.add(convert(core, el, useCanonicalNames));
 			}
 
 			return list;
@@ -134,7 +134,7 @@ public class JsonWriter implements DLWriter
 
 			for (Object el : collection) {
 
-				list.add(convert(core, el));
+				list.add(convert(core, el, useCanonicalNames));
 			}
 
 			return list;
@@ -152,7 +152,7 @@ public class JsonWriter implements DLWriter
 		// If the value has a mapped type and the type is complex -> convert it through DL
 		Optional<DLType> optType = core.getType(value.getClass());
 		if (optType.isPresent() && optType.orElseThrow().isComplexType()) {
-			return toJSON(core, core.convertFromJavaObject(value));
+			return toJSON(core, core.convertFromJavaObject(value), useCanonicalNames);
 		}
 
 		return ConversionHelper.convert(value, String.class);
@@ -214,7 +214,7 @@ public class JsonWriter implements DLWriter
 
 			result.put(
 				attributeName,
-				convert(core, val)
+				convert(core, val, useCanonicalNames)
 			);
 		}
 
