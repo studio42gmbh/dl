@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.s42</groupId>
 	<artifactId>dl</artifactId>
-	<version>1.0.3-DEV</version>
+	<version>1.0.3</version>
 	<packaging>jar</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -17,7 +17,7 @@
 			<!-- https://github.com/studio42gmbh/base42 -->
 			<groupId>de.s42</groupId>
 			<artifactId>base42</artifactId>
-			<version>1.0.6-DEV</version>
+			<version>1.0.6</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -25,7 +25,7 @@
 			<!-- https://github.com/studio42gmbh/log42 -->
 			<groupId>de.s42</groupId>
 			<artifactId>log42</artifactId>
-			<version>1.0.3-DEV</version>
+			<version>1.0.3</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -41,7 +41,7 @@
 			<!-- https://testng.org/ -->
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-			<version>7.10.1</version>
+			<version>7.10.2</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -100,7 +100,7 @@
 				<!-- https://maven.apache.org/surefire/maven-surefire-plugin/examples/testng.html -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.2.5</version>
+				<version>3.3.0</version>
 				<configuration>
 					<!-- https://stackoverflow.com/questions/64688896/how-to-make-testng-print-detail-message-about-the-failure -->
 					<trimStackTrace>false</trimStackTrace> 
@@ -125,7 +125,7 @@
 				<!-- https://maven.apache.org/plugins/maven-dependency-plugin/ -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.6.1</version>
+				<version>3.7.0</version>
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
@@ -145,9 +145,13 @@
 				<!-- https://maven.apache.org/plugins/maven-jar-plugin/ -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.4.1</version>
+				<version>3.4.2</version>
 				<configuration>
 					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>libs/</classpathPrefix>						
+						</manifest>
 						<manifestEntries>
 							<Automatic-Module-Name>de.sft.dl</Automatic-Module-Name>
 						</manifestEntries>
@@ -158,7 +162,7 @@
 				<!-- https://maven.apache.org/plugins/maven-javadoc-plugin/aggregate-mojo.html -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.6.3</version>
+				<version>3.7.0</version>
 				<configuration>
 					<outputDirectory>${project.basedir}/docs</outputDirectory>
 					<reportOutputDirectory>${project.basedir}/docs</reportOutputDirectory>
