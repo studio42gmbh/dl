@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.s42</groupId>
 	<artifactId>dl</artifactId>
-	<version>1.0.3</version>
+	<version>1.0.4-DEV</version>
 	<packaging>jar</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -13,19 +13,11 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<!-- Base helpers and utils -->
-			<!-- https://github.com/studio42gmbh/base42 -->
-			<groupId>de.s42</groupId>
-			<artifactId>base42</artifactId>
-			<version>1.0.6</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<!-- Logging -->
 			<!-- https://github.com/studio42gmbh/log42 -->
 			<groupId>de.s42</groupId>
 			<artifactId>log42</artifactId>
-			<version>1.0.3</version>
+			<version>1.0.4-DEV</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
