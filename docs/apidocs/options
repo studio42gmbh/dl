@@ -1,0 +1,29 @@
+--no-fonts
+--class-path
+'C:/Users/Benjamin.Schiller/.m2/repository/com/sun/mail/jakarta.mail/2.0.2/jakarta.mail-2.0.2.jar'
+--module-path
+'C:/Users/Benjamin.Schiller/.m2/repository/org/json/json/20250517/json-20250517.jar;C:/Users/Benjamin.Schiller/.m2/repository/com/sun/activation/jakarta.activation/2.0.1/jakarta.activation-2.0.1.jar;C:/Users/Benjamin.Schiller/.m2/repository/org/antlr/antlr4-runtime/4.13.2/antlr4-runtime-4.13.2.jar;C:/Users/Benjamin.Schiller/.m2/repository/de/s42/log42/1.0.4-DEV/log42-1.0.4-DEV.jar;C:/home/s42/dl/development/dl/target/classes;C:/Users/Benjamin.Schiller/.m2/repository/de/s42/base42/1.0.7-DEV/base42-1.0.7-DEV.jar'
+--patch-module
+de.sft.dl='C:/home/s42/dl/development/dl/src/main/java;C:/home/s42/dl/development/dl/target/generated-sources/antlr4;C:/home/s42/dl/development/dl/target/generated-sources/annotations'
+-encoding
+'UTF-8'
+-private
+--release
+17
+--module-source-path
+'C:/home/s42/dl/development/dl/docs/apidocs/src'
+-author
+-bottom
+'Copyright &#169; 2025. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'C:/home/s42/dl/development/dl/docs/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'Data Language Core 1.0.4-DEV API'
+-use
+-version
+-windowtitle
+'Data Language Core 1.0.4-DEV API'
