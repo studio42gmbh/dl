@@ -25,7 +25,7 @@
 			<!-- https://github.com/antlr/antlr4/blob/master/doc/index.md -->
 			<groupId>org.antlr</groupId>
 			<artifactId>antlr4-runtime</artifactId>
-			<version>4.13.1</version>
+			<version>4.13.2</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -33,7 +33,7 @@
 			<!-- https://testng.org/ -->
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-			<version>7.10.2</version>
+			<version>7.11.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -50,7 +50,7 @@
 				<!-- https://www.antlr.org/api/maven-plugin/latest/index.html -->
 				<groupId>org.antlr</groupId>
 				<artifactId>antlr4-maven-plugin</artifactId>
-				<version>4.13.1</version>
+				<version>4.13.2</version>
 				<executions>
 					<execution>
 						<goals>
@@ -92,7 +92,7 @@
 				<!-- https://maven.apache.org/surefire/maven-surefire-plugin/examples/testng.html -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.3.0</version>
+				<version>3.5.4</version>
 				<configuration>
 					<!-- https://stackoverflow.com/questions/64688896/how-to-make-testng-print-detail-message-about-the-failure -->
 					<trimStackTrace>false</trimStackTrace> 
@@ -103,7 +103,7 @@
 				<!-- https://maven.apache.org/plugins/maven-compiler-plugin/ -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.13.0</version>
+				<version>3.14.0</version>
 				<configuration>
 					<!--showDeprecation>true</showDeprecation//-->
 					<compilerArgs>
@@ -117,7 +117,7 @@
 				<!-- https://maven.apache.org/plugins/maven-dependency-plugin/ -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.7.0</version>
+				<version>3.8.1</version>
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
@@ -154,7 +154,7 @@
 				<!-- https://maven.apache.org/plugins/maven-javadoc-plugin/aggregate-mojo.html -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.7.0</version>
+				<version>3.11.3</version>
 				<configuration>
 					<outputDirectory>${project.basedir}/docs</outputDirectory>
 					<reportOutputDirectory>${project.basedir}/docs</reportOutputDirectory>
@@ -166,7 +166,7 @@
 				<!-- https://maven.apache.org/plugins/maven-install-plugin/ -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
-				<version>3.1.2</version>
+				<version>3.1.4</version>
 			</plugin>
 		</plugins>		
 	</build>
