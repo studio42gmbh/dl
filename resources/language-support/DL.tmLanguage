@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- https://macromates.com/manual/en/language_grammars -->
+<plist version="1.0">
+    <dict>
+        <key>fileTypes</key>
+        <array>
+            <string>dl</string>
+            <string>dlf</string>
+        </array>
+        <key>foldingStartMarker</key>
+        <string>\{\s*$</string>
+        <key>foldingStopMarker</key>
+        <string>^\s*\}</string>
+        <key>name</key>
+        <string>DL</string>
+        <key>patterns</key>
+        <array>
+
+            <dict>
+                <key>include</key>
+                <string>#literal</string>
+            </dict>
+
+            <dict>
+                <key>include</key>
+                <string>#operator</string>
+            </dict>
+
+            <!-- Multi Line Comment -->
+            <dict>
+                <key>begin</key>
+                <string>/\*</string>
+                <key>beginCaptures</key>
+                <dict>
+                    <key>0</key>
+                    <dict>
+                        <key>name</key>
+                        <string>punctuation.definition.comment.block.begin.dl</string>
+                    </dict>
+                </dict>
+                <key>end</key>
+                <string>\*/</string>
+                <key>endCaptures</key>
+                <dict>
+                    <key>0</key>
+                    <dict>
+                        <key>name</key>
+                        <string>punctuation.definition.comment.block.end.dl</string>
+                    </dict>
+                </dict>
+                <key>name</key>
+                <string>comment.block.dl</string>
+            </dict>
+
+            <!-- Single Line Comment -->
+            <dict>
+                <key>begin</key>
+                <string>//</string>
+                <key>beginCaptures</key>
+                <dict>
+                    <key>0</key>
+                    <dict>
+                        <key>name</key>
+                        <string>punctuation.definition.comment.dl</string>
+                    </dict>
+                </dict>
+                <key>end</key>
+                <string>\n</string>
+                <key>name</key>
+                <string>comment.line.double-slash.dl</string>
+            </dict>
+
+            <!-- Single Line Comment -->
+            <dict>
+                <key>begin</key>
+                <string>//</string>
+                <key>beginCaptures</key>
+                <dict>
+                    <key>0</key>
+                    <dict>
+                        <key>name</key>
+                        <string>punctuation.definition.comment.dl</string>
+                    </dict>
+                </dict>
+                <key>end</key>
+                <string>\n</string>
+                <key>name</key>
+                <string>comment.line.double-slash.dl</string>
+            </dict>
+
+            <!-- Keywords -->
+            <dict>
+                <key>match</key>
+                <string>\b(annotation|type|extends|contains|extern|require|enum|abstract|alias|final|pragma|declare|assert|dynamic)\b</string>
+                <key>name</key>
+                <string>keyword.dl</string>
+            </dict>
+
+            <!-- Reserved Keywords -->
+            <dict>
+                <key>match</key>
+                <string>\b(class)\b</string>
+                <key>name</key>
+                <string>error.dl</string>
+            </dict>
+
+            <!-- Reference -->
+            <dict>
+                <key>match</key>
+                <string>\$[a-zA-Z_#][a-zA-Z0-9\-_#$\.]*</string>
+                <key>name</key>
+                <string>field.reference.dl</string>
+            </dict>
+
+            <!-- Annotation -->
+            <dict>
+                <key>match</key>
+                <string>@[a-zA-Z_#][a-zA-Z0-9\-_#$\.]*</string>
+                <key>name</key>
+                <string>field.annotation.dl</string>
+            </dict>
+
+        </array>
+        <key>repository</key>
+        <dict>
+
+            <key>literal</key>
+            <dict>
+                <key>patterns</key>
+                <array>
+                    <dict>
+                        <key>include</key>
+                        <string>#numeric-literal</string>
+                    </dict>
+                    <dict>
+                        <key>include</key>
+                        <string>#boolean-literal</string>
+                    </dict>
+                    <dict>
+                        <key>include</key>
+                        <string>#constant-literal</string>
+                    </dict>
+                    <dict>
+                        <key>include</key>
+                        <string>#string-literal</string>
+                    </dict>
+                </array>
+            </dict>
+
+            <key>operator</key>
+            <dict>
+                <key>patterns</key>
+                <array>
+                    <dict>
+                        <key>include</key>
+                        <string>#arithmetic-operator</string>
+                    </dict>
+                    <dict>
+                        <key>include</key>
+                        <string>#increment-decrement-operator</string>
+                    </dict>
+                    <dict>
+                        <key>include</key>
+                        <string>#bitwise-operator</string>
+                    </dict>
+                    <dict>
+                        <key>include</key>
+                        <string>#comparative-operator</string>
+                    </dict>
+                    <dict>
+                        <key>include</key>
+                        <string>#assignment-operator</string>
+                    </dict>
+                    <dict>
+                        <key>include</key>
+                        <string>#logical-operator</string>
+                    </dict>
+                    <dict>
+                        <key>include</key>
+                        <string>#ternary-operator</string>
+                    </dict>
+                </array>
+            </dict>
+
+            <key>numeric-literal</key>
+            <dict>
+                <key>match</key>
+                <string>\b([0-9][0-9_]*)(\.([0-9][0-9_]*))?([eE][+/-]?([0-9][0-9_]*))?\b</string>
+                <key>name</key>
+                <string>constant.numeric.dl</string>
+            </dict>
+
+            <!-- Boolean literal -->
+            <key>boolean-literal</key>
+            <dict>
+                <key>match</key>
+                <string>\b([tT][rR][uU][eE]|[fF][aA][lL][sS][eE])\b</string>
+                <key>name</key>
+                <string>constant.language.dl</string>
+            </dict>
+
+            <!-- constant literal -->
+            <key>constant-literal</key>
+            <dict>
+                <key>match</key>
+                <string>\b[A-Z0-9_]+\b</string>
+                <key>name</key>
+                <string>field.constant.dl</string>
+            </dict>
+
+            <!-- String literal -->
+            <key>string-literal</key>
+            <dict>
+                <key>match</key>
+                <string>"[^"]*"</string>
+                <key>name</key>
+                <string>string.language.dl</string>
+            </dict>
+
+            <key>arithmetic-operator</key>
+            <dict>
+                <key>match</key>
+                <string>(?&lt;![/=\-+!*%&lt;&gt;&amp;|\^~.])(\+|\-|\*|\/|\%)(?![/=\-+!*%&lt;&gt;&amp;|^~.])</string>
+                <key>name</key>
+                <string>keyword.operator.arithmetic.dl</string>
+            </dict>
+
+            <key>increment-decrement-operator</key>
+            <dict>
+                <key>match</key>
+                <string>(?&lt;![/=\-+!*%&lt;&gt;&amp;|\^~.])(\+\+|\-\-)(?![/=\-+!*%&lt;&gt;&amp;|^~.])</string>
+                <key>name</key>
+                <string>keyword.operator.increment-or-decrement.dl</string>
+            </dict>
+
+            <key>bitwise-operator</key>
+            <dict>
+                <key>match</key>
+                <string>(?&lt;![/=\-+!*%&lt;&gt;&amp;|\^~.])(~|&amp;|\||\^|&lt;&lt;|&gt;&gt;)(?![/=\-+!*%&lt;&gt;&amp;|^~.])</string>
+                <key>name</key>
+                <string>keyword.operator.bitwise.dl</string>
+            </dict>
+
+            <key>assignment-operator</key>
+            <dict>
+                <key>match</key>
+                <string>(?&lt;![/=\-+!*%&lt;&gt;&amp;|\^~.])(\+|\-|\*|\%|\/|&lt;&lt;|&gt;&gt;|&amp;|\^|\|)?=(?![/=\-+!*%&lt;&gt;&amp;|^~.])</string>
+                <key>name</key>
+                <string>keyword.operator.assignment.gdl</string>
+            </dict>
+
+            <key>comparative-operator</key>
+            <dict>
+                <key>match</key>
+                <string>(?&lt;![/=\-+!*%&lt;&gt;&amp;|\^~.])((=|!)=|(&lt;|&gt;)=?)(?![/=\-+!*%&lt;&gt;&amp;|^~.])</string>
+                <key>name</key>
+                <string>keyword.operator.comparative.dl</string>
+            </dict>
+
+            <key>logical-operator</key>
+            <dict>
+                <key>match</key>
+                <string>(?&lt;![/=\-+!*%&lt;&gt;&amp;|\^~.])(!|&amp;&amp;|\|\||\^\^)(?![/=\-+!*%&lt;&gt;&amp;|^~.])</string>
+                <key>name</key>
+                <string>keyword.operator.arithmetic.dl</string>
+            </dict>
+
+            <key>ternary-operator</key>
+            <dict>
+                <key>match</key>
+                <string>(\?|:)</string>
+                <key>name</key>
+                <string>keyword.operator.ternary.dl</string>
+            </dict>
+        </dict>
+        <key>scopeName</key>
+        <string>source.dl</string>
+        <key>uuid</key>
+        <string>d2ff7786-d007-4c95-8f08-48e111c39663</string>
+    </dict>
+</plist>
