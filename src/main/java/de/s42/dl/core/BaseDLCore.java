@@ -933,7 +933,7 @@ public class BaseDLCore implements DLCore
 						}
 
 						if (optType.isEmpty()) {
-							log.info("Ignoring attribute", attributeName, "as array type", attributeJavaType, "is unknown for type " + classType.getCanonicalName());
+							log.warn("Ignoring attribute", attributeName, "as array type", attributeJavaType, "is unknown for type " + classType.getCanonicalName());
 							continue;
 						}
 
@@ -944,7 +944,7 @@ public class BaseDLCore implements DLCore
 						Optional<DLType> optType = getType(attributeJavaType, property.getGenericTypes());
 
 						if (optType.isEmpty()) {
-							log.info("Ignoring attribute", attributeName, "as type", attributeJavaType, "is unknown for type " + classType.getCanonicalName());
+							log.warn("Ignoring attribute", attributeName, "as type", attributeJavaType, "is unknown for type " + classType.getCanonicalName());
 							continue;
 						}
 
