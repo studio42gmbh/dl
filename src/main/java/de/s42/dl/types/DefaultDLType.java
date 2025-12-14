@@ -63,6 +63,7 @@ import java.util.Set;
 public class DefaultDLType extends AbstractDLAnnotated implements DLType
 {
 
+	@SuppressWarnings("unused")
 	private final static Logger log = LogManager.getLogger(DefaultDLType.class.getName());
 
 	protected final MappedList<String, DLAttribute> attributes = new MappedList<>();
