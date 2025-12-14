@@ -1,19 +1,19 @@
 // <editor-fold desc="The MIT License" defaultstate="collapsed">
 /*
  * The MIT License
- * 
+ *
  * Copyright 2022 Studio 42 GmbH ( https://www.s42m.de ).
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,28 +25,51 @@
 //</editor-fold>
 package de.s42.dl.parser;
 
-import de.s42.dl.parser.expression.DLHrfExpressionParser;
 import de.s42.dl.*;
-import de.s42.dl.exceptions.*;
 import de.s42.dl.attributes.DefaultDLAttribute;
-import de.s42.dl.types.DefaultDLType;
-import java.util.*;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.misc.Pair;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import de.s42.dl.exceptions.*;
 import static de.s42.dl.parser.DLHrfParsingErrorHandler.*;
-import de.s42.dl.parser.DLParser.*;
+import de.s42.dl.parser.DLParser.AliasContext;
+import de.s42.dl.parser.DLParser.AliasNameContext;
+import de.s42.dl.parser.DLParser.AnnotationContext;
+import de.s42.dl.parser.DLParser.AnnotationDefinitionContext;
+import de.s42.dl.parser.DLParser.AssertContext;
+import de.s42.dl.parser.DLParser.AttributeAssignableContext;
+import de.s42.dl.parser.DLParser.AttributeAssignmentContext;
+import de.s42.dl.parser.DLParser.ContainsTypeNameContext;
+import de.s42.dl.parser.DLParser.DataContext;
+import de.s42.dl.parser.DLParser.EnumDefinitionContext;
+import de.s42.dl.parser.DLParser.EnumValueDefinitionContext;
+import de.s42.dl.parser.DLParser.GenericParameterContext;
+import de.s42.dl.parser.DLParser.GenericParametersContext;
+import de.s42.dl.parser.DLParser.InstanceDefinitionContext;
+import de.s42.dl.parser.DLParser.InstanceTypeContext;
+import de.s42.dl.parser.DLParser.ParentTypeNameContext;
+import de.s42.dl.parser.DLParser.PragmaContext;
+import de.s42.dl.parser.DLParser.RequireContext;
+import de.s42.dl.parser.DLParser.RequireModuleIdContext;
+import de.s42.dl.parser.DLParser.StaticParameterContext;
+import de.s42.dl.parser.DLParser.StaticParametersContext;
+import de.s42.dl.parser.DLParser.TypeAttributeDefinitionContext;
+import de.s42.dl.parser.DLParser.TypeDefinitionContext;
+import de.s42.dl.parser.DLParser.TypeHeaderContext;
 import de.s42.dl.parser.contracts.DLContractFactory;
 import de.s42.dl.parser.contracts.DLHrfContractParser;
+import de.s42.dl.parser.expression.DLHrfExpressionParser;
+import de.s42.dl.types.DefaultDLType;
 import de.s42.dl.types.base.ArrayDLType;
 import de.s42.dl.validation.ValidationResult;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
+import java.util.*;
 import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.Pair;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 /**
  *
@@ -84,7 +107,7 @@ public class DLHrfParsing extends DLParserBaseListener
 	{
 		assert core != null;
 		assert module != null;
-		
+
 		this.core = core;
 		this.module = module;
 		currentInstance = module;
@@ -907,7 +930,7 @@ public class DLHrfParsing extends DLParserBaseListener
 						throw new InvalidType(createErrorMessage(module, "Error creating type '" + typeName + "' - " + ex.getMessage(), ctx), ex);
 					}
 				} else {
-					// Make sure also a repeated extern definition is added to the module types for consistency 
+					// Make sure also a repeated extern definition is added to the module types for consistency
 					// (it should not matter in which order a module is loaded what types are defined)
 					module.addDefinedType(core.getType(typeName).orElseThrow());
 					currentType = null;
@@ -1353,8 +1376,8 @@ public class DLHrfParsing extends DLParserBaseListener
 			// Assign the attribute value with read if given a valid type
 			if (attributeType != null) {
 
-				// If the assignables are exactly one DLInstance -> 
-				//Check if this instances types isDerived from attributes types and then assign it
+				// If the assignables are exactly one DLInstance ->
+				// Check if this instances types isDerived from attributes types and then assign it
 				if (attributeAssignables.length == 1 && (attributeAssignables[0] instanceof DLInstance)) {
 
 					DLInstance instance = (DLInstance) attributeAssignables[0];
